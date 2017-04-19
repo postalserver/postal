@@ -1,0 +1,38 @@
+.messageHeader
+  .messageHeader__header{:class => "messageHeader__header--#{@message.scope}"}
+    %p.messageHeader__status
+      %span.label{:class => "label--messageStatus-#{@message.status.underscore}"}= @message.status.underscore.humanize
+    %h2.messageHeader__subject
+      = @message.subject || "No subject"
+
+    .messageHeader__basicProperties
+      %dl
+        %dt From
+        %dd
+          - if @message.mail_from
+            = link_to @message.mail_from || "[blank]", send("#{@message.scope}_organization_server_messages_path", organization, @server, :query => "from: #{@message.mail_from}"), :class => 'u-link'
+          - else
+            None
+
+      %dl
+        %dt To
+        %dd
+          - if @message.rcpt_to_return_path?
+            %span.returnPathTag.returnPathTag--inMessageHeader= link_to "Return Path", send("#{@message.scope}_organization_server_messages_path", organization, @server, :query => "to: #{@message.rcpt_to}"), :class => 'u-link'
+          - else
+            = link_to @message.rcpt_to || "[blank]", send("#{@message.scope}_organization_server_messages_path", organization, @server, :query => "to: #{@message.rcpt_to}"), :class => 'u-link'
+      %dl
+        %dt Received
+        %dd= @message.timestamp.in_time_zone.to_s(:long)
+
+.navBar.navBar--tertiary
+  %ul
+    %li.navBar__item= link_to "Properties", organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :properties ? 'is-active' : '']
+    %li.navBar__item= link_to "Activity", activity_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :activity ? 'is-active' : '']
+    %li.navBar__item= link_to "Headers", headers_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :headers ? 'is-active' : '']
+    %li.navBar__item= link_to "Spam Checks", spam_checks_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :spam_checks ? 'is-active' : '']
+    %li.navBar__item= link_to "Plain Text", plain_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :plain ? 'is-active' : '']
+    %li.navBar__item= link_to "HTML", html_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :html ? 'is-active' : '']
+    %li.navBar__item= link_to "Attachments", attachments_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :attachments ? 'is-active' : '']
+    - if @message.raw_message?
+      %li.navBar__item= link_to "Download", download_organization_server_message_path(organization, @server, @message.id), :data => {:turbolinks => 'false'}, :class =>'navBar__link'

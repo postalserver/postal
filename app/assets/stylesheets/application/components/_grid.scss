@@ -1,0 +1,65 @@
+.row {
+  clear:both;
+  margin-left:-20px;
+  margin-right:-20px;
+  @include clearfix;
+}
+
+.row--noPadding {
+  margin-left:0;
+  margin-right:0;
+  .col {
+    padding-left:0;
+    padding-right:0;
+  }
+}
+
+.col {
+  float:left;
+  padding-left:20px;
+  padding-right:20px;
+}
+
+.col--1 { width:5%; }
+.col--2 { width:10%; }
+.col--3 { width:15%; }
+.col--4 { width:20%; }
+.col--5 { width:25%; }
+.col--6 { width:30%; }
+.col--7 { width:35%; }
+.col--8 { width:40%; }
+.col--9 { width:45%; }
+.col--10 { width:50%; }
+.col--11 { width:55%; }
+.col--12 { width:60%; }
+.col--13 { width:65%; }
+.col--14 { width:70%; }
+.col--15 { width:75%; }
+.col--16 { width:80%; }
+.col--17 { width:85%; }
+.col--18 { width:90%; }
+.col--19 { width:95%; }
+
+.row--2col {
+  margin-left:0;
+  margin-right:0;
+  .col:first-child {
+    padding-left:0;
+    padding-right:10px;
+  }
+  .col:last-child {
+    padding-left:10px;
+    padding-right:0;
+  }
+}
+
+@media(max-width: 1000px) {
+  .col--collapse {
+    width: 100%;
+    margin-bottom: 50px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

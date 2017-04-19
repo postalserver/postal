@@ -1,0 +1,141 @@
+.serverHeader {
+  background:$darkBlue;
+  padding:25px;
+  display:flex;
+  color:#fff;
+  position:relative;
+}
+
+.serverHeader__stripe {
+  right:-35px;
+  margin-top:-5px;
+  background:#636363;
+  font-size:10px;
+  font-weight:600;
+  text-transform: uppercase;
+  text-align:center;
+  width:130px;
+  padding:4px 0;
+  transform:rotate(45deg);
+  position:absolute;
+}
+
+.serverHeader__stripe--live {
+  background-color:$green;
+}
+
+.serverHeader__stripe--suspended {
+  background-color:$red;
+}
+
+.serverHeader__info {
+  flex: 1 0 auto;
+  padding:8px;
+}
+
+.serverHeader__stats {
+  background-color:$veryDarkBlue;
+  width:180px;
+  flex: 0 0 auto;
+  padding:15px;
+  border-radius:4px;
+  a:hover {
+    text-decoration:underline;
+  }
+}
+
+.serverHeader__usage {
+  background:green;
+  width:320px;
+  padding:15px;
+  margin-left:10px;
+  background-color:$veryDarkBlue;
+  flex: 0 0 auto;
+  border-radius:4px;
+}
+
+.serverHeader__title {
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.serverHeader__list {
+  line-height:1.5;
+  font-size:12px;
+}
+
+.serverHeader__list--ok {
+  color:$green;
+}
+
+.serverHeader__list--warning {
+  color:$orange;
+}
+
+.serverHeader__statsList {
+  line-height:1.8;
+  font-size:12px;
+  li {
+    padding-left:22px;
+    font-weight:300;
+  }
+}
+
+.serverHeader__stat-held {
+  background:image-url('icons/pause-white.svg') no-repeat 0 4px / 13px;
+  padding-left:22px;
+}
+
+.serverHeader__stat-queue {
+  background:image-url('icons/box-white.svg') no-repeat 0 4px / 13px;
+}
+
+.serverHeader__stat-size {
+  background:image-url('icons/size-white.svg') no-repeat 0 4px / 13px;
+}
+
+.serverHeader__stat-bounces {
+  background:image-url('icons/bats-white.svg') no-repeat 0 4px / 13px;
+}
+
+.serverHeader__usageTitle {
+  color:#566576;
+  font-size:12px;
+  font-weight: 600;
+  margin-bottom:5px;
+}
+
+.serverHeader__usageLine {
+  display:flex;
+  font-size:12px;
+  align-items:center;
+}
+
+.serverHeader__usageLine + .serverHeader__usageLine {
+  margin-top:6px;
+}
+
+.serverHeader__usageLineLabel {
+  flex: 1 0 auto;
+}
+
+.serverHeader__usageLineBar {
+  width:100px;
+  line-height:0;
+}
+
+.serverHeader__usageLineValue {
+  width:60px;
+  text-align:right;
+  font-weight:600;
+}
+
+.serverHeader__usageLineValueLarge {
+  width:300px;
+  text-align:right;
+  color:$subBlue;
+  b {
+    color:#fff;
+  }
+}

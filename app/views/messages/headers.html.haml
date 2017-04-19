@@ -1,0 +1,25 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Message ##{@message.id}"
+- page_title << "Headers"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :messages
+= render 'header', :active_nav => @message.scope.to_sym
+= render 'message_header', :active_nav => :headers
+
+- if @message.headers.empty?
+  .pageContent.pageContent--compact
+    .noData.noData--clean.noData--cat2
+      %h2.noData__title There are no headers for this message.
+      %p.noData__text
+        This means that we no longer store the raw data for this e-mail.
+
+- else
+  .pageContent
+    .headersList
+      - for key, values in @message.headers
+        - for value in values
+          %dl.headersList__item
+            %dt= key
+            %dd= value
+

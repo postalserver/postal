@@ -1,0 +1,16 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Outgoing"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :messages
+= render 'header', :active_nav => :outgoing
+- if @messages[:records].empty? && !@queried
+  .pageContent--compact
+    .noData.noData--deer.noData--clean
+      %h2.noData__title Oh deer! You haven't sent any messages yet.
+      %p.noData__text
+        You haven't sent any messages through this mail server yet. Not to worry though
+        they'll start appearing here as soon as you start sending them.
+- else
+  = render 'index'
+

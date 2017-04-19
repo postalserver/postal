@@ -1,0 +1,35 @@
+- if @server
+  - page_title << @server.name
+- page_title << "Add Domain"
+
+- if @server
+  = render 'servers/sidebar', :active_server => @server
+  = render 'servers/header', :active_nav => :domains
+  = render 'nav', :active_nav => :domains
+- else
+  .pageHeader
+    %h1.pageHeader__title
+      %span.pageHeader__titlePrevious
+        = @organization.name
+        &rarr; Domains &rarr;
+      Add new domain
+  = render 'organizations/nav', :active_nav => :domains
+
+.pageContent.pageContent--compact
+  = form_for [organization, @server, @domain], :remote => true do |f|
+    = f.error_messages
+    %fieldset.fieldSet
+      .fieldSet__field
+        = f.label :name, :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :name, :autofocus => true, :class => 'input input--text'
+      .fieldSet__field
+        = f.label :verification_method, :class => 'fieldSet__label'
+        .fieldSet__input
+          = f.select :verification_method, Domain::VERIFICATION_METHODS, {}, :class => 'input input--select'
+          .fieldSet__text
+            Choose how you'd like to verify your ownership of this domain. If you choose <b>E-Mail</b> we can send you
+            an email with a code whcih you'll need to enter - you can choose from a set of pre-defined addresses for
+            the domain. Using <b>DNS</b> you'll need to add a TXT record on this domain using your DNS provider.
+
+    .fieldSetSubmit
+      = f.submit :class => "button button--positive js-form-submit"

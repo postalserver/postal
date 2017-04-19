@@ -1,0 +1,28 @@
+$backgroundGrey: #fafafa;
+$blue: #0e69d5;
+$darkBlue: #3c4249;
+$veryDarkBlue: #2b2e32;
+$lightBlue: #eaf3fe;
+$subBlue: #909db0;
+$red: #e2383a;
+$green: #76c83b;
+$orange: #e8581f;
+$turquoise: #4ac7c5;
+$purple: #6145b2;
+
+@mixin clearfix {
+  &:after {
+    clear: both;
+    content: " ";
+    display: table;
+  }
+}
+
+@mixin noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

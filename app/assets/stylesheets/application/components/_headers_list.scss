@@ -1,0 +1,26 @@
+.headersList {
+
+}
+
+.headersList__item {
+  display:flex;
+  font-family:'Droid Sans Mono', fixed;
+  font-size:12px;
+  justify-content:space-between;
+  dt {
+    color:$blue;
+    width:30%;
+    text-align:right;
+    font-weight:bold;
+  }
+
+  dd {
+    width:68%;
+    word-wrap:break-word;
+
+  }
+}
+
+.headersList__item + .headersList__item {
+  margin-top:15px;
+}

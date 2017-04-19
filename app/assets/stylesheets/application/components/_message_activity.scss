@@ -1,0 +1,52 @@
+.messageActivity {
+
+}
+
+.messageActivity__event {
+  display:flex;
+}
+
+.messageActivity__event + .messageActivity__event {
+  border-top:1px solid #ddd;
+  padding-top:15px;
+  margin-top:15px;
+}
+
+.messageActivity__timestamp {
+  width:170px;
+  font-size:12px;
+  color:#999;
+  flex: 0 0 auto;
+}
+
+
+.messageActivity__details {
+  background:image-url('icons/conveyor.svg') no-repeat 0 2px / 24px;
+  padding-left:35px;
+}
+
+.messageActivity--detailsDelivery {
+  background-image:image-url('icons/truck.svg');
+}
+
+
+.messageActivity--detailsClick {
+  background:image-url('icons/mouse.svg') no-repeat 5px 2px / 12px;
+}
+
+.messageActivity--detailsLoad {
+  background-image:image-url('icons/eye.svg');
+}
+
+.messageActivity__subject {
+  font-weight:600;
+  font-size:14px;
+  word-break:break-all;
+}
+
+.messageActivity__extra {
+  margin-top:4px;
+  color:#999;
+  font-size:12px;
+  line-height:1.4;
+}

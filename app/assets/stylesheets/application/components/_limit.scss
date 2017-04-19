@@ -1,0 +1,37 @@
+.limits {
+  font-size:16px;
+  color:$darkBlue;
+  border-radius:4px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+  display:flex;
+}
+
+.limits__limit {
+  flex: 1 1 auto;
+  width:50%;
+  padding:15px;
+  text-align:center;
+}
+
+.limits__limit + .limits__limit {
+  border-left:1px solid #efefef;
+}
+
+.limits__title {
+  font-size:14px;
+  margin-bottom:5px;
+  font-weight:600;
+}
+
+.limits__value {
+  font-size:32px;
+  font-weight:900;
+  color:$blue;
+}
+
+.limits__frequency {
+  font-size:14px;
+  color:#999
+}

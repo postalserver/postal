@@ -1,0 +1,17 @@
+We're writing to let you know that your <%= @server.name %> mail server is approaching its send limit. All mail servers have a limit of how much e-mail they are permitted to send in a rolling 60 minute window. At present you have sent <%= @server.send_volume %> messages and have a limit of <%= @server.send_limit %>.
+
+Orgaization: <%= @server.organization.name %>
+Server: <%= @server.name %>
+Send Limit: <%= @server.send_limit %>
+Current Volume: <%= @server.send_volume %>
+
+When you reach your limit, any mail you send will be held in our system until it is manually unheld by you through our web interface or using our API.
+
+You can view more information about this server at:
+
+<%= Postal.host_with_protocol %>/org/<%= @server.organization.permalink %>/servers/<%= @server.permalink %>
+
+Thanks,
+
+<%= Postal.smtp_from_name %>
+<%= Postal.smtp_from_address %>

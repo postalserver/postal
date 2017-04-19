@@ -1,0 +1,4 @@
+.navBar.navBar--secondary
+  %ul
+    %li.navBar__item= link_to "Domains", organization_server_domains_path(organization, @server), :class => ['navBar__link', active_nav == :domains ? 'is-active' : '']
+    %li.navBar__item= link_to "Tracking Domains", organization_server_track_domains_path(organization, @server), :class => ['navBar__link', active_nav == :track_domains ? 'is-active' : '']

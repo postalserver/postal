@@ -1,0 +1,45 @@
+.invoiceList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.invoiceList__item {
+  background:#fff;
+}
+.invoiceList__item:nth-child(even) {
+  background:none;
+}
+
+.invoiceList__item + .invoiceList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.invoiceList__link {
+  padding:15px;
+  display:flex;
+  &:hover {
+    background:#f2f5f8 !important;
+  }
+}
+
+.invoiceList__number {
+  width:70px;
+  flex: 0 0 auto;
+  font-weight:bold;
+}
+
+.invoiceList__date {
+  flex: 1 1 auto;
+}
+
+.invoiceList__total {
+  width:100px;
+  flex: 0 0 auto;
+}
+
+.invoiceList__status {
+  width:50px;
+  text-align: right;
+  flex:0 0 auto;
+}

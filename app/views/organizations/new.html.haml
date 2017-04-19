@@ -1,0 +1,25 @@
+- page_title << "Create a new organization"
+.pageHeader
+  %h1.pageHeader__title Create a new organization
+.pageContent.pageContent--compact
+  %p.pageContent__intro.u-margin
+    If you're starting a new organization you can do so by completing this form. You'll be able
+    to invite new users & create mail servers as soon as it has been created.
+  = form_for @organization, :remote => true do |f|
+    = f.error_messages
+    %fieldset.fieldSet
+      .fieldSet__field
+        = f.label :name, :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :name, :autofocus => true, :class => 'input input--text'
+      .fieldSet__field
+        = f.label :permalink, :class => 'fieldSet__label'
+        .fieldSet__input
+          = f.text_field :permalink, :class => 'input input--text', :placeholder => "Automatically generated"
+          %p.fieldSet__text
+            This is a short name which is used in usernames and the API to identify your organization.
+            It should only contain letters, numbers & hyphens.
+
+    .fieldSetSubmit.buttonSet
+      = f.submit "Create organization", :class => 'button button--positive js-form-submit'
+      .fieldSetSubmit__delete
+        = link_to "Back to homepage", root_path, :class => 'button button--neutral'

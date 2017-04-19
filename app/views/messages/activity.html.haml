@@ -1,0 +1,45 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Message ##{@message.id}"
+- page_title << "Activity"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :messages
+= render 'header', :active_nav => @message.scope.to_sym
+= render 'message_header', :active_nav => :activity
+.pageContent.pageContent--compact
+  %ul.messageActivity
+    - for entry in @entries.reverse
+      - if entry.is_a?(Postal::MessageDB::Delivery)
+        %li.messageActivity__event
+          %p.messageActivity__timestamp= entry.timestamp.to_s(:long)
+          .messageActivity__details.messageActivity--detailsDelivery
+            %p.messageActivity__subject
+              =# entry.status.underscore.humanize
+              %span.label.label--large{:class => "label--messageStatus-#{entry.status.underscore}"}= entry.status.underscore.humanize
+
+            %p.messageActivity__extra= entry.details
+
+      - elsif entry.is_a?(Postal::MessageDB::Click)
+        %li.messageActivity__event
+          %p.messageActivity__timestamp= entry.timestamp.to_s(:long)
+          .messageActivity__details.messageActivity--detailsClick
+            %p.messageActivity__subject Click for #{entry.url}
+            %p.messageActivity__extra Clicked from #{entry.ip_address} (#{entry.user_agent})
+
+      - elsif entry.is_a?(Postal::MessageDB::Load)
+        %li.messageActivity__event
+          %p.messageActivity__timestamp= entry.timestamp.to_s(:long)
+          .messageActivity__details.messageActivity--detailsLoad
+            %p.messageActivity__subject Message Viewed
+            %p.messageActivity__extra Opened from #{entry.ip_address} (#{entry.user_agent})
+
+    %li.messageActivity__event
+      %p.messageActivity__timestamp= @message.timestamp.to_s(:long)
+      .messageActivity__details
+        %p.messageActivity__subject
+          Message received by Postal
+        %p.messageActivity__extra
+          - if @message.credential
+            Received using the #{@message.credential.name} #{@message.credential.type} credential.
+          - if @message.received_with_ssl == 1
+            Connection secured with SSL.

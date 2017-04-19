@@ -1,0 +1,39 @@
+.sidebarServerList {
+  font-size:12px;
+  color:$darkBlue;
+}
+
+.sidebarServerList__item {
+  border-bottom:1px solid #e6ebf0;
+}
+
+.sidebarServerList__link {
+  display: block;
+  padding:15px 20px;
+  &:hover {
+    background-color:#f2f5f8;
+  }
+}
+
+.sidebarServerList__link.is-active {
+  background-color:#f2f5f8;
+}
+
+.sidebarServerList__item.is-highlighted .sidebarServerList__link {
+  background-color:#fffedd;
+}
+
+.sidebarServerList__mode {
+  float:right;
+}
+
+.sidebarServerList__title {
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:5px;
+}
+
+.sidebarServerList__quantity {
+  color:$subBlue;
+  font-size:11px;
+}

@@ -1,0 +1,128 @@
+.fieldSet {
+
+}
+
+.fieldSet__field {
+  display:flex;
+}
+
+.fieldSet__field + .fieldSet__field {
+  margin-top:20px;
+}
+
+.fieldSet__label {
+  display:block;
+  font-weight:600;
+  text-transform: uppercase;
+  font-size:12px;
+  color:$darkBlue;
+  margin-top:11px;
+  width:20%;
+}
+
+.fieldSet--wide .fieldSet__label {
+  width:40%;
+}
+
+.fieldSet__input {
+  flex: 0 0 auto;
+  width:80%;
+}
+
+.fieldSet--wide .fieldSet__input {
+  width:60%;
+}
+
+.fieldSet__text {
+  font-size:12px;
+  line-height:1.5;
+  color:$subBlue;
+  margin-top:5px;
+}
+
+.fieldSetSubmit {
+  margin-left:20%;
+  margin-top:40px;
+  display:flex;
+}
+
+.fieldSetSubmit--wide {
+  margin-left:40%;
+}
+
+.fieldSetSubmit__delete {
+  flex: 1 0 auto;
+  text-align:right;
+  .button {
+    margin-right:0;
+  }
+}
+
+.fieldSet__title {
+  margin-top:40px;
+  font-weight:600;
+  font-size:16px;
+  margin-left:20%;
+  color:$blue;
+  border-bottom:2px solid #e4e8ef;
+  padding-bottom:5px;
+  margin-bottom:20px;
+}
+
+.fieldSet__title--noMargin {
+  margin-top:0;
+}
+
+.fieldSet__title--withSubText {
+  margin-bottom:5px;
+}
+
+.fieldSet__titleSubText {
+  margin-left:20%;
+  font-size:12px;
+  color:$subBlue;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+
+.fieldSet--compact {
+  .fieldSet__field {
+    display:block;
+  }
+  .fieldSet__field + .fieldSet__field {
+    margin-top:0;
+  }
+
+  .fieldSet__label {
+    width:100%;
+    margin-bottom:5px;
+  }
+  .fieldSet__input {
+    width:100%;
+  }
+  .fieldSet__fieldPair {
+    display:flex;
+    justify-content: space-between;
+    .fieldSet__field {
+      width:48%;
+    }
+  }
+}
+
+.fieldSet__inputPair {
+  display:flex;
+  justify-content: space-between;
+  .input + .input {
+    margin-left:10px;
+  }
+}
+
+.fieldSet__checkboxListAfter {
+  margin-bottom:6px;
+}
+
+.fieldSet__selectList {
+  select + select {
+    margin-top:6px;
+  }
+}

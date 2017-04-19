@@ -1,0 +1,48 @@
+.ipPoolRuleList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.ipPoolRuleList__item {
+  background:#fff;
+}
+.ipPoolRuleList__item:nth-child(even) {
+  background:none;
+}
+
+.ipPoolRuleList__item + .ipPoolRuleList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.ipPoolRuleList__link {
+  padding:15px;
+  display:block;
+  &:hover {
+    background:#f2f5f8 !important;
+  }
+}
+
+.ipPoolRuleList__condition {
+  display:flex;
+  dt {
+    width:180px;
+    color:#999;
+    padding-top:1px;
+  }
+  dd {
+    ul li {
+      line-height:1.4;
+    }
+  }
+}
+
+.ipPoolRuleList__condition + .ipPoolRuleList__condition {
+  margin-top:15px;
+}
+
+.ipPoolRuleListDefault {
+  text-align:center;
+  margin-top:25px;
+  color:#999;
+}

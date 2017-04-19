@@ -1,0 +1,49 @@
+.messageHeader {
+  margin:20px 35px;
+}
+
+.messageHeader__subject {
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.messageHeader__status {
+  margin-bottom:4px;
+}
+
+.messageHeader__timestamp {
+  color:$subBlue;
+}
+
+.messageHeader__basicProperties {
+  display:flex;
+  dl {
+    margin-right:25px;
+    display:flex;
+    dt {
+      color:$subBlue;
+      margin-bottom:5px;
+      margin-right:15px;
+    }
+    dd {
+      font-weight:600;
+    }
+  }
+}
+
+
+.messageHeader__header {
+  background-size:35px;
+  background-repeat:no-repeat;
+  background-position:right 0;
+}
+
+.messageHeader__header--incoming {
+  background-image:image-url('icons/incoming-mail.svg');
+}
+
+.messageHeader__header--outgoing {
+  background-image:image-url('icons/outgoing-mail.svg');
+}
+

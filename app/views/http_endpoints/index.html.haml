@@ -1,0 +1,38 @@
+- page_title << @server.name
+- page_title << "Routing"
+- page_title << "HTTP Endpoints"
+
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :routing
+= render 'routes/header', :active_nav => :http_endpoints
+.pageContent.pageContent--compact
+
+  - if @http_endpoints.empty?
+    .noData.noData--cock.noData--clean
+      %h2.noData__title Oh cock! There aren't any HTTP endpoints yet.
+      %p.noData__text
+        HTTP endpoints are essentially URLs that you'd like incoming e-mails
+        to be delivered to. Once you've added some endpoints, you can route messages
+        to them by creating #{link_to 'routes', [organization, @server, :routes], :class => 'u-link'}.
+      %p.noData__button
+        = link_to "Add your first HTTP endpoint", [:new, organization, @server, :http_endpoint], :class => 'button button--positive'
+
+  - else
+
+    %ul.endpointList.u-margin
+      - for endpoint in @http_endpoints
+        %li.endpointList__item
+          = link_to [:edit, organization, @server, endpoint], :class => 'endpointList__link' do
+            .endpointList__main
+              %p.endpointList__name= endpoint.name
+              %p.endpointList__url= endpoint.url
+            %ul.endpointList__details
+              %li.endpointList__detailItem= t("http_endpoint_encodings.#{endpoint.encoding.underscore}")
+              %li.endpointList__detailItem= t("http_endpoint_formats.#{endpoint.format.underscore}")
+              %li.endpointList__detailItem
+                - if endpoint.last_used_at
+                  Last used #{distance_of_time_in_words_to_now endpoint.last_used_at} ago
+                - else
+                  Not used yet
+
+    %p.u-center= link_to "Add another HTTP endpoint", [:new, organization, @server, :http_endpoint], :class => 'button button--positive'

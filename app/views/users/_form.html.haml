@@ -1,0 +1,24 @@
+= form_for @organization_user, :url => @organization_user.new_record? ? organization_users_path(organization) : organization_user_path(organization, @organization_user.user), :remote => true do |f|
+  = f.error_messages
+  = hidden_field_tag 'invite', params[:invite]
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :email_address, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :email_address, :autofocus => true, :class => 'input input--text', :disabled => @organization_user.persisted?
+    .fieldSet__title
+      What level of access do you wish to grant?
+    .fieldSet__field
+      = f.label :admin, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :admin, [["No - do not grant admin access", false], ["Yes - grant admin access", true]], {},:class => 'input input--select'
+        %p.fieldSet__text
+          Users who have admin access will be permitted to manage the organization as if they had the same
+          access as the organization owner. This includes managing users, creating & deleting mail servers,
+          and even removing the account. This level of access should granted carefully.
+          Regardless of which level you select, this user will have access to all servers within the organization.
+
+  .fieldSetSubmit.buttonSet
+    = submit_tag @organization_user.new_record? ? "Add User" : "Save User", :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      = link_to "Back to user list", [organization, :users], :class => 'button button--neutral'

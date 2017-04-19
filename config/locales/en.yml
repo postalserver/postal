@@ -1,0 +1,80 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# To learn more, please read the Rails Internationalization guide
+# available at http://guides.rubyonrails.org/i18n.html.
+
+en:
+  hello: "Hello world"
+  activerecord:
+    attributes:
+      organization:
+        permalink: Short name
+      server:
+        permalink: Short name
+      domain:
+        verification_method: Verify Method
+      http_endpoint:
+        url: URL
+      user:
+        email_address: E-Mail address
+      webhook:
+        url: URL
+        sign: Sign requests
+
+  server_statuses:
+    live: Live
+    development: Dev
+    suspended: Suspended
+  route_spam_modes:
+    quarantine: Spam will be quarantined
+    mark: Spam will be marked
+
+  http_endpoint_formats:
+    hash: Delivered as a hash
+    raw_message: Delivered as the raw message
+  http_endpoint_encodings:
+    body_as_json: Sent in the body as JSON
+    form_data: Sent as form data
+
+  webhook_events:
+    message_sent: An e-mail has been successfully delivered to its endpoint (either SMTP or HTTP).
+    message_delayed: An e-mail has been delayed due to an issue with the receiving endpoint. It will be retried automatically.
+    message_delivery_failed: An e-mail cannot be delivered to its endpoint. This is a permanent failure so it will no be retried.
+    message_held: An e-mail has been held in Postal. This will be because a limit has been reached or your server is in development mode.
+    message_bounced: We received a bounce message in response to an email which had previously been successfully sent.
+    message_link_clicked: A link in one of your outbound messages has been clicked.
+    message_loaded: A message you have sent has been loaded.
+    domain_dns_error: This will be triggered when we detect an issue with the DNS configuration for any domain for this server.
+    send_limit_approaching: This will be triggered when your mail server is approaching its send limit. It will only be sent once per hour.
+    send_limit_exceeded: This will be triggered when your mail server exceeded its send limit.
+
+  currencies:
+    gbp: GBP - Great British Pound (£)
+    usd: USD - United States Dollar ($)
+    eur: EUR - Euro (€)
+
+  route_modes:
+    accept: Accept message with no endpoint
+    hold: Accept message and put message in hold queue
+    bounce: Accept message and immediately send bounce to sender
+    reject: Do not accept any incoming messages
+
+  renewal_issues:
+    no_payment_card: You don't have a payment card on file
+    payment_declined: The payment for this service was declined

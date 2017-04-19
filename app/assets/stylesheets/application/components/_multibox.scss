@@ -1,0 +1,14 @@
+.multibox {
+  display: flex;
+  justify-content: space-between;
+  margin: 40px 0;
+}
+
+.multibox__input {
+  width:80px;
+  height:70px;
+  font: inherit;
+  font-weight: 700;
+  font-size:38px;
+  text-align:center;
+}

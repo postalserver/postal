@@ -1,0 +1,16 @@
+.bar {
+  background:$darkBlue;
+  border-radius:10px;
+  display:inline-block;
+  height:5px;
+  width:100%;
+  overflow:hidden;
+}
+
+.bar__inner {
+  background:$blue;
+  display:inline-block;
+  border-radius:10px;
+  height:5px;
+  width:50%;
+}

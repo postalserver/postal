@@ -1,0 +1,32 @@
+- page_title << @server.name
+- page_title << "Webhooks"
+- page_title << "History"
+
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :webhooks
+= render 'header', :active_nav => :history
+
+.pageContent.pageContent--compact
+  - if @requests[:records].empty?
+    .noData.noData--clean.noData--cat3
+      %h2.noData__title No webhook requests recorded.
+      %p.noData__text
+        This page shows the last 10 days worth of webhook requests that have been sent by Postal. This page will
+        populate automatically as webhooks are dispatched.
+
+  - else
+    %p.pageContent__intro.u-margin
+      This page shows a list of all webhook requests which have been sent for this server. These are kept for 10 days before being
+      removed. Click on a request for additional information.
+    %ul.webhookRequestList
+      - for req in @requests[:records]
+        %li.webhookRequestList__item
+          = link_to history_request_organization_server_webhooks_path(organization, @server, req.uuid), :class => 'webhookRequestList__link' do
+            .webhookRequestList__top
+              %p.webhookRequestList__status
+                %span.label{:class => "label--http-status-#{req.status_code.to_s[0,1]}"}= req.status_code
+              %p.webhookRequestList__time= req.timestamp.strftime("%d/%m/%Y at %H:%M:%S")
+              %p.webhookRequestList__event= req.event
+            %p.webhookRequestList__url= req.url || "Unknown"
+
+    = render 'shared/message_db_pagination', :data => @requests, :name => 'request'

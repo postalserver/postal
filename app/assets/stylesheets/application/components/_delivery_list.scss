@@ -1,0 +1,86 @@
+.deliveryList {
+  color:$darkBlue;
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.deliveryList__item {
+  background:#fff;
+  padding:15px;
+}
+.deliveryList__item:nth-child(even) {
+  background:none;
+}
+
+.deliveryList__item + .deliveryList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.deliveryList__top {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+
+.deliveryList__time {
+}
+
+.deliveryList__status {
+  display:flex;
+}
+
+.deliveryList__secure {
+  height:12px;
+  margin-right:7px;
+  margin-top:2px;
+}
+
+.deliveryList__errorCode {
+  font-size:12px;
+  color:$subBlue;
+  margin-top:5px;
+}
+
+.deliveryList__error {
+  margin-top:5px;
+  font-size:12px;
+  color:$subBlue;
+}
+
+.deliveryList__error--output {
+  background:$subBlue;
+  color:#fff;
+  font-size:10px;
+  font-family:'Droid Sans Mono', fixed;
+  padding:10px;
+  border-radius:4px;
+  margin-top:8px;
+  word-wrap:break-word;
+}
+
+.deliveryList__error--output-ref {
+  opacity:0.5;
+}
+
+.deliveryList__item--header {
+  p + p {
+    margin-top:8px;
+  }
+}
+
+
+.deliveryList__techLink {
+  display:inline-block;
+  font-size:10px;
+  color:$subBlue;
+  margin-top:8px;
+  text-decoration: underline;
+}
+
+.deliveryList-removeLink {
+  text-align:right;
+  font-size:12px;
+  color:#999;
+  margin-top:15px;
+}

@@ -1,0 +1,10 @@
+- page_title << @server.name
+- page_title << "Webhooks"
+- page_title << "Edit"
+
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :webhooks
+= render 'header', :active_nav => :webhooks
+.pageContent.pageContent--compact
+  = render 'form'
+

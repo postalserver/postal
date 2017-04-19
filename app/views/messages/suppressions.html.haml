@@ -1,0 +1,26 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Suppression List"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :messages
+= render 'header', :active_nav => :suppressions
+.pageContent.pageContent--compact
+  - if @suppressions[:records].empty?
+    .noData.noData--clean.noData--owl
+      %h2.noData__title No addresses on the suppression list.
+      %p.noData__text
+        When messages cannot be delivered, addresses are added to the suppression list which stops
+        future messages to the same recipient being sent through.
+  - else
+    %p.pageContent__intro.u-margin
+      When messages cannot be delivered, addresses are added to the suppression list which stops
+      future messages to the same recipient being sent through. Recipients are removed from the list after 30 days.
+    %ul.suppressionList
+      - for suppression in @suppressions[:records]
+        %li.suppressionList__item
+          .suppressionList__left
+            %p.suppressionList__address= link_to suppression['address'], outgoing_organization_server_messages_path(organization, @server, :query => "to: #{suppression['address']}")
+            %p.suppressionList__reason= suppression['reason'].capitalize
+          .suppressionList__right
+            %p.suppressionList__timestamp Added #{Time.at(suppression['timestamp']).to_s(:long)}
+    = render 'shared/message_db_pagination', :data => @suppressions, :name => "suppression"

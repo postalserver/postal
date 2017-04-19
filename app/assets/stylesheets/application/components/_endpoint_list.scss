@@ -1,0 +1,51 @@
+.endpointList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.endpointList__item {
+  background:#fff;
+}
+.endpointList__item:nth-child(even) {
+  background:none;
+}
+
+.endpointList__item + .endpointList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.endpointList__link {
+  padding:15px;
+  display:block;
+  display:flex;
+  &:hover {
+    background:#f2f5f8 !important;
+  }
+}
+
+.endpointList__main {
+  width:60%;
+  flex: 1 1 auto;
+}
+
+
+.endpointList__details {
+  flex: 1 1 auto;
+  width:40%;
+}
+
+.endpointList__name {
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:8px;
+}
+
+.endpointList__url {
+  font-size:12px;
+  color:#999;
+}
+
+.endpointList__details {
+  line-height:1.5;
+}

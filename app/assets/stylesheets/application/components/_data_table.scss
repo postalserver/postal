@@ -1,0 +1,78 @@
+.dataTable {
+  width:100%;
+  border:1px solid #ddd;
+  font-size:14px;
+  box-shadow:0 0 5px rgba(0,0,0,0.3);
+
+}
+
+.dataTable tr td {
+  border-left:1px solid #ddd;
+  padding:8px;
+  background:#fff;
+}
+
+.dataTable tr th {
+  text-align:left;
+  padding:8px;
+  background-color:#fffdf4;
+  font-weight:600;
+  vertical-align:top;
+}
+
+.dataTable thead td {
+  font-weight:600;
+  border-left:0 !important;
+  background:#fffdf4;
+  padding:8px 9px;
+  border-bottom:2px solid #222;
+}
+
+.dataTable tbody tr:nth-child(even) td {
+  background:#f5f5f5;
+}
+
+.dataTable tbody tr:hover td {
+  background:#ededed;
+}
+
+.dataTable__centerCell {
+  text-align:center;
+}
+
+.dataTable__rightCell {
+  text-align:right;
+}
+
+.dataTable__empty {
+  padding:40px 0 !important;
+  text-align:center;
+  color:#999;
+  font-style:italic;
+  font-size:12px;
+  &:hover {
+    background:#fff !important;
+  }
+}
+
+.dataTable__inputCell {
+  padding:0 !important;
+  input {
+    width:100%;
+    padding:8px;
+    border:0;
+    font:inherit;
+    background:transparent;
+    font-weight:bold;
+    color:#fb8424;
+  }
+}
+
+
+.dataTable__redRow {
+  td {
+    background-color:#fff0f1 !important;
+    color:#cd2f3b !important;
+    .u-link { color:#cd2f3b;}
+  }
+}

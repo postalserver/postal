@@ -1,0 +1,137 @@
+.siteHeader {
+  width:100%;
+  background:$blue;
+  flex: 0 0 auto;
+  color:#fff;
+  z-index:1000;
+  border-right:12px solid #efefef;
+
+  .browser-firefox & {
+    border-right: 15px solid #fafafa;
+  }
+}
+
+.siteHeader__inside {
+  display:flex;
+  padding:12px 16px;
+  align-items:center;
+}
+
+.siteHeader__remember {
+  background:$veryDarkBlue;
+  position:fixed;
+  top:20px;
+  right:20px;
+  padding:20px;
+  border-radius:4px;
+  color:#fff;
+  z-index:2000;
+}
+
+.siteHeader__rememberButtons {
+  margin-top:15px;
+}
+
+.siteHeader__rememberText {
+  line-height:1.5;
+  font-size:12px;
+  color:#999;
+}
+
+.siteHeader__rememberTextTitle {
+  font-weight:600;
+  color:#fff;
+  font-size:16px;
+}
+
+.siteHeader__logo {
+  display:block;
+  a {
+    margin:0;
+    font-size:14px;
+    font-weight:600;
+    display:block;
+  }
+}
+
+
+.siteHeader__version {
+  margin-left:5px;
+  color:#fff;
+  opacity:0.3;
+  font-size:12px;
+}
+
+.siteHeader__nav {
+  flex: 1 0 auto;
+  text-align:right;
+  font-size:12px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.siteHeader__navItem {
+  margin-left:18px;
+}
+
+.sideHeader__navItemLink {
+  text-decoration: underline;
+  opacity: 0.5;
+}
+
+.siteHeader__navLinkWithMenu {
+  background:image-url('icons/drop-arrow-white.svg') no-repeat right 6px / 8px;
+  padding-right:12px;
+}
+
+.siteHeader__navItem--user {
+  background:image-url('icons/user-white.svg') no-repeat 0 3px / 8px;
+  padding-left:13px;
+}
+
+.siteHeader__navItem--organization {
+  background:image-url('icons/organization-white.svg') no-repeat 0 2px / 12px;
+  padding-left:18px;
+}
+
+.siteHeader__subMenu {
+  position:absolute;
+  background:#fff;
+  z-index:1000;
+  color:$darkBlue;
+  text-align:left;
+  box-shadow:0 0 15px rgba(0,0,0,0.2);
+  border-radius:4px;
+  margin-left:-15px;
+  margin-top:-5px;
+  overflow:hidden;
+  display:none;
+}
+
+.siteHeader__navItem:hover .siteHeader__subMenu {
+  display:block;
+}
+
+
+.siteHeader__subMenuItem + .siteHeader__subMenuItem {
+  border-top:1px solid #e6ebf0;
+}
+
+.siteHeader__subMenuItem--header {
+  font-weight:600;
+  padding:5px 15px;
+  background:$lightBlue;
+  color:$blue;
+}
+
+.siteHeader__subMenuLink {
+  padding:10px 15px;
+  display:block;
+  &:hover {
+    background-color:#f2f5f8;
+  }
+}
+
+.siteHeader__subMenuItem--div {
+  border-top-width:2px !important;
+}

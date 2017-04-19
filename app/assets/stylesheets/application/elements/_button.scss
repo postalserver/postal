@@ -1,0 +1,98 @@
+.button {
+  display:inline-block;
+  font:inherit;
+  border-radius:4px;
+  appearance:none;
+  background:$blue;
+  color:#fff;
+  font-size:14px !important;
+  margin:0;
+  vertical-align:top;
+  padding:6px 15px;
+  border:2px solid transparent;
+  border-bottom:2px solid darken($blue, 20%);
+  &:active {
+    background-color:darken($blue, 15%);
+  }
+  &:focus {
+    border-color:darken($blue, 15%);
+    background-color:lighten($blue, 5%);
+  }
+  &.is-spinning {
+    color:transparent;
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-size:25px;
+    background-image:image-url('button-spinner.gif');
+  }
+}
+
+.button--small {
+  font-size:12px !important;
+  padding:3px 10px;
+  border-width:1px;
+}
+
+.button--positive {
+  background-color:$green;
+  border-bottom-color:darken($green, 15%);
+  &:active {
+    background-color:darken($green, 15%);
+  }
+  &:focus {
+    border-color:darken($green, 15%);
+    background-color:lighten($green, 5%);
+  }
+  &.is-spinning {
+    background-image:image-url('button-spinner-positive.gif');
+  }
+
+}
+
+
+.button--neutral {
+  background-color:#ccc;
+  border-bottom-color:darken(#ccc, 15%);
+  &:active {
+    background-color:darken(#ccc, 15%);
+  }
+  &:focus {
+    border-color:darken(#ccc, 15%);
+    background-color:lighten(#ccc, 5%);
+  }
+  &.is-spinning {
+    background-image:image-url('button-spinner-neutral.gif');
+  }
+}
+
+.button--danger {
+  background-color:$red;
+  border-bottom-color:darken($red, 15%);
+  &:active {
+    background-color:darken($red, 15%);
+  }
+  &:focus {
+    border-color:darken($red, 15%);
+    background-color:lighten($red, 5%);
+  }
+  &.is-spinning {
+    background-image:image-url('button-spinner-danger.gif');
+  }
+}
+
+.button--dark {
+  background-color:$darkBlue;
+  border-bottom-color:darken($darkBlue, 15%);
+  &:active {
+    background-color:darken($darkBlue, 15%);
+  }
+  &:focus {
+    border-color:darken($darkBlue, 15%);
+    background-color:lighten($darkBlue, 5%);
+  }
+  &.is-spinning {
+    background-image:image-url('button-spinner-dark.gif');
+  }
+
+}
+

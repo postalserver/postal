@@ -1,0 +1,42 @@
+@import 'global/reset';
+@import 'global/variables';
+@import 'global/mixins';
+@import 'global/fonts';
+
+@import 'vendor/*';
+@import 'elements/*';
+@import 'components/*';
+@import 'global/utility';
+
+html.main {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size:14px;
+  height: 100%;
+  max-height: 100%;
+  background:$backgroundGrey;
+  body {
+    display:flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100%;
+    overflow-x:hidden;
+  }
+}
+
+html.subPage {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size:14px;
+  background:$backgroundGrey;
+  body {
+    padding-top:100px;
+    padding-bottom:100px;
+  }
+  .subPage__logo {
+    margin-bottom:40px;
+    text-align:center;
+  }
+}
+
+.turbolinks-progress-bar {
+  background-color: $darkBlue;
+}

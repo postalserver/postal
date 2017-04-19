@@ -1,0 +1,16 @@
+.returnPathTag {
+  background:image-url('icons/return-path.svg') no-repeat 0 4px / 10px;
+  padding-left:14px;
+}
+
+.returnPathTag--inMessageHeader {
+  background-size:14px;
+  padding-left:18px;
+}
+
+.warningBox {
+  background-color:#fff8e4;
+  border:1px solid #c8bc9b;
+  padding:15px;
+  line-height:1.4;
+}

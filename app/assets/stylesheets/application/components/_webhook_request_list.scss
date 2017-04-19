@@ -1,0 +1,59 @@
+.webhookRequestList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.webhookRequestList__item {
+  background:#fff;
+}
+.webhookRequestList__item:nth-child(even) {
+  background:none;
+}
+
+.webhookRequestList__item + .webhookRequestList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.webhookRequestList__link {
+  display:block;
+  padding:15px;
+  &:hover {
+    background:#f2f5f8 !important;
+  }
+}
+
+.webhookRequestList__top {
+  display:flex;
+  margin-bottom:6px;
+  font-size:12px;
+}
+
+.webhookRequestList__status {
+  margin-top:-1px;
+  margin-right:10px;
+}
+
+.webhookRequestList__time {
+  flex: 1 1 auto;
+  color:#999;
+}
+
+.webhookRequestList__event {
+  flex: 0 0 auto;
+  font-size:11px;
+  border:1px solid $subBlue;
+  color:$subBlue;
+  border-radius:3px;
+  padding:3px 6px;
+  margin-top:-2px;
+}
+
+
+.webhookRequestList__url {
+  flex: 1 1 auto;
+  overflow:hidden;
+  font-family:'Droid Sans Mono', fixed;
+  line-height:1.4;
+  text-overflow:ellipsis;
+}

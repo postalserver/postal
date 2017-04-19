@@ -1,0 +1,17 @@
+.routeNameInput {
+  display:flex;
+  align-items:center;
+}
+
+.routeNameInput__at {
+  margin:0 7px;
+  font-size:18px;
+  color:$subBlue;
+}
+
+.routeNameInput__name {
+  width:40%;
+}
+
+.routeNameInput__domain {
+}

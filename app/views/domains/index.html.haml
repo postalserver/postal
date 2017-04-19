@@ -1,0 +1,74 @@
+- if @server
+  - page_title << @server.name
+- page_title << "Domains"
+
+- if @server
+  = render 'servers/sidebar', :active_server => @server
+  = render 'servers/header', :active_nav => :domains
+  = render 'nav', :active_nav => :domains
+- else
+  .pageHeader
+    %h1.pageHeader__title
+      %span.pageHeader__titlePrevious
+        = @organization.name
+        &rarr;
+      Domains
+  = render 'organizations/nav', :active_nav => :domains
+
+.pageContent.pageContent--compact
+
+  - if @domains.empty?
+    .noData.noData--penguin.noData--clean
+      %h2.noData__title Brrrr. It's chilly in here without any domains.
+      %p.noData__text
+        To send & receive messages you need to add & verify the domain you wish to send/receive
+        messages to/from. Add your domain below to get started.
+      %p.noData__button= link_to "Add your first domain", [:new, organization, @server, :domain], :class => "button button--positive"
+
+  - else
+    %ul.domainList.u-margin
+      - for domain in @domains
+        %li.domainList__item
+          .domainList__details
+            %p.domainList__name
+              = link_to domain.name, [:setup, organization, @server, domain]
+              - if domain.use_for_any?
+                %span.label.label--blue Any
+            %ul.domainList__checks
+              - if domain.spf_status == 'OK'
+                %li.domainList__check.domainList__check--ok SPF
+              - elsif domain.spf_status.nil?
+              - else
+                %li.domainList__check.domainList__check--warning{:title => domain.spf_error}= link_to "SPF", [:setup, organization, @server, domain]
+
+              - if domain.dkim_status == 'OK'
+                %li.domainList__check.domainList__check--ok DKIM
+              - elsif domain.dkim_status.nil?
+              - else
+                %li.domainList__check.domainList__check--warning{:title => domain.dkim_error}= link_to "DKIM", [:setup, organization, @server, domain]
+
+              - if domain.mx_status == 'OK'
+                %li.domainList__check.domainList__check--ok MX
+              - elsif domain.mx_status.nil?
+              - else
+                %li.domainList__check.domainList__check--neutral-cross{:title => domain.mx_error}= link_to "MX", [:setup, organization, @server, domain]
+
+              - if domain.return_path_status == 'OK'
+                %li.domainList__check.domainList__check--ok Return Path
+              - elsif domain.return_path_status.nil?
+              - elsif domain.return_path_status == 'Missing'
+                %li.domainList__check.domainList__check--neutral{:title => domain.return_path_error}= link_to "Return Path", [:setup, organization, @server, domain]
+              - else
+                %li.domainList__check.domainList__check--warning{:title => domain.return_path_error}= link_to "Return Path", [:setup, organization, @server, domain]
+
+          %ul.domainList__properties
+            - if domain.verified?
+              %li.domainList__verificationTime Verified on #{domain.verified_at.to_s(:long)}
+            - else
+              %li= link_to "Verify this domain", [:verify, organization, @server, domain], :class => "domainList__verificationLink"
+            %li.domainList__links
+              - if domain.verified?
+                = link_to "DNS setup", [:setup, organization, @server, domain]
+              = link_to "Delete", [organization, @server, domain], :remote => :delete, :method => :delete, :data => {:confirm => "Are you sure you wish to remove this domain?", :disable_with => "Deleting..."}, :class => 'domainList__delete'
+
+    %p.u-center= link_to "Add new domain", [:new, organization, @server, :domain], :class => "button button--positive"

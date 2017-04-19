@@ -1,0 +1,34 @@
+.subPageBox {
+  background:#fff;
+  border-radius:4px;
+  box-shadow:0 0 30px rgba(0,0,0,0.15);
+  width:300px;
+  margin:auto;
+  overflow:hidden;
+  border-top:5px solid $blue;
+}
+
+.subPageBox--wide {
+  width:500px;
+}
+
+.subPageBox__title {
+  background:$lightBlue;
+  border-bottom:1px solid #d1dcea;
+  padding:20px 25px;
+  color:$blue;
+  font-size:16px;
+  font-weight:600;
+  text-align: center;
+}
+
+.subPageBox__content {
+  padding:20px 25px;
+}
+
+.subPageBox__text {
+  color:$subBlue;
+  font-size:13px;
+  line-height:1.4;
+  margin-bottom:20px;
+}

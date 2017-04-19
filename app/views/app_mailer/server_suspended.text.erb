@@ -1,0 +1,12 @@
+Hello,
+
+We're writing to inform you that, unfortunately, we have had to suspend one of your mail servers on Postal.
+
+Organization: <%= @server.organization.name %>
+Server: <%= @server.name %>
+Reason: <%= @server.actual_suspension_reason %>
+
+Thanks,
+
+<%= Postal.smtp_from_name %>
+<%= Postal.smtp_from_address %>

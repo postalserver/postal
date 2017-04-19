@@ -1,0 +1,8 @@
+- page_title << @server.name
+- page_title << "Settings"
+= render 'sidebar', :active_server => @server
+= render 'header', :active_nav => :settings
+= render 'settings_header', :active_nav => :settings
+.pageContent.pageContent--compact
+  = render 'form'
+

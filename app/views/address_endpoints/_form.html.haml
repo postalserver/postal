@@ -1,0 +1,15 @@
+= form_for [organization, @server, @address_endpoint], :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :address, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :address, :autofocus => true, :class => 'input input--text'
+
+  .fieldSetSubmit.buttonSet
+    = f.submit @address_endpoint.new_record? ? "Create address endpoint" : "Save address endpoint", :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      - if f.object.persisted?
+        = link_to "Delete address endpoint", [organization, @server, @address_endpoint], :remote => true, :class => 'button button--danger', :method => :delete, :data => {:confirm => "Are you sure you wish to delete this HTTP endpoint?\n\r#{pluralize @address_endpoint.routes.size, 'route'} that uses this endpoint will also be deleted."}
+
+  = hidden_field_tag 'return_to', params[:return_to]
+  = hidden_field_tag 'return_notice', params[:return_notice]

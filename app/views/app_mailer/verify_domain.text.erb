@@ -1,0 +1,14 @@
+Hello there,
+
+<%= @user.name %> (<%= @domain.owner.is_a?(Organization) ? @domain.owner.name : @domain.owner.organization.name %>) would like to start sending e-mail from <%= @domain.name %> using Postal. We're writing to you to request your authorization to allow this domain to be used to send e-mail through their mail server.
+
+If you agree, please provide the code below to <%= @user.first_name %> who will be able to enter it into our web interface to continue.
+
+<%= @domain.verification_token %>
+
+If you don't agree, just ignore this e-mail.
+
+Thanks,
+
+<%= Postal.smtp_from_name %>
+<%= Postal.smtp_from_address %>

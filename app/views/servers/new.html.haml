@@ -1,0 +1,11 @@
+- page_title << "Build new mail server"
+.pageHeader
+  %h1.pageHeader__title
+    %span.pageHeader__titlePrevious
+      = @organization.name
+      &rarr;
+    Build a new mail server
+= render 'organizations/nav', :active_nav => :servers
+.pageContent.pageContent--compact
+  = render 'form'
+

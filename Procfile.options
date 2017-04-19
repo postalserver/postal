@@ -1,0 +1,14 @@
+app_name: Postal
+log_path: log/procodile.log
+pid_root: tmp/pids
+processes:
+  web:
+    restart_mode: usr1
+  fast:
+    restart_mode: term-start
+  smtp:
+    restart_mode: usr1
+  worker:
+    restart_mode: start-term
+  cron:
+    restart_mode: term-start

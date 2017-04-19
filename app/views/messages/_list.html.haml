@@ -1,0 +1,24 @@
+%ul.messageList
+  - for message in messages
+    - if message.is_a?(QueuedMessage)
+      - message = message.message
+    %li.messageList__message
+      = link_to organization_server_message_path(organization, @server, message.id), :class => 'messageList__link' do
+        .messageList__details{:class => 'messageList__details--' + message.scope}
+          %p.messageList__subject= message.subject || "No subject"
+          %dl.messageList__addresses
+            %dt To
+            %dd
+              - if message.rcpt_to_return_path?
+                %span.returnPathTag Return Path
+              - else
+                = message.rcpt_to || "none"
+            %dt From
+            %dd= message.mail_from || "none"
+
+        .messageList__meta
+          %p.messageList__timestamp= message.timestamp.in_time_zone.to_s(:long)
+          %p.messageList__status
+            - if message.read?
+              %span.label.label--purple Opened
+            %span.label{:class => "label--messageStatus-#{message.status.underscore}"}= message.status.underscore.humanize

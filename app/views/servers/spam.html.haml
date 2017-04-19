@@ -1,0 +1,40 @@
+- page_title << @server.name
+- page_title << "Spam Handling"
+= render 'sidebar', :active_server => @server
+= render 'header', :active_nav => :settings
+= render 'settings_header', :active_nav => :spam
+.pageContent.pageContent--compact
+  %p.pageContent__intro.u-margin
+    Postal inspects all incoming messages for spam and other threats. Incoming messages
+    are assigned a score which represents how likely an e-mail is to be spam. From here
+    you can choose at which level you'd like to identify messages as spam.
+
+  = form_for [organization, @server], :remote => true do |f|
+    .u-margin
+      %p.pageContent__subTitle Incoming Spam Threshold
+      %p.pageContent__text.u-margin
+        The main spam threshold is what determines whether a message is spam or not. How incoming
+        messages that are detected as spam is determined by the route which the incoming message was
+        sent to. You can choose between marking the message as spam and sending it on to your endpoint,
+        putting it into quarantine (holding it until manually released) or just failing it.
+      %p= f.text_field :spam_threshold, :type => :range, :class => 'spamRange', :min => -10, :max => 25, :step => 0.5, :data => {:update => "js-spam-threshold-text"}
+      %p.spamRangeLabel Threshold is currently <b class='js-spam-threshold-text'>#{@server.spam_threshold}</b>
+
+    .u-margin
+      %p.pageContent__subTitle Incoming Spam Failure Threshold
+      %p.pageContent__text.u-margin
+        Any messages which are over your spam failure threshold will failed immediately. This is used
+        to catch messages that we very sure at spam to avoid sending them needless around the place.
+      %p= f.text_field :spam_failure_threshold, :type => :range, :class => 'spamRange spamRange--hot', :min => 10, :max => 50, :step => 0.5, :data => {:update => "js-spam-failure-threshold-text"}
+      %p.spamRangeLabel Threshold is currently <b class='js-spam-failure-threshold-text'>#{@server.spam_failure_threshold}</b>
+
+    - if @server.outbound_spam_threshold
+      .u-margin
+        %p.pageContent__subTitle Outgoing Spam Threshold
+        %p.pageContent__text.u-margin
+          To prevent abuse of our services, we check outgoing messages to see whether they're likely to be
+          caught as spam by other providers. Messages that score higher than the threshold set by us will
+          not be passed through. If this limit needs adjusting, contact us for assistance.
+          %b The threshold for this server is currently #{@server.outbound_spam_threshold}.
+
+    %p= f.submit "Save Spam Thresholds", :class => "button button--positive js-form-submit"

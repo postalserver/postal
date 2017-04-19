@@ -1,0 +1,17 @@
+- servers = organization.servers.present.order(:name).to_a
+
+= content_for :sidebar do
+  .js-searchable
+    = form_tag '', :class => 'sidebar__search js-searchable__input' do
+      = text_field_tag 'query', '', :class => 'sidebar__searchInput js-focus-on-s', :placeholder => "Filter servers..."
+    %p.sidebar__placeholder.js-searchable__empty{:class => ("is-hidden" if servers.any?)}
+      No servers found.
+    %ul.sidebarServerList.js-searchable__list{:class => ("is-hidden" if servers.empty?)}
+      - for server in servers
+        %li.sidebarServerList__item.js-searchable__item{:data => {:url => organization_server_path(organization, server), :value => server.name.downcase.gsub(/\W/, '')}}
+          = link_to [organization, server], :class => ['sidebarServerList__link', (active_server == server ? 'is-active' : '')] do
+            %p.sidebarServerList__mode.label{:class => "label--serverStatus-#{server.status.underscore}"}= t("server_statuses.#{server.status.underscore}")
+            %p.sidebarServerList__title= server.name
+            %p.sidebarServerList__quantity #{number_with_precision server.message_rate, :precision => 2} messages/minute
+      - if organization.admin?(current_user)
+        %p.sidebar__new= link_to "Build a new mail server", [:new, organization, :server]

@@ -1,0 +1,66 @@
+.mailGraph {
+}
+
+.mailGraph__startTime {
+
+}
+
+.mailGraph__graph {
+  min-height:230px;
+  margin-bottom:4px;
+  .ct-series-a .ct-line { stroke:$blue;}
+  .ct-series-a .ct-area { fill:$blue;  fill-opacity:0.2;}
+  .ct-series-b .ct-line { stroke:$turquoise;}
+  .ct-series-b .ct-area { fill:$turquoise;fill-opacity:0.2;}
+
+  .ct-point { stroke-width: 0; }
+  .ct-line { stroke-width:1px; }
+  .ct-area { fill-opacity: 0.4; }
+}
+
+
+.mailGraph__empty {
+  margin:100px 0;
+  text-align:center;
+  color:#aaa;
+}
+
+.mailGraph__key {
+  font-size:12px;
+  margin-bottom:15px;
+  float:right;
+  li {
+    float:left;
+    margin-left:10px;
+    color:$turquoise;
+  }
+  li:before {
+    display:block;
+    float:left;
+    width:10px;
+    content: " ";
+    margin-top:3px;
+    height:10px;
+    border:1px solid $turquoise;
+    background:lighten($turquoise, 20%);
+    margin-right:6px;
+  }
+
+  li.mailGraph__key--out {
+    color:$blue;
+    &:before {
+      border-color:$blue ;
+      background:lighten($blue, 30%);
+    }
+  }
+
+
+}
+
+.mailGraph__labels {
+  display:flex;
+  margin-left:40px;
+  justify-content:space-between;
+  font-size:12px;
+  color:#999;
+}

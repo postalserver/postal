@@ -1,0 +1,17 @@
+We're writing to let you know that your <%= @server.name %> mail server has exceeded its send limit. All mail servers have a limit of how much e-mail they are permitted to send in a rolling 60 minute window. At present you have sent <%= @server.send_volume %> messages and have a limit of <%= @server.send_limit %>.
+
+Orgaization: <%= @server.organization.name %>
+Server: <%= @server.name %>
+Send Limit: <%= @server.send_limit %>
+Current Volume: <%= @server.send_volume %>
+
+All messages that you send until your volume drops will now be held in our system. You will need to manually release any of these messages that you wish to send. You can do this through our web interface or using our API.
+
+You can view more information about this server at:
+
+<%= Postal.host_with_protocol %>/org/<%= @server.organization.permalink %>/servers/<%= @server.permalink %>
+
+Thanks,
+
+<%= Postal.smtp_from_name %>
+<%= Postal.smtp_from_address %>

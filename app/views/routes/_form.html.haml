@@ -1,0 +1,56 @@
+= form_for [organization, @server, @route], :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :name, :class => 'fieldSet__label'
+      .fieldSet__input
+        .routeNameInput
+          = f.text_field :name, :autofocus => true, :class => 'input input--text routeNameInput__name'
+          %span.routeNameInput__at @
+          = f.select :domain_id, domain_options_for_select(@server, @route.domain), {}, :class => 'input input--select routeNameInput__domain'
+        %p.fieldSet__text
+          Enter the address you wish to route. In addition to the name you enter, you'll also received "tagged" mail for this
+          address. See our documentation for details about tagged mail.
+    .fieldSet__field
+      = f.label :_endpoint, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :_endpoint, endpoint_options_for_select(@server, @route._endpoint), {}, :class => 'input input--select'
+        %p.fieldSet__text
+          This is the endpoint where mail to this address will be delivered to. If you need to add different endpoints,
+          you can do this using the links above this form.
+
+    .fieldSet__field
+      = f.label :_endpoint, "Additional Endpoints", :class => 'fieldSet__label'
+      .fieldSet__input
+        .fieldSet__selectList
+          - for endpoint in @route.additional_route_endpoints_array
+            = select_tag "route[additional_route_endpoints_array][]", endpoint_options_for_select(@server, endpoint, :other => false), :class => 'input input--select'
+          = select_tag "route[additional_route_endpoints_array][]", endpoint_options_for_select(@server, nil, :other => false), :class => 'input input--select'
+
+        %p.fieldSet__text
+          If you wish to deliver a message to multiple endpoints, you can do so by choosing them from the list above.
+
+    .fieldSet__field
+      = f.label :spam_mode, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :spam_mode, Route::SPAM_MODES, {}, :class => 'input input--select'
+        %p.fieldSet__text
+          You can choose what should happen to mail which we identify as spam. If you choose <b>Mark</b> we'll tell you
+          we think its spam when we deliver it to your endpoint. If you choose <b>Quarantine</b>, we won't send the message
+          to you at all and you'll have manually accept it through our web interface or the API if you want it delivered.
+          If you choose <b>Fail</b>, the message will simply be failed without any attempt to deliver your message.
+    - if @route.persisted?
+      .fieldSet__field
+        = f.label :forward_address, "Address", :class => 'fieldSet__label'
+        .fieldSet__input
+          = f.text_field :forward_address, :class => 'input input--text', :readonly => true
+          %p.fieldSet__text
+            If you don't wish to point your MX records to our server, you can redirect your mail to this address and
+            will be routed to your endpoint as if it was sent to the address you entered above.
+
+  .fieldSetSubmit.buttonSet
+    = f.submit @route.new_record? ? "Create route" : "Save route", :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      - if f.object.persisted?
+        = link_to "Delete route", [organization, @server, @route], :remote => true, :class => 'button button--danger', :method => :delete, :data => {:confirm => "Are you sure you wish to delete this route?"}
+

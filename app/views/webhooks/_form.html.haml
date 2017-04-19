@@ -1,0 +1,44 @@
+= form_for [organization, @server, @webhook], :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :name, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :name, :autofocus => true, :class => 'input input--text'
+        %p.fieldSet__text
+          Enter a name to describe this webhook. This is used so you can identify this webhook later in the web interface.
+
+    .fieldSet__field
+      = f.label :url, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :url, :class => 'input input--text'
+        %p.fieldSet__text
+          Enter the URL that you'd like us to send requests to. All requests will be POST requests with
+          a JSON-encoded payload in the body of the request.
+    .fieldSet__field
+      = f.label :enabled, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :enabled, [["Yes - send requests to this webhook", true], ["No - do not send requests at the moment", false]], {},:class => 'input input--select'
+        %p.fieldSet__text
+          You can enable or disable this webhook without fully removing it from the system. If there are any outstanding
+          webhook deliveries, they will still be completed even if disabled.
+
+    .fieldSet__field
+      = f.label :all_events, 'Events', :class => 'fieldSet__label'
+      .fieldSet__input
+        = hidden_field_tag 'webhook[events][]'
+        = f.select :all_events, [["Yes - send all events to this URL", true], ["No - I'll choose which requests to send", false]], {},:class => 'input input--select fieldSet__checkboxListAfter js-checkbox-list-toggle'
+        %ul.checkboxList{:class => [@webhook.all_events? ? 'is-hidden' : '']}
+          - for event in WebhookEvent::EVENTS
+            %li.checkboxList__item
+              .checkboxList__checkbox= check_box_tag "webhook[events][]", event, @webhook.events.include?(event), :id => "event_#{event}"
+              .checkboxList__label
+                = label_tag "event_#{event}", event, :class => 'checkboxList__actualLabel checkboxList__devEvent'
+                %p.checkBoxList__text= t("webhook_events.#{event.underscore}")
+
+  .fieldSetSubmit.buttonSet
+    = f.submit @webhook.new_record? ? "Create Webhook" : "Save Webhook", :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      - if f.object.persisted?
+        = link_to "Delete Webhook", [organization, @server, @webhook], :remote => true, :class => 'button button--danger', :method => :delete, :data => {:confirm => "Are you sure you wish to delete this webhook?"}
+

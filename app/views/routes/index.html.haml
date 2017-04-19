@@ -1,0 +1,47 @@
+- page_title << @server.name
+- page_title << "Routes"
+
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :routing
+= render 'header', :active_nav => :routes
+
+.pageContent.pageContent--compact
+  - if @routes.empty?
+    .noData.noData--monkey.noData--clean
+      %h2.noData__title We heard on the ape vine, you've got no routes yet.
+      %p.noData__text
+        To receive incoming mail, you need to add routes so where we should send
+        messages we receive for your domain. You can send incoming e-mail to
+        HTTP endpoints or other SMTP servers.
+
+        - if @server.smtp_endpoints.empty? && @server.http_endpoints.empty?
+          %p.noData__button.buttonSet.buttonSet--center
+            = link_to "Add a HTTP endpoint", new_organization_server_http_endpoint_path(organization, @server, :return_to => new_organization_server_route_path(organization, @server), :return_notice => "You can now go ahead and add your first route for this HTTP endpoint"), :class => 'button button--positive'
+            = link_to "Add a SMTP endpoint", new_organization_server_smtp_endpoint_path(organization, @server, :return_to => new_organization_server_route_path(organization, @server), :return_notice => "You can now go ahead and add your first route for this SMTP endpoint"), :class => 'button button--positive'
+          %p.noData__postButtonText
+            Once you've added these, you'll be able to come back here to route a
+            specific e-mail address to your newly created endpoint. You can
+            #{link_to "add a route without an endpoint", new_organization_server_route_path(organization, @server), :class => "u-link"} if you really want.
+        - else
+          %p.noData__button
+            = link_to "Add your first route", [:new, organization, @server, :route], :class => 'button button--positive'
+  - else
+    %p.pageContent__intro.u-margin
+      Routes control where incoming mail for your domain is sent. Messages can be sent to
+      HTTP endpoints or other SMTP servers.
+    %p.u-margin.pageContent__helpLink= link_to "Read more about receiving e-mails", [organization, @server, :help_incoming]
+
+    %ul.routeList.u-margin
+      - for route in @routes
+        %li.routeList__item
+          = link_to [:edit, organization, @server, route], :class => 'routeList__link' do
+            %p.routeList__name= route.description
+            .routeList__details
+              %p.routeList__endpoint{:class => "routeList__endpoint--#{route.endpoint_type&.underscore || 'none'}"}
+                - if route.mode == 'Endpoint'
+                  = route.endpoint.description
+                - else
+                  = t("route_modes.#{route.mode.underscore}")
+              %p.routeList__spamMode= t("route_spam_modes.#{route.spam_mode.underscore}")
+
+    %p.u-center= link_to "Add another route", [:new, organization, @server, :route], :class => 'button button--positive'

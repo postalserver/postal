@@ -1,0 +1,60 @@
+.serverHeader
+  .serverHeader__stripe{:class => "serverHeader__stripe--#{@server.status.underscore}"}= @server.status
+
+  .serverHeader__info
+    %p.serverHeader__title= @server.name
+
+    %ul.serverHeader__list
+      - total, unverified, bad_dns = @server.domain_stats
+      - if total == 0
+        %li No domains have been added for this server
+      - elsif bad_dns == 0
+        %li.serverHeader__list--ok DKIM & SPF configured correctly on #{pluralize total - unverified, 'domain'}
+      - else
+        %li.serverHeader__list--warning= link_to "#{pluralize bad_dns, 'domain'} has misconfigured DNS records", [organization, @server, :domains]
+      - if unverified > 0
+        %li= link_to "#{pluralize unverified, 'domain'} is awaiting verification", [organization, @server, :domains]
+      %li Sending via #{@server.ip_pool.name}
+
+  .serverHeader__stats{"data-turbolinks-permanent" => true, :id => "serverStats-#{@server.uuid}"}
+    %ul.serverHeader__statsList
+      %li.serverHeader__stat-held
+        = link_to "#{pluralize @server.held_messages, 'message'} held", held_organization_server_messages_path(organization, @server), :class => 'js-held-count'
+      %li.serverHeader__stat-queue
+        = link_to pluralize(@server.queue_size, 'queued message'), queue_organization_server_path(organization, @server), :class => "js-queue-size"
+      %li.serverHeader__stat-bounces
+        = link_to "#{number_to_percentage @server.bounce_rate, :precision => 1} bounce rate", outgoing_organization_server_messages_path(organization, @server, :query => "status: hardfail status:bounced"), :class => 'js-bounce-rate'
+      %li.serverHeader__stat-size
+        = link_to "#{number_to_human_size @server.message_db.total_size} used", [:retention, organization, @server], :class => 'js-disk-size'
+
+  .serverHeader__usage{"data-turbolinks-permanent" => true, :id => "serverUsage-#{@server.uuid}"}
+    %p.serverHeader__usageTitle Message throughput &mdash; last 60 minutes
+
+    .serverHeader__usageLine
+      .serverHeader__usageLineLabel Outgoing messages
+      .serverHeader__usageLineBar
+        .bar
+          .bar__inner.js-outgoing-bar{:style => style_width(@server.throughput_stats[:outgoing_usage], :color => true)}
+      .serverHeader__usageLineValue.js-outgoing-count{:title => "Limit: #{@server.send_limit || '∞'} every 60 minutes"}
+        = number_with_delimiter @server.throughput_stats[:outgoing]
+    .serverHeader__usageLine
+      .serverHeader__usageLineLabel Incoming messages
+      .serverHeader__usageLineValue.js-incoming-count
+        = number_with_delimiter @server.throughput_stats[:incoming]
+
+    .serverHeader__usageLine
+      .serverHeader__usageLineLabel Message Rate
+      .serverHeader__usageLineValueLarge
+        %b.js-message-rate= number_with_precision @server.message_rate, :precision => 2
+        messages/minute
+
+.navBar
+  %ul
+    %li.navBar__item= link_to "Overview", [organization, @server], :class => ['navBar__link', active_nav == :overview ? 'is-active' : '']
+    %li.navBar__item= link_to "Messages", [:outgoing, organization, @server, :messages], :class => ['navBar__link', active_nav == :messages ? 'is-active' : '']
+    %li.navBar__item= link_to "Domains", [organization, @server, :domains], :class => ['navBar__link', active_nav == :domains ? 'is-active' : '']
+    %li.navBar__item= link_to "Routing", [organization, @server, :routes], :class => ['navBar__link', active_nav == :routing ? 'is-active' : '']
+    %li.navBar__item= link_to "Credentials", [organization, @server, :credentials], :class => ['navBar__link', active_nav == :credentials ? 'is-active' : '']
+    %li.navBar__item= link_to "Webhooks", [organization, @server, :webhooks], :class => ['navBar__link', active_nav == :webhooks ? 'is-active' : '']
+    %li.navBar__item= link_to "Settings", [:edit, organization, @server], :class => ['navBar__link', active_nav == :settings ? 'is-active' : '']
+    %li.navBar__item.navBar__item--end= link_to "Help", [organization, @server, :help_outgoing], :class => ['navBar__link', active_nav == :help ? 'is-active' : '']

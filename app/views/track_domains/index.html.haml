@@ -1,0 +1,47 @@
+- page_title << @server.name
+- page_title << "Tracking Domains"
+
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :domains
+= render 'domains/nav', :active_nav => :track_domains
+
+.pageContent.pageContent--compact
+
+  - if @track_domains.empty?
+    .noData.noData--fox.noData--clean
+      %h2.noData__title You haven't set up any tracking domains yet.
+      %p.noData__text
+        To use Postal's open & click tracking, you need to configure a domain that links will be re-written to use. Enable
+        message tracking by adding a sutiable tracking domain for your outbound e-mails.
+      %p.noData__button= link_to "Add a custom tracking domain", [:new, organization, @server, :track_domain], :class => "button button--positive"
+
+  - else
+    %ul.domainList.u-margin
+      - for track_domain in @track_domains
+        %li.domainList__item
+          .domainList__details
+            %p.domainList__name
+              = link_to track_domain.full_name, [:edit, organization, @server, track_domain]
+            %ul.domainList__checks
+              - if track_domain.dns_status == 'OK'
+                %li.domainList__check.domainList__check--ok CNAME configured correctly
+              - elsif track_domain.dns_status.nil?
+                %li.domainList__check.domainList__check--neutral-cross CNAME/DNS not checked yet
+              - else
+                %li.domainList__check.domainList__check--warning{:title => track_domain.dns_error} CNAME not configured correctly
+
+              - if track_domain.ssl_enabled?
+                - if track_domain.has_ssl?
+                  %li.domainList__check.domainList__check--ok= link_to "SSL enabled", [:toggle_ssl, organization, @server, track_domain], :remote => true, :method => :post
+                - else
+                  %li.domainList__check.domainList__check--neutral= link_to "SSL setup in progress", [:toggle_ssl, organization, @server, track_domain], :remote => true, :method => :post
+              - else
+                %li.domainList__check.domainList__check--neutral-cross= link_to "SSL disabled", [:toggle_ssl, organization, @server, track_domain], :remote => true, :method => :post
+
+          %ul.domainList__properties
+            %li.domainList__links
+              = link_to "Settings", [:edit, organization, @server, track_domain]
+              = link_to "Check DNS", [:check, organization, @server, track_domain], :remote => true, :method => :post, :data => {:disable_with => "Checking..."}
+              = link_to "Delete", [organization, @server, track_domain], :remote => true, :method => :delete, :data => {:confirm => "Are you sure you wish to remove this domain?", :disable_with => "Deleting..."}, :class => 'domainList__delete'
+
+    %p.u-center= link_to "Add new track domain", [:new, organization, @server, :track_domain], :class => "button button--positive"

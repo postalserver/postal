@@ -1,0 +1,104 @@
+- if @server
+  - page_title << @server.name
+- page_title << @domain.name
+- page_title << "DNS Setup"
+
+
+- if @server
+  = render 'servers/sidebar', :active_server => @server
+  = render 'servers/header', :active_nav => :domains
+  = render 'nav', :active_nav => :domains
+- else
+  .pageHeader
+    %h1.pageHeader__title
+      %span.pageHeader__titlePrevious
+        = @organization.name
+        &rarr; Domains &rarr;
+      = @domain.name
+  = render 'organizations/nav', :active_nav => :domains
+
+.pageContent.pageContent--compact
+  %h2.pageContent__title DNS Setup for #{@domain.name}
+  %p.pageContent__intro.u-margin
+    Follow the instructions below to configure SPF & DKIM records for this domain.
+    We highly recommend that you do this to ensure your messages are delivered
+    correctly and quickly.
+
+  .u-margin.buttonSet
+    = link_to "Check my records are correct", [:check, organization, @server, @domain], :remote => true, :method => :post, :class => 'button'
+    = link_to "Back to domain list", [organization, @server, :domains], :class => 'button button--neutral'
+  - if @domain.dns_checked_at
+    %p.u-margin We last checked the validity of your DNS records #{distance_of_time_in_words_to_now @domain.dns_checked_at} ago.
+
+  %h3.pageContent__subTitle SPF Record
+  - if @domain.spf_status == 'OK'
+    %p.pageContent__text.u-green.u-bold
+      %span.label.label--green Good
+      Your SPF record looks good!
+  - elsif !@domain.spf_status.nil?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      = @domain.spf_error
+
+  %p.pageContent__text
+    You need to add a TXT record at the apex/root of your domain (@) with the following
+    content. If you already send mail from another service, you may just need to add
+    <b>include:#{Postal.config.dns.spf_include}</b> to your existing record.
+  %pre.codeBlock.u-margin= @domain.spf_record
+
+  %h3.pageContent__subTitle DKIM Record
+  - if @domain.dkim_status == 'OK'
+    %p.pageContent__text.u-green.u-bold
+      %span.label.label--green Good
+      Your DKIM record looks good!
+  - elsif !@domain.dkim_status.nil?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      = @domain.dkim_error
+
+  %p.pageContent__text
+    You need to add a new TXT record with the name <b>#{@domain.dkim_record_name}</b>
+    with the following content.
+  %pre.codeBlock.u-margin= @domain.dkim_record
+
+  %h3.pageContent__subTitle Return Path
+  - if @domain.return_path_status == 'OK'
+    %p.pageContent__text.u-green.u-bold
+      %span.label.label--green Good
+      Your return path looks good. We'll use this when sending e-mail from this domain.
+  - elsif @domain.return_path_status == 'Missing'
+    %p.pageContent__text.u-grey.u-bold
+      %span.label.label--grey OK
+      There's no return path for this domain. This is OK but we recommend adding the record to improve deliverability and achieve DMARC alignment.
+  - elsif !@domain.return_path_status.nil?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      = @domain.return_path_error
+
+  %p.pageContent__text
+    This is optional but we recommend adding this to improve deliverability. You should add
+    a <b>CNAME</b> record at <b>#{@domain.return_path_domain}</b> to point to the hostname below.
+  %pre.codeBlock.u-margin= Postal.config.dns.return_path
+
+
+  %h3.pageContent__subTitle MX Records
+  - if @domain.mx_status == 'OK'
+    %p.pageContent__text.u-green.u-bold
+      %span.label.label--green Good
+      Your MX records look like they're good to go!
+  - elsif @domain.mx_status == 'Missing'
+    %p.pageContent__text.u-grey.u-bold
+      %span.label.label--grey OK
+      None of the MX records for this domain point to us. Incoming mail won't be sent to us.
+  - elsif !@domain.mx_status.nil?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      = @domain.mx_error
+
+  %p.pageContent__text
+    If you wish to receive incoming e-mail for this domain, you need to add the following MX records
+    to the domain. You don't have to do this and we'll only tell you if they're set up or not. Both
+    records should be priority <b>10</b>.
+  %pre.codeBlock.u-margin= Postal.config.dns.mx_records.join("\n")
+
+

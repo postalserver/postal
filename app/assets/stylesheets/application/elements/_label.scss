@@ -1,0 +1,132 @@
+.label {
+  display:inline-block;
+  background:#000;
+  color:#fff;
+  font-size:9px;
+  text-transform: uppercase;
+  border-radius:40px;
+  padding:2px 6px;
+  line-height:0.9;
+}
+
+.label--green {
+  background-color:$green;
+}
+
+.label--red {
+  background-color:$red;
+}
+
+.label--orange {
+  background-color:$orange;
+}
+
+.label--blue {
+  background-color:$blue;
+}
+
+.label--grey {
+  background-color:#999;
+}
+
+.label--turquoise {
+  background-color:$blue;
+}
+
+.label--purple {
+  background-color:$purple;
+}
+
+.label--large {
+  font-size:11px;
+  padding:4px 10px;
+}
+
+.label--serverStatus-live {
+  background-color:$green;
+}
+
+.label--serverStatus-development {
+  background-color:#636363;
+}
+
+.label--serverStatus-suspended {
+  background-color:$red;
+}
+
+.label--messageStatus-pending {
+  background-color:$subBlue;
+}
+
+.label--messageStatus-held {
+  background-color:#aaa;
+}
+
+.label--messageStatus-processed {
+  background-color:$green;
+}
+
+.label--messageStatus-sent {
+  background-color:$green;
+}
+
+.label--messageStatus-hard_fail {
+  background-color:$red;
+}
+
+.label--messageStatus-soft_fail {
+  background-color:$orange;
+}
+
+.label--messageStatus-bounced {
+  background-color:$red;
+}
+
+.label--messageStatus-hold_cancelled {
+  background-color:#ccc;
+}
+
+
+.label--credentialType-api {
+  background-color:$blue;
+}
+
+.label--credentialType-smtp {
+  background-color:$turquoise;
+}
+
+.label--spamStatus-not_checked {
+  background:#aaa;
+}
+
+.label--spamStatus-spam {
+  background:$orange;
+}
+
+.label--spamStatus-not_spam {
+  background:$turquoise;
+}
+
+.label--http-status-2 {
+  background-color:$green;
+}
+
+.label--http-status-3 {
+  background-color:$orange;
+}
+
+.label--http-status-4,
+.label--http-status-5 {
+  background-color:$red;
+}
+
+.domainList__ssl {
+  color:$green;
+  &:hover {
+    text-decoration:underline;
+  }
+}
+
+.domainList__ssl--disabled {
+  color:#999;
+}

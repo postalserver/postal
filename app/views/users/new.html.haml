@@ -1,0 +1,19 @@
+- page_title << "Users"
+- page_title << "Add"
+.pageHeader
+  %h1.pageHeader__title
+    %span.pageHeader__titlePrevious
+      = @organization.name
+      &rarr;
+      Users
+      &rarr;
+    Add user
+
+= render 'organizations/nav', :active_nav => :users
+.pageContent.pageContent--compact
+  %p.pageContent__intro.u-margin
+    To add someone to your organization enter their e-mail address below. If
+    they don't already have a Postal account, they'll need to create one
+    before you can add them to your account.
+  = render 'form'
+

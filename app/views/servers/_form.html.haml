@@ -1,0 +1,52 @@
+= form_for [organization, @server], :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :name, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :name, :autofocus => true, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :permalink, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :permalink, :class => 'input input--text', :placeholder => "Automatically generated", :disabled => @server.persisted?
+        %p.fieldSet__text
+          This is a short name which is used in usernames and the API to identify your organization.
+          It should only contain letters, numbers & hyphens.
+    .fieldSet__field
+      = f.label :mode, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :mode, Server::MODES, {}, :autofocus => true, :class => 'input input--select'
+        %p.fieldSet__text
+          The mode you choose will determine how messages are handled. When in <b>Live</b> mode, all
+          e-mail will be routed normally to the intended recipients. When in <b>Development</b> mode,
+          outgoing & incoming mail will be held and only visible in the web interface and will not be
+          sent to any recipients or HTTP endpoints.
+    .fieldSet__field
+      = f.label :ip_pool_id, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.collection_select :ip_pool_id, organization.ip_pools.includes(:ip_addresses).order("`default` desc, name asc"), :id, :description, {}, :class => 'input input--select'
+        %p.fieldSet__text
+          This is the set of IP addresses which outbound e-mails will be delivered from.
+
+    - if @server.persisted?
+      .fieldSet__field
+        = f.label :allow_sender, "Send as any", :class => 'fieldSet__label'
+        .fieldSet__input
+          .input.is-disabled= @server.allow_sender? ? "Enabled" : "Disabled"
+          %p.fieldSet__text
+            When enabled, you will be able to use any e-mail address in the <code>From</code> header on outgoing e-mails.
+            You will need to add a <code>Sender</code> header which must be an address at one of your verified domains.
+
+      .fieldSet__field
+        = f.label :postmaster_address, "Postmaster", :class => 'fieldSet__label'
+        .fieldSet__input
+          = f.text_field :postmaster_address, :class => 'input input--text', :placeholder => "Set based on the domain"
+          %p.fieldSet__text
+            This is the e-mail address that is included in any bounce messages that are sent when incoming
+            messages cannot be delivered. By default, the address is <code>postmaster@[yourdomain.com]</code>.
+
+  .fieldSetSubmit.buttonSet
+    = f.submit f.object.new_record? ? "Build server" : "Save server", :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      - unless f.object.persisted?
+        = link_to "Back to server list", organization_root_path(organization), :class => 'button button--neutral'
+

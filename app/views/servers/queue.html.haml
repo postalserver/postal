@@ -1,0 +1,23 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Queue"
+= render 'sidebar', :active_server => @server
+= render 'header', :active_nav => :messages
+= render 'messages/header', :active_nav => :queue
+
+- if @messages.empty?
+  .pageContent--compact
+    .noData.noData--cat2.noData--clean
+      %h2.noData__title Your queue is empty. It won't stay like that fur-ever.
+      %p.noData__text
+        Messages which haven't yet been delivered successfully will appear in your queue until
+        we've delivered them or we've given up trying.
+- else
+  .pageContent
+    %p.pageContent__intro.u-margin
+      All messages that pass through your mail server first enter this queue. Any messages
+      that cannot be delivered immediately remain in the queue until they can be successfully
+      delivered or we give up on them.
+    = render 'messages/list', :messages => @messages_with_message
+
+    = paginate @messages

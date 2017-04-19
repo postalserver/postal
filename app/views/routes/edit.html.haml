@@ -1,0 +1,10 @@
+- page_title << @server.name
+- page_title << "Routes"
+- page_title << "Edit Route"
+
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :routing
+= render 'header', :active_nav => :routes
+
+.pageContent.pageContent--compact
+  = render 'form'

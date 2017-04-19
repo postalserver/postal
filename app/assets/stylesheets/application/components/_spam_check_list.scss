@@ -1,0 +1,66 @@
+.spamCheckList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.spamCheckList__item {
+  display:block;
+  background:#fff;
+  padding:15px;
+  align-items:center;
+  display:flex;
+}
+.spamCheckList__item:nth-child(even) {
+  background:none;
+}
+
+.spamCheckList__item + .spamCheckList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.spamCheckList__score {
+  width:130px;
+  font-size:20px;
+  font-weight:900;
+  text-align:center;
+  flex: 0 0 auto;
+}
+
+.spamCheckList__score--positive {
+  color:$green;
+}
+
+.spamCheckList__score--negative {
+  color:$red;
+}
+
+.spamCheckList__score--neutral {
+  color:$subBlue;
+}
+
+
+
+.spamCheckList__details {
+  flex: 1 1 auto;
+}
+
+.spamCheckList__code {
+  font-family:'Droid Sans Mono';
+  font-size:12px;
+  color:$subBlue;
+  margin-bottom:3px;
+}
+
+.spamCheckList__description {
+  line-height:1.5;
+}
+
+.spamCheckList__item--total + .spamCheckList__item{
+  border-top-width:2px;
+  border-top-color:$subBlue;
+}
+
+.spamCheckList__details--total {
+
+}

@@ -1,0 +1,50 @@
+.largeList {
+  font-size:16px;
+  color:$darkBlue;
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.largeList__item {
+  display:block;
+  background:#fff;
+}
+.largeList__item:nth-child(even) {
+  background:none;
+}
+
+.largeList__item + .largeList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+
+.largeList__item.is-highlighted {
+  background:$blue;
+  color:#fff;
+}
+
+.largeList__link {
+  display:block;
+  padding:15px;
+}
+
+.largeList__link:hover {
+  background:$blue;
+  color:#fff;
+}
+
+.largeList__link:active {
+  background:darken($blue, 5%);
+}
+
+.largeList__subText {
+  color:$subBlue;
+  font-size:13px;
+  margin-top:5px;
+}
+
+.largeList__rightLabel {
+  float:right;
+  line-height:0.8;
+}

@@ -1,0 +1,96 @@
+.messageSearch {
+  margin-bottom:25px;
+  position:relative;
+}
+
+.messageSearch__help {
+  position:absolute;
+  z-index:100;
+  right:20px;
+  top:11px;
+  font-size:12px;
+  color:$subBlue;
+  text-decoration:underline;
+}
+
+.messageSearch__input {
+  width:100%;
+  margin:0;
+
+  border:2px solid #e0e7f3;
+  border-radius:25px;
+  padding:6px 13px;
+  font:inherit;
+  font-size:14px;
+  font-weight:600;
+  position:relative;
+  color:$darkBlue;
+  background:image-url('icons/search.svg') #fff no-repeat 12px 7px / 19px;
+  padding-left:38px;
+  padding-right:150px;
+  &::placeholder {
+    color:#98a5c0;
+    font-weight:300;
+  }
+  &:focus {
+    border-color:$blue;
+  }
+  &.is-spinning {
+    background-image:image-url('spinner-sub.gif');
+    background-position: 12px 5px;
+  }
+}
+
+.messageSearch__helpBox {
+  color:$darkBlue;
+  margin-top:25px;
+  border-radius:4px;
+  background:#fffdf1;
+  padding:25px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+  display:flex;
+  justify-content:space-between;
+}
+
+.messageSearch__left {
+  width:40%;
+}
+
+.messageSearch__helpBoxTitle {
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:10px;
+}
+
+.messageSearch__helpBoxText {
+  line-height:1.5;
+  font-size:14px;
+  color:$subBlue;
+}
+
+.messageSearch__right {
+  width:55%;
+}
+
+.messageSearch__definition {
+  dt {
+    font-family:'Droid Sans Mono', fixed;
+    font-weight:bold;
+    font-size:15px;
+    color:$blue;
+  }
+  dd {
+    font-size:13px;
+    margin-top:4px;
+    code {
+      font-family:'Droid Sans Mono', fixed;
+      font-size:12px;
+      color:darken($blue, 15%);
+    }
+  }
+}
+
+.messageSearch__definition + .messageSearch__definition {
+  margin-top:18px;
+}

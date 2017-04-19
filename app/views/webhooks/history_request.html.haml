@@ -1,0 +1,34 @@
+- page_title << @server.name
+- page_title << "Webhooks"
+- page_title << "History"
+
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :webhooks
+= render 'header', :active_nav => :history
+
+.pageContent.pageContent--compact
+  %dl.pageContent__definitions.u-margin
+    %dt URL
+    %dd= @req.url
+    %dt Event
+    %dd= @req.event
+    %dt UUID
+    %dd= @req.uuid
+
+    %dt Timestamp
+    %dd= @req.timestamp.strftime("%d/%m/%Y at %H:%M:%S")
+    %dt HTTP Status Code
+    %dd
+      %span.label.label--large{:class => "label--http-status-#{@req.status_code.to_s[0,1]}"}= @req.status_code
+
+    %dt Attempt
+    %dd
+      = @req.attempt
+      - if @req.will_retry?
+        (will be retried)
+
+  %p.pageContent__title Payload
+  %pre.codeBlock.u-margin.codeBlock--whitespace~ preserve @req.pretty_payload
+  %p.pageContent__title Response Body
+  %pre.codeBlock.u-margin= @req.body
+  %p.u-margin= link_to "Back to history", [:history, organization, @server, :webhooks], :class => "button button--neutral"

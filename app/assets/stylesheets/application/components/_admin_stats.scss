@@ -1,0 +1,16 @@
+.adminStats {
+  display:flex;
+}
+
+.adminStats__stat {
+  flex:1 1 auto;
+  text-align: center;
+  dt {
+    font-weight:300;
+    color:#999;
+  }
+  dd {
+    font-size:26px;
+    font-weight:bold;
+  }
+}

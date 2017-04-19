@@ -1,0 +1,30 @@
+= form_for [organization, @server, @smtp_endpoint], :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :name, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :name, :autofocus => true, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :hostname, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :hostname, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :port, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :port, :class => 'input input--text', :placeholder => "25 (by default)"
+    .fieldSet__field
+      = f.label :ssl_mode, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :ssl_mode, SMTPEndpoint::SSL_MODES, {}, :class => 'input input--select'
+        %p.fieldSet__text
+          Choose what, if any, SSL mode you'd like to use when delivering mail to this mail server.
+          Be aware that any mail sent with no SSL is insecure and not protected in anyway.
+
+  .fieldSetSubmit.buttonSet
+    = f.submit @smtp_endpoint.new_record? ? "Create SMTP endpoint" : "Save SMTP endpoint", :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      - if f.object.persisted?
+        = link_to "Delete SMTP endpoint", [organization, @server, @smtp_endpoint], :remote => true, :class => 'button button--danger', :method => :delete, :data => {:confirm => "Are you sure you wish to delete this SMTP endpoint?\n\r#{pluralize @smtp_endpoint.routes.size, 'route'} that uses this endpoint will also be deleted."}
+
+  = hidden_field_tag 'return_to', params[:return_to]
+  = hidden_field_tag 'return_notice', params[:return_notice]

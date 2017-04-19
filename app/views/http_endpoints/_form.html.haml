@@ -1,0 +1,59 @@
+= form_for [organization, @server, @http_endpoint], :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :name, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :name, :autofocus => true, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :url, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :url, :class => 'input input--text'
+        %p.fieldSet__text
+          Enter the full URL that we should POST your messages to. We recommend using https URLs here to
+          ensure your data remains secure in transit.
+    .fieldSet__field
+      = f.label :encoding, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :encoding, HTTPEndpoint::ENCODINGS.map { |e| [t("http_endpoint_encodings.#{e.underscore}"), e] }, {}, :class => 'input input--select'
+        %p.fieldSet__text
+          You can choose how the data will be delivered to your server. We recommend receiving data as JSON which will be
+          posted to your endpoint with an application/json content type. If you choose to use form data, you'll be able
+          to read parameters as normal without parsing any JSON.
+
+    .fieldSet__field
+      = f.label :format, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :format, HTTPEndpoint::FORMATS.map { |e| [t("http_endpoint_formats.#{e.underscore}"), e] }, {}, :class => 'input input--select'
+        %p.fieldSet__text
+          You can choose whether to receive the full raw message or whether you'd prefer to receive a individual properties
+          for a message individually.
+    .fieldSet__field
+      = f.label :strip_replies, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :strip_replies, [["Send the full message as received", false], ["Try to seperate replies/signatures from plain body", true]], {}, :class => 'input input--select'
+        %p.fieldSet__text
+          If enabled, we'll try to remove the replies/signatures from the plain body and send them seperately to the rest of the body.
+          This is useful if you just want to see the latest message in a thread.
+    .fieldSet__field
+      = f.label :include_attachments, "Attachments", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :include_attachments, [["Include attachment data", true], ["Don't include attachment data", false]], {}, :class => 'input input--select'
+        %p.fieldSet__text
+          You can choose whether or not attachment data will be delivered to your app. This only applies when the message is delivered
+          as a hash (rather than the raw message - these will always have attachment data within).
+    .fieldSet__field
+      = f.label :timeout, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :timeout, :class => 'input input--text', :placeholder => "Default: 5"
+        %p.fieldSet__text
+          This is how long (in seconds) we should wait for your server to respond before giving up and trying again later. By default this is 5
+          seconds. The maximum value is 60 seconds.
+
+  .fieldSetSubmit.buttonSet
+    = f.submit @http_endpoint.new_record? ? "Create HTTP endpoint" : "Save HTTP endpoint", :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      - if f.object.persisted?
+        = link_to "Delete HTTP endpoint", [organization, @server, @http_endpoint], :remote => true, :class => 'button button--danger', :method => :delete, :data => {:confirm => "Are you sure you wish to delete this HTTP endpoint?\n\r#{pluralize @http_endpoint.routes.size, 'route'} that uses this endpoint will also be deleted."}
+
+  = hidden_field_tag 'return_to', params[:return_to]
+  = hidden_field_tag 'return_notice', params[:return_notice]

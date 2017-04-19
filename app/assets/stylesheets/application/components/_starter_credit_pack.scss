@@ -1,0 +1,20 @@
+.starterCreditPack {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+  background:image-url('starter_pack.png') #fff no-repeat 25px 20px;
+  background-size:100px;
+  padding:25px 25px 20px 155px;
+  line-height:1.5;
+}
+
+.starterCreditPack__text {
+  margin-bottom:10px;
+}
+
+.starterCreditPack__nextRenew {
+  font-size:12px;
+  color:#999;
+  margin-left:5px;
+  vertical-align:-2px;
+}

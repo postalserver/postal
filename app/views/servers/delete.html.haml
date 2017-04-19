@@ -1,0 +1,21 @@
+- page_title << @server.name
+- page_title << "Delete Server"
+= render 'sidebar', :active_server => @server
+= render 'header', :active_nav => :settings
+= render 'settings_header', :active_nav => :delete
+.pageContent.pageContent--compact
+  %h2.pageContent__intro.u-margin
+    If you no longer need this server you can remove it. When you remove a server all
+    retained messages will be deleted and all mail which is received will be rejected
+    immediately.
+  .dangerZone
+    %p.pageContent__text.u-margin
+      To continue to remove this server, please enter your password in the field below and press
+      continue. <b class='u-red'>There will be no other confirmations.</b>
+    = form_tag [organization, @server], :remote => true, :method => :delete do
+      = hidden_field_tag 'return_to', params[:return_to]
+      %p.u-margin
+        = password_field_tag "password", '', :class => 'input input--text input--danger'
+      .buttonSet.u-center
+        = submit_tag "Delete this mail server and all messages", :class => 'button button--danger'
+

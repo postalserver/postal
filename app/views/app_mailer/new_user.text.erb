@@ -1,0 +1,12 @@
+Hello <%= @user.first_name %>,
+
+To verify your e-mail address you will be prompted to enter a code when you login to your Postal account. The code you need to enter is:
+
+<%= @user.email_verification_token %>
+
+Once you've done that, you'll be able to access your account.
+
+Thanks,
+
+<%= Postal.smtp_from_name %>
+<%= Postal.smtp_from_address %>

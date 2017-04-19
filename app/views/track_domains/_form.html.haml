@@ -1,0 +1,50 @@
+= form_for [organization, @server, @track_domain], :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :name, "Domain", :class => 'fieldSet__label'
+      .fieldSet__input
+        .routeNameInput
+          = f.text_field :name, :autofocus => true, :class => 'input input--text routeNameInput__name', :disabled => @track_domain.persisted?
+          %span.routeNameInput__at .
+          = f.select :domain_id, domain_options_for_select(@server, @track_domain.domain), {}, :class => 'input input--select routeNameInput__domain', :disabled => @track_domain.persisted?
+        %p.fieldSet__text
+          This is the domain that requests for tracked links will be directed through when you use click tracking. We recommend using something like
+          <b>click.yourdomain.com</b>. You will need to a CNAME record to point to <b>#{Postal.config.dns.track_domain}</b> for this once you've added it.
+
+    .fieldSet__field
+      = f.label :ssl_enabled, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :ssl_enabled, [["Yes - use SSL for tracking whenever possible", true], ["No - never use SSL for tracking", false]], {}, :class => 'input input--select'
+        %p.fieldSet__text
+          If enabled, we'll try to remove the replies/signatures from the plain body and send them seperately to the rest of the body.
+          This is useful if you just want to see the latest message in a thread.
+
+    .fieldSet__field
+      = f.label :track_loads, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :track_loads, [["Yes - track when HTML e-mails are opened", true], ["No - don't track when HTML e-mails are opened", false]], {}, :class => 'input input--select'
+        %p.fieldSet__text
+          If enabled, we'll insert a 1px image into the footer of any HTML e-mails. When this image is loaded, we'll log
+          this as a view and notify you with a webhook.
+
+    .fieldSet__field
+      = f.label :track_clicks, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :track_clicks, [["Yes - track when links are clicked", true], ["No - don't track when links are clicked", false]], {}, :class => 'input input--select'
+        %p.fieldSet__text
+          If enabled, we'll rewrite URLs in your outbound messages to go via this domain. You'll receive a webhook when
+          someone clicks one of your links and it will be displayed in the web interface.
+
+    .fieldSet__field
+      = f.label :excluded_click_domains, "Domains excluded from tracking", :class => 'fieldSet__label'
+      .fieldSet__input
+        ~ f.text_area :excluded_click_domains, :class => 'input input--smallArea'
+        %p.fieldSet__text
+          This is a list of domains of links that you don't wish to be tracked. When click tracking is enabled,
+          you can provide a list (one domain per line) for links that you don't wish to be tracked.
+
+
+  .fieldSetSubmit.buttonSet
+    = f.submit @track_domain.new_record? ? "Create Track Domain" : "Save Track Domain", :class => 'button button--positive js-form-submit'
+

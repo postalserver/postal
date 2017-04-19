@@ -1,0 +1,28 @@
+- page_title << @organization.name
+- page_title << "Organization Settings"
+.pageHeader
+  %h1.pageHeader__title
+    %span.pageHeader__titlePrevious
+      = @organization.name
+      &rarr;
+    Settings
+
+= render 'nav', :active_nav => :settings
+
+.pageContent.pageContent--compact
+  = form_for @organization_obj, :url => organization_settings_path(@organization_obj), :remote => true do |f|
+    = f.error_messages
+    %fieldset.fieldSet
+      .fieldSet__field
+        = f.label :name, :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :name, :autofocus => true, :class => 'input input--text'
+      .fieldSet__field
+        = f.label :time_zone, :class => 'fieldSet__label'
+        .fieldSet__input
+          = f.time_zone_select :time_zone, [], {}, :class => 'input input--select'
+          %p.fieldSet__text
+            Choose the time zone that your organization exists within. This is used when displaying times in places
+            where there isn't a logged in user to provide their own time zone.
+
+    %p.fieldSetSubmit.buttonSet
+      = f.submit "Save Settings", :class => 'button button--positive js-form-submit'

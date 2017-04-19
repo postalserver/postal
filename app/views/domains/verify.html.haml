@@ -1,0 +1,21 @@
+- if @server
+  - page_title << @server.name
+- page_title << @domain.name
+- page_title << "Verify"
+
+
+- if @server
+  = render 'servers/sidebar', :active_server => @server
+  = render 'servers/header', :active_nav => :domains
+  = render 'nav', :active_nav => :domains
+- else
+  .pageHeader
+    %h1.pageHeader__title
+      %span.pageHeader__titlePrevious
+        = @organization.name
+        &rarr; Domains &rarr;
+      = @domain.name
+  = render 'organizations/nav', :active_nav => :domains
+
+.pageContent.pageContent--compact
+  = render :partial => "verify_with_#{@domain.verification_method.underscore}"

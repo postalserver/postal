@@ -1,0 +1,14 @@
+.siteContent {
+  align-items: stretch;
+  display: flex;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.siteContent__main {
+  @include scrollbars(12px);
+  flex: 1 1 auto;
+  z-index:100;
+  overflow-y:scroll;
+  overflow-x:hidden;
+}

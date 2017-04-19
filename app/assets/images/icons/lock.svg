@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="88px" height="108px" viewBox="0 0 88 108" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.2 (12043) - http://www.bohemiancoding.com/sketch -->
+    <title>g95</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="g95" sketch:type="MSLayerGroup" fill="#000000">
+            <path d="M76,40.226 L76,29 C76,13.01 61.644,0 44,0 C26.356,0 12,13.01 12,29 L12,40.226 C5.198,41.398 0,47.326 0,54.458 L0,93.542 C0,101.514 6.486,108 14.458,108 L73.542,108 C81.514,108 88,101.514 88,93.542 L88,54.458 C88,47.326 82.802,41.398 76,40.226 L76,40.226 Z M16,29 C16,15.214 28.56,4 44,4 C59.44,4 72,15.214 72,29 L72,40 L16,40 L16,29 L16,29 Z M52,76 C52,80.412 48.412,84 44,84 C39.588,84 36,80.412 36,76 L36,64 C36,59.588 39.588,56 44,56 C48.412,56 52,59.588 52,64 L52,76 L52,76 Z" id="Fill-813" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>

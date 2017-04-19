@@ -1,0 +1,21 @@
+- if @server
+  - page_title << @server.name
+- page_title << "Add IP Pool Rule"
+
+- if @server
+  = render 'servers/sidebar', :active_server => @server
+  = render 'servers/header', :active_nav => :settings
+  = render 'servers/settings_header', :active_nav => :ip_pool_rules
+- else
+  .pageHeader
+    %h1.pageHeader__title
+      %span.pageHeader__titlePrevious
+        = @organization.name
+        &rarr;
+        IP Pool Rules
+        &rarr;
+      Add new rule
+  = render 'organizations/nav', :active_nav => :ips
+  = render 'ip_pools/nav', :active_nav => :rules
+
+= render 'form'

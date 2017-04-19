@@ -1,0 +1,49 @@
+.messagePropertiesPage {
+  display:flex;
+  justify-content:space-between;
+}
+
+.messagePropertiesPage__left {
+  width:45%;
+}
+
+.messagePropertiesPage__right {
+  border-left:3px solid #eee;
+  padding-left:35px;
+  width:52%;
+}
+
+.messagePropertiesPage__property {
+  margin-bottom:25px;
+  min-width:1px;
+  dt {
+    color:$subBlue;
+    margin-bottom:3px;
+  }
+  dd {
+    font-size:16px;
+    font-weight:600;
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+}
+
+.messagePropertiesPage__property--locked {
+  background:image-url('icons/lock.svg') no-repeat 0 1px / 14px;
+  padding-left:20px;
+}
+
+.messagePropertiesPage__propertyPair {
+  display:flex;
+  justify-content:space-between;
+  dl {
+    width:47%;
+  }
+}
+
+.messagePropertiesPage__title {
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:25px;
+}

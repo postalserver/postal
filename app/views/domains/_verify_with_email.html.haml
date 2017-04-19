@@ -1,0 +1,25 @@
+- if params[:email_address]
+  %p.pageContent__intro.u-margin
+    We've sent an email to <b>#{params[:email_address]}</b>. Please check your e-mail and enter
+    the code you've been sent in the box below.
+  = form_tag request.fullpath, :remote => true do
+    = hidden_field_tag 'email_address', params[:email_address]
+    %p.u-margin
+      = text_field_tag "code", params[:code], :autofocus => true, :class => 'input input--text js-multibox'
+    .buttonSet
+      = submit_tag "Verify this domain", :class => 'button js-form-submit'
+      = link_to "Back to domain list", [organization, @server, :domains], :class => "button button--neutral"
+
+
+- else
+  %p.pageContent__intro.u-margin
+    To verify your ownership of <b>#{@domain.name}</b> by e-mail, choose an e-mail address from the list
+    below. We'll then send you an email with a code which you'll need to enter below.
+
+  = form_tag request.fullpath, :remote => true do
+    %p.u-margin
+      = select_tag "email_address", options_for_select(@domain.verification_email_addresses), :class => 'input input--select', :autofocus => true
+    %p.buttonSet
+      = submit_tag "Continue", :class => 'button'
+      = link_to "Back to domain list", [organization, @server, :domains], :class => "button button--neutral"
+

@@ -1,0 +1,10 @@
+.simplePagination
+  %p.simplePagination__previous
+    - if data[:page] > 1
+      = link_to "&larr; Previous page".html_safe, request.params.merge(:page => data[:page] - 1), :class => 'simplePagination__link'
+  .simplePagination__current
+    %p.simplePagination__info Showing #{number_with_delimiter data[:records].size} of #{number_with_delimiter data[:total]} #{data[:total] == 1 ? name : name.pluralize}
+    %p Page #{data[:page]} of #{number_with_delimiter data[:total_pages]}
+  %p.simplePagination__next
+    - if data[:total_pages] > data[:page]
+      = link_to "Next page &rarr;".html_safe, request.params.merge(:page => data[:page] + 1), :class => 'simplePagination__link'

@@ -1,0 +1,35 @@
+- page_title << "Choose mail server"
+.pageHeader
+  %h1.pageHeader__title
+    %span.pageHeader__titlePrevious
+      = @organization.name
+      &rarr;
+    Mail Servers
+= render 'organizations/nav', :active_nav => :servers
+.pageContent.pageContent--compact
+
+  - if @servers.empty?
+    .noData.noData--owl.noData--clean
+      %p.noData__title Well owls about that, you've no mail servers yet.
+      %p.noData__text
+        Great - you've got an organization, now you need to provision a mail server.
+        Once you've got a mail server, you can start sending & receiving messages.
+      %p.noData__button.buttonSet.buttonSet--center
+        = link_to "Build your first mail server", [:new, organization, :server], :class => 'button button--positive'
+  - else
+    .js-searchable
+      %p.messageSearch= text_field_tag 'query', params[:query], :class => 'messageSearch__input js-searchable__input js-focus-on-s', :placeholder => "Find a server..."
+
+      %ul.largeList.u-margin.js-searchable__list
+        - for server in @servers
+          %li.largeList__item.js-searchable__item{:data => {:value => server.name.downcase.gsub(/\W/, ''), :url => url_for([organization, server])}}
+            = link_to [organization, server], :class => 'largeList__link' do
+              %span.largeList__rightLabel.label{:class => "label--serverStatus-#{server.status.underscore}"}= t("server_statuses.#{server.status.underscore}")
+              %p= server.name
+              %p.largeList__subText #{number_with_precision server.message_rate, :precision => 2} messages/minute
+      .js-searchable__empty.is-hidden
+        .noData.noData--owl.noData--clean
+          %p.noData__title Well owls about that, no servers found.
+          %p.noData__text
+            There were no servers found matching what you've typed it.
+    %p.u-center= link_to "Build a new mail server", [:new, organization, :server], :class => 'button button--positive'

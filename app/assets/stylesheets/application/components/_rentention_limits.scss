@@ -1,0 +1,37 @@
+.retentionLimits {
+}
+
+.retentionLimits__limit {
+  display:flex;
+  align-items: center;
+}
+
+.retentionLimits__limit + .retentionLimits__limit {
+  margin-top:25px;
+}
+
+.retentionLimits__label {
+  width:200px;
+  flex: 0 0 auto;
+  font-weight:bold;
+  margin-right:25px;
+}
+
+.retentionLimits__info {
+  border-left:4px solid $blue;
+  padding-left:25px;
+}
+
+.retentionLimits__value {
+  color:$blue;
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.retentionLimits__text {
+  color:$subBlue;
+  font-size:12px;
+  line-height:1.5;
+}
+

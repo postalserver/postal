@@ -1,0 +1,40 @@
+.suppressionList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.suppressionList__item {
+  background:#fff;
+  padding:15px;
+  display:flex;
+}
+.suppressionList__item:nth-child(even) {
+  background:none;
+}
+
+.suppressionList__item + .suppressionList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.suppressionList__left {
+  flex: 1 1 auto;
+}
+
+.suppressionList__right {
+  flex: 0 0 auto;
+}
+
+.suppressionList__timestamp {
+  color:#999;
+  font-size:12px;
+}
+
+.suppressionList__address {
+  font-weight:600;
+  margin-bottom:5px;
+}
+
+.suppressionList__reason {
+  color:#999;
+}

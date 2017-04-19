@@ -1,0 +1,108 @@
+.domainList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.domainList__item {
+  display:block;
+  background:#fff;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+}
+.domainList__item:nth-child(even) {
+  background:none;
+}
+
+.domainList__item + .domainList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.domainList__details {
+  flex: 1 1 auto;
+  min-width: 1px;
+}
+
+.domainList__properties {
+  text-align:right;
+  flex:0 0 auto;
+  margin-left:25px;
+}
+
+.domainList__name {
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:6px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  span.label {
+    vertical-align:2px;
+  }
+}
+
+.domainList__verificationTime {
+  color:#999;
+}
+
+.domainList__links {
+  margin-top:12px;
+  display:flex;
+  justify-content:flex-end;
+  font-size:12px;
+  text-decoration: underline;
+  a {
+    margin-left:10px;
+  }
+}
+
+.domainList__delete {
+  color:$red;
+  margin-left:10px;
+}
+
+.domainList__verificationLink {
+  background:$blue;
+  color:#fff;
+  padding:1px 7px;
+  border-radius:4px;
+  font-size:12px;
+}
+
+.domainList__checks {
+  display:flex;
+}
+
+.domainList__check {
+  margin-right:15px;
+  font-size:12px;
+}
+
+.domainList__check--ok {
+  background:image-url('icons/tick-green.svg') no-repeat 0 3px / 12px;
+  padding-left:15px;
+  color:$green;
+}
+
+.domainList__check--neutral {
+  background:image-url('icons/tick-grey.svg') no-repeat 0 3px / 12px;
+  padding-left:15px;
+  color:#aaa;
+}
+
+.domainList__check--neutral-cross {
+  background:image-url('icons/cross-grey.svg') no-repeat 0 3px / 9px;
+  padding-left:12px;
+  color:#aaa;
+}
+
+
+.domainList__check--warning {
+  background:image-url('icons/cross-orange.svg') no-repeat 0 3px / 9px;
+  padding-left:12px;
+  color:$orange;
+}
+
+.domainList__check a:hover {
+  text-decoration:underline;
+}

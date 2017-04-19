@@ -1,0 +1,15 @@
+- page_title << "Users"
+- page_title << "Permissions"
+.pageHeader
+  %h1.pageHeader__title
+    %span.pageHeader__titlePrevious
+      = @organization.name
+      &rarr;
+      Users
+      &rarr;
+    Edit user permissions
+
+= render 'organizations/nav', :active_nav => :users
+.pageContent.pageContent--compact
+  = render 'form'
+

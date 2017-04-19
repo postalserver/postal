@@ -1,0 +1,67 @@
+.routeList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.routeList__item {
+  background:#fff;
+}
+.routeList__item:nth-child(even) {
+  background:none;
+}
+
+.routeList__item + .routeList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.routeList__link {
+  padding:15px;
+  display:block;
+  &:hover {
+    background:#f2f5f8 !important;
+  }
+}
+
+.routeList__name {
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:13px;
+}
+
+.routeList__details {
+  display:flex;
+  justify-content:space-between;
+  min-width:1px;
+}
+
+.routeList__endpoint {
+  flex: 1 1 auto;
+  overflow:hidden;
+  color:#999;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  line-height:1.1;
+  background:image-url('icons/web.svg') no-repeat 0 0 / 12px;
+  padding-left:18px;
+  font-size:13px;
+}
+
+.routeList__endpoint--smtp_endpoint {
+  background-image:image-url('icons/email.svg');
+  background-size:12px;
+  background-position:0 1.5px;
+}
+
+.routeList__endpoint--address_endpoint {
+  background-image:image-url('icons/email.svg');
+  background-size:12px;
+  background-position:0 1.5px;
+}
+
+.routeList__spamMode {
+  font-size:12px;
+  color:#999;
+  margin-left:15px;
+  flex: 0 0 auto;
+}

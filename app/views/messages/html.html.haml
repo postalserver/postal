@@ -1,0 +1,17 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Message ##{@message.id}"
+- page_title << "HTML"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :messages
+= render 'header', :active_nav => @message.scope.to_sym
+= render 'message_header', :active_nav => :html
+- if @message.html_body.blank?
+  .pageContent.pageContent--compact
+    .noData.noData--clean.noData--panda
+      %h2.noData__title There's no HTML body for this message.
+      %p.noData__text
+        This means that we no longer store the raw data for this e-mail
+        or the e-mail didn't include a HTML part.
+- else
+  %iframe{:width => "100%", :height => "100%", :src => html_raw_organization_server_message_path(organization, @server, @message.id)}

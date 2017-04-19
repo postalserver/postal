@@ -1,0 +1,13 @@
+!!!
+%html.subPage
+  %head
+    %title #{page_title.reverse.join(' - ')}
+    = csrf_meta_tags
+    = stylesheet_link_tag 'application/application', 'data-turbolinks-track' => 'reload'
+    = javascript_include_tag 'application/application', 'data-turbolinks-track' => 'reload'
+    %link{:href => asset_path('favicon.png'), :rel => 'shortcut icon'}
+    <meta name="turbolinks-cache-control" content="no-cache">
+  %body
+    .subPageBox{:class => @wide ? "subPageBox--wide" : ''}
+      = yield
+

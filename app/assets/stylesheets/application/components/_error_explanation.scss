@@ -1,0 +1,32 @@
+.errorExplanation {
+  border:1px solid $orange;
+  margin-bottom:25px;
+  color:$orange;
+  padding:15px;
+  box-shadow:0 0 10px lighten($red, 30%);
+  background:image-url('animals/fox.svg') #fff no-repeat 15px 15px / 50px;
+  padding-left:75px;
+  border-radius:4px;
+  line-height:1.5;
+}
+
+.errorExplanation h2 {
+  display:none;
+}
+
+.errorExplanation p {
+  display:none;
+}
+
+.errorExplanation ul li {
+  list-style:disc;
+  margin-left:20px;
+}
+
+html.subPage {
+  .errorExplanation {
+    background:none;
+    padding-left:15px;
+    line-height:1.3;
+  }
+}

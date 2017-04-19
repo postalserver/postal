@@ -1,0 +1,48 @@
+.ipList {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.ipList__item {
+  display:block;
+  background:#fff;
+  padding:15px;
+  justify-content:space-between;
+}
+.ipList__item:nth-child(even) {
+  background:none;
+}
+
+.ipList__item + .ipList__item {
+  border-top:1px solid lighten(#ccd4e0, 10%);
+}
+
+.ipList__name {
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:10px;
+}
+
+.ipList__address {
+  display:flex;
+}
+
+.ipList__address + .ipList__address {
+  margin-top:5px;
+}
+
+.ipList__ipv4 {
+  width:120px;
+}
+
+.ipList__ipv6 {
+  width:200px;
+}
+
+.ipList__address--header {
+  font-size:12px;
+  color:#999;
+  border-bottom:1px solid #ccc;
+  padding-bottom:4px;
+}

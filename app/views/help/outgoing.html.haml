@@ -1,0 +1,60 @@
+- page_title << @server.name
+- page_title << "Help"
+- page_title << "Sending E-Mail"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :help
+= render 'header', :active_nav => :outgoing
+.pageContent.pageContent--compact
+  %h1.pageContent__title Sending e-mail
+  %h2.pageContent__intro.u-margin
+    There are a couple of different ways you send outgoing mail through a
+    mail server. These methods are shown below:
+  %p.u-margin.pageContent__helpLink= link_to "Read more about receiving e-mails", [organization, @server, :help_incoming]
+  .u-margin
+    %h2.pageContent__subTitle Important notes
+    %ul.pageContent__list
+      %li
+        E-mails can only be sent from addresses with domains that you have added to mail server or the server's organization.
+        Mail servers can be enabled to send mail from any domain by the administrator.
+      %li
+        If a message cannot be delivered, the system will not send you a bounce message but dispatch a webhook (if you set one up).
+        If a message delivery fails but can be retried, the system will try #{QueuedMessage::MAX_ATTEMPTS} times to deliver it before giving up.
+  .u-margin
+    %h2.pageContent__subTitle Sending using SMTP
+    %p.pageContent__text
+      These instructions explain how to send messages using the SMTP server.
+
+    %dl.pageContent__definitions
+      %dt SMTP Server Address
+      %dd
+        %p.pageContent__definitionCode= Postal.config.dns.smtp_server_hostname
+      %dt Port
+      %dd
+        %p.pageContent__definitionCode 25 or 2525
+        %p.pageContent__definitionText
+          The SMTP service supports STARTTLS if you wish to send messages securely. Be aware that security
+          cannot guaranteed all the way to their final destination.
+
+      %dt Username
+      %dd
+        %p.pageContent__definitionCode= @server.full_permalink
+      %dt Password
+      %dd
+        - if @credentials['SMTP'].present?
+          %p.pageContent__definitionCode
+            = @credentials['SMTP'].first.key
+          %p.pageContent__definitionText= link_to "Create more credentials", [organization, @server, :credentials], :class => "u-link"
+        - else
+          %p.warningBox
+            %b No SMTP credentials created for this server yet.
+            A password can be generated from the #{link_to 'credentials', [:new, organization, @server, :credential], :class => "u-link"}
+            page. Just create a credential with the <b>SMTP</b> type and add a name which suits the place you'll be using the credentials.
+
+      %dt Authentication Methods
+      %dd
+        %p.pageContent__definitionCode PLAIN, LOGIN or CRAM-MD5
+
+  .u-margin
+    %h2.pageContent__subTitle Sending over HTTP using our API
+    %p.pageContent__text
+      For full information about how to use our HTTP API, please #{link_to 'see the documentation', 'https://gopostal.io/~/http-sending', :class => "u-link"}.

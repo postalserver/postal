@@ -1,0 +1,41 @@
+- page_title << @server.name
+- page_title << "Help"
+- page_title << "Receiving E-Mail"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :help
+= render 'header', :active_nav => :incoming
+
+.pageContent.pageContent--compact
+  %h1.pageContent__title Receiving e-mail
+  %h2.pageContent__intro.u-margin
+    This system can handle your incoming e-mail by accepting it from other mail servers and
+    sending it on to your own applications using HTTP or to forward it to other SMTP servers.
+  %p.u-margin.pageContent__helpLink= link_to "Read more about sending e-mails", [organization, @server, :help_outgoing]
+  .u-margin
+    %h2.pageContent__subTitle Forwarding e-mails
+    %p.pageContent__text
+      If you already have a incoming mail server for your domain, you may find the quickest
+      way to get up and running is to simply forward e-mail from that server.
+      You don't need to make any changes to your DNS to do this.
+    %p.pageContent__text
+      Just #{link_to "create an incoming route", [organization, @server, :routes], :class => "u-link"}
+      for the address you want to receive messages for and then you'll be provided with
+      an e-mail address that messages can be forward to. Any message that is received to
+      this address will be treated as if it had been sent directly to the address on the route.
+    %p.pageContent__text
+      The address to forward mail to can be found by clicking on the route and copying the
+      field marked Address from the form.
+
+  .u-margin
+    %h2.pageContent__subTitle Setting your MX records
+    %p.pageContent__text
+      If you don't already have a mail server on your domain, you can simply set your
+      MX records to point to this system. The MX records are shown
+      below and you should add these both as priority 10 in your DNS configuration. Once
+      these have been added successfully they will show with a green tick on your domain list.
+    %dl.pageContent__definitions
+      %dt MX Records
+      %dd
+        - for mx in Postal.config.dns.mx_records
+          %p.pageContent__definitionCode= mx
+

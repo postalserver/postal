@@ -1,0 +1,31 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Message ##{@message.id}"
+- page_title << "Spam checks"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :messages
+= render 'header', :active_nav => @message.scope.to_sym
+= render 'message_header', :active_nav => :spam_checks
+.pageContent.pageContent--compact
+
+  - if @spam_checks.empty?
+    .noData.noData--clean
+      %h2.noData__title This message doesn't have any spam checks.
+      %p.noData__text
+        This likely means we haven't scanned this message to determine its likelyhood
+        of being spam. It may take a few seconds to appear after a new message is
+        received.
+
+  - else
+    %ul.spamCheckList
+      %li.spamCheckList__item.spamCheckList__item--total
+        %p.spamCheckList__score{:class => @message.spam_score <= 0 ? (@message.spam_score == 0 ? 'spamCheckList__score--neutral' : 'spamCheckList__score--positive') : 'spamCheckList__score--negative'}= @message.spam_score
+        .spamCheckList__details.spamCheckList__details--total
+          Total spam score for e-mail
+      - for spam_check in @spam_checks
+        %li.spamCheckList__item
+          %p.spamCheckList__score{:class => spam_check['score'] <= 0 ? (spam_check['score'] == 0 ? 'spamCheckList__score--neutral' : 'spamCheckList__score--positive') : 'spamCheckList__score--negative'}= spam_check['score']
+          .spamCheckList__details
+            %p.spamCheckList__code= spam_check['code']
+            %p.spamCheckList__description= spam_check['description']
+

@@ -1,0 +1,6 @@
+.navBar.navBar--secondary
+  %ul
+    %li.navBar__item= link_to "Routes", [organization, @server, :routes], :class => ['navBar__link', active_nav == :routes ? 'is-active' : '']
+    %li.navBar__item= link_to "HTTP Endpoints", [organization, @server, :http_endpoints], :class => ['navBar__link', active_nav == :http_endpoints ? 'is-active' : '']
+    %li.navBar__item= link_to "SMTP Endpoints", [organization, @server, :smtp_endpoints], :class => ['navBar__link', active_nav == :smtp_endpoints ? 'is-active' : '']
+    %li.navBar__item= link_to "Address Endpoints", [organization, @server, :address_endpoints], :class => ['navBar__link', active_nav == :address_endpoints ? 'is-active' : '']

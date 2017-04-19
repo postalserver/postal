@@ -1,0 +1,14 @@
+Hi <%= @user.first_name %>,
+
+You've just changed the e-mail address on your Postal account. So that we can verify that you own the new address you've entered, we need you to enter the code below into the box shown in your web browser.
+
+<%= @user.email_verification_token %>
+
+If you don't have a box on your screen, just login to your Postal account to continue.
+
+<%= Postal.host_with_protocol %>/login
+
+Thanks,
+
+<%= Postal.smtp_from_name %>
+<%= Postal.smtp_from_address %>

@@ -1,0 +1,93 @@
+.pageContent {
+  margin:35px;
+}
+
+.pageContent__intro {
+  font-size:20px;
+  line-height:30px;
+  font-weight:300;
+  color:$subBlue;
+}
+
+.pageContent__title {
+  font-size:20px;
+  margin-bottom:10px;
+  font-weight:700;
+  color:$darkBlue;
+}
+
+.pageContent--compact {
+  max-width:600px;
+  margin:60px auto;
+}
+
+.pageContent__subTitle {
+  font-size:18px;
+  font-weight:600;
+  border-bottom:1px solid #ddd;
+  padding-bottom:3px;
+  margin-bottom:10px;
+}
+
+.pageContent__text {
+  line-height:1.5;
+  margin-bottom:15px;
+  .label {
+    vertical-align:1px;
+    margin-right:2px;
+  }
+}
+
+.pageContent__pageEntriesInfo {
+  font-size:12px;
+  color:$subBlue;
+  margin-bottom:10px;
+}
+
+.pageContent__definitions {
+  overflow:hidden;
+  dt {
+    width:30%;
+    float:left;
+    color:$subBlue;
+  }
+  dd {
+    margin-left:35%;
+    margin-bottom:15px;
+    word-wrap:break-word;
+  }
+}
+
+.pageContent__definitionCode {
+  font-size:16px;
+  font-weight:bold;
+  font-family:'Droid Sans Mono', fixed;
+}
+
+.pageContent__definitionCode + .pageContent__definitionText {
+  margin-top:6px;
+}
+
+.pageContent__definitionText {
+  color:$subBlue;
+}
+
+.pageContent__list {
+  line-height:1.5;
+  li {
+    list-style:square;
+    margin-left:25px;
+  }
+  li + li {
+    margin-top:15px;
+  }
+}
+
+.pageContent__helpLink {
+  a {
+    background:image-url('icons/help.svg') no-repeat 0 2px / 15px;
+    padding-left:20px;
+    text-decoration:underline;
+    color:$blue;
+  }
+}

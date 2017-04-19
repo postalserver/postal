@@ -1,0 +1,65 @@
+- if @server
+  - page_title << @server.name
+  - page_title << "IP Pool Rules"
+- else
+  - page_title << "IPs"
+  - page_title << "Rules"
+
+- if @server
+  = render 'servers/sidebar', :active_server => @server
+  = render 'servers/header', :active_nav => :settings
+  = render 'servers/settings_header', :active_nav => :ip_pool_rules
+- else
+  .pageHeader
+    %h1.pageHeader__title
+      %span.pageHeader__titlePrevious
+        = @organization.name
+        &rarr;
+      IP Pool Rules
+  = render 'organizations/nav', :active_nav => :ips
+  = render 'ip_pools/nav', :active_nav => :rules
+
+.pageContent.pageContent--compact
+  - if @ip_pool_rules.empty?
+    .noData.noData--panda.noData--clean
+      - if @server.nil?
+        %h2.noData__title No global rules have been configured yet.
+        %p.noData__text
+          You can use IP pool rules to configure which IP addresses to use based on the
+          message that are passing through Postal. You can add rules globally or on a
+          per-server basis.
+        %p.noData__button= link_to "Add a global rule", [:new, organization, @server, :ip_pool_rule], :class => "button button--positive"
+      - else
+        %h2.noData__title No IP rules have been configured for this server yet.
+        %p.noData__text
+          You can use IP pool rules to configure which IP addresses to use based on the
+          message that are passing through Postal. You can add rules globally or on a
+          per-server basis.
+        %p.noData__button= link_to "Add a server rule", [:new, organization, @server, :ip_pool_rule], :class => "button button--positive"
+        -
+  - else
+    .ipPoolRuleList.u-margin
+      - for ip_pool_rule in @ip_pool_rules
+        .ipPoolRuleList__item
+          = link_to [:edit, organization, @server, ip_pool_rule], :class => 'ipPoolRuleList__link' do
+            - if ip_pool_rule.to.present?
+              %dl.ipPoolRuleList__condition
+                %dt Any messages sent to:
+                %dd
+                  %ul
+                    - for a in ip_pool_rule.to
+                      %li= a
+            - if ip_pool_rule.from.present?
+              %dl.ipPoolRuleList__condition
+                %dt Any message sent from:
+                %dd
+                  %ul
+                    - for a in ip_pool_rule.from
+                      %li= a
+
+            %dl.ipPoolRuleList__condition
+              %dt Will be sent using:
+              %dd= ip_pool_rule.ip_pool.description
+    - if @server
+      %p.ipPoolRuleListDefault.u-margin All mail that doesn't match a rule above will be sent using #{@server.ip_pool.description}.
+    %p.u-center= link_to "Add another rule", [:new, organization, @server, :ip_pool_rule], :class => "button button--positive"

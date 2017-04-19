@@ -1,0 +1,14 @@
+@mixin scrollbars($size: 6px, $thumb: #979ea6, $track: #efefef) {
+  &::-webkit-scrollbar {
+    height: $size; // Horizontal Scrollbars
+    width: $size; // Vertical Scrollbars
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $thumb;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track;
+  }
+}

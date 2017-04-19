@@ -1,0 +1,79 @@
+web:
+  host: postal.example.com
+  protocol: https
+  fast_server_host: postal-click.example.com
+  fast_server_protocol: https
+
+web_server:
+  bind_address: 0.0.0.0
+  port: 5000
+  max_threads: 5
+
+fast_server:
+  bind_address: 0.0.0.0
+  port: 5010
+  ssl_port: 5011
+  proxy_protocol: true
+
+general:
+  use_ip_pools: true
+  exception_url: xxx
+
+logging:
+  stdout: false
+  max_log_file_size: 20
+  max_log_files: 10
+
+main_db:
+  host: localhost
+  port: 3306
+  username: root
+  password:
+  database: postal
+
+message_db:
+  host: localhost
+  port: 3306
+  username: root
+  password:
+  prefix: postal
+
+rabbitmq:
+  host: localhost
+  port: 5672
+  username: postal
+  password: xxx
+  vhost: postal
+
+smtp_server:
+  proxy_protocol: false
+  log_connect: true
+  log_exclude_ips: null
+  evented: true
+  ports:
+    - 2525
+
+dns:
+  spf_include: spf.example.com
+  dkim_identifier: postal
+  domain_verify_prefix: postal-verification
+  custom_return_path_prefix: psrp
+  return_path: amrp.example.com
+  smtp_server_hostname: smtp.example.com
+  route_domain: routes.example.com
+  track_domain: track.example.com
+  mx_records:
+    - mx1.example.com
+    - mx2.example.com
+
+smtp:
+  host: smtp.blah
+
+espect:
+  hosts:
+    - http://espect01.infra.atech.io
+
+rails:
+  environment: development
+  secret_key: 1bd1a4fe0cb3fb166be9b0e388beb36557b49ae5bed97ab3e300353de06d1fe55522b21596db8ed5d83c031ca58696340fb3d70f59eb0c096bbe4034fc12e4cd
+

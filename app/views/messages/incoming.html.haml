@@ -1,0 +1,18 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Incoming"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :messages
+= render 'header', :active_nav => :incoming
+- if @messages[:records].empty? && !@queried
+  .pageContent--compact
+    .noData.noData--deer.noData--clean
+      %h2.noData__title Oh deer! You haven't received any messages yet.
+      %p.noData__text
+        You haven't received any messages through this mail server yet. Not to worry though
+        they'll start appearing here as soon as you start receiving them.
+      %p.noData__button
+        = link_to "View spam messages", incoming_organization_server_messages_path(organization, @server, :query => "spam: yes"), :class => "button button--neutral"
+
+- else
+  = render 'index'

@@ -1,0 +1,28 @@
+- page_title << "Welcome"
+
+.pageHeader
+  %h1.pageHeader__title Welcome to Postal, #{current_user.first_name}
+
+.pageContent.pageContent--compact
+
+  - if @organizations.empty?
+    .noData.noData--panda.noData--clean
+      %p.noData__title This is unbearable! You don't have any organizations.
+      %p.noData__text
+        That's not on. You need an organization otherwise you can't do much here. Hit
+        the button below and you'll be up and running with 10,000 free e-mails before
+        you know it.
+      %p.noData__button= link_to "Create your first organization", :new_organization, :class => 'button button--positive'
+  - else
+    %p.pageContent__intro.u-margin
+      Organizations are entities which are able to deploy mail servers.
+      Choose an existing organization from the list opposite or use the button below
+      to create a new one.
+
+    %ul.largeList.u-margin
+      - for organization in @organizations
+        %li.largeList__item
+          = link_to organization_root_path(organization), :class => 'largeList__link' do
+            = organization.name
+
+    %p.u-center= link_to "Start another organization", :new_organization, :class => 'button button--positive'

@@ -1,0 +1,13 @@
+%p.pageContent__intro.u-margin
+  To verify your ownership of <b>#{@domain.name}</b>, you need to add a TXT record to this domain.
+  The TXT record should include the value shown below.
+
+%pre.codeBlock.u-margin= @domain.dns_verification_string
+
+%p.pageContent__intro.u-margin
+  Once you've added this, click the button below to verify the presence of this record and
+  verify your domain.
+
+.buttonSet
+  = link_to "Verify TXT record", [:verify, organization, @server, @domain], :remote => true, :method => :post, :class => "button"
+  = link_to "Back to domain list", [organization, @server, :domains], :class => "button button--neutral"

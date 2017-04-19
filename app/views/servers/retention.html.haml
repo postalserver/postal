@@ -1,0 +1,48 @@
+- page_title << @server.name
+- page_title << "Message Rentention"
+= render 'sidebar', :active_server => @server
+= render 'header', :active_nav => :settings
+= render 'settings_header', :active_nav => :retention
+.pageContent.pageContent--compact
+
+  %p.pageContent__intro.u-margin
+    The length of time that messages are stored by us are shown below. If you need
+    to store messages for longer, please contact us and we can work out a custom
+    plan.
+
+  .retentionLimits
+    %dl.retentionLimits__limit
+      .retentionLimits__label Number of days that raw message data will be stored
+      .retentionLimits__info
+        .retentionLimits__value
+          - if @server.raw_message_retention_days
+            = pluralize @server.raw_message_retention_days, 'day'
+          - else
+            Indefinitely
+        .retentionLimits__text
+          This is the number of whole days that raw message content will be stored by us.
+          Raw message is the actual content of the message including headers & attachments.
+    %dl.retentionLimits__limit
+      .retentionLimits__label Volume of raw message data that will be stored
+      .retentionLimits__info
+        .retentionLimits__value
+          - if @server.raw_message_retention_size
+            = number_to_human_size @server.raw_message_retention_size * 1024 * 1024
+          - else
+            No limit
+        .retentionLimits__text
+          This is the amount of e-mail that can be stored. When you exceed this amount, messages will be removed in
+          whole day increments starting with the oldest stored day.
+
+    %dl.retentionLimits__limit
+      .retentionLimits__label Number of days of message meta data will be available
+      .retentionLimits__info
+        .retentionLimits__value
+          - if @server.message_retention_days
+            = pluralize @server.message_retention_days, 'day'
+          - else
+            Indefinitely
+        .retentionLimits__text
+          This is the number of days of messages that will be available through the web interface.
+          You will be able to view basic meta information & delivery details but raw data might not
+          be available unless it is within the retention periods above.

@@ -1,0 +1,9 @@
+- page_title << @server.name
+- page_title << "Tracking Domains"
+- page_title << "Edit Tracking Domain Setting"
+
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :domains
+= render 'domains/nav', :active_nav => :track_domains
+.pageContent.pageContent--compact
+  = render 'form'

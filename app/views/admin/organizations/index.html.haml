@@ -1,0 +1,24 @@
+- page_title << "Admin"
+- page_title << "Organizations"
+.pageHeader
+  %h1.pageHeader__title
+    %span.pageHeader__titlePrevious Admin &rarr;
+    Organizations
+.pageContent
+  %table.dataTable
+    %thead
+      %tr
+        %td{:width => "30%"} Name
+        %td{:width => "25%"} Owner
+        %td{:width => "5%"} Servers
+        %td{:width => "10%"} Status
+        %td{:width => "15%"} Created
+    %tbody
+      - for organization in @organizations
+        %tr
+          %td= link_to organization.name, organization_root_path(organization), :class => "u-link"
+          %td= organization.owner&.name || "No Owner"
+          %td= organization.servers.count
+          %td= organization.status
+          %td= organization.created_at.to_s(:long)
+  = paginate @organizations

@@ -1,0 +1,76 @@
+- page_title << @server.name
+- page_title << "Messages"
+- page_title << "Message ##{@message.id}"
+= render 'servers/sidebar', :active_server => @server
+= render 'servers/header', :active_nav => :messages
+= render 'header', :active_nav => @message.scope.to_sym
+= render 'message_header', :active_nav => :properties
+.pageContent
+  .messagePropertiesPage
+    .messagePropertiesPage__left
+      .messagePropertiesPage__propertyPair
+        %dl.messagePropertiesPage__property
+          %dt Spam Status
+          %dd
+            = link_to spam_checks_organization_server_message_path(organization, @server, @message.id) do
+              %span.label.label--large{:class => "label--spamStatus-#{@message.spam_status.underscore}"}= @message.spam_status.underscore.humanize
+        %dl.messagePropertiesPage__property
+          %dt Tag
+          %dd= @message.tag ? link_to(@message.tag, send("#{@message.scope}_organization_server_messages_path", organization, @server, :query => "tag: #{@message.tag}"), :class => "u-link") : "Not tagged"
+      .messagePropertiesPage__propertyPair
+        %dl.messagePropertiesPage__property
+          %dt Raw Message
+          %dd= @message.raw_message? ? "Available" : "Removed"
+        %dl.messagePropertiesPage__property
+          %dt Message Size
+          %dd= @message.size ? number_to_human_size(@message.size) : "n/a"
+
+      .messagePropertiesPage__propertyPair
+        - if @message.scope == 'incoming'
+          %dl.messagePropertiesPage__property
+            %dt Route
+            %dd
+              - if @message.route
+                = link_to @message.route.name, [:edit, organization, @server, @message.route], :class => "u-link"
+              - else
+                Unknown Route
+          %dl.messagePropertiesPage__property
+            %dt Domain
+            %dd
+              - if @message.domain
+                = link_to @message.domain.name, [organization, @server, :domains], :class => "u-link"
+              - else
+                Unknown Domain
+        - else
+          %dl.messagePropertiesPage__property
+            %dt Credential
+            %dd
+              - if @message.credential
+                = link_to @message.credential.name, [:edit, organization, @server, @message.credential], :class => "u-link"
+              - else
+                Unknown Credential
+          %dl.messagePropertiesPage__property
+            %dt Domain
+            %dd
+              - if @message.domain
+                = link_to @message.domain.name, [organization, @server, :domains], :class => "u-link"
+              - else
+                Unknown Domain
+      - if @message.threat == 1
+        %dl.messagePropertiesPage__property
+          %dt Threat
+          %dd= @message.threat_details
+      %dl.messagePropertiesPage__property
+        %dt Message ID
+        %dd= @message.message_id || "No message ID"
+      - unless @message.received_with_ssl.nil?
+        %dl.messagePropertiesPage__property
+          %dt Transport Security
+          - if @message.received_with_ssl == 1
+            %dd.messagePropertiesPage__property--locked Received over a SSL connection
+          - else
+            %dd Not received with SSL
+
+    .messagePropertiesPage__right
+      = render 'deliveries', :message => @message
+
