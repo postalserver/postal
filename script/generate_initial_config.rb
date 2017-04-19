@@ -1,9 +1,12 @@
 #!/usr/bin/env ruby
 require File.expand_path('../../lib/postal/config', __FILE__)
 require 'openssl'
+require 'securerandom'
 
 unless File.exist?(Postal.config_file_path)
-  FileUtils.cp(config_root('postal.example.yml'), Postal.config_file_path)
+  content = File.read(Postal.config_root.join('postal.example.yml'))
+  content.gsub!('{{secretkey}}', SecureRandom.hex(128))
+  File.open(Postal.config_file_path, 'w') { |f| f.write(content) }
   puts "Created example config file at #{Postal.config_file_path}"
 end
 
