@@ -27,9 +27,13 @@ class DomainsController < ApplicationController
     scope = @server ? @server.domains : organization.domains
     @domain = scope.build(params.require(:domain).permit(:name, :verification_method))
 
+    if current_user.admin?
+      @domain.verification_method = 'DNS'
+      @domain.verified_at = Time.now
+    end
+
     if @domain.save
-      if @auto_verified
-        flash[:notice] = "Ownership of this domain does not need to be verified because it already has been verified in this organization."
+      if @domain.verified?
         redirect_to_with_json [:setup, organization, @server, @domain]
       else
         redirect_to_with_json [:verify, organization, @server, @domain]

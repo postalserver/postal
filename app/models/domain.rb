@@ -50,13 +50,12 @@ class Domain < ApplicationRecord
 
   VERIFICATION_METHODS = ['DNS', 'Email']
 
-  validates :name, :presence => true, :format => {:with => /\A[a-z0-9\-\.]*\*?\z/}, :uniqueness => {:scope => [:owner_type, :owner_id], :message => "is already added"}
+  validates :name, :presence => true, :format => {:with => /\A[a-z0-9\-\.]*\z/}, :uniqueness => {:scope => [:owner_type, :owner_id], :message => "is already added"}
   validates :verification_method, :inclusion => {:in => VERIFICATION_METHODS}
 
   random_string :dkim_identifier_string, :type => :chars, :length => 6, :unique => true, :upper_letters_only => true
 
   before_create :generate_dkim_key
-  after_create :automatically_verify_domains_in_development
 
   scope :verified, -> { where.not(:verified_at => nil) }
 
@@ -69,15 +68,6 @@ class Domain < ApplicationRecord
       else
         self.verification_token = nil
       end
-    end
-  end
-
-  def automatically_verify_domains_in_development
-    if Rails.env.development? && self.name && self.name =~ /\*\z/
-      self.name = self.name.gsub(/\*\z/, '')
-      self.verified_at = Time.now
-      self.verification_token = nil
-      self.save
     end
   end
 
