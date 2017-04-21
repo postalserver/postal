@@ -1,0 +1,15 @@
+- page_title << "IP Pools"
+- page_title << @ip_pool.name
+
+.pageHeader
+  %h1.pageHeader__title
+    %span.pageHeader__titlePrevious
+      = link_to "IP Pools", :ip_pools
+      &rarr;
+      = @ip_pool.name
+      &rarr;
+    Edit
+
+.pageContent.pageContent--compact
+  = render 'form'
+

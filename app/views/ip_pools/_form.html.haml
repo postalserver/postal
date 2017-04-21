@@ -1,0 +1,37 @@
+= form_for @ip_pool, :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet.u-margin
+    .fieldSet__field
+      = f.label :name, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :name, :autofocus => true, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :type, :class => 'fieldSet__label'
+      .fieldSet__input= f.select :type, IPPool::TYPES, {}, :class => 'input input--select'
+
+  - if @ip_pool.persisted?
+    %table.dataTable.u-margin-half
+      %thead
+        %tr
+          %td IPv4
+          %td IPv6
+          %td Hostname
+      %tbody
+        - if @ip_pool.ip_addresses.empty?
+          %tr
+            %td.dataTable__empty{:colspan => 3} There are no IP addresses assigned to this pool yet.
+        - else
+          - for ip in @ip_pool.ip_addresses
+            %tr
+              %td{:width => "20%"}= link_to ip.ipv4, [:edit, @ip_pool, ip], :class => "u-link"
+              %td{:width => "40%"}= ip.ipv6
+              %td{:width => "40%"}= ip.hostname
+    %p= link_to "Add an IP address to pool", [:new, @ip_pool, :ip_address], :class => "u-link"
+
+
+  .fieldSetSubmit.buttonSet
+    = f.submit :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      - if @ip_pool.persisted?
+        = link_to "Delete IP pool", [@ip_pool], :class => 'button button--danger', :method => :delete, :remote => true, :data => {:confirm => "Are you sure you wish to remove this IP pool?"}
+
+

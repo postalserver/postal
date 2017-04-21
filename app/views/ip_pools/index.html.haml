@@ -1,0 +1,27 @@
+- page_title << "Welcome"
+
+.pageHeader
+  %h1.pageHeader__title IP Pools
+
+.pageContent.pageContent--compact
+
+  - if @ip_pools.empty?
+    .noData.noData--cat2.noData--clean
+      %p.noData__title There are no IP pools configured.
+      %p.noData__text
+        All messages sent from your mail server can be sent from certain pools of
+        IP addresses. Each server can be assigned to a pool and rules can be configured
+        to route certain email through certain pools.
+      %p.noData__button= link_to "Create the first IP pool", :new_ip_pool, :class => 'button button--positive'
+  - else
+    %p.pageContent__intro.u-margin
+      IP pools are the addresses that your outgoing messages are sent from. You can
+      create as many pools as you wish.
+
+    %ul.largeList.u-margin
+      - for ip_pool in @ip_pools
+        %li.largeList__item
+          = link_to edit_ip_pool_path(ip_pool), :class => 'largeList__link' do
+            = ip_pool.name
+
+    %p.u-center= link_to "Add another IP pool", :new_ip_pool, :class => 'button button--positive'

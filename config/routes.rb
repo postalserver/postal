@@ -69,6 +69,9 @@ Rails.application.routes.draw do
   end
 
   resources :organizations, :except => [:index]
+  resources :ip_pools do
+    resources :ip_addresses
+  end
 
   get 'settings' => 'user#edit'
   patch 'settings' => 'user#update'

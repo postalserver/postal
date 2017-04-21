@@ -1,0 +1,19 @@
+= form_for [@ip_pool, @ip_address], :remote => true do |f|
+  = f.error_messages
+  %fieldset.fieldSet
+    .fieldSet__field
+      = f.label :ipv4, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :ipv4, :autofocus => true, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :ipv6, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :ipv6, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :hostname, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :hostname, :class => 'input input--text'
+
+  .fieldSetSubmit.buttonSet
+    = f.submit :class => 'button button--positive js-form-submit'
+    .fieldSetSubmit__delete
+      - if @ip_address.persisted?
+        = link_to "Delete IP address", [@ip_pool, @ip_address], :class => 'button button--danger', :method => :delete, :remote => true, :data => {:confirm => "Are you sure you wish to remove this IP from the pool?"}
+

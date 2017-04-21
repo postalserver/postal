@@ -1,0 +1,17 @@
+- page_title << "IP Pools"
+- page_title << @ip_pool.name
+- page_title << "Edit IP address"
+.pageHeader
+  %h1.pageHeader__title
+    %span.pageHeader__titlePrevious
+      = link_to "IP Pools", :ip_pools
+      &rarr;
+      = @ip_pool.name
+      &rarr;
+      Edit
+      &rarr;
+    Edit IP address
+
+.pageContent.pageContent--compact
+  = render 'form'
+
