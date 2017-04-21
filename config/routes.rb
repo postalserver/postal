@@ -60,7 +60,7 @@ Rails.application.routes.draw do
       post :make_owner, :on => :member
     end
     resources :ip_pool_rules
-    resources :ip_pools
+    resources :ip_pools, :controller => 'organization_ip_pools'
     root 'servers#index'
     get 'settings' => 'organizations#edit'
     patch 'settings' => 'organizations#update'

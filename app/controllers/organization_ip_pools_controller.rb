@@ -1,4 +1,4 @@
-class IPPoolsController < ApplicationController
+class OrganizationIPPoolsController < ApplicationController
 
   include WithinOrganization
 
