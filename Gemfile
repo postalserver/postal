@@ -14,7 +14,7 @@ gem 'kaminari'
 gem 'bcrypt'
 gem 'foreman'
 gem 'hashie'
-gem 'authie', :git => "git@codebasehq.com:atechmedia/libs/authie"
+gem 'authie', '~> 3.0'
 gem 'dynamic_form'
 gem 'changey'
 gem 'mail'

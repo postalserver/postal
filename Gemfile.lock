@@ -1,10 +1,4 @@
 GIT
-  remote: git@codebasehq.com:atechmedia/libs/authie
-  revision: 045adc2e54e3ec6ced99ad49356da6397dd62542
-  specs:
-    authie (3.0.0)
-
-GIT
   remote: https://github.com/adamcooke/moonrope
   revision: fe5d5de38a35c36416f256a41902a6984e147fe5
   branch: master
@@ -66,6 +60,7 @@ GEM
       activerecord (>= 3.2, < 6.0)
       rake (>= 10.4, < 12.0)
     arel (7.1.4)
+    authie (3.0.0)
     autoprefixer-rails (6.5.0.2)
       execjs
     basic_ssl (1.0.3)
@@ -217,7 +212,7 @@ PLATFORMS
 DEPENDENCIES
   acme-client!
   annotate
-  authie!
+  authie (~> 3.0)
   autoprefixer-rails
   basic_ssl
   bcrypt
