@@ -7,12 +7,16 @@
 
   - if @organizations.empty?
     .noData.noData--panda.noData--clean
-      %p.noData__title This is unbearable! You don't have any organizations.
-      %p.noData__text
-        That's not on. You need an organization otherwise you can't do much here. Hit
-        the button below and you'll be up and running with 10,000 free e-mails before
-        you know it.
-      %p.noData__button= link_to "Create your first organization", :new_organization, :class => 'button button--positive'
+      %p.noData__title There are no organizations.
+      - if current_user.admin?
+        %p.noData__text
+          That's not on. You need an organization otherwise you can't do much here. Hit
+          the button below to create the first organization.
+        %p.noData__button= link_to "Create the first organization", :new_organization, :class => 'button button--positive'
+      - else
+        %p.noData__text
+          You don't have access to any organizations yet. Ask your administrator to invite
+          you to some organizations.
   - else
     %p.pageContent__intro.u-margin
       Organizations are entities which are able to deploy mail servers.
@@ -25,4 +29,5 @@
           = link_to organization_root_path(organization), :class => 'largeList__link' do
             = organization.name
 
-    %p.u-center= link_to "Start another organization", :new_organization, :class => 'button button--positive'
+    - if current_user.admin?
+      %p.u-center= link_to "Start another organization", :new_organization, :class => 'button button--positive'

@@ -159,4 +159,8 @@ module Postal
     end
   end
 
+  def self.anonymous_signup?
+    config.general&.anonymous_signup != false
+  end
+
 end

@@ -1,11 +1,16 @@
 class OrganizationsController < ApplicationController
 
+  before_action :admin_required, :only => [:new, :create]
   before_action :require_organization_admin, :only => [:edit, :update, :delete, :destroy]
 
   def index
-    @organizations = current_user.organizations.present.order(:name).to_a
-    if @organizations.size == 1 && params[:nrd].nil?
-      redirect_to organization_root_path(@organizations.first)
+    if current_user.admin?
+      @organizations = Organization.present.order(:name).to_a
+    else
+      @organizations = current_user.organizations.present.order(:name).to_a
+      if @organizations.size == 1 && params[:nrd].nil?
+        redirect_to organization_root_path(@organizations.first)
+      end
     end
   end
 
@@ -17,7 +22,6 @@ class OrganizationsController < ApplicationController
     @organization = Organization.new(params.require(:organization).permit(:name, :permalink))
     @organization.owner = current_user
     if @organization.save
-      @organization.users << current_user
       redirect_to_with_json organization_root_path(@organization)
     else
       render_form_errors 'new', @organization

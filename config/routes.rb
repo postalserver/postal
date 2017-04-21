@@ -70,12 +70,6 @@ Rails.application.routes.draw do
 
   resources :organizations, :except => [:index]
 
-  namespace :admin do
-    resources :organizations
-    get 'stats' => 'stats#stats'
-    root :to => redirect("/admin/organizations")
-  end
-
   get 'settings' => 'user#edit'
   patch 'settings' => 'user#update'
   post 'persist' => 'sessions#persist'
