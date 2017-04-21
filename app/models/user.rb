@@ -43,8 +43,10 @@ class User < ApplicationRecord
 
   when_attribute :email_address, :changes_to => :anything do
     before_save do |was, now|
-      self.email_verification_token = rand(999999).to_s.rjust(6, '0')
-      self.email_verified_at = nil
+      unless self.new_record? && self.email_verified_at
+        self.email_verification_token = rand(999999).to_s.rjust(6, '0')
+        self.email_verified_at = nil
+      end
     end
 
     after_commit do |was, new|
