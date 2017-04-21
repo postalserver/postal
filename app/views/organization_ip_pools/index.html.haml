@@ -10,29 +10,44 @@
 
 = render 'organizations/nav', :active_nav => :ips
 = render 'nav', :active_nav => :ips
-.pageContent.pageContent--compact
-  - if @ip_pools.empty?
-    .noData.noData--koala.noData--clean
-      - if @server.nil?
-        %h2.noData__title You don't have any dedicated IP addresses.
-        %p.noData__text
-          Once you've been assigned dedicated IP addresses they will appear here. You can then use them in rules and
-          for servers. To request dedicated IP addresses please contact our team.
-  - else
-    .ipList
-      - for ip_pool in @ip_pools
-        .ipList__item
-          %p.ipList__name= ip_pool.name
-          %ul.ipList__addressList
-            %li.ipList__address.ipList__address--header
-              %p.ipList__ipv4 IPv4 Address
-              %p.ipList__ipv6 IPv6 Address
-              %p.ipList__hostname Hostname
 
-            - for address in ip_pool.ip_addresses
-              %li.ipList__address
-                %p.ipList__ipv4= address.ipv4
-                %p.ipList__ipv6= address.ipv6
-                %p.ipList__hostname= address.hostname
+.pageContent.pageContent--compact
+  - if current_user.admin?
+    %p.pageContent__intro.u-margin
+      Choose which IP pools this organization will have access to send mail using. Organization
+      users will be able to choose from any of the pools chosen below. Admins can override on a per
+      server basis if required.
+    = form_tag [:assignments, @organization, :ip_pools], :method => :put do
+      %ul.checkboxList.u-margin
+        - for ip_pool in IPPool.order(:name)
+          %li.checkboxList__item
+            .checkboxList__checkbox= check_box_tag "ip_pools[]", ip_pool.id, @organization.ip_pools.include?(ip_pool), :id => "ip_pool_#{ip_pool.id}"
+            .checkboxList__label
+              = label_tag "ip_pool_#{ip_pool.id}", ip_pool.name, :class => 'checkboxList__actualLabel'
+      %p= submit_tag "Save IP pool assignment", :class => 'button button--positive'
+  - else
+    - if @ip_pools.empty?
+      .noData.noData--koala.noData--clean
+        - if @server.nil?
+          %h2.noData__title You don't have any dedicated IP addresses.
+          %p.noData__text
+            Once you've been assigned dedicated IP addresses they will appear here. You can then use them in rules and
+            for servers. To request dedicated IP addresses please contact our team.
+    - else
+      .ipList
+        - for ip_pool in @ip_pools
+          .ipList__item
+            %p.ipList__name= ip_pool.name
+            %ul.ipList__addressList
+              %li.ipList__address.ipList__address--header
+                %p.ipList__ipv4 IPv4 Address
+                %p.ipList__ipv6 IPv6 Address
+                %p.ipList__hostname Hostname
+
+              - for address in ip_pool.ip_addresses
+                %li.ipList__address
+                  %p.ipList__ipv4= address.ipv4
+                  %p.ipList__ipv6= address.ipv6
+                  %p.ipList__hostname= address.hostname
 
 

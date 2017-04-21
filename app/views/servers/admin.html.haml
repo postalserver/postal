@@ -30,9 +30,6 @@
         .fieldSet__field
           = f.label :raw_message_retention_size, :class => 'fieldSet__label'
           .fieldSet__input= f.text_field :raw_message_retention_size, :class => 'input input--text'
-        .fieldSet__field
-          = f.label :ip_pool_id, :class => 'fieldSet__label'
-          .fieldSet__input= f.collection_select :ip_pool_id, IPPool.order(:name), :id, :name, {}, :class => 'input input--select'
 
       .fieldSetSubmit.fieldSetSubmit--wide.buttonSet
         = f.submit "Save server", :class => 'button button--positive js-form-submit'
