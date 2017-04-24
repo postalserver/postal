@@ -53,7 +53,7 @@ ActiveRecord::Schema.define(version: 20170421195415) do
     t.string   "token_hash"
     t.index ["browser_id"], name: "index_authie_sessions_on_browser_id", length: { browser_id: 8 }, using: :btree
     t.index ["token"], name: "index_authie_sessions_on_token", length: { token: 8 }, using: :btree
-    t.index ["token_hash"], name: "index_authie_sessions_on_token_hash", using: :btree
+    t.index ["token_hash"], name: "index_authie_sessions_on_token_hash", length: { token_hash: 8 }, using: :btree
     t.index ["user_id"], name: "index_authie_sessions_on_user_id", using: :btree
   end
 
