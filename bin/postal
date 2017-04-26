@@ -76,6 +76,10 @@ case "$1" in
         run "bundle exec ruby script/register_lets_encrypt.rb $2"
         ;;
 
+    auto-upgrade)
+        run "ruby script/auto_upgrade.rb"
+        ;;
+
     bundle)
         if [ -n "$2" ]; then
           run "bundle install --path=$2 --without=development --jobs=4 --clean"
