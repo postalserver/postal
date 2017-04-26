@@ -4,7 +4,7 @@ require 'openssl'
 require 'securerandom'
 
 unless File.exist?(Postal.config_file_path)
-  content = File.read(Postal.config_root.join('postal.example.yml'))
+  content = File.read(Postal.app_root.join('config', 'postal.example.yml'))
   content.gsub!('{{secretkey}}', SecureRandom.hex(128))
   File.open(Postal.config_file_path, 'w') { |f| f.write(content) }
   puts "Created example config file at #{Postal.config_file_path}"
