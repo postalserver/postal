@@ -21,3 +21,6 @@ config/smtp.cert
 config/smtp.key
 config/lets_encrypt.pem
 config/signing.key
+
+public/assets
+vendor/bundle
