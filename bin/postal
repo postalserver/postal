@@ -62,6 +62,11 @@ case "$1" in
         run "bundle exec ruby script/generate_initial_config.rb"
         ;;
 
+    default-dkim-record)
+        run "bundle exec ruby script/default_dkim_record.rb"
+        ;;
+
+
     bundle)
         if [ -n "$2" ]; then
           run "bundle install --path=$2 --without=development --jobs=4 --clean"

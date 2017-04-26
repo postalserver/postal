@@ -1,6 +1,7 @@
 require 'yaml'
 require 'pathname'
 require 'cgi'
+require 'openssl'
 require_relative 'error'
 require_relative 'version'
 
@@ -130,7 +131,7 @@ module Postal
     @signing_key ||= OpenSSL::PKey::RSA.new(File.read(signing_key_path))
   end
 
-  def self.amrp_dkim_dns_record
+  def self.rp_dkim_dns_record
     public_key = signing_key.public_key.to_s.gsub(/\-+[A-Z ]+\-+\n/, '').gsub(/\n/, '')
     "v=DKIM1; t=s; h=sha256; p=#{public_key};"
   end
