@@ -104,6 +104,7 @@ case "$1" in
         echo
         echo "Other commands:"
         echo -e " * \e[35mconsole\e[0m - open a Postal system console (debug only)"
+        echo -e " * \e[35mauto-upgrade\e[0m - upgrade to the latest version of Postal"
         echo -e " * \e[35minitialize-config\e[0m - initialize a new config directory"
         echo -e " * \e[35minitialize\e[0m - generate assets and load the database for the first time"
         echo -e " * \e[35mdefault-dkim-record\e[0m - show the default DKIM DNS record"
