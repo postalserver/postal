@@ -115,7 +115,9 @@ module Postal
                 clients[new_io] = client
                 @epoll.add(new_io, Epoll::IN|Epoll::PRI|Epoll::HUP)
               rescue => e
-                Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+                if defined?(Raven)
+                  Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+                end
                 logger.error "An error occurred while accepting a new client."
                 logger.error "#{e.class}: #{e.message}"
                 e.backtrace.each do |line|
@@ -192,7 +194,9 @@ module Postal
                 end
               rescue => e
                 client_id = client ? client.id : '------'
-                Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+                if defined?(Raven)
+                  Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+                end
                 logger.error "[#{client_id}] An error occurred while processing data from a client."
                 logger.error "[#{client_id}] #{e.class}: #{e.message}"
                 e.backtrace.each do |line|
@@ -281,7 +285,9 @@ module Postal
                 end
               end
             rescue => e
-              Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+              if defined?(Raven)
+                Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+              end
               logger.error "An error occurred while handling a client."
               logger.error "#{e.class}: #{e.message}"
               e.backtrace.each do |line|

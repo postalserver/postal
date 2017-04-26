@@ -108,7 +108,9 @@ module Postal
       rescue BadRequest
         # We couldn't read a proper HTTP request, disconnect the client
       rescue => e
-        Raven.capture_exception(e)
+        if defined?(Raven)
+          Raven.capture_exception(e)
+        end
       ensure
         @socket.close rescue nil
         @raw_socket.close rescue nil

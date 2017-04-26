@@ -25,7 +25,9 @@ module Postal
             rescue IO::WaitReadable, Errno::EINTR
               # Never mind, guess the client went away
             rescue => e
-              Raven.capture_exception(e)
+              if defined?(Raven)
+                Raven.capture_exception(e)
+              end
               client_io.close rescue nil
             end
           end

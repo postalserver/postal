@@ -170,7 +170,9 @@ module Postal
         safe_rset
       rescue => e
         log "#{e.class}: #{e.message}"
-        Raven.capture_exception(e, :extra => {:log_id => @log_id, :server_id => message.server.id, :message_id => message.id})
+        if defined?(Raven)
+          Raven.capture_exception(e, :extra => {:log_id => @log_id, :server_id => message.server.id, :message_id => message.id})
+        end
         result.type = 'SoftFail'
         result.retry = true
         result.details = "An error occurred while sending the message to #{destination_host_description}"

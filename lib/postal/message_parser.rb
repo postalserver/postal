@@ -51,7 +51,9 @@ module Postal
       if Rails.env.development?
         raise
       else
-        Raven.capture_exception(e)
+        if defined?(Raven)
+          Raven.capture_exception(e)
+        end
         @actioned = false
         @tracked_links = 0
         @tracked_images = 0

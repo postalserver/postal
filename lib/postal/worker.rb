@@ -52,7 +52,9 @@ module Postal
             klass = message['class_name'].constantize.new(message['id'], message['params'])
             klass.perform
           rescue => e
-            Raven.capture_exception(e, :extra => {:job_id => message['id']})
+            if defined?(Raven)
+              Raven.capture_exception(e, :extra => {:job_id => message['id']})
+            end
             logger.warn "[#{message['id']}] \e[31m#{e.class}: #{e.message}\e[0m"
             e.backtrace.each do |line|
               logger.warn "[#{message['id']}]    " + line
