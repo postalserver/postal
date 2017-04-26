@@ -3,7 +3,7 @@ web:
   protocol: https
 
 web_server:
-  bind_address: 0.0.0.0
+  bind_address: 127.0.0.1
   port: 5000
   max_threads: 5
 
@@ -23,21 +23,21 @@ logging:
   max_log_files: 10
 
 main_db:
-  host: localhost
+  host: 127.0.0.1
   port: 3306
-  username: root
+  username: postal
   password:
   database: postal
 
 message_db:
-  host: localhost
+  host: 127.0.0.1
   port: 3306
-  username: root
+  username: postal
   password:
   prefix: postal
 
 rabbitmq:
-  host: localhost
+  host: 127.0.0.1
   port: 5672
   username: postal
   password: xxx
@@ -52,28 +52,23 @@ smtp_server:
 
 dns:
   mx_records:
-    - mx1.example.com
-    - mx2.example.com
-  smtp_server_hostname: smtp.example.com
-  spf_include: spf.example.com
-  return_path: rp.example.com
-  route_domain: routes.example.com
-  track_domain: track.example.com
+    - mx.postal.example.com
+  smtp_server_hostname: postal.example.com
+  spf_include: spf.postal.example.com
+  return_path: rp.postal.example.com
+  route_domain: routes.postal.example.com
+  track_domain: track.postal.example.com
   dkim_identifier: postal
   domain_verify_prefix: postal-verification
   custom_return_path_prefix: psrp
 
 smtp:
-  host: smtp.blah
+  host: 127.0.0.1
   port: 2525
-  username:
-  password:
+  username: # Complete when Postal is running and you can
+  password: # generate the credentials within the interface.
   from_name: Postal
   from_address: postal@yourdomain.com
-
-espect:
-  hosts:
-    - http://espect01.infra.atech.io
 
 rails:
   environment: production
