@@ -41,7 +41,7 @@ rabbitmq:
   port: 5672
   username: postal
   password: xxx
-  vhost: postal
+  vhost: /postal
 
 smtp_server:
   proxy_protocol: false
