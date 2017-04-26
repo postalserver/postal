@@ -65,6 +65,11 @@ dns:
 
 smtp:
   host: smtp.blah
+  port: 2525
+  username:
+  password:
+  from_name: Postal
+  from_address: postal@yourdomain.com
 
 espect:
   hosts:
