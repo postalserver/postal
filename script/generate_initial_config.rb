@@ -2,6 +2,11 @@
 require File.expand_path('../../lib/postal/config', __FILE__)
 require 'openssl'
 require 'securerandom'
+require 'fileutils'
+
+unless File.directory?(Postal.config_root)
+  FileUtils.mkdir_p(Postal.config_root)
+end
 
 unless File.exist?(Postal.config_file_path)
   content = File.read(Postal.app_root.join('config', 'postal.example.yml'))
