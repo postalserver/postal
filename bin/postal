@@ -30,6 +30,7 @@ cd $ROOT_DIR
 # Run the right command
 case "$1" in
     start)
+        run "bundle exec ruby script/update_process_concurrency.rb"
         run "procodile start"
         ;;
 
@@ -38,6 +39,7 @@ case "$1" in
         ;;
 
     restart)
+        run "bundle exec ruby script/update_process_concurrency.rb"
         run "procodile restart"
         ;;
 
@@ -46,6 +48,7 @@ case "$1" in
         ;;
 
     run)
+        run "bundle exec ruby script/update_process_concurrency.rb"
         run "LOG_TO_STDOUT=1 procodile start -f --no-respawn --stop-when-none"
         ;;
 

@@ -24,3 +24,5 @@ config/signing.key
 
 public/assets
 vendor/bundle
+
+Procfile.local

@@ -17,6 +17,9 @@ general:
   use_ip_pools: false
   exception_url: null
 
+workers:
+  quantity: 1
+
 logging:
   stdout: false
   max_log_file_size: 20
