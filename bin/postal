@@ -46,8 +46,7 @@ case "$1" in
         ;;
 
     run)
-        export LOG_TO_STDOUT=1
-        run "procodile start -f --no-respawn --stop-when-none"
+        run "LOG_TO_STDOUT=1 procodile start -f --no-respawn --stop-when-none"
         ;;
 
     upgrade)
