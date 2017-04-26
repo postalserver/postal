@@ -37,10 +37,10 @@ module Postal
       def ssl_context
         @ssl_context ||= begin
           ssl_context      = OpenSSL::SSL::SSLContext.new
-          certs            =  Postal.ssl_certificates
+          certs            =  Postal.smtp_certificates
           ssl_context.cert = certs.shift
           ssl_context.extra_chain_cert = certs
-          ssl_context.key  = Postal.signing_key
+          ssl_context.key  = Postal.smtp_private_key
           ssl_context.ssl_version = "SSLv23"
           ssl_context
         end

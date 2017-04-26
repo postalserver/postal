@@ -138,10 +138,10 @@ module Postal
           end
 
           if ssl_context.cert.nil?
-            certs = Postal.ssl_certificates
+            certs = Postal.smtp_certificates
             ssl_context.cert = certs.shift
             ssl_context.extra_chain_cert = certs
-            ssl_context.key  = Postal.signing_key
+            ssl_context.key  = Postal.smtp_private_key
           end
 
           ssl_context.ssl_version = "SSLv23"
