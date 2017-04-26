@@ -4,8 +4,6 @@ Postal is a complete and fully featured mail server for use by websites & web se
 
 ![Screenshot](https://share.adam.ac/17/k4lA5OuPlU.png)
 
-The application has been running in production for us for nearly 6 months and we will be continuing to use it ourselves and support its ongoing development.
+The application has been running in production for us for nearly 6 months and we will be continuing to use it ourselves and support its ongoing development. We are still just putting a few finishing touches to the documentation & installation instructions but we'll make it as easy as possible. If you have any questions about getting up and running, just post an issue.
 
-We are still just putting a few finishing touches to the documentation & installation instructions but we'll make it as easy as possible.
-
-Standby.
+[Check the wiki for documentation](https://github.com/atech/postal/wiki)
