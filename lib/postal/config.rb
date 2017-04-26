@@ -1,5 +1,6 @@
 require 'yaml'
 require 'pathname'
+require 'cgi'
 require_relative 'error'
 require_relative 'version'
 
@@ -50,7 +51,7 @@ module Postal
 
   def self.database_url
     if config.main_db
-      "mysql2://#{config.main_db.username}:#{config.main_db.password}@#{config.main_db.host}:#{config.main_db.port}/#{config.main_db.database}?encoding=#{config.main_db.encoding || 'utf8mb4'}"
+      "mysql2://#{CGI.escape(config.main_db.username.to_s)}:#{CGI.escape(config.main_db.password.to_s)}@#{config.main_db.host}:#{config.main_db.port}/#{config.main_db.database}?reconnect=true&encoding=#{config.main_db.encoding || 'utf8mb4'}"
     else
       "mysql2://root@localhost/postal"
     end
