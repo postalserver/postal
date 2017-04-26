@@ -165,4 +165,8 @@ module Postal
     config.general&.anonymous_signup != false
   end
 
+  def self.fast_server?
+    !!self.config.fast_server
+  end
+
 end
