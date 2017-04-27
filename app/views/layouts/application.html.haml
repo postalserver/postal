@@ -39,7 +39,7 @@
                   %li.siteHeader__subMenuItem= link_to "Switch organization", root_path, :class => 'siteHeader__subMenuLink'
           %li.siteHeader__navItem.siteHeader__navItem--user= current_user.name
           %li.siteHeader__navItem= link_to "My Settings", settings_path, :class => 'sideHeader__navItemLink'
-          - if current_user.admin?
+          - if current_user.admin? && Postal.ip_pools?
             %li.siteHeader__navItem= link_to "IP Pools", ip_pools_path, :class => 'sideHeader__navItemLink'
           %li.siteHeader__navItem= link_to "Logout", logout_path, :method => :delete, :class => 'sideHeader__navItemLink'
 

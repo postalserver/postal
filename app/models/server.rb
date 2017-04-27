@@ -47,7 +47,7 @@ class Server < ApplicationRecord
   include HasSoftDestroy
 
   belongs_to :organization
-  belongs_to :ip_pool
+  belongs_to :ip_pool, :optional => true
   has_many :domains, :dependent => :destroy, :as => :owner
   has_many :credentials, :dependent => :destroy
   has_many :smtp_endpoints, :dependent => :destroy
@@ -280,7 +280,6 @@ class Server < ApplicationRecord
 
   def ip_pool_for_message(message)
     if message.scope == 'outgoing'
-
       [self, self.organization].each do |scope|
         rules = scope.ip_pool_rules.order(:created_at => :desc)
         rules.each do |rule|
@@ -289,7 +288,6 @@ class Server < ApplicationRecord
           end
         end
       end
-
       self.ip_pool
     else
       nil

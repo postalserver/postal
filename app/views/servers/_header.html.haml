@@ -14,7 +14,8 @@
         %li.serverHeader__list--warning= link_to "#{pluralize bad_dns, 'domain'} has misconfigured DNS records", [organization, @server, :domains]
       - if unverified > 0
         %li= link_to "#{pluralize unverified, 'domain'} is awaiting verification", [organization, @server, :domains]
-      %li Sending via #{@server.ip_pool.name}
+      - if Postal.ip_pools?
+        %li Sending via #{@server.ip_pool.name}
 
   .serverHeader__stats{"data-turbolinks-permanent" => true, :id => "serverStats-#{@server.uuid}"}
     %ul.serverHeader__statsList
