@@ -80,11 +80,11 @@ module Postal
     end
 
     def parse(part, type = nil)
-      if @domain.track_clicks?
+      if Postal.tracking_available? && @domain.track_clicks?
         part = insert_links(part, type)
       end
 
-      if @domain.track_loads? && type == :html
+      if Postal.tracking_available? && @domain.track_loads? && type == :html
         part = insert_tracking_image(part)
       end
 

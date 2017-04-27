@@ -26,7 +26,8 @@ module Postal
   def self.config
     @config ||= begin
       require 'hashie/mash'
-      Hashie::Mash.new(yaml_config)
+      config = Hashie::Mash.new(self.defaults)
+      config.deep_merge(self.yaml_config)
     end
   end
 
@@ -48,6 +49,14 @@ module Postal
 
   def self.yaml_config
     @yaml_config ||= File.exist?(config_file_path) ? YAML.load_file(config_file_path) : {}
+  end
+
+  def self.defaults_file_path
+    @defaults_file_path ||= app_root.join('config', 'postal.defaults.yml')
+  end
+
+  def self.defaults
+    @defaults ||= YAML.load_file(self.defaults_file_path)
   end
 
   def self.database_url
@@ -161,12 +170,12 @@ module Postal
     end
   end
 
-  def self.anonymous_signup?
-    config.general&.anonymous_signup != false
+  def self.tracking_available?
+    self.config.fast_server.enabled?
   end
 
-  def self.fast_server?
-    !!self.config.fast_server
+  def self.ip_pools?
+    self.config.general.use_ip_pools?
   end
 
 end

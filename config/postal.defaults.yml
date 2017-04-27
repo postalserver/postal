@@ -1,0 +1,85 @@
+# These are the default configuration options that will be used if they aren't overriden
+# in your postal.yml configuration file. No changes should be made to this file for
+# your installation.
+
+# You can refer to this for a complete listing all available configuration options.
+
+web:
+  host: postal.example.com
+  protocol: https
+
+general:
+  use_ip_pools: false
+  exception_url:
+
+web_server:
+  bind_address: 127.0.0.1
+  port: 5000
+  max_threads: 5
+
+fast_server:
+  enabled: false
+  bind_address: 0.0.0.0
+  port: 5010
+  ssl_port: 5011
+  proxy_protocol: false
+
+main_db:
+  host: 127.0.0.1
+  port: 3306
+  username: postal
+  password:
+  database: postal
+
+logging:
+  stdout: false
+  max_log_file_size: 20
+  max_log_files: 10
+
+message_db:
+  host: 127.0.0.1
+  port: 3306
+  username: postal
+  password:
+  prefix: postal
+
+rabbitmq:
+  host: 127.0.0.1
+  port: 5672
+  username: postal
+  password:
+  vhost: /postal
+
+workers:
+  quantity: 1
+
+smtp_server:
+  proxy_protocol: false
+  log_connect: true
+  evented: true
+  ports:
+    - 2525
+
+dns:
+  mx_records:
+    - mx.postal.example.com
+  smtp_server_hostname: postal.example.com
+  spf_include: spf.postal.example.com
+  return_path: rp.postal.example.com
+  route_domain: routes.postal.example.com
+  track_domain: track.postal.example.com
+  dkim_identifier: postal
+  domain_verify_prefix: postal-verification
+  custom_return_path_prefix: psrp
+
+smtp:
+  host: 127.0.0.1
+  port: 2525
+  username: # Complete when Postal is running and you can
+  password: # generate the credentials within the interface.
+  from_name: Postal
+  from_address: postal@yourdomain.com
+
+rails:
+  environment: production
+  secret_key:

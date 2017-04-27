@@ -1,59 +1,45 @@
 web:
+  # The host that the management interface will be available on
   host: postal.example.com
+  # The protocol that requests to the management interface should happen on
   protocol: https
 
-web_server:
-  bind_address: 127.0.0.1
-  port: 5000
-  max_threads: 5
-
 fast_server:
-  bind_address: 0.0.0.0
-  port: 5010
-  ssl_port: 5011
-  proxy_protocol: false
+  # This can be enabled to enable click & open tracking on emails. It is disabled by
+  # default as it requires a separate static IP address on your server.
+  enabled: false
 
 general:
+  # This can be changed to allow messages to be sent from multiple IP addresses
   use_ip_pools: false
-  exception_url: null
 
-workers:
-  quantity: 1
-
-logging:
-  stdout: false
-  max_log_file_size: 20
-  max_log_files: 10
 
 main_db:
+  # Specify the connection details for your MySQL database
   host: 127.0.0.1
-  port: 3306
   username: postal
   password:
   database: postal
 
 message_db:
+  # Specify the connection details for your MySQL server that will be house the
+  # message databases for mail servers.
   host: 127.0.0.1
-  port: 3306
   username: postal
   password:
   prefix: postal
 
 rabbitmq:
+  # Specify the connection details for your RabbitMQ server.
   host: 127.0.0.1
-  port: 5672
   username: postal
-  password: xxx
+  password:
   vhost: /postal
 
-smtp_server:
-  proxy_protocol: false
-  log_connect: true
-  evented: true
-  ports:
-    - 2525
-
 dns:
+  # Specifies the DNS record that you have configured. Refer to the documentation at
+  # https://github.com/atech/postal/wiki/Domains-&-DNS-Configuration for further
+  # information about these.
   mx_records:
     - mx.postal.example.com
   smtp_server_hostname: postal.example.com
@@ -61,11 +47,11 @@ dns:
   return_path: rp.postal.example.com
   route_domain: routes.postal.example.com
   track_domain: track.postal.example.com
-  dkim_identifier: postal
-  domain_verify_prefix: postal-verification
-  custom_return_path_prefix: psrp
 
 smtp:
+  # Specify an SMTP server that can be used to send messages from the Postal management
+  # system to users. You can configure this to use a Postal mail server once the
+  # your installation has been set up.
   host: 127.0.0.1
   port: 2525
   username: # Complete when Postal is running and you can
@@ -74,6 +60,6 @@ smtp:
   from_address: postal@yourdomain.com
 
 rails:
-  environment: production
+  # This is generated automatically by the config initialization. It should be a random
+  # string unique to your installation.
   secret_key: {{secretkey}}
-

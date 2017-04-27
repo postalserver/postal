@@ -545,7 +545,7 @@ module Postal
       # Should this message be parsed?
       #
       def should_parse?
-        parsed? == false && headers['x-amp'] != 'skip' && Postal.fast_server?
+        parsed? == false && headers['x-amp'] != 'skip'
       end
 
       private
