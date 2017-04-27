@@ -4,7 +4,8 @@
     %li.navBar__item= link_to "Spam", [:spam, organization, @server], :class => ['navBar__link', active_nav == :spam ? 'is-active' : '']
     %li.navBar__item= link_to "Retention", [:retention, organization, @server], :class => ['navBar__link', active_nav == :retention ? 'is-active' : '']
     %li.navBar__item= link_to "Send Limit", [:limits, organization, @server], :class => ['navBar__link', active_nav == :limits ? 'is-active' : '']
-    %li.navBar__item= link_to "IP Rules", [organization, @server, :ip_pool_rules], :class => ['navBar__link', active_nav == :ip_pool_rules ? 'is-active' : '']
+    - if Postal.ip_pools?
+      %li.navBar__item= link_to "IP Rules", [organization, @server, :ip_pool_rules], :class => ['navBar__link', active_nav == :ip_pool_rules ? 'is-active' : '']
     - if current_user.admin?
       %li.navBar__item= link_to "Admin", [:admin, organization, @server], :class => ['navBar__link', active_nav == :admin ? 'is-active' : '']
     - if organization.admin?(current_user)
