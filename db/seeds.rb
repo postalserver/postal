@@ -3,4 +3,4 @@ user = User.create!(:first_name => "Example", :last_name => "Admin", :email_addr
 org = Organization.create!(:name => "Acme Inc", :permalink => "acme", :time_zone => "London", :owner => user)
 org.users << user
 
-server = Server.create!(:ip_pool => ip_pool, :organization => org, :name => "Example Server", :permalink => "example", :mode => "Live")
+server = Server.create!(:organization => org, :name => "Example Server", :permalink => "example", :mode => "Live")

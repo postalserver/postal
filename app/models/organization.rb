@@ -48,7 +48,9 @@ class Organization < ApplicationRecord
   has_many :ip_pool_rules, :dependent => :destroy, :as => :owner
 
   after_create do
-    self.ip_pools << IPPool.transactional.default
+    if pool = IPPool.transactional.default
+      self.ip_pools << IPPool.transactional.default
+    end
   end
 
   def status
