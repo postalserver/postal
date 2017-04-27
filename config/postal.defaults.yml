@@ -68,6 +68,7 @@ dns:
   return_path: rp.postal.example.com
   route_domain: routes.postal.example.com
   track_domain: track.postal.example.com
+  helo_hostname: # By default, this will be the same as the `smtp_server_hostname`
   dkim_identifier: postal
   domain_verify_prefix: postal-verification
   custom_return_path_prefix: psrp

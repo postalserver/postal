@@ -57,7 +57,7 @@ module Postal
             else
               # Nothing
             end
-            smtp_client.start(@source_ip_address ? @source_ip_address.hostname : "localhost")
+            smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
             log "Connected to #{@remote_ip}:#{port} (#{hostname})"
           rescue => e
             log "Cannot connect to #{@remote_ip}:#{port} (#{hostname}) (#{e.class}: #{e.message})"
@@ -242,6 +242,10 @@ module Postal
         c.verify_mode = OpenSSL::SSL::VERIFY_NONE
         c
       end
+    end
+
+    def self.default_helo_hostname
+      Postal.config.dns.helo_hostname || Postal.config.dns.smtp_server_hostname || "localhost"
     end
 
   end
