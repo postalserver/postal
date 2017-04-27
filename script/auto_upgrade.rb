@@ -16,7 +16,7 @@ def run(command, options = {})
   end
 end
 
-puts "Stopping current MyOps instance"
+puts "Stopping current Postal instance"
 run "postal stop", :exit_on_failure => false
 
 puts "Getting latest version of repository"
