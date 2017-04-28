@@ -117,7 +117,7 @@ module Postal
           # We know this IP isn't valid. We don't need to do anything
         else
           # We need to look this up
-          if ip_address = IPAddress.where("ipv4 = ? OR ipv6 = ?", ip, ip).first
+          if !self.class.local_ip?(ip) && ip_address = IPAddress.where("ipv4 = ? OR ipv6 = ?", ip, ip).first
             @pairs[ip_address.ipv4] = ip_address.ipv6
             @ip_to_id_mapping[ip] = ip_address.id
             need = id
@@ -176,6 +176,10 @@ module Postal
       @job_queues[name] ||= begin
         job_channel.queue("deliver-jobs-#{name}", :durable => true, :arguments => {'x-message-ttl' => 60000})
       end
+    end
+
+    def self.local_ip?(ip)
+      !!(ip =~ /\A(127\.|fe80:|::)/)
     end
 
   end
