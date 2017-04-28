@@ -108,11 +108,11 @@ module Postal
   end
 
   def self.smtp_private_key_path
-    config_root.join('smtp.key')
+    config.smtp_server.tls_private_key_path || config_root.join('smtp.key')
   end
 
   def self.smtp_certificate_path
-    config_root.join('smtp.cert')
+    config.smtp_server.tls_certificate_path || config_root.join('smtp.cert')
   end
 
   def self.smtp_certificate_data

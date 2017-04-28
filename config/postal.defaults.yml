@@ -54,6 +54,9 @@ workers:
   quantity: 1
 
 smtp_server:
+  tls_enabled: false
+  tls_certificate_path: # Defaults to config/smtp.crt
+  tls_private_key_path: # Defaults to config/smtp.key
   proxy_protocol: false
   log_connect: true
   evented: true

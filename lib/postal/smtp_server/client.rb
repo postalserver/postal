@@ -117,9 +117,13 @@ module Postal
       end
 
       def starttls
-        @start_tls = true
-        @tls = true
-        "220 Ready to start TLS"
+        if Postal.config.smtp_server.tls_enabled?
+          @start_tls = true
+          @tls = true
+          "220 Ready to start TLS"
+        else
+          "502 TLS not available"
+        end
       end
 
       def ehlo(data)
@@ -127,7 +131,7 @@ module Postal
         @helo_name = data.strip.split(' ', 2)[1]
         reset
         @state = :welcomed
-        ["250-My capabilities are", @tls ? nil : "250-STARTTLS", "250 AUTH CRAM-MD5 PLAIN LOGIN", ]
+        ["250-My capabilities are", Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil, "250 AUTH CRAM-MD5 PLAIN LOGIN", ]
       end
 
       def helo(data)
