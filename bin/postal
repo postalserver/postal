@@ -80,6 +80,10 @@ case "$1" in
         run "ruby script/auto_upgrade.rb"
         ;;
 
+    make-user)
+        run "bundle exec ruby script/make_user.rb"
+        ;;
+
     bundle)
         if [ -n "$2" ]; then
           run "bundle install --path=$2 --without=development --jobs=4 --clean"
@@ -111,5 +115,6 @@ case "$1" in
         echo -e " * \e[35mregister-lets-encrypt\e[0m - register the generated Let's Encrypt key"
         echo -e " * \e[35mupgrade\e[0m - upgrade the Postal installation"
         echo -e " * \e[35mbundle\e[0m - download & install all required Ruby dependencies"
+        echo -e " * \e[35mmake-user\e[0m - create a new admin user"
         echo
 esac

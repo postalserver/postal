@@ -33,6 +33,7 @@ gem 'moonrope', :git => 'https://github.com/adamcooke/moonrope', :branch => 'mas
 gem 'jwt'
 gem 'createsend', '~> 4.0'
 gem 'acme-client', :git => 'https://github.com/unixcharles/acme-client'
+gem 'highline', :require => true
 
 group :development, :test do
   gem 'byebug'
