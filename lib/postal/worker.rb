@@ -128,7 +128,7 @@ module Postal
 
         if need
           pair = @pairs[ip] || @pairs.key(ip)
-          if current_ip_addresses.include?(pair)
+          if pair.nil? || current_ip_addresses.include?(pair)
             needed_ip_ids << id
           else
             logger.info "Host has '#{ip}' but its pair (#{pair}) isn't here. Cannot add now."
