@@ -63,6 +63,12 @@ smtp_server:
   ports:
     - 2525
 
+smtp_relays:
+  -
+    hostname:
+    port: 25
+    ssl_mode: Auto
+
 dns:
   mx_records:
     - mx.postal.example.com

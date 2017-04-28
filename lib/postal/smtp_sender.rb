@@ -19,6 +19,10 @@ module Postal
           hostname = server.hostname
           port = server.port || 25
           ssl_mode = server.ssl_mode
+        elsif server.is_a?(Hash)
+          hostname = server[:hostname]
+          port = server[:port] || 25
+          ssl_mode = server[:ssl_mode] || 'Auto'
         else
           hostname = server
           port = 25
@@ -193,7 +197,7 @@ module Postal
     private
 
     def servers
-      @options[:servers] || @servers ||= begin
+      @options[:servers] || self.class.relay_hosts || @servers ||= begin
         mx_servers = []
         Resolv::DNS.open do |dns|
           dns.timeouts = [10,5]
@@ -246,6 +250,21 @@ module Postal
 
     def self.default_helo_hostname
       Postal.config.dns.helo_hostname || Postal.config.dns.smtp_server_hostname || "localhost"
+    end
+
+    def self.relay_hosts
+      hosts = Postal.config.smtp_relays.map do |relay|
+        if relay['hostname'].present?
+          {
+            :hostname => relay['hostname'],
+            :port => relay['port'],
+            :ssl_mode => relay['ssl_mode']
+          }
+        else
+          nil
+        end
+      end.compact
+      hosts.empty? ? nil : hosts
     end
 
   end
