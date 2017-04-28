@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170421195415) do
+ActiveRecord::Schema.define(version: 20170428153353) do
 
   create_table "additional_route_endpoints", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
     t.integer  "route_id"
@@ -141,7 +141,6 @@ ActiveRecord::Schema.define(version: 20170421195415) do
     t.datetime "created_at", precision: 6
     t.datetime "updated_at", precision: 6
     t.boolean  "default",                  default: false
-    t.string   "type"
     t.index ["uuid"], name: "index_ip_pools_on_uuid", length: { uuid: 8 }, using: :btree
   end
 

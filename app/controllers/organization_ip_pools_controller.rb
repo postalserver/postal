@@ -4,7 +4,7 @@ class OrganizationIPPoolsController < ApplicationController
   before_action :admin_required, :only => [:assignments]
 
   def index
-    @ip_pools = organization.ip_pools.dedicated.order(:name)
+    @ip_pools = organization.ip_pools.order(:name)
   end
 
   def assignments

@@ -8,7 +8,6 @@
 #  created_at :datetime
 #  updated_at :datetime
 #  default    :boolean          default(FALSE)
-#  type       :string(255)
 #
 # Indexes
 #
@@ -16,8 +15,6 @@
 #
 
 class IPPool < ApplicationRecord
-
-  TYPES = ['Transactional', 'Bulk', 'Forwarding', 'Dedicated']
 
   include HasUUID
 
@@ -28,21 +25,8 @@ class IPPool < ApplicationRecord
   has_many :organization_ip_pools, :dependent => :destroy
   has_many :organizations, :through => :organization_ip_pools
 
-  scope :transactional, -> { where(:type => 'Transactional') }
-  scope :bulk, -> { where(:type => 'Bulk') }
-  scope :forwarding, -> { where(:type => 'Forwarding') }
-  scope :dedicated, -> { where(:type => 'Dedicated') }
-
   def self.default
     where(:default => true).order(:id).first
-  end
-
-  def description
-    desc = "#{name}"
-    if self.type == 'Dedicated'
-      desc += " (#{ip_addresses.map(&:ipv4).to_sentence})"
-    end
-    desc
   end
 
 end

@@ -4,9 +4,6 @@
     .fieldSet__field
       = f.label :name, :class => 'fieldSet__label'
       .fieldSet__input= f.text_field :name, :autofocus => true, :class => 'input input--text'
-    .fieldSet__field
-      = f.label :type, :class => 'fieldSet__label'
-      .fieldSet__input= f.select :type, IPPool::TYPES, {}, :class => 'input input--select'
 
   - if @ip_pool.persisted?
     %table.dataTable.u-margin-half

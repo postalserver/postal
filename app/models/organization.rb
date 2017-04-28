@@ -48,8 +48,8 @@ class Organization < ApplicationRecord
   has_many :ip_pool_rules, :dependent => :destroy, :as => :owner
 
   after_create do
-    if pool = IPPool.transactional.default
-      self.ip_pools << IPPool.transactional.default
+    if pool = IPPool.default
+      self.ip_pools << IPPool.default
     end
   end
 

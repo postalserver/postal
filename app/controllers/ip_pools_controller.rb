@@ -38,7 +38,7 @@ class IPPoolsController < ApplicationController
   private
 
   def safe_params
-    params.require(:ip_pool).permit(:name, :type, :default)
+    params.require(:ip_pool).permit(:name, :default)
   end
 
 end
