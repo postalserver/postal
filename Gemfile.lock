@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/adamcooke/moonrope
-  revision: 7f83653d92f15f8726eaf046d97ec5668c11b0a3
+  revision: f56a37b8f12186be5e25f14b22bb9100c50df60f
   branch: master
   specs:
     moonrope (2.0.0)
