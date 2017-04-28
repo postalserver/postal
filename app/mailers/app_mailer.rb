@@ -44,4 +44,8 @@ class AppMailer < ApplicationMailer
     mail :to => @server.organization.notification_addresses, :subject => "[#{server.full_permalink}] Your mail server has been suspended"
   end
 
+  def test_message(recipient)
+    mail :to => recipient, :subject => "Postal SMTP Test Message"
+  end
+
 end

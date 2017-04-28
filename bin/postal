@@ -84,6 +84,10 @@ case "$1" in
         run "bundle exec ruby script/make_user.rb"
         ;;
 
+    test-app-smtp)
+        run "bundle exec ruby script/test_app_smtp.rb $2"
+        ;;
+
     bundle)
         if [ -n "$2" ]; then
           run "bundle install --path=$2 --without=development --jobs=4 --clean"
