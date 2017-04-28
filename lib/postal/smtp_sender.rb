@@ -254,11 +254,11 @@ module Postal
 
     def self.relay_hosts
       hosts = Postal.config.smtp_relays.map do |relay|
-        if relay['hostname'].present?
+        if relay.hostname.present?
           {
-            :hostname => relay['hostname'],
-            :port => relay['port'],
-            :ssl_mode => relay['ssl_mode']
+            :hostname => relay.hostname,
+            :port => relay.port,
+            :ssl_mode => relay.ssl_mode
           }
         else
           nil
