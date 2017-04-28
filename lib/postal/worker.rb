@@ -103,6 +103,16 @@ module Postal
       @ip_to_id_mapping ||= {}
       @unassigned_ips ||= []
       @pairs ||= {}
+      @counter ||= 0
+
+      if @counter >= 15
+        @ip_to_id_mapping = {}
+        @unassigned_ips = []
+        @counter = 0
+      else
+        @counter += 1
+      end
+
       # Get all IP addresses on the system
       current_ip_addresses = Socket.ip_address_list.map(&:ip_address)
 
@@ -120,7 +130,7 @@ module Postal
           if !self.class.local_ip?(ip) && ip_address = IPAddress.where("ipv4 = ? OR ipv6 = ?", ip, ip).first
             @pairs[ip_address.ipv4] = ip_address.ipv6
             @ip_to_id_mapping[ip] = ip_address.id
-            need = id
+            need = ip_address.id
           else
             @unassigned_ips << ip
           end
@@ -129,7 +139,7 @@ module Postal
         if need
           pair = @pairs[ip] || @pairs.key(ip)
           if pair.nil? || current_ip_addresses.include?(pair)
-            needed_ip_ids << id
+            needed_ip_ids << @ip_to_id_mapping[ip]
           else
             logger.info "Host has '#{ip}' but its pair (#{pair}) isn't here. Cannot add now."
           end
