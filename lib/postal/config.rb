@@ -153,14 +153,6 @@ module Postal
       raise ConfigError, "No config found at #{self.config_file_path}"
     end
 
-    unless File.exist?(self.smtp_private_key_path)
-      raise ConfigError, "No SMTP private key found at #{self.smtp_private_key_path}"
-    end
-
-    unless File.exist?(self.smtp_certificate_path)
-      raise ConfigError, "No SMTP certificate found at #{self.smtp_certificate_path}"
-    end
-
     unless File.exists?(self.lets_encrypt_private_key_path)
       raise ConfigError, "No Let's Encrypt private key found at #{self.lets_encrypt_private_key_path}"
     end
