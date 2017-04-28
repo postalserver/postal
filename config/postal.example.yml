@@ -57,6 +57,8 @@ smtp:
   password: # generate the credentials within the interface.
   from_name: Postal
   from_address: postal@yourdomain.com
+  certificate_path: # By default, this will be smtp.cert, relative to this file
+  private_key_path: # By default, this will be smtp.key, relative to this file
 
 rails:
   # This is generated automatically by the config initialization. It should be a random
