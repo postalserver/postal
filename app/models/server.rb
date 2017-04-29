@@ -273,7 +273,7 @@ class Server < ApplicationRecord
   end
 
   def validate_ip_pool_belongs_to_organization
-    if self.ip_pool && self.ip_pool_id_changed? && (self.ip_pool.type == 'Dedicated' && !self.organization.ip_pools.include?(self.ip_pool))
+    if self.ip_pool && self.ip_pool_id_changed? && !self.organization.ip_pools.include?(self.ip_pool)
       errors.add :ip_pool_id, "must belong to the organization"
     end
   end
