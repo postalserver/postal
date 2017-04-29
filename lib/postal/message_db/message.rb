@@ -494,12 +494,12 @@ module Postal
       # Inspect this message
       #
       def inspect_message
-        if result = Espect.inspect(self.raw_message, self.scope&.to_sym)
+        if result = MessageInspection.new(self.raw_message, self.scope&.to_sym)
           # Update the messages table with the results of our inspection
-          update(:inspected => 1, :spam_score => result.spam_score,  :threat => result.threat?, :threat_details => result.threat_message)
+          update(:inspected => 1, :spam_score => result.filtered_spam_score,  :threat => result.threat?, :threat_details => result.threat_message)
           # Add any spam details into the spam checks database
-          self.database.insert_multi(:spam_checks, [:message_id, :code, :score, :description], result.spam_details.map { |d| [self.id, d['code'], d['score'], d['description']]})
-          # Return the espect result
+          self.database.insert_multi(:spam_checks, [:message_id, :code, :score, :description], result.filtered_spam_checks.map { |d| [self.id, d.code, d.score, d.description]})
+          # Return the result
           result
         end
       end

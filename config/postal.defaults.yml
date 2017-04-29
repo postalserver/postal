@@ -94,3 +94,13 @@ smtp:
 rails:
   environment: production
   secret_key:
+
+spamd:
+  enabled: false
+  host: 127.0.0.1
+  port: 783
+
+clamav:
+  enabled: false
+  host: 127.0.0.1
+  port: 2000
