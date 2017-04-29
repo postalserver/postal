@@ -135,7 +135,7 @@ class Domain < ApplicationRecord
   end
 
   def resolver
-    @resolver ||= Resolv::DNS.new(:nameserver => nameservers)
+    @resolver ||= Postal.config.general.use_local_ns_for_domains? ? Resolv::DNS.new : Resolv::DNS.new(:nameserver => nameservers)
   end
 
   private
