@@ -12,6 +12,7 @@ general:
   use_ip_pools: false
   exception_url:
   maximum_delivery_attempts: 18
+  domain_validation_using_system_nameservers: false
 
 web_server:
   bind_address: 127.0.0.1

@@ -133,7 +133,7 @@ class Domain < ApplicationRecord
   end
 
   def resolver
-    @resolver ||= Resolv::DNS.new(:nameserver => nameservers)
+    @resolver ||= Postal.config.general.domain_validation_using_system_nameservers ? Resolv::DNS.new : Resolv::DNS.new(:nameserver => nameservers)
   end
 
   private
