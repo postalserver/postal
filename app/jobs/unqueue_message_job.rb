@@ -51,7 +51,7 @@ class UnqueueMessageJob < Postal::Job
             end
 
             # We might not be able to send this any more, check the attempts
-            if queued_message.attempts >= QueuedMessage::MAX_ATTEMPTS
+            if queued_message.attempts >= Postal.config.general.maximum_delivery_attempts
               details = "Maximum number of delivery attempts (#{queued_message.attempts}) has been reached."
               if queued_message.message.scope == 'incoming'
                 # Send bounceds to incoming e-mails when they are hard failed

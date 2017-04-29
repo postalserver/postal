@@ -26,8 +26,6 @@
 
 class QueuedMessage < ApplicationRecord
 
-  MAX_ATTEMPTS = 18
-
   include HasMessage
 
   belongs_to :server

@@ -11,6 +11,7 @@ web:
 general:
   use_ip_pools: false
   exception_url:
+  maximum_delivery_attempts: 18
 
 web_server:
   bind_address: 127.0.0.1
