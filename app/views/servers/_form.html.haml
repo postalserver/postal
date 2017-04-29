@@ -25,7 +25,7 @@
       .fieldSet__field
         = f.label :ip_pool_id, :class => 'fieldSet__label'
         .fieldSet__input
-          = f.collection_select :ip_pool_id, organization.ip_pools.includes(:ip_addresses).order("`default` desc, name asc"), :id, :description, {}, :class => 'input input--select'
+          = f.collection_select :ip_pool_id, organization.ip_pools.includes(:ip_addresses).order("`default` desc, name asc"), :id, :name, {}, :class => 'input input--select'
           %p.fieldSet__text
             This is the set of IP addresses which outbound e-mails will be delivered from.
 
