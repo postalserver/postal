@@ -14,6 +14,7 @@
     .loginForm__submit
       %ul.loginForm__links
         %li= link_to "Forgotten your password?", login_reset_path(:return_to => params[:return_to])
-        %li= link_to "Create a new user", signup_path(:return_to => params[:return_to])
+        - unless Postal.config.general.disable_signup
+          %li= link_to "Create a new user", signup_path(:return_to => params[:return_to])
       %p= submit_tag "Login", :class => 'button button--positive', :tabindex => 3
 
