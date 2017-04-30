@@ -25,7 +25,7 @@ gem 'chronic'
 gem 'basic_ssl'
 gem 'clockwork'
 gem 'encrypto_signo'
-gem 'epoll', :require => nil
+gem 'nio4r'
 gem 'mongo'
 gem 'sentry-raven'
 gem 'gelf'
