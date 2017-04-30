@@ -42,7 +42,6 @@ class Route < ApplicationRecord
   validate :validate_domain_belongs_to_server
   validate :validate_endpoint_belongs_to_server
   validate :validate_name_uniqueness
-  validate :validate_wildcard
   validate :validate_return_path_route_endpoints
   validate :validate_no_additional_routes_on_non_endpoint_route
 
@@ -177,14 +176,6 @@ class Route < ApplicationRecord
   def validate_route_is_routed
     if self.mode.nil?
       errors.add :endpoint, "must be chosen"
-    end
-  end
-
-  def validate_wildcard
-    if self.wildcard?
-      if self.endpoint_type == 'SMTPEndpoint' || self.endpoint_type == 'AddressEndpoint'
-        errors.add :base, "Wildcard routes cannot be routed to SMTP servers or addresses"
-      end
     end
   end
 
