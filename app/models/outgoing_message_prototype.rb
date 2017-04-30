@@ -1,3 +1,5 @@
+require 'resolv'
+
 class OutgoingMessagePrototype
 
   attr_accessor :from

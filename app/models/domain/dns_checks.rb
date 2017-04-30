@@ -1,3 +1,5 @@
+require 'resolv'
+
 class Domain
 
   def dns_ok?

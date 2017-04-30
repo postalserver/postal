@@ -1,3 +1,4 @@
+require 'resolv'
 require 'nifty/utils/random_string'
 
 module Postal

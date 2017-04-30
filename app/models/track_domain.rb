@@ -18,6 +18,8 @@
 #  excluded_click_domains :text(65535)
 #
 
+require 'resolv'
+
 class TrackDomain < ApplicationRecord
 
   include HasUUID

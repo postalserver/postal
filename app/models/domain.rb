@@ -34,6 +34,8 @@
 #  index_domains_on_uuid       (uuid)
 #
 
+require 'resolv'
+
 class Domain < ApplicationRecord
 
   include HasUUID
