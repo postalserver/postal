@@ -5,12 +5,8 @@ class UserController < ApplicationController
   skip_before_action :verified_email_required, :only => [:edit, :update, :verify]
 
   def new
-    if Postal.config.general.disable_signup
-      redirect_to login_path
-    else
-      @user = User.new
-      render :layout => 'sub'
-    end
+    @user = User.new
+    render :layout => 'sub'
   end
 
   def create
