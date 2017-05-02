@@ -27,12 +27,12 @@
       %p= submit_tag "Save IP pool assignment", :class => 'button button--positive'
   - else
     - if @ip_pools.empty?
-      .noData.noData--koala.noData--clean
+      .noData.noData--clean
         - if @server.nil?
-          %h2.noData__title You don't have any dedicated IP addresses.
+          %h2.noData__title You don't have any assigned IP addresses.
           %p.noData__text
-            Once you've been assigned dedicated IP addresses they will appear here. You can then use them in rules and
-            for servers. To request dedicated IP addresses please contact our team.
+            Once you've been assigned IP addresses they will appear here. You can then use them in rules and
+            for servers.
     - else
       .ipList
         - for ip_pool in @ip_pools

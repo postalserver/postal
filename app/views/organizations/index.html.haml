@@ -6,11 +6,11 @@
 .pageContent.pageContent--compact
 
   - if @organizations.empty?
-    .noData.noData--panda.noData--clean
+    .noData.noData--clean
       %p.noData__title There are no organizations.
       - if current_user.admin?
         %p.noData__text
-          That's not on. You need an organization otherwise you can't do much here. Hit
+          You need an organization otherwise you can't do much here. Hit
           the button below to create the first organization.
         %p.noData__button= link_to "Create the first organization", :new_organization, :class => 'button button--positive'
       - else

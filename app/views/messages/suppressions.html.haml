@@ -6,7 +6,7 @@
 = render 'header', :active_nav => :suppressions
 .pageContent.pageContent--compact
   - if @suppressions[:records].empty?
-    .noData.noData--clean.noData--owl
+    .noData.noData--clean
       %h2.noData__title No addresses on the suppression list.
       %p.noData__text
         When messages cannot be delivered, addresses are added to the suppression list which stops

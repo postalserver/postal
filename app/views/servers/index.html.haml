@@ -9,8 +9,8 @@
 .pageContent.pageContent--compact
 
   - if @servers.empty?
-    .noData.noData--owl.noData--clean
-      %p.noData__title Well owls about that, you've no mail servers yet.
+    .noData.noData--clean
+      %p.noData__title There are no mail servers for this organization yet.
       %p.noData__text
         Great - you've got an organization, now you need to provision a mail server.
         Once you've got a mail server, you can start sending & receiving messages.
@@ -28,8 +28,8 @@
               %p= server.name
               %p.largeList__subText #{number_with_precision server.message_rate, :precision => 2} messages/minute
       .js-searchable__empty.is-hidden
-        .noData.noData--owl.noData--clean
-          %p.noData__title Well owls about that, no servers found.
+        .noData.noData--clean
+          %p.noData__title No servers were found...
           %p.noData__text
             There were no servers found matching what you've typed it.
     %p.u-center= link_to "Build a new mail server", [:new, organization, :server], :class => 'button button--positive'

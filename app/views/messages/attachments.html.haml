@@ -8,7 +8,7 @@
 = render 'message_header', :active_nav => :attachments
 .pageContent.pageContent--compact
   - if @message.attachments.empty?
-    .noData.noData--clean.noData--wolf
+    .noData.noData--clean
       %h2.noData__title There are no attachments for this message.
       %p.noData__text
         This means that we no longer store the raw data for this e-mail
