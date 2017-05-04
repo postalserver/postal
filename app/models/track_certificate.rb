@@ -67,6 +67,7 @@ class TrackCertificate < ApplicationRecord
       sleep 1
       verify
     else
+      logger.info "Error: #{e.class} (#{e.message})"
       return false
     end
   end
