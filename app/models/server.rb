@@ -231,11 +231,6 @@ class Server < ApplicationRecord
       return domain
     end
 
-    # Check with global domains
-    if route = self.routes.includes(:domain).references(:domain).where(:domains => {:server_id => nil, :name => domain_name}, :name => uname).first
-      return route.domain
-    end
-
     if any_domain = self.domains.verified.where(:use_for_any => true).order(:name).first
       return any_domain
     end
