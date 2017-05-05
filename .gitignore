@@ -21,6 +21,8 @@ config/smtp.cert
 config/smtp.key
 config/lets_encrypt.pem
 config/signing.key
+config/fast_server.cert
+config/fast_server.key
 
 public/assets
 vendor/bundle

@@ -25,6 +25,8 @@ fast_server:
   port: 5010
   ssl_port: 5011
   proxy_protocol: false
+  default_private_key_path: # Defaults to config/fast_server.key
+  default_tls_certificate_path: # Defaults to config/fast_server.cert
 
 main_db:
   host: 127.0.0.1

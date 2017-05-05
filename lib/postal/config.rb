@@ -103,12 +103,12 @@ module Postal
     config.smtp&.from_address || "postal@example.com"
   end
 
-  def self.smtp_private_key
-    @smtp_private_key ||= OpenSSL::PKey::RSA.new(File.read(smtp_private_key_path))
-  end
-
   def self.smtp_private_key_path
     config.smtp_server.tls_private_key_path || config_root.join('smtp.key')
+  end
+
+  def self.smtp_private_key
+    @smtp_private_key ||= OpenSSL::PKey::RSA.new(File.read(smtp_private_key_path))
   end
 
   def self.smtp_certificate_path
@@ -122,6 +122,31 @@ module Postal
   def self.smtp_certificates
     @smtp_certificates ||= begin
       certs = self.smtp_certificate_data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
+      certs.map do |c|
+        OpenSSL::X509::Certificate.new(c)
+      end.freeze
+    end
+  end
+
+  def self.fast_server_default_private_key_path
+    config.fast_server.default_private_key_path || config_root.join('fast_server.key')
+  end
+
+  def self.fast_server_default_private_key
+    @fast_server_default_private_key ||= OpenSSL::PKey::RSA.new(File.read(fast_server_default_private_key_path))
+  end
+
+  def self.fast_server_default_certificate_path
+    config.fast_server.default_tls_certificate_path || config_root.join('fast_server.cert')
+  end
+
+  def self.fast_server_default_certificate_data
+    @fast_server_default_certificate_data ||= File.read(fast_server_default_certificate_path)
+  end
+
+  def self.fast_server_default_certificates
+    @fast_server_default_certificates ||= begin
+      certs = self.fast_server_default_certificate_data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
       certs.map do |c|
         OpenSSL::X509::Certificate.new(c)
       end.freeze
