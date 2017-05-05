@@ -19,6 +19,7 @@ set -e
 #
 # Dependencies
 #
+apt update
 apt install -y software-properties-common
 apt-add-repository ppa:brightbox/ruby-ng -y
 apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
