@@ -68,6 +68,13 @@ openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/ssl/postal.key -out /etc/n
 service nginx reload
 
 #
+# Configure SMTP on port 25
+#
+iptables -t nat -A PREROUTING -p tcp --dport 25 -j REDIRECT --to-port 2525
+iptables -t nat -A OUTPUT -o lo -p tcp --dport 25 -j REDIRECT --to-port 2525
+iptables -I INPUT -p tcp -m tcp --dport 2525 -j ACCEPT
+
+#
 # All done
 #
 echo
