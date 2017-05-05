@@ -1,7 +1,7 @@
 web:
   # The host that the management interface will be available on
   host: postal.example.com
-  # The protocol that requests to the management interface should happen on
+  # The protocol that requests to the management interface should happen on
   protocol: https
 
 fast_server:
@@ -17,7 +17,7 @@ main_db:
   # Specify the connection details for your MySQL database
   host: 127.0.0.1
   username: postal
-  password:
+  password: p0stalpassw0rd
   database: postal
 
 message_db:
@@ -25,20 +25,20 @@ message_db:
   # message databases for mail servers.
   host: 127.0.0.1
   username: postal
-  password:
+  password: p0stalpassw0rd
   prefix: postal
 
 rabbitmq:
   # Specify the connection details for your RabbitMQ server.
   host: 127.0.0.1
   username: postal
-  password:
+  password: p0stalpassw0rd
   vhost: /postal
 
 dns:
   # Specifies the DNS record that you have configured. Refer to the documentation at
   # https://github.com/atech/postal/wiki/Domains-&-DNS-Configuration for further
-  # information about these.
+  # information about these.
   mx_records:
     - mx.postal.example.com
   smtp_server_hostname: postal.example.com
@@ -50,7 +50,7 @@ dns:
 smtp:
   # Specify an SMTP server that can be used to send messages from the Postal management
   # system to users. You can configure this to use a Postal mail server once the
-  # your installation has been set up.
+  # your installation has been set up.
   host: 127.0.0.1
   port: 2525
   username: # Complete when Postal is running and you can
