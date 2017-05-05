@@ -35,8 +35,8 @@ module Postal
     @config_root ||= begin
       if __FILE__ =~ /\A\/opt\/postal/
         Pathname.new("/opt/postal/config")
-      elsif ENV['AM_CONFIG_ROOT']
-        Pathname.new(ENV['AM_CONFIG_ROOT'])
+      elsif ENV['POSTAL_CONFIG_ROOT']
+        Pathname.new(ENV['POSTAL_CONFIG_ROOT'])
       else
         Pathname.new(File.expand_path("../../../config", __FILE__))
       end
