@@ -27,7 +27,7 @@ curl -sL https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | apt-key add
 add-apt-repository 'deb http://www.rabbitmq.com/debian/ testing main'
 apt update
 export DEBIAN_FRONTEND=noninteractive
-apt install -y ruby2.3 ruby2.3-dev build-essential mariadb-server libmysqlclient-dev rabbitmq-server nodejs git nginx iptables
+apt install -y ruby2.3 ruby2.3-dev build-essential mariadb-server libmysqlclient-dev rabbitmq-server nodejs git nginx
 gem install bundler procodile --no-rdoc --no-ri
 
 #
