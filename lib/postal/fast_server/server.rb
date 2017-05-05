@@ -13,12 +13,17 @@ module Postal
 
         Thread.abort_on_exception = true
         TrackCertificate
-        server_sockets = {
-          TCPServer.new(Postal.config.fast_server.bind_address, Postal.config.fast_server.ssl_port) => {:ssl => true},
-          TCPServer.new(Postal.config.fast_server.bind_address, Postal.config.fast_server.port)     => {:ssl => false},
-        }
-        Postal.logger_for(:fast_server).info("Fast server started listening on HTTP (#{Postal.config.fast_server.bind_address}:#{Postal.config.fast_server.port})")
-        Postal.logger_for(:fast_server).info("Fast server started listening on HTTPS port (#{Postal.config.fast_server.bind_address}:#{Postal.config.fast_server.ssl_port})")
+
+        bind_addresses = Postal.config.fast_server.bind_address
+        bind_addresses = [bind_addresses] unless bind_addresses.is_a?(Array)
+
+        server_sockets = bind_addresses.each_with_object({}) do |bind_addr, sockets|
+          sockets[TCPServer.new(bind_addr, Postal.config.fast_server.port)] = {:ssl => false}
+          sockets[TCPServer.new(bind_addr, Postal.config.fast_server.ssl_port)] = {:ssl => true}
+          Postal.logger_for(:fast_server).info("Fast server started listening on HTTP (#{bind_addr}:#{Postal.config.fast_server.port})")
+          Postal.logger_for(:fast_server).info("Fast server started listening on HTTPS port (#{bind_addr}:#{Postal.config.fast_server.ssl_port})")
+        end
+
         loop do
           client = nil
           ios = select(server_sockets.keys, nil, nil, 1)
