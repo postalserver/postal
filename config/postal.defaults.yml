@@ -22,8 +22,8 @@ web_server:
 fast_server:
   enabled: false
   bind_address: 0.0.0.0
-  port: 5010
-  ssl_port: 5011
+  port: 80
+  ssl_port: 443
   proxy_protocol: false
   default_private_key_path: # Defaults to config/fast_server.key
   default_tls_certificate_path: # Defaults to config/fast_server.cert
@@ -58,14 +58,12 @@ workers:
   quantity: 1
 
 smtp_server:
+  port: 25
   tls_enabled: false
   tls_certificate_path: # Defaults to config/smtp.crt
   tls_private_key_path: # Defaults to config/smtp.key
   proxy_protocol: false
   log_connect: true
-  evented: true
-  ports:
-    - 2525
 
 smtp_relays:
   -
@@ -88,7 +86,7 @@ dns:
 
 smtp:
   host: 127.0.0.1
-  port: 2525
+  port: 25
   username: # Complete when Postal is running and you can
   password: # generate the credentials within the interface.
   from_name: Postal

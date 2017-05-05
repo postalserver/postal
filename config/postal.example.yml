@@ -8,6 +8,7 @@ fast_server:
   # This can be enabled to enable click & open tracking on emails. It is disabled by
   # default as it requires a separate static IP address on your server.
   enabled: false
+  bind_address:
 
 general:
   # This can be changed to allow messages to be sent from multiple IP addresses

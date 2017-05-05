@@ -6,14 +6,19 @@ module Postal
     class Server
 
       def run
+        if Postal.config.fast_server.bind_address.blank?
+          Postal.logger_for(:fast_server).info "Cannot start fast server because no bind address has been specified"
+          exit 1
+        end
+
         Thread.abort_on_exception = true
         TrackCertificate
         server_sockets = {
           TCPServer.new(Postal.config.fast_server.bind_address, Postal.config.fast_server.ssl_port) => {:ssl => true},
           TCPServer.new(Postal.config.fast_server.bind_address, Postal.config.fast_server.port)     => {:ssl => false},
         }
-        Postal.logger_for(:fast_server).info("Fast server started listening on HTTP  port #{Postal.config.fast_server.port}")
-        Postal.logger_for(:fast_server).info("Fast server started listening on HTTPS port #{Postal.config.fast_server.ssl_port}")
+        Postal.logger_for(:fast_server).info("Fast server started listening on HTTP (#{Postal.config.fast_server.bind_address}:#{Postal.config.fast_server.port})")
+        Postal.logger_for(:fast_server).info("Fast server started listening on HTTPS port (#{Postal.config.fast_server.bind_address}:#{Postal.config.fast_server.ssl_port})")
         loop do
           client = nil
           ios = select(server_sockets.keys, nil, nil, 1)
