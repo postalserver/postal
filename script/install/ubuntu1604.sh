@@ -45,9 +45,10 @@ rabbitmqctl add_user postal p0stalpassw0rd
 rabbitmqctl set_permissions -p /postal postal ".*" ".*" ".*"
 
 #
-# User
+# System prep
 #
 useradd -r -m -d /opt/postal -s /bin/bash postal
+setcap 'cap_net_bind_service=+ep' /usr/bin/ruby2.3
 
 #
 # Application Setup
@@ -66,13 +67,6 @@ cp /opt/postal/app/resource/nginx.cfg /etc/nginx/sites-available/default
 mkdir /etc/nginx/ssl/
 openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/ssl/postal.key -out /etc/nginx/ssl/postal.crt -days 365 -nodes -subj "/C=GB/ST=Example/L=Example/O=Example/CN=example.com"
 service nginx reload
-
-#
-# Configure SMTP on port 25
-#
-iptables -t nat -A PREROUTING -p tcp --dport 25 -j REDIRECT --to-port 2525
-iptables -t nat -A OUTPUT -o lo -p tcp --dport 25 -j REDIRECT --to-port 2525
-iptables -I INPUT -p tcp -m tcp --dport 2525 -j ACCEPT
 
 #
 # All done
