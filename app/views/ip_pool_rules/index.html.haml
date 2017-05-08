@@ -60,6 +60,6 @@
             %dl.ipPoolRuleList__condition
               %dt Will be sent using:
               %dd= ip_pool_rule.ip_pool.name
-    - if @server
+    - if @server.ip_pool
       %p.ipPoolRuleListDefault.u-margin All mail that doesn't match a rule above will be sent using #{@server.ip_pool.name}.
     %p.u-center= link_to "Add another rule", [:new, organization, @server, :ip_pool_rule], :class => "button button--positive"
