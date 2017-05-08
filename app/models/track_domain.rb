@@ -33,7 +33,7 @@ class TrackDomain < ApplicationRecord
 
   scope :ok, -> { where(:dns_status => 'OK')}
 
-  after_create :check_dns
+  after_create :check_dns, :unless => :dns_status
   after_create :create_ssl_certificate_if_missing
   after_destroy :delete_ssl_certificate_when_not_in_use
 
