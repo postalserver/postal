@@ -3,8 +3,10 @@ web:
   protocol: https
 
 fast_server:
-  enabled: false
-  bind_address:
+  enabled: true
+  bind_address: 0.0.0.0
+  port: 5010
+  ssl_port: 5011
 
 general:
   use_ip_pools: false
@@ -26,6 +28,9 @@ rabbitmq:
   username: guest
   password: guest
   vhost:
+
+smtp_server:
+  port: 2525
 
 dns:
   mx_records:
