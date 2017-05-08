@@ -46,6 +46,8 @@ class Server < ApplicationRecord
   include HasUUID
   include HasSoftDestroy
 
+  attr_accessor :provision_database
+
   belongs_to :organization
   belongs_to :ip_pool, :optional => true
   has_many :domains, :dependent => :destroy, :as => :owner
@@ -82,11 +84,15 @@ class Server < ApplicationRecord
   end
 
   after_create do
-    message_db.provisioner.provision
+    unless self.provision_database == false
+      message_db.provisioner.provision
+    end
   end
 
   after_commit(:on => :destroy) do
-    message_db.provisioner.drop
+    unless self.provision_database == false
+      message_db.provisioner.drop
+    end
   end
 
   def status
