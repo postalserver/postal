@@ -36,8 +36,10 @@ RSpec.configure do |config|
   config.after(:suite) do
     # Remove the global server after the suite has finished running and then
     # clean the database in case it left anything lying around.
-    GLOBAL_SERVER.destroy
-    DatabaseCleaner.clean
+    if defined?(GLOBAL_SERVER)
+      GLOBAL_SERVER.destroy
+      DatabaseCleaner.clean
+    end
   end
 
 end
