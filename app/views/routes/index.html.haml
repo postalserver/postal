@@ -7,17 +7,18 @@
 
 .pageContent.pageContent--compact
   - if @routes.empty?
-    .noData.noData--monkey.noData--clean
-      %h2.noData__title We heard on the ape vine, you've got no routes yet.
+    .noData.noData--clean
+      %h2.noData__title No routes have been configured for this server.
       %p.noData__text
         To receive incoming mail, you need to add routes so where we should send
         messages we receive for your domain. You can send incoming e-mail to
-        HTTP endpoints or other SMTP servers.
+        HTTP endpoints, other SMTP servers or e-mail addresses.
 
-        - if @server.smtp_endpoints.empty? && @server.http_endpoints.empty?
+        - if @server.smtp_endpoints.empty? && @server.http_endpoints.empty? && @server.address_endpoints.empty?
           %p.noData__button.buttonSet.buttonSet--center
             = link_to "Add a HTTP endpoint", new_organization_server_http_endpoint_path(organization, @server, :return_to => new_organization_server_route_path(organization, @server), :return_notice => "You can now go ahead and add your first route for this HTTP endpoint"), :class => 'button button--positive'
             = link_to "Add a SMTP endpoint", new_organization_server_smtp_endpoint_path(organization, @server, :return_to => new_organization_server_route_path(organization, @server), :return_notice => "You can now go ahead and add your first route for this SMTP endpoint"), :class => 'button button--positive'
+            = link_to "Add an address endpoint", new_organization_server_address_endpoint_path(organization, @server, :return_to => new_organization_server_route_path(organization, @server), :return_notice => "You can now go ahead and add your first route for this address endpoint"), :class => 'button button--positive'
           %p.noData__postButtonText
             Once you've added these, you'll be able to come back here to route a
             specific e-mail address to your newly created endpoint. You can
@@ -28,7 +29,7 @@
   - else
     %p.pageContent__intro.u-margin
       Routes control where incoming mail for your domain is sent. Messages can be sent to
-      HTTP endpoints or other SMTP servers.
+      HTTP endpoints, other SMTP servers or e-mail addresses.
     %p.u-margin.pageContent__helpLink= link_to "Read more about receiving e-mails", [organization, @server, :help_incoming]
 
     %ul.routeList.u-margin

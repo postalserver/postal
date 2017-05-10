@@ -1,3 +1,4 @@
+require 'resolv'
 require 'nifty/utils/random_string'
 
 module Postal
@@ -235,7 +236,14 @@ module Postal
 
         @state = :mail_from_received
         transaction_reset
-        @mail_from = data.gsub(/MAIL FROM\s*:\s*/i, '').gsub(/.*</, '').gsub(/>.*/, '').strip
+        if data =~ /AUTH=/
+          # Discard AUTH= parameter and anything that follows.
+          # We don't need this parameter as we don't trust any client to set it
+          mail_from_line = data.sub(/ *AUTH=.*/, '')
+        else
+          mail_from_line = data
+        end
+        @mail_from = mail_from_line.gsub(/MAIL FROM\s*:\s*/i, '').gsub(/.*</, '').gsub(/>.*/, '').strip
         '250 OK'
       end
 

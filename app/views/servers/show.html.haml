@@ -4,12 +4,10 @@
 
 - if @messages.empty?
   .pageContent--compact
-    .noData.noData--cat.noData--clean
-      %h2.noData__title Stop pro-cat-inating! Your new mail server is ready.
+    .noData.noData--clean
+      %h2.noData__title Your new mail server is ready to go.
       %p.noData__text
-        We can't wait to help you get up and running. The first thing you need
-        to do is add & verify your domain so you can send & receive e-mail to/from it.
-        It'll only take a few seconds.
+        Check out the information below to get started sending & receiving e-mail through your new mail server.
       %p.noData__button.buttonSet.buttonSet--center
         = link_to "Read about sending e-mail", [organization, @server, :help_outgoing], :class => "button"
         = link_to "Read about receiving e-mail", [organization, @server, :help_incoming], :class => "button"

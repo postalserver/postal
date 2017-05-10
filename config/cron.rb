@@ -10,6 +10,10 @@ module Clockwork
     SendNotificationsJob.queue(:main)
   end
 
+  every 15.minutes, 'every-15-minutes', :at => ['**:00', '**:15', '**:30', '**:45'] do
+    RenewTrackCertificatesJob.queue(:main)
+  end
+
   every 1.hour, 'every-hour', :at => ['**:15'] do
     CheckAllDNSJob.queue(:main)
     ExpireHeldMessagesJob.queue(:main)
@@ -18,7 +22,6 @@ module Clockwork
 
   every 1.hour, 'every-hour', :at => ['**:45'] do
     PruneWebhookRequestsJob.queue(:main)
-    RenewTrackCertificatesJob.queue(:main)
   end
 
   every 1.day, 'every-day', :at => ['03:00'] do

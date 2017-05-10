@@ -46,6 +46,8 @@ class Server < ApplicationRecord
   include HasUUID
   include HasSoftDestroy
 
+  attr_accessor :provision_database
+
   belongs_to :organization
   belongs_to :ip_pool, :optional => true
   has_many :domains, :dependent => :destroy, :as => :owner
@@ -82,11 +84,15 @@ class Server < ApplicationRecord
   end
 
   after_create do
-    message_db.provisioner.provision
+    unless self.provision_database == false
+      message_db.provisioner.provision
+    end
   end
 
   after_commit(:on => :destroy) do
-    message_db.provisioner.drop
+    unless self.provision_database == false
+      message_db.provisioner.drop
+    end
   end
 
   def status
@@ -231,11 +237,6 @@ class Server < ApplicationRecord
       return domain
     end
 
-    # Check with global domains
-    if route = self.routes.includes(:domain).references(:domain).where(:domains => {:server_id => nil, :name => domain_name}, :name => uname).first
-      return route.domain
-    end
-
     if any_domain = self.domains.verified.where(:use_for_any => true).order(:name).first
       return any_domain
     end
@@ -273,7 +274,7 @@ class Server < ApplicationRecord
   end
 
   def validate_ip_pool_belongs_to_organization
-    if self.ip_pool && self.ip_pool_id_changed? && (self.ip_pool.type == 'Dedicated' && !self.organization.ip_pools.include?(self.ip_pool))
+    if self.ip_pool && self.ip_pool_id_changed? && !self.organization.ip_pools.include?(self.ip_pool)
       errors.add :ip_pool_id, "must belong to the organization"
     end
   end

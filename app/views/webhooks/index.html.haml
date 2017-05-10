@@ -6,8 +6,8 @@
 = render 'header', :active_nav => :webhooks
 .pageContent.pageContent--compact
   - if @webhooks.empty?
-    .noData.noData--clean.noData--lion
-      %h2.noData__title You've got no webhooks. We're not lion.
+    .noData.noData--clean
+      %h2.noData__title No webhooks have been configured for this server.
       %p.noData__text
         You haven't added any webhooks for this server yet. A webhook enables your web
         application to be notified when certain events occur in the lifecycle of the mail server.

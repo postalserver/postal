@@ -2,9 +2,8 @@
   text-align:center;
   border-radius:4px;
   padding:30px;
-  padding-top:100px;
+  padding-top:50px;
   box-shadow:0 0 10px rgba(0,0,0,0.15);
-  background:image-url('animals/panda.svg') #fff no-repeat center 25px / 50px;
 }
 
 .noData--clean {
@@ -34,81 +33,4 @@
   line-height:1.5;
   width:70%;
   color:$subBlue;
-}
-
-.noData--fox {
-  background-image:image-url('animals/fox.svg');
-  background-size:65px;
-}
-
-.noData--cat {
-  background-image:image-url('animals/cat.svg');
-  background-position:center 15px;
-  background-size:50px;
-}
-
-.noData--cat2 {
-  background-image:image-url('animals/cat2.svg');
-  background-size:55px;
-}
-
-.noData--cat3 {
-  background-image:image-url('animals/cat3.svg');
-  background-size:48px;
-}
-
-.noData--cat4 {
-  background-image:image-url('animals/cat4.svg');
-  background-size:50px;
-}
-
-.noData--cock {
-  background-image:image-url('animals/cock.svg');
-  background-size:50px;
-  background-position:center 15px;
-}
-
-.noData--deer {
-  background-image:image-url('animals/deer.svg');
-  background-position:center 15px;
-  background-size:65px;
-}
-
-.noData--dog {
-  background-image:image-url('animals/dog.svg');
-}
-
-.noData--monkey {
-  background-image:image-url('animals/monkey.svg');
-}
-
-.noData--owl {
-  background-image:image-url('animals/owl.svg');
-}
-
-.noData--penguin {
-  background-image:image-url('animals/penguin.svg');
-}
-
-.noData--panda {
-  background-image:image-url('animals/panda.svg');
-}
-
-.noData--goat {
-  background-image:image-url('animals/goat.svg');
-}
-
-.noData--koala {
-  background-image:image-url('animals/koala.svg');
-  background-size:65px;
-}
-
-.noData--wolf {
-  background-image:image-url('animals/wolf.svg');
-  background-size:45px;
-}
-
-.noData--lion {
-  background-image:image-url('animals/lion.svg');
-  background-size:45px;
 }

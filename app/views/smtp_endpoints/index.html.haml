@@ -8,8 +8,8 @@
 .pageContent.pageContent--compact
 
   - if @smtp_endpoints.empty?
-    .noData.noData--dog.noData--clean
-      %h2.noData__title Im-paws-ible! You've got no SMTP endpoints.
+    .noData.noData--clean
+      %h2.noData__title There are no SMTP endpoints for this server.
       %p.noData__text
         SMTP endpoints are other mail servers that you'd like incoming e-mails
         to be passed onto. Once you've added some endpoints, you can route messages

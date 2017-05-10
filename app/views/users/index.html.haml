@@ -9,7 +9,7 @@
 = render 'organizations/nav', :active_nav => :users
 .pageContent.pageContent--compact
   - if @users.empty? && @pending_users.empty?
-    .noData.noData--penguin.noData--clean
+    .noData.noData--clean
       %p.noData__title There are no users assigned to this organization.
       %p.noData__text
         You add additional users that will be permitted to access this organization.

@@ -25,7 +25,7 @@ gem 'chronic'
 gem 'basic_ssl'
 gem 'clockwork'
 gem 'encrypto_signo'
-gem 'epoll', :require => nil
+gem 'nio4r'
 gem 'mongo'
 gem 'sentry-raven'
 gem 'gelf'
@@ -40,6 +40,9 @@ group :development, :test do
 end
 
 group :development do
-  gem 'web-console'
   gem 'annotate'
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem "factory_girl_rails", "~> 4.0"
+  gem "database_cleaner"
 end
