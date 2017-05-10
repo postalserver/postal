@@ -1,5 +1,6 @@
 class UserController < ApplicationController
 
+  before_action :verified_user_invite, :only => [:new, :create]
   skip_before_action :login_required, :only => [:new, :create]
   skip_before_action :verified_email_required, :only => [:edit, :update, :verify]
 
@@ -20,7 +21,7 @@ class UserController < ApplicationController
   end
 
   def join
-    if @invite = UserInvite.where(:uuid => params[:token]).where("expires_at > ?", Time.now).first
+    if @invite = UserInvite.find_valid_by_uuid(params[:token])
       if request.post?
         @invite.accept(current_user)
         redirect_to_with_json root_path(:nrd => 1), :notice => "Invitation has been accepted successfully. You now have access to this organization."
@@ -79,6 +80,20 @@ class UserController < ApplicationController
       else
         flash_now :alert, "The code you've entered isn't correct. Please check and try again."
       end
+    end
+  end
+
+  private
+
+  def verified_user_invite
+    if Postal.config.general.disable_signup
+      if params[:return_to]
+        if UserInvite.find_valid_by_uuid(params[:return_to][/\/join\/([^\/]+)\/?/, 1])
+          return
+        end
+        flash[:alert] = "The invite URL you have has expired. Please ask the person who invited you to re-send your invitation."
+      end
+      redirect_to login_path
     end
   end
 

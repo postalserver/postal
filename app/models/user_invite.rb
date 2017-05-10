@@ -51,4 +51,9 @@ class UserInvite < ApplicationRecord
     self.destroy
   end
 
+  def self.find_valid_by_uuid(uuid)
+    return nil if uuid.blank?
+    self.where(:uuid => params[:token]).where("expires_at > ?", Time.now).first
+  end
+
 end
