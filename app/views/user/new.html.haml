@@ -1,17 +1,19 @@
 - @wide = true
 - page_title << "Signup"
 .subPageBox__title
-  Create your own Postal account
+  Join the #{@user_invite.organizations.first.name} organization
 = display_flash
 
 .subPageBox__content
   %p.subPageBox__text
-    To create an account, just enter your details below and you'll be on your way.
-    Be sure to enter a valid e-mail address because we'll send you a verification
-    e-mail as part of the signup process.
+    If you don't already have an account on this system, you can create one below. Otherwise, you should
+    #{link_to "login to your existing account", login_path(:return_to => join_path(@user_invite.uuid)), :class => 'u-link'}
+    and add this organization to that.
+
   .signupForm
     = form_for @user, :url => signup_path do |f|
       = hidden_field_tag 'return_to', params[:return_to]
+      = hidden_field_tag 'invite_token', params[:invite_token]
       = f.error_messages
       .fieldSet.fieldSet--compact.u-margin
         .fieldSet__fieldPair

@@ -7,13 +7,12 @@
   = form_tag login_path, :class => 'loginForm' do
     = hidden_field_tag 'return_to', params[:return_to]
     - if params[:return_to] && params[:return_to] =~ /\/join\//
-      %p.loginForm__invite.warningBox.u-margin To accept your invitation you need to login to your account or create a new one. Choose from the options below to continue.
+      %p.loginForm__invite.warningBox.u-margin Login to your existing account to accept your invitation.
 
     %p.loginForm__input= text_field_tag 'email_address', '', :type => 'email', :autocomplete => 'off', :spellcheck => 'false', :class => 'input input--text input--onWhite', :placeholder => "Your e-mail address", :autofocus => true, :tabindex => 1
     %p.loginForm__input= password_field_tag 'password', '', :class => 'input input--text input--onWhite', :placeholder => "Your password", :tabindex => 2
     .loginForm__submit
       %ul.loginForm__links
         %li= link_to "Forgotten your password?", login_reset_path(:return_to => params[:return_to])
-        %li= link_to "Create a new user", signup_path(:return_to => params[:return_to])
       %p= submit_tag "Login", :class => 'button button--positive', :tabindex => 3
 

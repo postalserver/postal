@@ -25,6 +25,8 @@ class UserInvite < ApplicationRecord
 
   default_value :expires_at, -> { 7.days.from_now }
 
+  scope :active, -> { where("expires_at > ?", Time.now) }
+
   def md5_for_gravatar
     @md5_for_gravatar ||= Digest::MD5.hexdigest(email_address.to_s.downcase)
   end

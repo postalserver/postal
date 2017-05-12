@@ -80,9 +80,9 @@ Rails.application.routes.draw do
   post 'persist' => 'sessions#persist'
 
   match 'verify' => 'user#verify', :via => [:get, :post]
-  get 'signup' => 'user#new'
+  get 'signup/:invite_token' => 'user#new', :as => 'new_signup'
   post 'signup' => 'user#create'
-  match 'join/:token' => 'user#join', :via => [:get, :post, :delete]
+  match 'join/:token' => 'user#join', :via => [:get, :post, :delete], :as => 'join'
   get 'login' => 'sessions#new'
   post 'login' => 'sessions#create'
   get 'login/token' => 'sessions#create_with_token'
