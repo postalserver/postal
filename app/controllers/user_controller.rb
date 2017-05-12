@@ -13,11 +13,11 @@ class UserController < ApplicationController
   def create
     @user_invite = UserInvite.active.find_by!(:uuid => params[:invite_token])
     @user = User.new(params.require(:user).permit(:first_name, :last_name, :email_address, :password, :password_confirmation))
+    @user.email_verified_at = Time.now
     if @user.save
       @user_invite.accept(@user)
-      AppMailer.new_user(@user).deliver
       self.current_user = @user
-      redirect_to verify_path(:return_to => params[:return_to])
+      redirect_to root_path
     else
       render 'new', :layout => 'sub'
     end
