@@ -145,6 +145,15 @@ class UnqueueMessageJob < Postal::Job
                 next
               end
 
+              # If the server is in development mode, hold it
+              if queued_message.server.mode == 'Development' && !queued_message.manual?
+                log "Server is in development mode so holding."
+                queued_message.message.create_delivery('Held', :details => "Server is in development mode.")
+                queued_message.destroy
+                log "#{log_prefix} Server is in development mode. Holding."
+                next
+              end
+
               #
               # Find out what sort of message we're supposed to be sending and dispatch this request over to
               # the sender.
@@ -355,7 +364,7 @@ class UnqueueMessageJob < Postal::Job
 
               # If the server is in development mode, hold it
               if queued_message.server.mode == 'Development' && !queued_message.manual?
-                log "Server is in development mode and this is a outgoing message so holding."
+                log "Server is in development mode so holding."
                 queued_message.message.create_delivery('Held', :details => "Server is in development mode.")
                 queued_message.destroy
                 log "#{log_prefix} Server is in development mode. Holding."
