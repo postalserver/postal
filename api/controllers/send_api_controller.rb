@@ -33,7 +33,7 @@ controller :send do
     error 'AttachmentMissingData', "An attachment is missing data"
     # Return
     returns Hash
-    # Action
+    # Action
     action do
       attributes = {}
       attributes[:to] = params.to
@@ -87,7 +87,7 @@ controller :send do
         error 'UnauthenticatedFromAddress'
       end
 
-      # Store the result ready to return
+      # Store the result ready to return
       result = {:message_id => nil, :messages => {}}
       params.rcpt_to.uniq.each do |rcpt_to|
         message = identity.server.message_db.new_message
