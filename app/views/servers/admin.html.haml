@@ -11,7 +11,7 @@
       %fieldset.fieldSet.fieldSet--wide
         .fieldSet__field
           = f.label :send_limit, :class => 'fieldSet__label'
-          .fieldSet__input= f.text_field :send_limit, :autofocus => true, :class => 'input input--text'
+          .fieldSet__input= f.text_field :send_limit, :class => 'input input--text', :placeholder => "No limit"
         .fieldSet__field
           = f.label :allow_sender, "Allow sender header", :class => 'fieldSet__label'
           .fieldSet__input= f.select :allow_sender, [["No", false], ["Yes - can use Sender header", true]], {}, :class => 'input input--select'

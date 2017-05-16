@@ -66,7 +66,6 @@ class Server < ApplicationRecord
 
   random_string :token, :type => :chars, :length => 6, :unique => true, :upper_letters_only => true
   default_value :permalink, -> { name ? name.parameterize : nil}
-  default_value :send_limit, -> { 100 }
   default_value :raw_message_retention_days, -> { 30 }
   default_value :raw_message_retention_size, -> { 2048 }
   default_value :message_retention_days, -> { 60 }
@@ -196,11 +195,11 @@ class Server < ApplicationRecord
   end
 
   def send_limit_approaching?
-    send_volume >= self.send_limit * 0.90
+    self.send_limit && (send_volume >= self.send_limit * 0.90)
   end
 
   def send_limit_exceeded?
-    send_volume >= self.send_limit
+    self.send_limit && send_volume >= self.send_limit
   end
 
   def send_limit_warning(type)
