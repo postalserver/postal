@@ -256,7 +256,7 @@ module Postal
         uname, domain = rcpt_to.split('@', 2)
         uname, tag = uname.split('+', 2)
 
-        if domain =~ /\A#{Regexp.escape(Postal.config.dns.custom_return_path_prefix)}\./
+        if domain == Postal.config.dns.return_path || domain =~ /\A#{Regexp.escape(Postal.config.dns.custom_return_path_prefix)}\./
           # This is a return path
           @state = :rcpt_to_received
           if server = ::Server.where(:token => uname).first
