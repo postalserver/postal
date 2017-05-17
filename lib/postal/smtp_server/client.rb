@@ -430,6 +430,7 @@ module Postal
           end
         end
         transaction_reset
+        @state = :welcomed
         '250 OK'
       end
 
