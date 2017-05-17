@@ -18,7 +18,7 @@ module Postal
         else
           @state = :preauth
         end
-        reset
+        transaction_reset
       end
 
       def check_ip_address
@@ -32,11 +32,6 @@ module Postal
         @mail_from = nil
         @data = nil
         @headers = nil
-      end
-
-      def reset
-        @credential = nil
-        transaction_reset
       end
 
       def id
@@ -130,7 +125,7 @@ module Postal
       def ehlo(data)
         resolve_hostname
         @helo_name = data.strip.split(' ', 2)[1]
-        reset
+        transaction_reset
         @state = :welcomed
         ["250-My capabilities are", Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil, "250 AUTH CRAM-MD5 PLAIN LOGIN", ]
       end
@@ -138,13 +133,13 @@ module Postal
       def helo(data)
         resolve_hostname
         @helo_name = data.strip.split(' ', 2)[1]
-        reset
+        transaction_reset
         @state = :welcomed
         "250 #{Postal.config.dns.smtp_server_hostname}"
       end
 
       def rset
-        reset
+        transaction_reset
         @state = :welcomed
         '250 OK'
       end
