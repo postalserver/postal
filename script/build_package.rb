@@ -63,7 +63,7 @@ else
   exit 1
 end
 version_file.gsub!("REVISION = nil", "REVISION = '#{last_commit}'")
-version_file.gsub!("CHANNEL = 'dev'", "CHANNEL = '#{channel}'")
+version_file.gsub!("CHANNEL = 'dev'", "CHANNEL = '#{CHANNEL}'")
 File.open("#{WC_PATH}/lib/postal/version.rb", 'w') { |f| f.write(version_file) }
 
 # Compile all the assets
@@ -96,14 +96,14 @@ filename = "postal-#{version}-#{last_commit}.tgz"
 require 'net/ssh'
 require 'net/scp'
 Net::SSH.start("postal.atech.media") do |ssh|
-  ssh.exec!("rm -Rf /var/www/postal/packages/#{channel}/#{filename}")
+  ssh.exec!("rm -Rf /var/www/postal/packages/#{CHANNEL}/#{filename}")
   puts "Uploading..."
-  ssh.scp.upload!(PACKAGE_PATH.to_s, "/var/www/postal/packages/#{channel}/#{filename}")
+  ssh.scp.upload!(PACKAGE_PATH.to_s, "/var/www/postal/packages/#{CHANNEL}/#{filename}")
   puts "Making latest..."
-  ssh.exec!("rm -Rf /var/www/postal/packages/#{channel}/latest.tgz")
-  ssh.exec!("ln -s /var/www/postal/packages/#{channel}/#{filename} /var/www/postal/packages/#{channel}/latest.tgz")
+  ssh.exec!("rm -Rf /var/www/postal/packages/#{CHANNEL}/latest.tgz")
+  ssh.exec!("ln -s /var/www/postal/packages/#{CHANNEL}/#{filename} /var/www/postal/packages/#{CHANNEL}/latest.tgz")
 end
 
-puts "\e[32mDone. Package is live at https://postal.atech.media/packages/#{channel}/latest.tgz\e[0m"
+puts "\e[32mDone. Package is live at https://postal.atech.media/packages/#{CHANNEL}/latest.tgz\e[0m"
 
 # Yay. We're done.
