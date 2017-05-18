@@ -1,6 +1,6 @@
 app_name: Postal
-log_path: log/procodile.log
-pid_root: tmp/pids
+log_path: /tmp/postal/procodile.log
+pid_root: /tmp/postal/pids
 processes:
   web:
     restart_mode: usr1
