@@ -2,6 +2,7 @@ require 'yaml'
 require 'pathname'
 require 'cgi'
 require 'openssl'
+require 'fileutils'
 require_relative 'error'
 require_relative 'version'
 
