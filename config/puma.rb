@@ -8,7 +8,7 @@ environment     Postal.config.rails&.environment || 'development'
 prune_bundler
 quiet false
 unless ENV['LOG_TO_STDOUT']
-  stdout_redirect Postal.app_root.join('log', 'puma.log'), Postal.app_root.join('log', 'puma.log'), true
+  stdout_redirect Postal.log_root.join('puma.log'), Postal.log_root.join('puma.log'), true
 end
 
 if ENV['APP_ROOT']
