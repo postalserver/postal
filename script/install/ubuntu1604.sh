@@ -54,9 +54,10 @@ setcap 'cap_net_bind_service=+ep' /usr/bin/ruby2.3
 #
 # Application Setup
 #
-sudo -i -u postal git clone https://github.com/atech/postal /opt/postal/app
+sudo -i -u postal mkdir -p /opt/postal/app
+wget https://postal.atech.media/packages/stable/latest.tgz -O - | sudo -u postal tar zxpv -C /opt/postal/app
 ln -s /opt/postal/app/bin/postal /usr/bin/postal
-postal bundle /opt/postal/app/vendor/bundle
+postal bundle /opt/postal/vendor/bundle
 postal initialize-config
 postal initialize
 postal start
