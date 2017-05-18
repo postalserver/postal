@@ -70,7 +70,12 @@ case "$1" in
         ;;
 
     initialize)
-        run "bundle exec rake assets:precompile db:schema:load db:seed"
+        echo 'Initializing database'
+        run "bundle exec rake db:schema:load db:seed"
+        if [ ! -f "public/assets/.prebuilt" ]; then
+            echo 'Compiling Assets'
+            run "bundle exec rake assets:precompile"
+        fi
         ;;
 
     default-dkim-record)
