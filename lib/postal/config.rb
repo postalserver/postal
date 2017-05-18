@@ -43,6 +43,18 @@ module Postal
     end
   end
 
+  def self.log_root
+    @log_root ||= begin
+      if config.logging.root
+        Pathname.new(config.logging.root)
+      elsif __FILE__ =~ /\/opt\/postal/
+        Pathname.new("/opt/postal/log")
+      else
+        app_root.join('log')
+      end
+    end
+  end
+
   def self.config_file_path
     @config_file_path ||= File.join(config_root, 'postal.yml')
   end
@@ -74,7 +86,7 @@ module Postal
       if config.logging.stdout || ENV['LOG_TO_STDOUT']
         Postal::AppLogger.new(name, STDOUT)
       else
-        Postal::AppLogger.new(name, app_root.join('log', "#{name}.log"), config.logging.max_log_files || 10, (config.logging.max_log_file_size || 20).megabytes)
+        Postal::AppLogger.new(name, log_root.join("#{name}.log"), config.logging.max_log_files, config.logging.max_log_file_size.megabytes)
       end
     end
   end

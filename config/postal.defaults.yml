@@ -37,6 +37,7 @@ main_db:
 
 logging:
   stdout: false
+  root: # Automatically determined based on config root
   max_log_file_size: 20
   max_log_files: 10
 
