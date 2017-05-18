@@ -50,3 +50,6 @@
 
       %section.siteContent__main
         = yield
+
+    - if logged_in?
+      <!--- Postal Version #{Postal.version} -->
