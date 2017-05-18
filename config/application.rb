@@ -14,6 +14,9 @@ Bundler.require(*Rails.groups)
 
 module Postal
   class Application < Rails::Application
+    # Set the Rails logger
+    config.logger = Postal.logger_for(:rails)
+
     # Disable most generators
     config.generators do |g|
       g.orm             :active_record
