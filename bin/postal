@@ -87,7 +87,7 @@ case "$1" in
         ;;
 
     auto-upgrade)
-        run "ruby script/auto_upgrade.rb"
+        run "ruby script/auto_upgrade.rb $2"
         ;;
 
     make-user)
