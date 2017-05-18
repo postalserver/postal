@@ -70,6 +70,7 @@ File.open("#{WC_PATH}/lib/postal/version.rb", 'w') { |f| f.write(version_file) }
 unless ENV['NO_ASSETS']
   puts "\e[44;37mCompiling assets\e[0m"
   system!("cd #{WC_PATH} && bundle exec rake assets:precompile")
+  system!("touch #{WC_PATH}/public/assets/.prebuilt")
 end
 
 # Remove files that shouldn't be distributed

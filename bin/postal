@@ -53,7 +53,12 @@ case "$1" in
         ;;
 
     upgrade)
-        run "bundle exec rake assets:precompile db:migrate"
+        if [ ! -f "public/assets/.prebuilt" ]; then
+            echo 'Compiling Assets'
+            run "bundle exec rake assets:precompile"
+        fi
+        echo 'Migrating database'
+        run "bundle exec rake db:migrate"
         ;;
 
     console)
