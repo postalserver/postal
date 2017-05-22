@@ -110,6 +110,10 @@ class Server < ApplicationRecord
     suspended_at.present? || organization.suspended?
   end
 
+  def default_tracking_domain
+    tracking_domain_id
+  end
+
   def actual_suspension_reason
     if suspended?
       if suspended_at.nil?
@@ -180,6 +184,7 @@ class Server < ApplicationRecord
     end
     [total, unverified, bad_dns]
   end
+
 
   def webhook_hash
     {
