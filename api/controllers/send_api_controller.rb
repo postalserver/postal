@@ -10,6 +10,7 @@ controller :send do
     param :to, "The e-mail addresses of the recipients (max 50)", :type => Array
     param :cc, "The e-mail addresses of any CC contacts (max 50)", :type => Array
     param :bcc, "The e-mail addresses of any BCC contacts (max 50)", :type => Array
+    param :recipients, "A list of recipients", :type => Array
     param :from, "The e-mail address for the From header", :type => String
     param :sender, "The e-mail address for the Sender header", :type => String
     param :subject, "The subject of the e-mail", :type => String
@@ -18,6 +19,7 @@ controller :send do
     param :plain_body, "The plain text body of the e-mail", :type => String
     param :html_body, "The HTML body of the e-mail", :type => String
     param :attachments, "An array of attachments for this e-mail", :type => Array
+    param :merge_data, "A list of data to be merged into the body of this e-mail", :type => Hash
     param :headers, "A hash of additional headers", :type => Hash
     param :bounce, "Is this message a bounce?", :type => :boolean
     # Errors
@@ -33,12 +35,23 @@ controller :send do
     error 'AttachmentMissingData', "An attachment is missing data"
     # Return
     returns Hash
-    # Action
+    # Action
     action do
+      recipients = params.recipients
+      if !recipients || recipients.empty?
+        recipients = []
+      end
+
+      if params[:to] && !params[:to].empty?
+        recipient = {}
+        recipient['to'] = params.to
+        recipient['cc'] = params.cc
+        recipient['bcc'] = params.bcc
+        recipients.push(recipient)
+      end
+
       attributes = {}
-      attributes[:to] = params.to
-      attributes[:cc] = params.cc
-      attributes[:bcc] = params.bcc
+
       attributes[:from] = params.from
       attributes[:sender] = params.sender
       attributes[:subject] = params.subject
@@ -48,19 +61,37 @@ controller :send do
       attributes[:bounce] = params.bounce ? true : false
       attributes[:tag] = params.tag
       attributes[:custom_headers] = params.headers
+      attributes[:merge_data] = params.merge_data
       attributes[:attachments] = []
       (params.attachments || []).each do |attachment|
         next unless attachment.is_a?(Hash)
         attributes[:attachments] << {:name => attachment['name'], :content_type => attachment['content_type'], :data => attachment['data'], :base64 => true}
       end
-      message = OutgoingMessagePrototype.new(identity.server, request.ip, 'api', attributes)
-      message.credential = identity
-      if message.valid?
-        result = message.create_messages
-        {:message_id => message.message_id, :messages => result}
-      else
-        error message.errors.first
+      output = []
+      (recipients || []).each do |recipient|
+        message_attributes = attributes.dup;
+        message_attributes[:to] = recipient['to']
+        message_attributes[:cc] = recipient['cc']
+        message_attributes[:bcc] = recipient['bcc']
+        if recipient['tag'] && !recipient['tag'].empty?
+          message_attributes[:tag] = recipient['tag']
+        end
+
+        if recipient['merge_data'].is_a?(Hash)
+          message_attributes[:merge_data] = message_attributes[:merge_data].merge(recipient['merge_data']);
+        end
+        message = OutgoingMessagePrototype.new(identity.server, request.ip, 'api', message_attributes)
+        message.credential = identity
+        if message.valid?
+          result = message.create_messages
+          output.push({:message_id => message.message_id, :tag => message.tag, :messages => result})
+        else
+          output.push({:to => message.to, :tag => message.tag, :error => message.errors.first})
+        end
+        message_attributes = nil
+        message = nil
       end
+      output
     end
   end
 
@@ -87,7 +118,7 @@ controller :send do
         error 'UnauthenticatedFromAddress'
       end
 
-      # Store the result ready to return
+      # Store the result ready to return
       result = {:message_id => nil, :messages => {}}
       params.rcpt_to.uniq.each do |rcpt_to|
         message = identity.server.message_db.new_message

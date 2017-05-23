@@ -10,6 +10,7 @@ class OutgoingMessagePrototype
   attr_accessor :subject
   attr_accessor :reply_to
   attr_accessor :custom_headers
+  attr_accessor :merge_data
   attr_accessor :plain_body
   attr_accessor :html_body
   attr_accessor :attachments
@@ -22,6 +23,7 @@ class OutgoingMessagePrototype
     @ip = ip
     @source_type = source_type
     @custom_headers = {}
+    @merge_data = {}
     @attachments = []
     @message_id = "#{SecureRandom.uuid}@#{Postal.config.dns.return_path}"
     attributes.each do |key, value|
@@ -160,6 +162,18 @@ class OutgoingMessagePrototype
       mail.sender = @sender
       mail.subject = @subject
       mail.reply_to = @reply_to
+
+      if @merge_data.is_a?(Hash)
+        @merge_data.each do |key, value|
+          if !@plain_body.blank?
+            @plain_body.gsub!("*|"+key+"|*", value)
+          end
+          if !@html_body.blank?
+            @html_body.gsub!("*|"+key+"|*", value)
+          end
+        end
+      end
+
       if @html_body.blank? && attachments.empty?
         mail.body = @plain_body
       else
