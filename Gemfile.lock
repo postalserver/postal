@@ -108,7 +108,8 @@ GEM
       json
     globalid (0.3.7)
       activesupport (>= 4.1.0)
-    haml (4.0.7)
+    haml (5.0.1)
+      temple (>= 0.8.0)
       tilt
     hashie (3.4.6)
     highline (1.7.8)
@@ -213,6 +214,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    temple (0.8.0)
     thor (0.19.4)
     thread_safe (0.3.6)
     tilt (2.0.5)
