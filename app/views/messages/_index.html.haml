@@ -3,7 +3,7 @@
     = render 'search'
 
   - if @messages[:records].empty?
-    .noData
+    .noData.noData--clean
       %h2.noData__title No messages found matching your filter.
       %p.noData__text
         There were no messages which matched the query that you entered. Sorry about that.
