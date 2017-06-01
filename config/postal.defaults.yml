@@ -57,6 +57,7 @@ rabbitmq:
 
 workers:
   quantity: 1
+  threads: 4
 
 smtp_server:
   port: 25
