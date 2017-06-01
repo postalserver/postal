@@ -32,7 +32,7 @@ gem 'gelf'
 gem 'moonrope', :git => 'https://github.com/adamcooke/moonrope', :branch => 'master'
 gem 'jwt'
 gem 'createsend', '~> 4.0'
-gem 'acme-client', :git => 'https://github.com/unixcharles/acme-client'
+gem 'acme-client'
 gem 'highline', :require => true
 
 group :development, :test do
