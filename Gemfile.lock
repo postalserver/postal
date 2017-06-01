@@ -1,13 +1,3 @@
-GIT
-  remote: https://github.com/adamcooke/moonrope
-  revision: f56a37b8f12186be5e25f14b22bb9100c50df60f
-  branch: master
-  specs:
-    moonrope (2.0.0)
-      deep_merge (~> 1.0)
-      json (~> 1.7)
-      rack (>= 1.4)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -131,6 +121,10 @@ GEM
     minitest (5.10.1)
     mongo (2.2.4)
       bson (~> 4.0)
+    moonrope (2.0.1)
+      deep_merge (~> 1.0)
+      json (~> 1.7)
+      rack (>= 1.4)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
     mysql2 (0.4.4)
@@ -142,7 +136,7 @@ GEM
     nokogiri (1.7.2)
       mini_portile2 (~> 2.1.0)
     puma (3.8.2)
-    rack (2.0.1)
+    rack (2.0.3)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (5.0.2)
@@ -254,7 +248,7 @@ DEPENDENCIES
   kaminari
   mail
   mongo
-  moonrope!
+  moonrope
   mysql2 (>= 0.3.18, < 0.5)
   nifty-utils
   nilify_blanks
