@@ -16,11 +16,11 @@ fi
 if [ $SHOULD_SUDO == "yes" ] && [ $USER != "postal" ]; then
     run() {
         HOME=/opt/postal
-        eval "sudo -u postal $1"
+        eval "sudo -u postal $@"
     }
 else
     run() {
-        eval $1
+        eval $@
     }
 fi
 
@@ -87,7 +87,7 @@ case "$1" in
         ;;
 
     auto-upgrade)
-        run "ruby script/auto_upgrade.rb $2"
+        run "ruby script/auto_upgrade.rb $@"
         ;;
 
     make-user)
