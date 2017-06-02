@@ -52,7 +52,7 @@ Rails.application.routes.draw do
       get :delete, :on => :member
       get 'help/outgoing' => 'help#outgoing'
       get 'help/incoming' => 'help#incoming'
-      get :admin, :on => :member
+      get :advanced, :on => :member
       post :suspend, :on => :member
       post :unsuspend, :on => :member
     end

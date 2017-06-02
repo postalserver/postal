@@ -79,7 +79,6 @@ class Server < ApplicationRecord
 
   before_validation(:on => :create) do
     self.token = self.token.downcase if self.token
-    self.outbound_spam_threshold = 3.0 if self.outbound_spam_threshold.blank?
   end
 
   after_create do

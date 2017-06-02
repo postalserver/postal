@@ -1,0 +1,77 @@
+- page_title << @server.name
+- page_title << "Settings"
+- page_title << "Advanced"
+= render 'sidebar', :active_server => @server
+= render 'header', :active_nav => :settings
+= render 'settings_header', :active_nav => :admin
+.pageContent.pageContent--compact
+  .u-margin
+    = form_for [organization, @server], :remote => true do |f|
+      = f.error_messages
+      %fieldset.fieldSet.fieldSet--wide
+        .fieldSet__field
+          = f.label :send_limit, :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.text_field :send_limit, :class => 'input input--text', :placeholder => "No limit"
+            %p.fieldSet__text This is the maximum number of e-mails that can be sent through this mail server in a 60 minute period.
+        .fieldSet__field
+          = f.label :allow_sender, "Allow sender header", :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.select :allow_sender, [["No", false], ["Yes - can use Sender header", true]], {}, :class => 'input input--select'
+            %p.fieldSet__text If enabled, outgoing messages can use any address in the From header as long as a Sender header is included with an authorized address.
+
+        .fieldSet__field
+          = f.label :log_smtp_data, "Log SMTP data?", :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.select :log_smtp_data, [["No", false], ["Yes - log all SMTP DATA (debug only)", true]], {}, :class => 'input input--select'
+            %p.fieldSet__text
+              By default, no information after the DATA command in an SMTP command is logged. If enabled, all this data will be logged too. This should only
+              be used for debugging.
+        .fieldSet__field
+          = f.label :outbound_spam_threshold, :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.text_field :outbound_spam_threshold, :class => 'input input--text', :placeholder => "No outbound spam checking"
+            %p.fieldSet__text
+              By default, outgoing messages aren't scanned for spam. You can specify a threshold here and outgoing messages that exceed this will
+              not be permitted to be sent through the mail server.
+        .fieldSet__field
+          = f.label :message_retention_days, :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.text_field :message_retention_days, :class => 'input input--text'
+            %p.fieldSet__text
+              The number of days that message meta data is stored in the database after it has been added.
+        .fieldSet__field
+          = f.label :raw_message_retention_days, :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.text_field :raw_message_retention_days, :class => 'input input--text'
+            %p.fieldSet__text
+              The number of days that raw message data (bodies & attachments) are stored in the database after it has been added.
+        .fieldSet__field
+          = f.label :raw_message_retention_size, :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.text_field :raw_message_retention_size, :class => 'input input--text'
+            %p.fieldSet__text
+              The total amount of disk space (in bytes) to allow raw message data to use on the disk. Older messages will be deleted to keep
+              the total usage below this amount.
+
+      .fieldSetSubmit.fieldSetSubmit--wide.buttonSet
+        = f.submit "Save server", :class => 'button button--positive js-form-submit'
+
+  - if @server.suspended_at
+    = form_tag [:unsuspend, organization, @server], :remote => true do
+      .fieldSetSubmit.fieldSetSubmit--wide.buttonSet
+        = submit_tag "Unsuspend server", :class => 'button button--danger js-form-submit'
+
+  - else
+    = form_tag [:suspend, organization, @server], :remote => true do
+      %fieldset.fieldSet.fieldSet--wide
+        .fieldSet__field
+          = label_tag :reason, 'Suspension Reason', :class => 'fieldSet__label'
+          .fieldSet__input
+            = text_field_tag :reason, '', :class => 'input input--text', :required => true
+            %p.fieldSet__text
+              If you wish to disable this server and stop it sending messages, enter a reason above. Any users assigned to the
+              server will be notified of the suspension by e-mail.
+
+      .fieldSetSubmit.fieldSetSubmit--wide.buttonSet
+        = submit_tag "Suspend server", :class => 'button button--positive js-form-submit'
