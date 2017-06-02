@@ -22,5 +22,5 @@
             %p.suppressionList__address= link_to suppression['address'], outgoing_organization_server_messages_path(organization, @server, :query => "to: #{suppression['address']}")
             %p.suppressionList__reason= suppression['reason'].capitalize
           .suppressionList__right
-            %p.suppressionList__timestamp Added #{Time.at(suppression['timestamp']).to_s(:long)}
+            %p.suppressionList__timestamp Added #{Time.zone.at(suppression['timestamp']).to_s(:long)}
     = render 'shared/message_db_pagination', :data => @suppressions, :name => "suppression"

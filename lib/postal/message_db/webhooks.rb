@@ -40,7 +40,7 @@ module Postal
         end
 
         def timestamp
-          Time.at(@attributes['timestamp'])
+          Time.zone.at(@attributes['timestamp'])
         end
 
         def event

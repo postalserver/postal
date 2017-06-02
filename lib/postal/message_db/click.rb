@@ -6,7 +6,7 @@ module Postal
         @url = link['url']
         @ip_address = attributes['ip_address']
         @user_agent = attributes['user_agent']
-        @timestamp = Time.at(attributes['timestamp'])
+        @timestamp = Time.zone.at(attributes['timestamp'])
       end
 
       attr_reader :ip_address

@@ -26,7 +26,7 @@ module Postal
       end
 
       def timestamp
-        @timestamp ||= @attributes['timestamp'] ? Time.at(@attributes['timestamp']) : nil
+        @timestamp ||= @attributes['timestamp'] ? Time.zone.at(@attributes['timestamp']) : nil
       end
 
       def update_statistics

@@ -97,21 +97,21 @@ module Postal
       # Return the timestamp for this message
       #
       def timestamp
-        @timestamp ||= @attributes['timestamp'] ? Time.at(@attributes['timestamp']) : nil
+        @timestamp ||= @attributes['timestamp'] ? Time.zone.at(@attributes['timestamp']) : nil
       end
 
       #
       # Return the time that the last delivery was attempted
       #
       def last_delivery_attempt
-        @last_delivery_attempt ||= @attributes['last_delivery_attempt'] ? Time.at(@attributes['last_delivery_attempt']) : nil
+        @last_delivery_attempt ||= @attributes['last_delivery_attempt'] ? Time.zone.at(@attributes['last_delivery_attempt']) : nil
       end
 
       #
       # Return the hold expiry for this message
       #
       def hold_expiry
-        @hold_expiry ||= @attributes['hold_expiry'] ? Time.at(@attributes['hold_expiry']) : nil
+        @hold_expiry ||= @attributes['hold_expiry'] ? Time.zone.at(@attributes['hold_expiry']) : nil
       end
 
       #
