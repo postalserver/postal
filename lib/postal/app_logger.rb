@@ -3,11 +3,6 @@ require 'logger'
 module Postal
   class AppLogger < Logger
 
-    def self.greylog_notifier
-      @greylog_notifier ||= Postal.config.logging.greylog ? GELF::Notifier.new(Postal.config.logging.greylog.host, Postal.config.logging.greylog.port) : nil
-
-    end
-
     def initialize(log_name, *args)
       @log_name = log_name
       super(*args)
@@ -32,6 +27,14 @@ module Postal
         end
       end
       true
+    end
+
+    def self.greylog?
+      !!Postal.config.logging.greylog&.host
+    end
+
+    def self.greylog_notifier
+      @greylog_notifier ||= greylog? ? GELF::Notifier.new(Postal.config.logging.greylog.host, Postal.config.logging.greylog.port) : nil
     end
   end
 
