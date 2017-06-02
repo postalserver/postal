@@ -5,6 +5,7 @@ module Postal
     def initialize(id, params = {})
       @id = id
       @params = params.with_indifferent_access
+      on_initialize
     end
 
     def id
@@ -13,6 +14,15 @@ module Postal
 
     def params
       @params || {}
+    end
+
+    def on_initialize
+      # Called whenever the class is initialized. Can be overriden.
+    end
+
+    def on_error(exception)
+      # Called if there's an exception while processing the perform block.
+      # Receives the exception.
     end
 
     def perform
