@@ -100,7 +100,7 @@ case "$1" in
 
     bundle)
         if [ -n "$2" ]; then
-          run "bundle install --path=$2 --without=development --jobs=4 --clean"
+          run "bundle install --path=$2 --jobs=2 --clean --without=development assets"
         else
           echo "usage: $0 bundle path/to/vendor/dir"
           exit 1
