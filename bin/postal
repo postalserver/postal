@@ -55,6 +55,7 @@ case "$1" in
     upgrade)
         if [ ! -f "public/assets/.prebuilt" ]; then
             echo 'Compiling Assets'
+            export RAILS_GROUPS=assets
             run "bundle exec rake assets:precompile"
         fi
         echo 'Migrating database'
@@ -74,6 +75,7 @@ case "$1" in
         run "bundle exec rake db:schema:load db:seed"
         if [ ! -f "public/assets/.prebuilt" ]; then
             echo 'Compiling Assets'
+            export RAILS_GROUPS=assets
             run "bundle exec rake assets:precompile"
         fi
         ;;
