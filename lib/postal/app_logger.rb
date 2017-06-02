@@ -3,7 +3,6 @@ require 'logger'
 module Postal
   class AppLogger < Logger
 
-
     def self.greylog_notifier
       @greylog_notifier ||= Postal.config.logging.greylog ? GELF::Notifier.new(Postal.config.logging.greylog.host, Postal.config.logging.greylog.port) : nil
 
@@ -17,7 +16,7 @@ module Postal
 
     def add(severity, message = nil, progname = nil)
       super
-      if n = self.class.greylog_notifier
+      if severity >= @level && n = self.class.greylog_notifier
         begin
           if message.nil?
             message = block_given? ? yield : progname
