@@ -1,10 +1,5 @@
 namespace :postal do
 
-  desc "Start the backend job worker"
-  task :worker => :environment do
-    Postal::Worker.new([:main]).work
-  end
-
   desc "Start the cron worker"
   task :cron => :environment do
     require 'clockwork'
