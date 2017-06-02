@@ -2,10 +2,6 @@ source 'https://rubygems.org'
 gem 'rails', '= 5.0.2'
 gem 'mysql2', '>= 0.3.18', '< 0.5'
 gem 'puma', '~> 3.0'
-gem 'sass-rails', '~> 5.0'
-gem 'uglifier', '>= 1.3.0'
-gem 'coffee-rails', '~> 4.2'
-gem 'jquery-rails'
 gem 'turbolinks', '~> 5'
 gem 'haml'
 gem 'nifty-utils'
@@ -34,6 +30,13 @@ gem 'jwt'
 gem 'createsend', '~> 4.0'
 gem 'acme-client'
 gem 'highline', :require => true
+
+group :assets do
+  gem 'sass-rails', '~> 5.0'
+  gem 'uglifier', '>= 1.3.0'
+  gem 'coffee-rails', '~> 4.2'
+  gem 'jquery-rails'
+end
 
 group :development, :test do
   gem 'byebug'
