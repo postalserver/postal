@@ -69,7 +69,7 @@ File.open("#{WC_PATH}/lib/postal/version.rb", 'w') { |f| f.write(version_file) }
 # Compile all the assets
 unless ENV['NO_ASSETS']
   puts "\e[44;37mCompiling assets\e[0m"
-  system!("cd #{WC_PATH} && bundle exec rake assets:precompile")
+  system!("cd #{WC_PATH} && RAILS_GROUPS=assets bundle exec rake assets:precompile")
   system!("touch #{WC_PATH}/public/assets/.prebuilt")
 end
 
