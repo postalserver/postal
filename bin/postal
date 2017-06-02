@@ -102,7 +102,12 @@ case "$1" in
 
     bundle)
         if [ -n "$2" ]; then
-          run "bundle install --path=$2 --jobs=2 --clean --without=development assets"
+            if [ -f "public/assets/.prebuilt" ]; then
+                # If there are prebuilt assets, don't install the asset gems
+                run "bundle install --path=$2 --jobs=2 --clean --without=development assets"
+            else
+                run "bundle install --path=$2 --jobs=2 --clean --without=development"
+            fi
         else
           echo "usage: $0 bundle path/to/vendor/dir"
           exit 1
