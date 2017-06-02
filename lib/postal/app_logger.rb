@@ -21,9 +21,6 @@ module Postal
           n.notify!(:short_message => message_without_ansi, :log_name => @log_name, :facility => 'postal', :application_name => 'postal', :process_name => ENV['PROC_NAME'], :pid => Process.pid)
         rescue => e
           # Can't log this to GELF. Soz.
-          if defined?(Raven)
-            Raven.capture_exception(e)
-          end
         end
       end
       true
