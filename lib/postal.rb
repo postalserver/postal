@@ -25,6 +25,7 @@ module Postal
     autoload :RspecHelpers
     autoload :SendResult
     autoload :Sender
+    autoload :SMTPSender
     autoload :SMTPServer
     autoload :SpamCheck
     autoload :UserCreator
