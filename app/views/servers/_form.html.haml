@@ -31,6 +31,13 @@
 
     - if @server.persisted?
       .fieldSet__field
+        = f.label :tracking_domain_id, "Default tracking domain", :class => 'fieldSet__label'
+        .fieldSet__input
+          = f.collection_select :tracking_domain_id, @server.track_domains.where(:dns_status => "OK").order(:name), :id, :full_name, {include_blank: ''}, :class => 'input input--select'
+          %p.fieldSet__text
+            This is the default tracking domain, if no tracking domains are eligible.
+
+      .fieldSet__field
         = f.label :allow_sender, "Send as any", :class => 'fieldSet__label'
         .fieldSet__input
           .input.is-disabled= @server.allow_sender? ? "Enabled" : "Disabled"
