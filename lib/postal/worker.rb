@@ -53,6 +53,7 @@ module Postal
           begin
             klass = message['class_name'].constantize.new(message['id'], message['params'])
             klass.perform
+            GC.start
           rescue => e
             klass.on_error(e) if defined?(klass)
             logger.warn "[#{message['id']}] \e[31m#{e.class}: #{e.message}\e[0m"
