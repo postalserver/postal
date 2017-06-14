@@ -112,6 +112,8 @@ module Postal
       when 'RawMessage'
         {
           :id => message.id,
+          :rcpt_to => message.rcpt_to,
+          :mail_from => message.mail_from,
           :message => Base64.encode64(message.raw_message),
           :base64 => true,
           :size => message.size.to_i
