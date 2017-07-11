@@ -185,6 +185,9 @@ module Postal
         if data.strip == ''
           @proc = username_handler
           '334 VXNlcm5hbWU6'
+        else
+          @proc = password_handler
+          '334 UGFzc3dvcmQ6'
         end
       end
 
