@@ -70,6 +70,7 @@ smtp_server:
   tls_private_key_path: # Defaults to config/smtp.key
   proxy_protocol: false
   log_connect: true
+  strip_received_headers: false
 
 smtp_relays:
   -
