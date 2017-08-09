@@ -327,7 +327,9 @@ module Postal
         @receiving_headers = true
 
         received_header_content = "from #{@helo_name} (#{@hostname} [#{@ip_address}]) by #{Postal.config.dns.smtp_server_hostname} with SMTP; #{Time.now.rfc2822.to_s}".force_encoding('BINARY')
-        @data << "Received: #{received_header_content}\r\n"
+        if !Postal.config.smtp_server.strip_received_headers?
+          @data << "Received: #{received_header_content}\r\n"
+        end
         @headers['received'] = [received_header_content]
 
         handler = Proc.new do |data|
@@ -357,6 +359,9 @@ module Postal
                 @header_key, value = data.split(/\:\s*/, 2)
                 @headers[@header_key.downcase] ||= []
                 @headers[@header_key.downcase] << value
+                if Postal.config.smtp_server.strip_received_headers? && @header_key.downcase == "received"
+                  next
+                end
               end
             end
             @data << data
