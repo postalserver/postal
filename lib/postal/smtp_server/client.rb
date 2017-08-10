@@ -355,13 +355,15 @@ module Postal
                 if @header_key && @headers[@header_key.downcase] && @headers[@header_key.downcase].last
                   @headers[@header_key.downcase].last << data.to_s
                 end
+                # If received headers are configured to be stripped and we're currently receiving one
+                # skip the append methods at the bottom of this loop.
+                next if Postal.config.smtp_server.strip_received_headers? && @header_key && @header_key.downcase == "received"
               else
                 @header_key, value = data.split(/\:\s*/, 2)
                 @headers[@header_key.downcase] ||= []
                 @headers[@header_key.downcase] << value
-                if Postal.config.smtp_server.strip_received_headers? && @header_key.downcase == "received"
-                  next
-                end
+                # As above
+                next if Postal.config.smtp_server.strip_received_headers? && @header_key && @header_key.downcase == "received"
               end
             end
             @data << data
