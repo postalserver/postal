@@ -114,11 +114,9 @@
     elsif @message.held?
       @message.add_to_message_queue(:manual => true)
       flash[:notice] = "This message has been released. Delivery will be attempted shortly."
-    elsif @server.mode == 'Development'
+    else
       @message.add_to_message_queue(:manual => true)
       flash[:notice] = "This message will be redelivered shortly."
-    else
-      flash[:alert] = "This message is no longer queued for sending."
     end
     redirect_to_with_json organization_server_message_path(organization, @server, @message.id)
   end
