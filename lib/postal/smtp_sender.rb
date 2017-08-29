@@ -46,7 +46,7 @@ module Postal
               end
               next
             end
-            smtp_client = Net::SMTP.new(@remote_ip, port)
+            smtp_client = Net::SMTP.new(hostname, port)
             if @source_ip_address
               # Set the source IP as appropriate
               smtp_client.source_address = ip_type == :aaaa ? @source_ip_address.ipv6 : @source_ip_address.ipv4
@@ -236,6 +236,8 @@ module Postal
       @ssl_context_with_verify ||= begin
         c = OpenSSL::SSL::SSLContext.new
         c.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        c.cert_store = OpenSSL::X509::Store.new
+        c.cert_store.set_default_paths
         c
       end
     end
