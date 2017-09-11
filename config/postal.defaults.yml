@@ -66,7 +66,7 @@ workers:
 smtp_server:
   port: 25
   tls_enabled: false
-  tls_certificate_path: # Defaults to config/smtp.crt
+  tls_certificate_path: # Defaults to config/smtp.cert
   tls_private_key_path: # Defaults to config/smtp.key
   proxy_protocol: false
   log_connect: true
