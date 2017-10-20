@@ -82,7 +82,7 @@ module Postal
         begin
           @database.query(create_table_query(table,:columns => {
               :id   =>  'int(11) NOT NULL AUTO_INCREMENT',
-              :data =>  'mediumblob DEFAULT NULL',
+              :data =>  'longblob DEFAULT NULL',
               :next =>  'int(11) DEFAULT NULL'
             }
           ))

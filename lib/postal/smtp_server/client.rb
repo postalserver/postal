@@ -377,8 +377,8 @@ module Postal
       end
 
       def finished
-        if @data.bytesize > 14.megabytes.to_i
-          return "552 Message too large (maximum size 14MB)"
+        if @data.bytesize > Postal.config.smtp_server.max_message_size.megabytes.to_i
+          return "552 Message too large (maximum size %dMB)" % Postal.config.smtp_server.max_message_size
         end
 
         if @headers['received'].select { |r| r =~ /by #{Postal.config.dns.smtp_server_hostname}/ }.count > 4
