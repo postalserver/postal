@@ -71,6 +71,7 @@ smtp_server:
   proxy_protocol: false
   log_connect: true
   strip_received_headers: false
+  max_message_size: 14 # size in Megabytes
 
 smtp_relays:
   -
