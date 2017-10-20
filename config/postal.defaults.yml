@@ -44,6 +44,7 @@ logging:
   graylog:
     host:
     port: 12201
+    protocol: udp
 
 message_db:
   host: 127.0.0.1

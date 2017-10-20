@@ -30,8 +30,16 @@ module Postal
       !!Postal.config.logging.graylog&.host
     end
 
+    def self.graylog_options
+      if Postal.config.logging.graylog.protocol == "tcp"
+        return {:protocol => GELF::Protocol::TCP}
+      else
+        return {}
+      end
+    end
+
     def self.graylog_notifier
-      @graylog_notifier ||= graylog? ? GELF::Notifier.new(Postal.config.logging.graylog.host, Postal.config.logging.graylog.port) : nil
+      @graylog_notifier ||= graylog? ? GELF::Notifier.new(Postal.config.logging.graylog.host, Postal.config.logging.graylog.port, 'WAN', graylog_options) : nil
     end
   end
 
