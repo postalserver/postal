@@ -142,7 +142,7 @@ module Postal
                   else
                     buffers[io] << io.readpartial(10240)
                   end
-                rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
+                rescue EOFError, Errno::ECONNRESET
                   # Client went away
                   eof = true
                 end
