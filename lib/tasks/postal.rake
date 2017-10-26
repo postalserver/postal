@@ -34,3 +34,7 @@ namespace :postal do
   end
 
 end
+
+Rake::Task['db:migrate'].enhance do
+  Rake::Task['postal:migrate_message_databases'].invoke
+end
