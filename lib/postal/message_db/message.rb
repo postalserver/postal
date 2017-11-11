@@ -87,6 +87,7 @@ module Postal
         if self.raw_message
           self.subject = self.headers['subject']&.last
           self.message_id = self.headers['message-id']&.last
+          self.tag = self.headers['x-amp-tag']&.last
           if self.message_id
             self.message_id = self.message_id.gsub(/.*</, '').gsub(/>.*/, '').strip
           end
