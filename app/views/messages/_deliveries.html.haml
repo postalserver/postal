@@ -19,6 +19,10 @@
     %li.deliveryList__item.deliveryList__item--header
       %p This server is in development mode so this message can be redelivered as if it had just been received.
       %p= link_to "Redeliver message", retry_organization_server_message_path(organization, @server, message.id), :class => "button button--small", :remote => true, :method => :post
+  - else
+    %li.deliveryList__item.deliveryList__item--header
+      %p This message can be redelivered as if it had just been received.
+      %p= link_to "Redeliver message", retry_organization_server_message_path(organization, @server, message.id), :class => "button button--small", :remote => true, :method => :post
 
   - if message.deliveries.empty?
     %li.deliveryList__item
