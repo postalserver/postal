@@ -108,17 +108,19 @@
   end
 
   def retry
-    if @message.queued_message
-      @message.queued_message.queue!
-      flash[:notice] = "This message will be retried shortly."
-    elsif @message.held?
-      @message.add_to_message_queue(:manual => true)
-      flash[:notice] = "This message has been released. Delivery will be attempted shortly."
-    elsif @server.mode == 'Development'
-      @message.add_to_message_queue(:manual => true)
-      flash[:notice] = "This message will be redelivered shortly."
+    if @message.raw_message?
+      if @message.queued_message
+        @message.queued_message.queue!
+        flash[:notice] = "This message will be retried shortly."
+      elsif @message.held?
+        @message.add_to_message_queue(:manual => true)
+        flash[:notice] = "This message has been released. Delivery will be attempted shortly."
+      else
+        @message.add_to_message_queue(:manual => true)
+        flash[:notice] = "This message will be redelivered shortly."
+      end
     else
-      flash[:alert] = "This message is no longer queued for sending."
+      flash[:alert] = "This message is no longer available."
     end
     redirect_to_with_json organization_server_message_path(organization, @server, @message.id)
   end
