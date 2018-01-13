@@ -326,7 +326,7 @@ module Postal
         @headers = {}
         @receiving_headers = true
 
-        received_header_content = "from #{@helo_name} (#{@hostname} [#{@ip_address}]) by #{Postal.config.dns.smtp_server_hostname} with SMTP; #{Time.now.rfc2822.to_s}".force_encoding('BINARY')
+        received_header_content = "from #{@helo_name} (#{@hostname} [#{@ip_address}]) by #{Postal.config.dns.smtp_server_hostname} with SMTP; #{Time.now.utc.rfc2822.to_s}".force_encoding('BINARY')
         if !Postal.config.smtp_server.strip_received_headers?
           @data << "Received: #{received_header_content}\r\n"
         end
