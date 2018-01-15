@@ -115,3 +115,7 @@ clamav:
   enabled: false
   host: 127.0.0.1
   port: 2000
+
+smtp_client:
+  open_timeout: 30
+  read_timeout: 60

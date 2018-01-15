@@ -47,6 +47,8 @@ module Postal
               next
             end
             smtp_client = Net::SMTP.new(hostname, port)
+            smtp_client.open_timeout = Postal.config.smtp_server.open_timeout
+            smtp_client.read_timeout = Postal.config.smtp_server.read_timeout
             if @source_ip_address
               # Set the source IP as appropriate
               smtp_client.source_address = ip_type == :aaaa ? @source_ip_address.ipv6 : @source_ip_address.ipv4
