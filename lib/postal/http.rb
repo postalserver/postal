@@ -49,9 +49,9 @@ module Postal
       if uri.scheme == 'https'
         connection.use_ssl = true
         connection.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        ssl = true
+        @ssl = true
       else
-        ssl = false
+        @ssl = false
       end
 
       begin
