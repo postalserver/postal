@@ -21,7 +21,12 @@ web_server:
 
 fast_server:
   enabled: false
-  bind_address: 0.0.0.0
+  bind_address:
+    # Set appropriate IP addresses to listen on. These should be dedicated IP
+    # addresses just used for this server. You should list IPv4 and IPv6 addresses
+    # as appropriate.
+    # - 1.2.3.4
+    # - abcd:a:b:c:d::1
   port: 80
   ssl_port: 443
   proxy_protocol: false
