@@ -55,7 +55,7 @@ module Postal
       end
 
       begin
-        timeout = options[:timeout] || 60
+        timeout = options[:timeout] || Postal.config.general.webhook_timeout
         Timeout.timeout(timeout) do
           result = connection.request(request)
           {

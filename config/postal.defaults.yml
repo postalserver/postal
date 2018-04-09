@@ -13,6 +13,7 @@ general:
   exception_url:
   maximum_delivery_attempts: 18
   use_local_ns_for_domains: false
+  webhook_timeout: 5
 
 web_server:
   bind_address: 127.0.0.1
