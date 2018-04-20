@@ -9,7 +9,7 @@ module Postal
               :message_id                   =>  'int(11) DEFAULT NULL',
               :token                        =>  'varchar(255) DEFAULT NULL',
               :hash                         =>  'varchar(255) DEFAULT NULL',
-              :url                          =>  'varchar(255) DEFAULT NULL',
+              :url                          =>  'text',
               :timestamp                    =>  'decimal(18,6) DEFAULT NULL'
             },
             :indexes => {
