@@ -26,8 +26,6 @@
       %p.noData__button= link_to "Add your first domain", [:new, organization, @server, :domain], :class => "button button--positive"
 
   - else
-    %p.u-center= link_to "Add new domain", [:new, organization, @server, :domain], :class => "button button--positive"
-    %br/
     %ul.domainList.u-margin
       - for domain in @domains
         %li.domainList__item
@@ -73,3 +71,4 @@
                 = link_to "DNS setup", [:setup, organization, @server, domain]
               = link_to "Delete", [organization, @server, domain], :remote => :delete, :method => :delete, :data => {:confirm => "Are you sure you wish to remove this domain?", :disable_with => "Deleting..."}, :class => 'domainList__delete'
 
+    %p.u-center= link_to "Add new domain", [:new, organization, @server, :domain], :class => "button button--positive"
