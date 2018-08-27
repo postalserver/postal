@@ -9,7 +9,7 @@ module Postal
       else
         @domain_name = Postal.config.dns.return_path
         @dkim_key = Postal.signing_key
-        @dkim_identifier = 'postal'
+        @dkim_identifier = Postal.config.dns.dkim_identifier
       end
       @domain = domain
       @message = message
