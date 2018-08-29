@@ -115,6 +115,8 @@ module Postal
       begin
         if message.bounce == 1
           mail_from = ""
+        elsif !message.headers['return-path'].empty?
+          mail_from = message.headers['return-path']&.last
         elsif message.domain.return_path_status == 'OK'
           mail_from = "#{message.server.token}@#{message.domain.return_path_domain}"
         else
