@@ -14,9 +14,10 @@ prune_bundler
 quiet false
 
 if ssl_enabled
-	bind  "ssl://#{bind_address}:#{bind_port}?key=#{server_key}&cert=#{server_crt}&ssl_cipher_list=#{ssl_ciphers}"
+  bind  "ssl://#{bind_address}:#{bind_port}?key=#{server_key}&cert=#{server_crt}&ssl_cipher_list=#{ssl_ciphers}"
 else
-	bind  "tcp://#{bind_address}:#{bind_port}"
+  bind  "tcp://#{bind_address}:#{bind_port}"
+end
 
 unless ENV['LOG_TO_STDOUT']
   stdout_redirect Postal.log_root.join('puma.log'), Postal.log_root.join('puma.log'), true
