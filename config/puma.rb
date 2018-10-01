@@ -5,7 +5,7 @@ bind_address  = Postal.config.web_server&.bind_address || '127.0.0.1'
 bind_port     = Postal.config.web_server&.port&.to_i || 5000
 environment     Postal.config.rails&.environment || 'development'
 
-
+ssl_enabled = Postal.config.web_server&.ssl_enabled || false
 server_key =  Postal.config.web_server&.server_key  || 'config/fast_server.key'
 server_crt =  Postal.config.web_server&.server_crt || 'config/fast_server.cert'
 ssl_ciphers = Postal.config.web_server&.tls_ciphers || 'TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA'
