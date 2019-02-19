@@ -14,13 +14,13 @@ general:
 main_db:
   host: 127.0.0.1
   username: root
-  password:
+  password: passdb
   database: postal_test
 
 message_db:
   host: 127.0.0.1
   username: root
-  password:
+  password: passdb
   prefix: postal_test
 
 rabbitmq:
@@ -31,6 +31,7 @@ rabbitmq:
 
 smtp_server:
   port: 2525
+  threads: 4
 
 dns:
   mx_records:

@@ -30,6 +30,7 @@ gem 'jwt'
 gem 'createsend', '~> 4.0'
 gem 'acme-client'
 gem 'highline', :require => true
+gem 'tzinfo-data'
 
 group :development, :assets do
   gem 'sass-rails', '~> 5.0'
@@ -40,12 +41,14 @@ end
 
 group :development, :test do
   gem 'byebug'
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem 'rails-pry'
+  gem 'pry-byebug'
 end
 
 group :development do
   gem 'annotate'
-  gem 'rspec'
-  gem 'rspec-rails'
   gem "factory_girl_rails", "~> 4.0"
   gem "database_cleaner"
 end

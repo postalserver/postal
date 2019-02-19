@@ -1,5 +1,6 @@
 require 'ipaddr'
 require 'nio'
+require_relative 'workers_pool'
 
 module Postal
   module SMTPServer
@@ -91,17 +92,17 @@ module Postal
             if io.is_a?(TCPServer)
               begin
                 # Accept the connection
-                new_io = io.accept
+                new_io = io.accept_nonblock
                 if Postal.config.smtp_server.proxy_protocol
                   # If we are using the haproxy proxy protocol, we will be sent the
                   # client's IP later. Delay the welcome process.
-                  client = Client.new(nil)
+                  client = Client.new(nil, @workers_pool)
                   if Postal.config.smtp_server.log_connect
                     logger.debug "[#{client.id}] \e[35m   Connection opened from #{new_io.remote_address.ip_address}\e[0m"
                   end
                 else
                   # We're not using the proxy protocol so we already know the client's IP
-                  client = Client.new(new_io.remote_address.ip_address)
+                  client = Client.new(new_io.remote_address.ip_address, @workers_pool)
                   if Postal.config.smtp_server.log_connect
                     logger.debug "[#{client.id}] \e[35m   Connection opened from #{new_io.remote_address.ip_address}\e[0m"
                   end
@@ -190,7 +191,7 @@ module Postal
                   io.sync_close = true
                   begin
                     # Start TLS negotiation
-                    io.accept
+                    io.accept_nonblock
                   rescue OpenSSL::SSL::SSLError => e
                     client.log "SSL Negotiation Failed: #{e.message}"
                     eof = true
@@ -257,6 +258,7 @@ module Postal
         else
           listen
         end
+        @workers_pool = WorkersPool.new Postal.config.smtp_server.threads
         run_event_loop
       end
 

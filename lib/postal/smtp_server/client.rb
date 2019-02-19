@@ -9,9 +9,10 @@ module Postal
 
       attr_reader :logging_enabled
 
-      def initialize(ip_address)
+      def initialize(ip_address, workers_pool)
         @logging_enabled = true
         @ip_address = ip_address
+        @workers_pool = workers_pool
         if @ip_address
           check_ip_address
           @state = :welcome
@@ -393,53 +394,57 @@ module Postal
           end
         end
 
-        @recipients.each do |recipient|
-          type, rcpt_to, server, options = recipient
+        handler = Proc.new do
+          @recipients.each do |recipient|
+            type, rcpt_to, server, options = recipient
 
-          case type
-          when :credential
-            # Outgoing messages are just inserted
-            message = server.message_db.new_message
-            message.rcpt_to = rcpt_to
-            message.mail_from = @mail_from
-            message.raw_message = @data
-            message.received_with_ssl = @tls
-            message.scope = 'outgoing'
-            message.domain_id = authenticated_domain&.id
-            message.credential_id = @credential.id
-            message.save
-
-          when :bounce
-            if rp_route = server.routes.where(:name => "__returnpath__").first
-              # If there's a return path route, we can use this to create the message
-              rp_route.create_messages do |message|
-                message.rcpt_to = rcpt_to
-                message.mail_from = @mail_from
-                message.raw_message = @data
-                message.received_with_ssl = @tls
-              end
-            else
-              # There's no return path route, we just need to insert the mesage
-              # without going through the route.
+            case type
+            when :credential
+              # Outgoing messages are just inserted
               message = server.message_db.new_message
               message.rcpt_to = rcpt_to
               message.mail_from = @mail_from
               message.raw_message = @data
               message.received_with_ssl = @tls
-              message.scope = 'incoming'
-              message.bounce = 1
+              message.scope = 'outgoing'
+              message.domain_id = authenticated_domain&.id
+              message.credential_id = @credential.id
               message.save
-            end
-          when :route
-            options[:route].create_messages do |message|
-              message.rcpt_to = rcpt_to
-              message.mail_from = @mail_from
-              message.raw_message = @data
-              message.received_with_ssl = @tls
+
+            when :bounce
+              if rp_route = server.routes.where(:name => "__returnpath__").first
+                # If there's a return path route, we can use this to create the message
+                rp_route.create_messages do |message|
+                  message.rcpt_to = rcpt_to
+                  message.mail_from = @mail_from
+                  message.raw_message = @data
+                  message.received_with_ssl = @tls
+                end
+              else
+                # There's no return path route, we just need to insert the mesage
+                # without going through the route.
+                message = server.message_db.new_message
+                message.rcpt_to = rcpt_to
+                message.mail_from = @mail_from
+                message.raw_message = @data
+                message.received_with_ssl = @tls
+                message.scope = 'incoming'
+                message.bounce = 1
+                message.save
+              end
+            when :route
+              options[:route].create_messages do |message|
+                message.rcpt_to = rcpt_to
+                message.mail_from = @mail_from
+                message.raw_message = @data
+                message.received_with_ssl = @tls
+              end
             end
           end
+          transaction_reset
         end
-        transaction_reset
+        @workers_pool << handler
+
         @state = :welcomed
         '250 OK'
       end

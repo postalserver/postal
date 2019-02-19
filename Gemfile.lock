@@ -64,6 +64,7 @@ GEM
     chronic (0.10.2)
     clockwork (2.0.3)
       tzinfo
+    coderay (1.1.2)
     coffee-rails (4.2.2)
       coffee-script (>= 2.2.0)
       railties (>= 4.0.0)
@@ -153,6 +154,12 @@ GEM
     nio4r (2.3.1)
     nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
+    pry (0.12.2)
+      coderay (~> 1.1.0)
+      method_source (~> 0.9.0)
+    pry-byebug (3.6.0)
+      byebug (~> 10.0)
+      pry (~> 0.10)
     puma (3.12.0)
     rack (2.0.5)
     rack-test (1.1.0)
@@ -175,6 +182,7 @@ GEM
       nokogiri (>= 1.6)
     rails-html-sanitizer (1.0.4)
       loofah (~> 2.2, >= 2.2.2)
+    rails-pry (0.0.1)
     railties (5.2.1)
       actionpack (= 5.2.1)
       activesupport (= 5.2.1)
@@ -236,6 +244,8 @@ GEM
     turbolinks-source (5.2.0)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
+    tzinfo-data (1.2018.9)
+      tzinfo (>= 1.0.0)
     uglifier (4.1.18)
       execjs (>= 0.3.0, < 3)
     websocket-driver (0.7.0)
@@ -278,15 +288,18 @@ DEPENDENCIES
   nifty-utils
   nilify_blanks
   nio4r
+  pry-byebug
   puma (~> 3.0)
   rails (= 5.2.1)
+  rails-pry
   rspec
   rspec-rails
   sass-rails (~> 5.0)
   secure_headers
   sentry-raven
   turbolinks (~> 5)
+  tzinfo-data
   uglifier (>= 1.3.0)
 
 BUNDLED WITH
-   1.16.1
+   2.0.1
