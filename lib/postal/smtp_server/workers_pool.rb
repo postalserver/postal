@@ -25,6 +25,10 @@ module Postal
       def <<(item)
         @queue << item
       end
+
+      def empty?
+        @queue.empty?
+      end
     end
   end
 end

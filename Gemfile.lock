@@ -73,6 +73,8 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     concurrent-ruby (1.0.5)
+    concurrent-ruby-ext (1.0.5)
+      concurrent-ruby (= 1.0.5)
     crass (1.0.4)
     createsend (4.1.2)
       hashie (~> 3.0)
@@ -268,6 +270,8 @@ DEPENDENCIES
   chronic
   clockwork
   coffee-rails (~> 4.2)
+  concurrent-ruby
+  concurrent-ruby-ext
   createsend (~> 4.0)
   database_cleaner
   dynamic_form

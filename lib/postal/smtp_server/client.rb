@@ -9,10 +9,9 @@ module Postal
 
       attr_reader :logging_enabled
 
-      def initialize(ip_address, workers_pool)
+      def initialize(ip_address)
         @logging_enabled = true
         @ip_address = ip_address
-        @workers_pool = workers_pool
         if @ip_address
           check_ip_address
           @state = :welcome
@@ -194,7 +193,9 @@ module Postal
 
       def authenticate(password)
         if @credential = Credential.where(:type => 'SMTP', :key => password).first
-          @credential.use
+          Credential.transaction do
+            @credential.with_lock { @credential.use }
+          end
           "235 Granted for #{@credential.server.organization.permalink}/#{@credential.server.permalink}"
         else
           "535 Invalid credential"
@@ -216,7 +217,9 @@ module Postal
             correct_response = OpenSSL::HMAC.hexdigest(CRAM_MD5_DIGEST, credential.key, challenge)
             if password == correct_response
               @credential = credential
-              @credential.use
+              Credential.transaction do
+                @credential.with_lock { @credential.use }
+              end
               grant = "235 Granted for #{credential.server.organization.permalink}/#{credential.server.permalink}"
               break
             end
@@ -394,56 +397,53 @@ module Postal
           end
         end
 
-        handler = Proc.new do
-          @recipients.each do |recipient|
-            type, rcpt_to, server, options = recipient
+        @recipients.each do |recipient|
+          type, rcpt_to, server, options = recipient
 
-            case type
-            when :credential
-              # Outgoing messages are just inserted
+          case type
+          when :credential
+            # Outgoing messages are just inserted
+            message = server.message_db.new_message
+            message.rcpt_to = rcpt_to
+            message.mail_from = @mail_from
+            message.raw_message = @data
+            message.received_with_ssl = @tls
+            message.scope = 'outgoing'
+            message.domain_id = authenticated_domain&.id
+            message.credential_id = @credential.id
+            message.save
+
+          when :bounce
+            if rp_route = server.routes.where(:name => "__returnpath__").first
+              # If there's a return path route, we can use this to create the message
+              rp_route.create_messages do |message|
+                message.rcpt_to = rcpt_to
+                message.mail_from = @mail_from
+                message.raw_message = @data
+                message.received_with_ssl = @tls
+              end
+            else
+              # There's no return path route, we just need to insert the mesage
+              # without going through the route.
               message = server.message_db.new_message
               message.rcpt_to = rcpt_to
               message.mail_from = @mail_from
               message.raw_message = @data
               message.received_with_ssl = @tls
-              message.scope = 'outgoing'
-              message.domain_id = authenticated_domain&.id
-              message.credential_id = @credential.id
+              message.scope = 'incoming'
+              message.bounce = 1
               message.save
-
-            when :bounce
-              if rp_route = server.routes.where(:name => "__returnpath__").first
-                # If there's a return path route, we can use this to create the message
-                rp_route.create_messages do |message|
-                  message.rcpt_to = rcpt_to
-                  message.mail_from = @mail_from
-                  message.raw_message = @data
-                  message.received_with_ssl = @tls
-                end
-              else
-                # There's no return path route, we just need to insert the mesage
-                # without going through the route.
-                message = server.message_db.new_message
-                message.rcpt_to = rcpt_to
-                message.mail_from = @mail_from
-                message.raw_message = @data
-                message.received_with_ssl = @tls
-                message.scope = 'incoming'
-                message.bounce = 1
-                message.save
-              end
-            when :route
-              options[:route].create_messages do |message|
-                message.rcpt_to = rcpt_to
-                message.mail_from = @mail_from
-                message.raw_message = @data
-                message.received_with_ssl = @tls
-              end
+            end
+          when :route
+            options[:route].create_messages do |message|
+              message.rcpt_to = rcpt_to
+              message.mail_from = @mail_from
+              message.raw_message = @data
+              message.received_with_ssl = @tls
             end
           end
-          transaction_reset
         end
-        @workers_pool << handler
+        transaction_reset
 
         @state = :welcomed
         '250 OK'

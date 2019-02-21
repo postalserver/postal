@@ -1,6 +1,5 @@
 require 'ipaddr'
 require 'nio'
-require_relative 'workers_pool'
 
 module Postal
   module SMTPServer
@@ -13,6 +12,8 @@ module Postal
       end
 
       def prepare_environment
+        Statistic
+        QueuedMessage
         $\ = "\r\n"
         BasicSocket.do_not_reverse_lookup = true
 
@@ -77,72 +78,81 @@ module Postal
       end
 
       def run_event_loop
+        # workers_pool = WorkersPool.new Postal.config.smtp_server.min_threads
+        # workers_pool.worker(&:call)
+        workers_pool = Concurrent::ThreadPoolExecutor.new(
+          min_threads: Postal.config.smtp_server.min_threads,
+          max_threads: Postal.config.smtp_server.max_threads
+        )
         # Set up an instance of nio4r to monitor for connections and data
-        @io_selector = NIO::Selector.new
+        # @io_selector = NIO::Selector.new
         # Register the SMTP listener
-        @io_selector.register(@server, :r)
+        # @io_selector.register(@server, :r)
         # Create a hash to contain a buffer for each client.
         buffers = Hash.new { |h, k| h[k] = String.new.force_encoding('BINARY') }
         loop do
           # Wait for an event to occur
-          @io_selector.select do |monitor|
+          # @io_selector.select do |monitor|
             # Get the IO from the nio monitor
-            io = monitor.io
-            # Is this event an incoming connection?
-            if io.is_a?(TCPServer)
-              begin
-                # Accept the connection
-                new_io = io.accept_nonblock
-                if Postal.config.smtp_server.proxy_protocol
-                  # If we are using the haproxy proxy protocol, we will be sent the
-                  # client's IP later. Delay the welcome process.
-                  client = Client.new(nil, @workers_pool)
-                  if Postal.config.smtp_server.log_connect
-                    logger.debug "[#{client.id}] \e[35m   Connection opened from #{new_io.remote_address.ip_address}\e[0m"
-                  end
-                else
-                  # We're not using the proxy protocol so we already know the client's IP
-                  client = Client.new(new_io.remote_address.ip_address, @workers_pool)
-                  if Postal.config.smtp_server.log_connect
-                    logger.debug "[#{client.id}] \e[35m   Connection opened from #{new_io.remote_address.ip_address}\e[0m"
-                  end
-                  # We know who the client is, welcome them.
-                  client.log "\e[35m   Client identified as #{new_io.remote_address.ip_address}\e[0m"
-                  new_io.print("220 #{Postal.config.dns.smtp_server_hostname} ESMTP Postal/#{client.id}")
-                end
-                # Register the client and its socket with nio4r
-                monitor = @io_selector.register(new_io, :r)
-                monitor.value = client
-              rescue => e
-                # If something goes wrong, log as appropriate and disconnect the client
-                if defined?(Raven)
-                  Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
-                end
-                logger.error "An error occurred while accepting a new client."
-                logger.error "#{e.class}: #{e.message}"
-                e.backtrace.each do |line|
-                  logger.error line
-                end
-                new_io.close rescue nil
+          # io = monitor.io
+          # Is this event an incoming connection?
+          connection = @server.accept
+          # if io.is_a?(TCPServer)
+          begin
+            # Accept the connection
+            # new_io = io.accept_nonblock
+            if Postal.config.smtp_server.proxy_protocol
+              # If we are using the haproxy proxy protocol, we will be sent the
+              # client's IP later. Delay the welcome process.
+              client = Client.new(nil)
+              if Postal.config.smtp_server.log_connect
+                logger.debug "[#{client.id}] \e[35m   Connection opened from #{connection.remote_address.ip_address}\e[0m"
               end
             else
+              # We're not using the proxy protocol so we already know the client's IP
+              client = Client.new(connection.remote_address.ip_address)
+              if Postal.config.smtp_server.log_connect
+                logger.debug "[#{client.id}] \e[35m   Connection opened from #{connection.remote_address.ip_address}\e[0m"
+              end
+              # We know who the client is, welcome them.
+              client.log "\e[35m   Client identified as #{connection.remote_address.ip_address}\e[0m"
+              connection.puts("220 #{Postal.config.dns.smtp_server_hostname} ESMTP Postal/#{client.id}")
+            end
+            # Register the client and its socket with nio4r
+            # monitor = @io_selector.register(new_io, :r)
+            # monitor.value = client
+          rescue => e
+            # If something goes wrong, log as appropriate and disconnect the client
+            if defined?(Raven)
+              Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+            end
+            logger.error "An error occurred while accepting a new client."
+            logger.error "#{e.class}: #{e.message}"
+            e.backtrace.each do |line|
+              logger.error line
+            end
+            connection.close rescue nil
+          end
+
+          workers_pool.post do # << Proc.new do
+            loop do
               # This event is not an incoming connection so it must be data from a client
               begin
                 # Get the client from the nio monitor
-                client = monitor.value
+                # client = monitor.value
                 # For now we assume the connection isn't closed
                 eof = false
                 begin
                   # Read 10kiB of data at a time from the socket.
                   # There is an extra step for SSL sockets
-                  case io
+                  case connection
                   when OpenSSL::SSL::SSLSocket
-                    buffers[io] << io.readpartial(10240)
-                    while(io.pending > 0)
-                      buffers[io] << io.readpartial(10240)
+                    buffers[connection] << connection.recv(10240)
+                    while(connection.pending > 0)
+                      buffers[connection] << connection.readpartial(10240)
                     end
                   else
-                    buffers[io] << io.readpartial(10240)
+                    buffers[connection] << connection.recv(10240)
                   end
                 rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
                   # Client went away
@@ -150,12 +160,12 @@ module Postal
                 end
                 # We line buffer, so look to see if we have received a newline
                 # and keep doing so until all buffered lines have been processed.
-                while buffers[io].index("\n")
+                while buffers[connection].index("\n")
                   # Extract the line
-                  if buffers[io].index("\r\n")
-                    line, buffers[io] = buffers[io].split("\r\n", 2)
+                  if buffers[connection].index("\r\n")
+                    line, buffers[connection] = buffers[connection].split("\r\n", 2)
                   else
-                    line, buffers[io] = buffers[io].split("\n", 2)
+                    line, buffers[connection] = buffers[connection].split("\n", 2)
                   end
                   # Send the received line to the client object for processing
                   result = client.handle(line)
@@ -165,8 +175,8 @@ module Postal
                     result.compact.each do |line|
                       client.log "\e[34m=> #{line.strip}\e[0m"
                       begin
-                        io.write(line.to_s + "\r\n")
-                        io.flush
+                        connection.write(line.to_s + "\r\n")
+                        connection.flush
                       rescue Errno::ECONNRESET
                         # Client disconnected before we could write response
                         eof = true
@@ -179,19 +189,19 @@ module Postal
                   # Clear the request
                   client.start_tls = false
                   # Deregister the unencrypted IO
-                  @io_selector.deregister(io)
-                  buffers.delete(io)
+                  # @io_selector.deregister(connection)
+                  buffers.delete(connection)
                   # Prepare TLS on the socket
-                  tcp_io = io
-                  io = OpenSSL::SSL::SSLSocket.new(io, ssl_context)
+                  # tcp_io = io
+                  connection = OpenSSL::SSL::SSLSocket.new(connection, ssl_context)
                   # Register the new TLS socket with nio
-                  monitor = @io_selector.register(io, :r)
-                  monitor.value = client
+                  # monitor = @io_selector.register(io, :r)
+                  # monitor.value = client
                   # Close the underlying IO when the TLS socket is closed
-                  io.sync_close = true
+                  connection.sync_close = true
                   begin
                     # Start TLS negotiation
-                    io.accept_nonblock
+                    connection.accept_nonblock
                   rescue OpenSSL::SSL::SSLError => e
                     client.log "SSL Negotiation Failed: #{e.message}"
                     eof = true
@@ -202,13 +212,14 @@ module Postal
                 if client.finished? || eof
                   client.log "\e[35m   Connection closed\e[0m"
                   # Deregister the socket and close it
-                  @io_selector.deregister(io)
-                  buffers.delete(io)
-                  io.close
+                  # @io_selector.deregister(io)
+                  buffers.delete(connection)
+                  connection.close
+                  break
                   # If we have no more clients or listeners left, exit the process
-                  if @io_selector.empty?
-                    Process.exit(0)
-                  end
+                  # if @io_selector.empty?
+                  #   Process.exit(0)
+                  # end
                 end
               rescue => e
                 # Something went wrong, log as appropriate
@@ -222,23 +233,23 @@ module Postal
                   logger.error "[#{client_id}] #{line}"
                 end
                 # Close all IO and forget this client
-                @io_selector.deregister(io) rescue nil
-                buffers.delete(io)
-                io.close rescue nil
-                if @io_selector.empty?
-                  Process.exit(0)
-                end
+                # @io_selector.deregister(io) rescue nil
+                buffers.delete(connection)
+                connection.close rescue nil
+                break
+                # if @io_selector.empty?
+                #   Process.exit(0)
+                # end
               end
             end
           end
+          # end
           # If unlisten has been called, stop listening
           if $unlisten
-            @io_selector.deregister(@server)
+            # @io_selector.deregister(@server)
             @server.close
             # If there's nothing left to do, shut down the process
-            if @io_selector.empty?
-              Process.exit(0)
-            end
+            Process.exit(0) if @workers_pool.empty?
             # Clear the request
             $unlisten = false
           end
@@ -258,7 +269,6 @@ module Postal
         else
           listen
         end
-        @workers_pool = WorkersPool.new Postal.config.smtp_server.threads
         run_event_loop
       end
 

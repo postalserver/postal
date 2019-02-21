@@ -24,17 +24,16 @@ describe Postal::SMTPServer::Server do
       line = client.gets
       answers << line.chomp
     end
-    sleep 2
     expect_answers answers
   end
 
   it 'should receive mutiple messages' do
     begin_time = Time.now
-    puts begin_time
+    puts "Start time: #{begin_time}"
     cred = credential
     queue = Queue.new
-    conections = 400
-    conections.times.each do |n|
+    connections = 20
+    connections.times.each do |n|
       Thread.new do
         client = TCPSocket.open 'localhost', 2525
         send_mail client, cred, n
@@ -44,17 +43,17 @@ describe Postal::SMTPServer::Server do
       end
     end
 
-    timeout = conections / 10 + 10
-    while queue.size < conections
+    timeout = connections / 10 + 10
+    while queue.size < connections
       sleep 0.1
       next if (Time.now - begin_time) < timeout
-      puts 'Conection timeout!'
+
       raise 'Conection timeout!'
     end
-    conections.times { expect_answers queue.pop }
+    connections.times { expect_answers queue.pop }
     end_time = Time.now
-    puts end_time
-    puts('Time: ' + (end_time - begin_time).floor.to_s + 'sec')
+    puts "Stop time: #{end_time}"
+    puts("#{connections} connections in: #{(end_time - begin_time).floor}sec")
   end
 
   def send_mail(client, cred, msg_id = 1)
