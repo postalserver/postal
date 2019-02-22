@@ -249,7 +249,7 @@ module Postal
             # @io_selector.deregister(@server)
             @server.close
             # If there's nothing left to do, shut down the process
-            Process.exit(0) if @workers_pool.empty?
+            Process.exit(0) if @workers_pool.queue_length.zero?
             # Clear the request
             $unlisten = false
           end
