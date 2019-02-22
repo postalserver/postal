@@ -243,13 +243,15 @@ module Postal
               end
             end
           end
+          logger.info "Number of threads: #{workers_pool.length}"
+          logger.info "Queue length: #{workers_pool.queue_length}"
           # end
           # If unlisten has been called, stop listening
           if $unlisten
             # @io_selector.deregister(@server)
             @server.close
             # If there's nothing left to do, shut down the process
-            Process.exit(0) if @workers_pool.queue_length.zero?
+            Process.exit(0) if workers_pool.queue_length.zero?
             # Clear the request
             $unlisten = false
           end
