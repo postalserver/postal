@@ -18,11 +18,11 @@
 #  excluded_click_domains :text(65535)
 #
 
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :track_domain do
-    name "click"
-    dns_status 'OK'
+    name { "click" }
+    dns_status { 'OK' }
     association :server
 
     after(:build) do |track_domain|

@@ -23,13 +23,13 @@
 #  index_users_on_uuid           (uuid)
 #
 
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :user do
-    first_name "John"
-    last_name "Doe"
-    password "passw0rd"
-    email_verified_at Time.now
+    first_name { "John" }
+    last_name { "Doe" }
+    password { "passw0rd" }
+    email_verified_at { Time.now }
     sequence(:email_address) { |n| "user#{n}@example.com" }
   end
 
