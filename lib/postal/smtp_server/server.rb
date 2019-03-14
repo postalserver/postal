@@ -93,12 +93,9 @@ module Postal
           @io_selector.select do |monitor|
             # Get the IO from the nio monitor
             io = monitor.io
-            # Is this event an incoming connection?
-            # if io.is_a?(TCPServer)
+            # Accept the connection
             connection = io.accept
             begin
-              # Accept the connection
-              # new_io = io.accept_nonblock
               if Postal.config.smtp_server.proxy_protocol
                 # If we are using the haproxy proxy protocol, we will be sent the
                 # client's IP later. Delay the welcome process.
@@ -116,9 +113,6 @@ module Postal
                 client.log "\e[35m   Client identified as #{connection.remote_address.ip_address}\e[0m"
                 connection.puts("220 #{Postal.config.dns.smtp_server_hostname} ESMTP Postal/#{client.id}")
               end
-              # Register the client and its socket with nio4r
-              # monitor = @io_selector.register(new_io, :r)
-              # monitor.value = client
             rescue => e
               # If something goes wrong, log as appropriate and disconnect the client
               if defined?(Raven)
@@ -134,10 +128,8 @@ module Postal
 
             workers_pool.post do # << Proc.new do
               loop do
-                # This event is not an incoming connection so it must be data from a client
+                # This loop reads data from a client
                 begin
-                  # Get the client from the nio monitor
-                  # client = monitor.value
                   # For now we assume the connection isn't closed
                   eof = false
                   begin
@@ -187,14 +179,9 @@ module Postal
                     # Clear the request
                     client.start_tls = false
                     # Deregister the unencrypted IO
-                    # @io_selector.deregister(connection)
                     buffers.delete(connection)
                     # Prepare TLS on the socket
-                    # tcp_io = io
                     connection = OpenSSL::SSL::SSLSocket.new(connection, ssl_context)
-                    # Register the new TLS socket with nio
-                    # monitor = @io_selector.register(io, :r)
-                    # monitor.value = client
                     # Close the underlying IO when the TLS socket is closed
                     connection.sync_close = true
                     begin
@@ -210,14 +197,9 @@ module Postal
                   if client.finished? || eof
                     client.log "\e[35m   Connection closed\e[0m"
                     # Deregister the socket and close it
-                    # @io_selector.deregister(io)
                     buffers.delete(connection)
                     connection.close
                     break
-                    # If we have no more clients or listeners left, exit the process
-                    # if @io_selector.empty?
-                    #   Process.exit(0)
-                    # end
                   end
                 rescue => e
                   # Something went wrong, log as appropriate
@@ -231,13 +213,9 @@ module Postal
                     logger.error "[#{client_id}] #{line}"
                   end
                   # Close all IO and forget this client
-                  # @io_selector.deregister(io) rescue nil
                   buffers.delete(connection)
                   connection.close rescue nil
                   break
-                  # if @io_selector.empty?
-                  #   Process.exit(0)
-                  # end
                 end
               end
             end
@@ -249,7 +227,6 @@ module Postal
             workers_pool.shutdown
             workers_pool.wait_for_termination
             @server.close
-            # @io_selector.deregister(@server)
             # If there's nothing left to do, shut down the process
             Process.exit(0) if workers_pool.queue_length.zero?
             # Clear the request
