@@ -5,7 +5,7 @@ describe Postal::SMTPServer::Server do
     s = Server.first
     c = create(:credential, server: s)
     create :domain, owner: c.server, name: 'example.com'
-    c.to_smtp_plain
+    c
   end
 
   let(:sender) { TCPSocket.open 'localhost', 2525 }
@@ -56,32 +56,40 @@ describe Postal::SMTPServer::Server do
     puts("#{connections} connections in: #{(end_time - begin_time).floor}sec")
   end
 
+  it 'receive message with STARTTLS' do
+    msg = %(From: Test Sender <test_from_1@example.com>
+To: Test Receiver <test_to@example.com>
+Subject: Test message
+Date: #{Time.now}
+This is a test message.)
+
+    smtp = Net::SMTP.new 'localhost', 2525
+    smtp.enable_starttls
+    smtp.read_timeout = 999_999
+    smtp.open_timeout = 999_999
+    smtp.start 'localhost', 'XX', credential.key, :login
+    smtp.auth_login 'XX', credential.key
+    smtp.send_message msg, 'test_from_1@example.com', 'test_to@example.com'
+    res = smtp.finish
+    expect(res.string).to eq "221 Closing Connection\n"
+  end
+
   def send_mail(client, cred, msg_id = 1)
-    client.puts 'HELO'
-    client.puts "AUTH PLAIN #{cred}"
-    client.puts "MAIL FROM:<test_from_#{msg_id}@example.com>"
-    client.puts 'RCPT TO:<test_to@example.com>'
-    client.puts 'DATA'
-    client.puts 'From: Test Sender <test_from@example.com'
-    client.puts 'To: "Test Receiver" <test_to@example.com'
-    client.puts "Date: #{Time.now}"
-    client.puts 'Subject: Test messages'
-    client.puts 'Hello Receiver.'
-    client.puts 'Hello Receiver.'
-    client.puts 'This is a test message.'
-    client.puts 'Bye.'
-    client.puts '.'
-    client.puts 'QUIT'
+    messages = ['HELO', "AUTH PLAIN #{cred.to_smtp_plain}",
+                "MAIL FROM:<test_from_#{msg_id}@example.com>",
+                'RCPT TO:<test_to@example.com>', 'DATA',
+                'From: Test Sender <test_from@example.com',
+                'To: "Test Receiver" <test_to@example.com',
+                "Date: #{Time.now}", 'Subject: Test messages',
+                'Hello Receiver.', 'Hello Receiver.',
+                'This is a test message.', 'Bye.', '.', 'QUIT']
+    messages.each { |m| client.puts m }
   end
 
   def expect_answers(answers)
-    expect(answers[0]).to include '220 postal.example.com ESMTP Postal'
-    expect(answers[1]).to eq '250 postal.example.com'
-    expect(answers[2]).to include '235 Granted for org'
-    expect(answers[3]).to eq '250 OK'
-    expect(answers[4]).to eq '250 OK'
-    expect(answers[5]).to eq '354 Go ahead'
-    expect(answers[6]).to eq '250 OK'
-    expect(answers[7]).to eq '221 Closing Connection'
+    expectations = ['220 postal.example.com ESMTP Postal',
+                    '250 postal.example.com', '235 Granted for org', '250 OK',
+                    '250 OK', '354 Go ahead', '250 OK', '221 Closing Connection']
+    expectations.each_with_index { |v, i| expect(answers[i]).to include v }
   end
 end
