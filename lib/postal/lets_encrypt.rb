@@ -4,15 +4,15 @@ module Postal
   module LetsEncrypt
 
     def self.client
-      @client ||= Acme::Client.new(:private_key => private_key, :endpoint => endpoint)
+      @client ||= Acme::Client.new(:private_key => private_key, :directory => directory)
     end
 
     def self.private_key
       @private_key ||= OpenSSL::PKey::RSA.new(File.open(Postal.lets_encrypt_private_key_path))
     end
 
-    def self.endpoint
-      @endpoint ||= Rails.env.development? ? "https://acme-staging.api.letsencrypt.org" : "https://acme-v01.api.letsencrypt.org/"
+    def self.directory
+      @directory ||= Rails.env.development? ? "https://acme-staging-v02.api.letsencrypt.org/directory" : "https://acme-v02.api.letsencrypt.org/directory"
     end
 
     def self.register_private_key(email_address)
