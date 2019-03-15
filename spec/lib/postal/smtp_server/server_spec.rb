@@ -65,8 +65,6 @@ This is a test message.)
 
     smtp = Net::SMTP.new 'localhost', 2525
     smtp.enable_starttls
-    smtp.read_timeout = 999_999
-    smtp.open_timeout = 999_999
     smtp.start 'localhost', 'XX', credential.key, :login
     smtp.auth_login 'XX', credential.key
     smtp.send_message msg, 'test_from_1@example.com', 'test_to@example.com'
