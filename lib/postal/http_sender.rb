@@ -43,6 +43,10 @@ module Postal
         result.type = 'SoftFail'
         result.retry = true
         result.connect_error = true
+      elsif response[:code] == 429
+        # Rate limit exceeded, treat as a hard fail and don't send bounces
+        result.type = 'HardFail'
+        result.suppress_bounce = true
       else
         # This is permanent. Any other error isn't cool with us.
         result.type = 'HardFail'

@@ -8,5 +8,6 @@ module Postal
     attr_accessor :connect_error
     attr_accessor :log_id
     attr_accessor :time
+    attr_accessor :suppress_bounce
   end
 end
