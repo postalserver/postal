@@ -69,7 +69,7 @@ class Domain
   # DKIM
   #
   
-  def sanatised_dkim_record
+  def sanitised_dkim_record
     return records.first.strip.ends_with?(';') ? records.first.strip : "#{records.first.strip};"
   end
   
@@ -84,7 +84,7 @@ class Domain
       if records.size > 1
         self.dkim_status = 'Invalid'
         self.dkim_error = "There are #{records.size} records for at #{domain}. There should only be one."
-      elsif sanatised_dkim_record != self.dkim_record
+      elsif sanitised_dkim_record != self.dkim_record
         self.dkim_status = 'Invalid'
         self.dkim_error = "The DKIM record at #{domain} does not match the record we have provided. Please check it has been copied correctly."
       else
