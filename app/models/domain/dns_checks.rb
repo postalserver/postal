@@ -69,10 +69,6 @@ class Domain
   # DKIM
   #
   
-  def sanitised_dkim_record
-    return records.first.strip.ends_with?(';') ? records.first.strip : "#{records.first.strip};"
-  end
-  
   def check_dkim_record
     domain = "#{dkim_record_name}.#{name}"
     result = resolver.getresources(domain, Resolv::DNS::Resource::IN::TXT)
@@ -81,6 +77,7 @@ class Domain
       self.dkim_status = 'Missing'
       self.dkim_error = "No TXT records were returned for #{domain}"
     else
+      sanitised_dkim_record = records.first.strip.ends_with?(';') ? records.first.strip : "#{records.first.strip};"
       if records.size > 1
         self.dkim_status = 'Invalid'
         self.dkim_error = "There are #{records.size} records for at #{domain}. There should only be one."
