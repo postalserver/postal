@@ -163,21 +163,33 @@ class OutgoingMessagePrototype
       if @html_body.blank? && attachments.empty?
         mail.body = @plain_body
       else
+        text_part = nil
+        html_part = nil
+
         if !@plain_body.blank?
-          mail.text_part = Mail::Part.new
-          mail.text_part.body = @plain_body
+          text_part = Mail::Part.new
+          text_part.body = @plain_body
         end
         if !@html_body.blank?
-          mail.html_part = Mail::Part.new
-          mail.html_part.content_type = "text/html; charset=UTF-8"
-          mail.html_part.body = @html_body
+          html_part = Mail::Part.new
+          html_part.content_type = "text/html; charset=UTF-8"
+          html_part.body = @html_body
         end
-      end
-      attachments.each do |attachment|
-        mail.attachments[attachment[:name]] = {
-          :mime_type => attachment[:content_type],
-          :content => attachment[:data]
-        }
+        if !attachments.empty?
+          mail.part :content_type => "multipart/alternative"  do |p|
+            p.text_part = text_part
+            p.html_part = html_part
+          end
+          attachments.each do |attachment|
+            mail.attachments[attachment[:name]] = {
+              :mime_type => attachment[:content_type],
+              :content => attachment[:data]
+            }
+          end
+        else
+          mail.text_part = text_part
+          mail.html_part = html_part
+        end
       end
       mail.header['Received'] = "from #{@source_type} (#{self.resolved_hostname} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822.to_s}"
       mail.message_id = "<#{@message_id}>"
