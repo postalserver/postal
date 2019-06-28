@@ -83,7 +83,8 @@ module Postal
           :in_reply_to => message.headers['in-reply-to']&.last,
           :references => message.headers['references']&.last,
           :html_body => message.html_body,
-          :attachment_quantity => message.attachments.size
+          :attachment_quantity => message.attachments.size,
+          :auto_submitted => message.headers['auto-submitted']&.last
         }
 
         if @endpoint.strip_replies
