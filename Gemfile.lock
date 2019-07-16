@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/mikel/mail.git
+  revision: 3204c0b4733166b9664a552006286227dea09953
+  branch: 2-7-stable
+  specs:
+    mail (2.7.2.edge)
+      mini_mime (>= 0.1.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -128,13 +136,11 @@ GEM
     loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    mail (2.7.1)
-      mini_mime (>= 0.1.1)
     marcel (0.3.3)
       mimemagic (~> 0.3.2)
     method_source (0.9.2)
     mimemagic (0.3.3)
-    mini_mime (1.0.1)
+    mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.11.3)
     mongo (2.6.2)
@@ -271,7 +277,7 @@ DEPENDENCIES
   jquery-rails
   jwt
   kaminari
-  mail
+  mail!
   mongo
   moonrope
   mysql2 (>= 0.3.18, < 0.5)
