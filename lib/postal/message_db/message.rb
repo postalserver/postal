@@ -328,9 +328,11 @@ module Postal
           mail = Mail.new(self.raw_headers)
           mail.header.fields.each_with_object({}) do |field, hash|
             hash[field.name.downcase] ||= []
-            hash[field.name.downcase] << field.decoded
-          rescue Mail::Field::IncompleteParseError
-            # Never mind, move on to the next header
+            begin
+              hash[field.name.downcase] << field.decoded
+            rescue Mail::Field::IncompleteParseError
+              # Never mind, move on to the next header
+            end
           end
         end
       end
