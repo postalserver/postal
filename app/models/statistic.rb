@@ -2,7 +2,7 @@
 #
 # Table name: statistics
 #
-#  id             :integer          not null, primary key
+#  id             :bigint(8)        not null, primary key
 #  total_messages :bigint(8)        default(0)
 #  total_outgoing :bigint(8)        default(0)
 #  total_incoming :bigint(8)        default(0)

@@ -2,7 +2,7 @@
 #
 # Table name: webhook_requests
 #
-#  id          :integer          not null, primary key
+#  id          :bigint(8)        not null, primary key
 #  server_id   :integer
 #  webhook_id  :integer
 #  url         :string(255)

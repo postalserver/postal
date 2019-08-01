@@ -2,7 +2,7 @@
 #
 # Table name: ip_pools
 #
-#  id         :integer          not null, primary key
+#  id         :bigint(8)        not null, primary key
 #  name       :string(255)
 #  uuid       :string(255)
 #  created_at :datetime

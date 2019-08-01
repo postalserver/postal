@@ -2,7 +2,7 @@
 #
 # Table name: queued_messages
 #
-#  id            :integer          not null, primary key
+#  id            :bigint(8)        not null, primary key
 #  server_id     :integer
 #  message_id    :integer
 #  domain        :string(255)

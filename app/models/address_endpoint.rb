@@ -2,7 +2,7 @@
 #
 # Table name: address_endpoints
 #
-#  id           :integer          not null, primary key
+#  id           :bigint(8)        not null, primary key
 #  server_id    :integer
 #  uuid         :string(255)
 #  address      :string(255)

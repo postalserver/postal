@@ -2,7 +2,7 @@
 #
 # Table name: http_endpoints
 #
-#  id                  :integer          not null, primary key
+#  id                  :bigint(8)        not null, primary key
 #  server_id           :integer
 #  uuid                :string(255)
 #  name                :string(255)

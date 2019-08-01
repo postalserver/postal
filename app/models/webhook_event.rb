@@ -2,7 +2,7 @@
 #
 # Table name: webhook_events
 #
-#  id         :integer          not null, primary key
+#  id         :bigint(8)        not null, primary key
 #  webhook_id :integer
 #  event      :string(255)
 #  created_at :datetime

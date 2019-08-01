@@ -2,7 +2,7 @@
 #
 # Table name: credentials
 #
-#  id           :integer          not null, primary key
+#  id           :bigint(8)        not null, primary key
 #  server_id    :integer
 #  key          :string(255)
 #  type         :string(255)

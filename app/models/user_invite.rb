@@ -2,7 +2,7 @@
 #
 # Table name: user_invites
 #
-#  id            :integer          not null, primary key
+#  id            :bigint(8)        not null, primary key
 #  uuid          :string(255)
 #  email_address :string(255)
 #  expires_at    :datetime

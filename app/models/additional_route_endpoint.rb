@@ -2,7 +2,7 @@
 #
 # Table name: additional_route_endpoints
 #
-#  id            :integer          not null, primary key
+#  id            :bigint(8)        not null, primary key
 #  route_id      :integer
 #  endpoint_type :string(255)
 #  endpoint_id   :integer

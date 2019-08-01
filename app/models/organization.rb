@@ -2,7 +2,7 @@
 #
 # Table name: organizations
 #
-#  id                :integer          not null, primary key
+#  id                :bigint(8)        not null, primary key
 #  uuid              :string(255)
 #  name              :string(255)
 #  permalink         :string(255)

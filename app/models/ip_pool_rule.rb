@@ -2,7 +2,7 @@
 #
 # Table name: ip_pool_rules
 #
-#  id         :integer          not null, primary key
+#  id         :bigint(8)        not null, primary key
 #  uuid       :string(255)
 #  owner_type :string(255)
 #  owner_id   :integer

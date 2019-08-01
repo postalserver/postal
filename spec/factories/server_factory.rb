@@ -2,7 +2,7 @@
 #
 # Table name: servers
 #
-#  id                                 :integer          not null, primary key
+#  id                                 :bigint(8)        not null, primary key
 #  organization_id                    :integer
 #  uuid                               :string(255)
 #  name                               :string(255)

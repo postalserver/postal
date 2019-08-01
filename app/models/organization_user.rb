@@ -2,7 +2,7 @@
 #
 # Table name: organization_users
 #
-#  id              :integer          not null, primary key
+#  id              :bigint(8)        not null, primary key
 #  organization_id :integer
 #  user_id         :integer
 #  created_at      :datetime

@@ -2,7 +2,7 @@
 #
 # Table name: ip_addresses
 #
-#  id         :integer          not null, primary key
+#  id         :bigint(8)        not null, primary key
 #  ip_pool_id :integer
 #  ipv4       :string(255)
 #  ipv6       :string(255)
