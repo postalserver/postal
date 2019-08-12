@@ -14,7 +14,7 @@
   - else
     %p.pageContent__intro.u-margin
       When messages cannot be delivered, addresses are added to the suppression list which stops
-      future messages to the same recipient being sent through. Recipients are removed from the list after 30 days.
+      future messages to the same recipient being sent through. Recipients are removed from the list after #{Postal.config.general.suppression_list_removal_delay} days.
     %ul.suppressionList
       - for suppression in @suppressions[:records]
         %li.suppressionList__item
