@@ -28,6 +28,3 @@ public/assets
 vendor/bundle
 
 Procfile.local
-.DS_Store
-*.save
-*.bak

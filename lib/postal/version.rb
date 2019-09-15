@@ -1,8 +1,8 @@
 module Postal
 
   VERSION = '1.0.0'
-  REVISION = '67d0f6514d'
-  CHANNEL = 'stable'
+  REVISION = nil
+  CHANNEL = 'dev'
 
   def self.version
     [VERSION, REVISION, CHANNEL].compact.join('-')
