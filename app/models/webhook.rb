@@ -28,7 +28,7 @@ class Webhook < ApplicationRecord
   has_many :webhook_requests
 
   validates :name, :presence => true
-  validates :url, :presence => true, :format => {:with => /\Ahttps?\:\/\/[a-z0-9\-\.\_\?\&\/\+:]+\z/i, :allow_blank => true}
+  validates :url, :presence => true, :format => {:with => /\Ahttps?\:\/\/[a-z0-9\-\.\_\?\=\&\/\+:]+\z/i, :allow_blank => true}
 
   scope :enabled, -> { where(:enabled => true) }
 

@@ -126,7 +126,7 @@ module Postal
       #
       def create_delivery(status, options = {})
         delivery = Delivery.create(self, options.merge(:status => status))
-        hold_expiry = status == 'Held' ? 7.days.from_now.to_f : nil
+        hold_expiry = status == 'Held' ? Postal.config.general.maximum_hold_expiry_days.days.from_now.to_f : nil
         self.update(:status => status, :last_delivery_attempt => delivery.timestamp.to_f, :held => status == 'Held' ? 1 : 0, :hold_expiry => hold_expiry)
         delivery
       end
@@ -328,7 +328,11 @@ module Postal
           mail = Mail.new(self.raw_headers)
           mail.header.fields.each_with_object({}) do |field, hash|
             hash[field.name.downcase] ||= []
-            hash[field.name.downcase] << field.decoded
+            begin
+              hash[field.name.downcase] << field.decoded
+            rescue Mail::Field::IncompleteParseError
+              # Never mind, move on to the next header
+            end
           end
         end
       end

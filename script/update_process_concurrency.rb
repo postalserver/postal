@@ -3,6 +3,8 @@
 require File.expand_path('../../lib/postal/config', __FILE__)
 worker_quantity = Postal.config.workers&.quantity || 1
 hash = {
+  'root' => Postal.app_root.to_s,
+  'user' => ENV['USER'],
   'processes' => {
     'worker' => {
       'quantity' => worker_quantity

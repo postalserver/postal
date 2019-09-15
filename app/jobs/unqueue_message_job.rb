@@ -54,7 +54,7 @@ class UnqueueMessageJob < Postal::Job
             if queued_message.attempts >= Postal.config.general.maximum_delivery_attempts
               details = "Maximum number of delivery attempts (#{queued_message.attempts}) has been reached."
               if queued_message.message.scope == 'incoming'
-                # Send bounceds to incoming e-mails when they are hard failed
+                # Send bounces to incoming e-mails when they are hard failed
                 if bounce_id = queued_message.send_bounce
                   details += " Bounce sent to sender (see message <msg:#{bounce_id}>)"
                 end
@@ -241,7 +241,10 @@ class UnqueueMessageJob < Postal::Job
 
                 # Log the result
                 log_details = result.details
-                if result.type =='HardFail' && queued_message.message.send_bounces?
+                if result.type =='HardFail' && result.suppress_bounce
+                  # The delivery hard failed, but requested that no bounce be sent
+                  log "#{log_prefix} Suppressing bounce message after hard fail"
+                elsif result.type =='HardFail' && queued_message.message.send_bounces?
                   # If the message is a hard fail, send a bounce message for this message.
                   log "#{log_prefix} Sending a bounce because message hard failed"
                   if bounce_id = queued_message.send_bounce
@@ -431,7 +434,7 @@ class UnqueueMessageJob < Postal::Job
               Raven.capture_exception(e, :extra => {:job_id => self.id, :server_id => queued_message.server_id, :message_id => queued_message.message_id})
             end
             if queued_message.message
-              queued_message.message.create_delivery("Error", :details => "An internal error occurred while sending this message. This message will be retried automatically. This this persists, contact support for assistance.", :output => "#{e.class}: #{e.message}", :log_id => "J-#{self.id}")
+              queued_message.message.create_delivery("Error", :details => "An internal error occurred while sending this message. This message will be retried automatically. If this persists, contact support for assistance.", :output => "#{e.class}: #{e.message}", :log_id => "J-#{self.id}")
             end
           end
         end

@@ -34,13 +34,13 @@
 #  index_domains_on_uuid       (uuid)
 #
 
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :domain do
     association :owner, :factory => :user
     sequence(:name) { |n| "example#{n}.com" }
-    verification_method 'DNS'
-    verified_at Time.now
+    verification_method { 'DNS' }
+    verified_at { Time.now }
   end
 
   factory :organization_domain, :parent => :domain do

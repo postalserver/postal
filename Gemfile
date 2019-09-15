@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-gem 'rails', '= 5.0.2'
+gem 'rails', '= 5.2.2.1'
 gem 'mysql2', '>= 0.3.18', '< 0.5'
 gem 'puma', '~> 3.0'
 gem 'turbolinks', '~> 5'
@@ -13,7 +13,7 @@ gem 'hashie'
 gem 'authie', '~> 3.0'
 gem 'dynamic_form'
 gem 'changey'
-gem 'mail'
+gem 'mail', :git => 'https://github.com/mikel/mail.git', :branch => '2-7-stable'
 gem 'autoprefixer-rails'
 gem 'bunny', '~> 2.5.1'
 gem 'secure_headers'
@@ -46,6 +46,6 @@ group :development do
   gem 'annotate'
   gem 'rspec'
   gem 'rspec-rails'
-  gem "factory_girl_rails", "~> 4.0"
+  gem "factory_bot_rails", "~> 4.0"
   gem "database_cleaner"
 end

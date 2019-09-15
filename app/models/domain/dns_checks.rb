@@ -68,7 +68,7 @@ class Domain
   #
   # DKIM
   #
-
+  
   def check_dkim_record
     domain = "#{dkim_record_name}.#{name}"
     result = resolver.getresources(domain, Resolv::DNS::Resource::IN::TXT)
@@ -77,10 +77,11 @@ class Domain
       self.dkim_status = 'Missing'
       self.dkim_error = "No TXT records were returned for #{domain}"
     else
+      sanitised_dkim_record = records.first.strip.ends_with?(';') ? records.first.strip : "#{records.first.strip};"
       if records.size > 1
         self.dkim_status = 'Invalid'
         self.dkim_error = "There are #{records.size} records for at #{domain}. There should only be one."
-      elsif records.first.strip != self.dkim_record
+      elsif sanitised_dkim_record != self.dkim_record
         self.dkim_status = 'Invalid'
         self.dkim_error = "The DKIM record at #{domain} does not match the record we have provided. Please check it has been copied correctly."
       else
