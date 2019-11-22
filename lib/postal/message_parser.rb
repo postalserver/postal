@@ -71,7 +71,7 @@ module Postal
           part.body = parse(part.body.decoded.dup, :text)
           part.content_transfer_encoding = nil
           part.charset = 'UTF-8'
-        elsif part.content_type =~ /multipart\/alternative/
+        elsif part.content_type =~ /multipart\/(alternative|related)/
           unless part.parts.empty?
             parse_parts(part.parts)
           end
