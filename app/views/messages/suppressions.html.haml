@@ -14,7 +14,7 @@
   - else
     %p.pageContent__intro.u-margin
       When messages cannot be delivered, addresses are added to the suppression list which stops
-      future messages to the same recipient being sent through. Recipients are removed from the list after 30 days.
+      future messages to the same recipient being sent through. Recipients are removed from the list after #{Postal.config.general.suppression_list_removal_delay} days.
     %ul.suppressionList
       - for suppression in @suppressions[:records]
         %li.suppressionList__item
@@ -23,4 +23,8 @@
             %p.suppressionList__reason= suppression['reason'].capitalize
           .suppressionList__right
             %p.suppressionList__timestamp Added #{Time.zone.at(suppression['timestamp']).to_s(:long)}
+            %p.suppressionList__timestamp
+              Expires #{Time.zone.at(suppression['keep_until']).to_s(:long)}
+              - if suppression['keep_until'] > Time.now.to_f
+                %span.u-red expired
     = render 'shared/message_db_pagination', :data => @suppressions, :name => "suppression"
