@@ -12,6 +12,8 @@ general:
   use_ip_pools: false
   exception_url:
   maximum_delivery_attempts: 18
+  maximum_hold_expiry_days: 7
+  suppression_list_removal_delay: 30
   use_local_ns_for_domains: false
 
 web_server:

@@ -54,7 +54,7 @@ class UnqueueMessageJob < Postal::Job
             if queued_message.attempts >= Postal.config.general.maximum_delivery_attempts
               details = "Maximum number of delivery attempts (#{queued_message.attempts}) has been reached."
               if queued_message.message.scope == 'incoming'
-                # Send bounceds to incoming e-mails when they are hard failed
+                # Send bounces to incoming e-mails when they are hard failed
                 if bounce_id = queued_message.send_bounce
                   details += " Bounce sent to sender (see message <msg:#{bounce_id}>)"
                 end
@@ -240,7 +240,10 @@ class UnqueueMessageJob < Postal::Job
 
                 # Log the result
                 log_details = result.details
-                if result.type =='HardFail' && queued_message.message.send_bounces?
+                if result.type =='HardFail' && result.suppress_bounce
+                  # The delivery hard failed, but requested that no bounce be sent
+                  log "#{log_prefix} Suppressing bounce message after hard fail"
+                elsif result.type =='HardFail' && queued_message.message.send_bounces?
                   # If the message is a hard fail, send a bounce message for this message.
                   log "#{log_prefix} Sending a bounce because message hard failed"
                   if bounce_id = queued_message.send_bounce

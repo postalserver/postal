@@ -7,7 +7,7 @@ module Postal
       end
 
       def add(type, address, options = {})
-        keep_until = (options[:days] || 30).days.from_now.to_f
+        keep_until = (options[:days] || Postal.config.general.suppression_list_removal_delay).days.from_now.to_f
         if existing = @database.select('suppressions', :where => {:type => type, :address => address}, :limit =>1).first
           reason = options[:reason] || existing['reason']
           @database.update('suppressions', {:reason => reason, :keep_until => keep_until}, :where => {:id => existing['id']})

@@ -22,7 +22,7 @@ controller :send do
     param :bounce, "Is this message a bounce?", :type => :boolean
     # Errors
     error 'ValidationError', "The provided data was not sufficient to send an email", :attributes => {:errors => "A hash of error details"}
-    error 'NoRecipients', "There are no recipients defined to received this message"
+    error 'NoRecipients', "There are no recipients defined to receive this message"
     error 'NoContent', "There is no content defined for this e-mail"
     error 'TooManyToAddresses', "The maximum number of To addresses has been reached (maximum 50)"
     error 'TooManyCCAddresses', "The maximum number of CC addresses has been reached (maximum 50)"

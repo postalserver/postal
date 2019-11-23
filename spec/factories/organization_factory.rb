@@ -21,10 +21,10 @@
 #  index_organizations_on_uuid       (uuid)
 #
 
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :organization do
-    name "Acme Inc"
+    name { "Acme Inc" }
     sequence(:permalink) { |n| "org#{n}" }
     association :owner, :factory => :user
   end
