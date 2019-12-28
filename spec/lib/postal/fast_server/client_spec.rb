@@ -39,7 +39,7 @@ describe Postal::FastServer::Client do
       expect(client.remote_ip).to eq '221.186.184.68'
     end
 
-    it 'returns the IPv4 peer address mapped as IPV6' do
+    it 'returns the IPv4 peer address mapped as IPv6' do
       socket = TestSocket.new(
         [
           'GET / HTTP/1.1',
@@ -88,24 +88,25 @@ describe Postal::FastServer::Client do
   end
 
   describe 'response' do
-    describe 'request for /'
-    it 'returns a empty response' do
-      socket = TestSocket.new(
-        [
-          'GET / HTTP/1.1',
-          'Host: postal.mydomain.com',
-          ''
-        ],
-        ['AF_INET', 80, '221.186.184.68', '221.186.184.68']
-      )
-      client = Postal::FastServer::Client.new(socket, ssl: false)
-      client.run
+    describe 'request for /' do
+      it 'returns a empty response' do
+        socket = TestSocket.new(
+          [
+            'GET / HTTP/1.1',
+            'Host: postal.mydomain.com',
+            ''
+          ],
+          ['AF_INET', 80, '221.186.184.68', '221.186.184.68']
+        )
+        client = Postal::FastServer::Client.new(socket, ssl: false)
+        client.run
 
-      expect(socket.response).to eq [
-        'HTTP/1.1 200 OK',
-        '',
-        'Hello.'
-      ].join("\r\n")
+        expect(socket.response).to eq [
+          'HTTP/1.1 200 OK',
+          '',
+          'Hello.'
+        ].join("\r\n")
+      end
     end
   end
 end
