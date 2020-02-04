@@ -25,6 +25,6 @@
             %p.suppressionList__timestamp Added #{Time.zone.at(suppression['timestamp']).to_s(:long)}
             %p.suppressionList__timestamp
               Expires #{Time.zone.at(suppression['keep_until']).to_s(:long)}
-              - if suppression['keep_until'] > Time.now.to_f
+              - if suppression['keep_until'] < Time.now.to_f
                 %span.u-red expired
     = render 'shared/message_db_pagination', :data => @suppressions, :name => "suppression"
