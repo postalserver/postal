@@ -188,6 +188,8 @@ module Postal
   end
 
   def self.check_config!
+    return if ENV['POSTAL_SKIP_CONFIG_CHECK'].to_i == 1
+
     unless File.exist?(self.config_file_path)
       raise ConfigError, "No config found at #{self.config_file_path}"
     end
