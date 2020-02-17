@@ -152,8 +152,11 @@ module Postal
                                 OpenSSL::SSL::OP_NO_SSLv3 |
                                 OpenSSL::SSL::OP_NO_COMPRESSION |
                                 OpenSSL::SSL::OP_CIPHER_SERVER_PREFERENCE
-          ssl_context.tmp_ecdh_callback = Proc.new do |*a|
-            OpenSSL::PKey::EC.new("prime256v1")
+
+          if ssl_context.respond_to?('tmp_ecdh_callback=')
+            ssl_context.tmp_ecdh_callback = Proc.new do |*a|
+              OpenSSL::PKey::EC.new("prime256v1")
+            end
           end
 
           unless domain_name
