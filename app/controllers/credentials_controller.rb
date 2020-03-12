@@ -15,6 +15,9 @@ class CredentialsController < ApplicationController
 
   def create
     @credential = @server.credentials.build(params.require(:credential).permit(:type, :name, :hold))
+    if params[:credential][:key].present?
+      @credential.key = params[:credential][:key]
+    end
     if @credential.save
       redirect_to_with_json [organization, @server, :credentials]
     else

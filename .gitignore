@@ -28,3 +28,10 @@ public/assets
 vendor/bundle
 
 Procfile.local
+
+# rubymine IDE auto generated configs
+.idea
+
+# auto generated files
+.generators
+.rakeTasks

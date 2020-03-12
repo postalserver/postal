@@ -3,6 +3,29 @@ controller :messages do
   description "This API allows you to access message details"
   authenticator :server
 
+  action :stats do
+    title "Message stats"
+    description "This action will display stats"
+
+    returns Hash
+
+    action do
+      server = identity.server
+      {
+              host_domain: request.headers['HOST'],
+              held_messages: server.held_messages,
+              queued_messages: server.queue_size,
+              bounce_rate: server.bounce_rate,
+              used: server.message_db.total_size,
+              message_throughput: {
+                      outgoing_messages: server.throughput_stats[:outgoing],
+                      incoming_messages: server.throughput_stats[:incoming],
+                      message_rate: server.message_rate
+              }
+      }
+    end
+  end
+
   action :message do
     title "Return message details"
     description "Returns all details about a message"
