@@ -5,7 +5,7 @@ authenticator :server do
   error 'ServerSuspended', "The mail server has been suspended"
   lookup do
     if key = request.headers['X-Server-API-Key']
-      if credential = Credential.where(:type => 'API', :key => key).first
+      if credential = Credential.where(:key => key).first
         if credential.server.suspended?
           error 'ServerSuspended'
         else
@@ -19,6 +19,15 @@ authenticator :server do
   end
   rule :default, "AccessDenied", "Must be authenticated as a server." do
     identity.is_a?(Credential)
+  end
+  rule :master, "AccessDenied", "Denied By Scope." do
+    params.scope == "MASTER"
+  end
+  rule :min_scope, "AccessDenied", "Denied By Miminum Scope" do
+    current_scope = Credential::TYPES.find_index(params.scope)
+    min_scope = Credential::TYPES.find_index("API")
+
+    min_scope <= current_scope
   end
 end
 
