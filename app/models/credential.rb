@@ -17,8 +17,10 @@
 class Credential < ApplicationRecord
 
   belongs_to :server
+  has_many :credential_limits
+  has_many :domains
 
-  TYPES = ['SMTP', 'API']
+  TYPES = ['SMTP', 'API', 'MASTER']
 
   validates :key, :presence => true, :uniqueness => true
   validates :type, :inclusion => {:in => TYPES}
