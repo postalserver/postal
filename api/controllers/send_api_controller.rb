@@ -31,6 +31,9 @@ controller :send do
     error 'UnauthenticatedFromAddress', "The From address is not authorised to send mail from this server"
     error 'AttachmentMissingName', "An attachment is missing a name"
     error 'AttachmentMissingData', "An attachment is missing data"
+    error 'ReachedSendLimit', "Message Send has reached maximum limit"
+    error 'DomainNotRegistered', "Domain Not Registered"
+
     # Return
     returns Hash
     # Action
@@ -49,6 +52,18 @@ controller :send do
       attributes[:tag] = params.tag
       attributes[:custom_headers] = params.headers
       attributes[:attachments] = []
+
+      if params.scope == "API" && params.from.present?
+        registered_domains = identity.domains.map(&:name)
+        is_passed = []
+        registered_domains.each do |reg_domain|
+          is_passed << params.from.include?(reg_domain)
+        end
+        unless is_passed.all?
+          error 'DomainNotRegistered'
+        end
+      end
+
       (params.attachments || []).each do |attachment|
         next unless attachment.is_a?(Hash)
         attributes[:attachments] << {:name => attachment['name'], :content_type => attachment['content_type'], :data => attachment['data'], :base64 => true}
@@ -56,8 +71,24 @@ controller :send do
       message = OutgoingMessagePrototype.new(identity.server, request.ip, 'api', attributes)
       message.credential = identity
       if message.valid?
-        result = message.create_messages
-        {:message_id => message.message_id, :messages => result}
+        if identity.credential_limits.present?
+          send_limit = identity.credential_limits.find_by({'type' => 'send_limit'}) 
+          if (send_limit.usage.to_i != send_limit.limit.to_i) && (send_limit.usage.to_i < send_limit.limit.to_i) && params.scope == "API"
+          result = message.create_messages
+          else
+            error 'ReachedSendLimit'
+          end 
+    
+          if send_limit.present? && params.scope == "API"
+            usage = (send_limit.usage.to_i + 1)
+            usage = 0 if usage < 0
+            send_limit.update({"usage": usage})
+          end
+        else
+          result = message.create_messages
+        end
+
+          {:message_id => message.message_id, :messages => result}
       else
         error message.errors.first
       end
@@ -106,5 +137,4 @@ controller :send do
       result
     end
   end
-
 end
