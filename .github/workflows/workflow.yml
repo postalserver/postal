@@ -21,5 +21,5 @@ jobs:
       shell: bash
       run: |
         echo "$GITHUB_PASS" | docker login docker.pkg.github.com -u "$GITHUB_USER" --password-stdin  
-        docker build -t "docker.pkg.github.com/${REPO}/$NAME ."
-        docker push "docker.pkg.github.com/${REPO}/$NAME"
+        docker build -t "docker.pkg.github.com/${REPO}/${NAME}" .
+        docker push "docker.pkg.github.com/${REPO}/${NAME}"
