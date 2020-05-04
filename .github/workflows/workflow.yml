@@ -1,4 +1,4 @@
-name: 8earDockerCI
+name: DockerCI
 on:
   push:
     branches:
