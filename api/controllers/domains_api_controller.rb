@@ -105,7 +105,7 @@ controller :domains do
       domain = identity.server.domains.find_by_name(params.name)
       if domain.nil?
         error 'DomainNotFound'
-      elsif domain.delete
+      elsif domain.destroy
         {:message => "Domain deleted successfully"}
       else
         error 'DomainNotDeleted'
