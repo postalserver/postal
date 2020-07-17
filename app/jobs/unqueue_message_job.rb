@@ -87,7 +87,7 @@ class UnqueueMessageJob < Postal::Job
               # If this is a bounce, we need to handle it as such
               #
               if queued_message.message.bounce == 1
-                log "#{log_prefix} Message is is a bounce"
+                log "#{log_prefix} Message is a bounce"
                 original_messages = queued_message.message.original_messages
                 unless original_messages.empty?
                   for original_message in queued_message.message.original_messages

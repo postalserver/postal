@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   include WithinOrganization
   before_action :require_organization_admin
   before_action :require_organization_owner, :only => [:make_owner]
-  before_action { params[:id] && @user = params[:invite] ? organization.user_invites.find_by_uuid!(params[:id]) : organization.users.find_by_uuid!(params[:id]) }
+  before_action { params[:id] && @user = params[:invite].present? ? organization.user_invites.find_by_uuid!(params[:id]) : organization.users.find_by_uuid!(params[:id]) }
 
   def index
     @users = organization.organization_users.where(:user_type => 'User').includes(:user).to_a.sort_by { |u| "#{u.user.first_name}#{u.user.last_name}".upcase }
