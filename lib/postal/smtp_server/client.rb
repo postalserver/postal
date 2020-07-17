@@ -313,7 +313,7 @@ module Postal
 
         else
           # User is trying to relay but is not authenticated. Try to authenticate by IP address
-          @credential = Credential.where(:type => 'SMTP-IP').all.find do |credential|
+          @credential = Credential.where(:type => 'SMTP-IP').all.sort_by(&:prefix).reverse.find do |credential|
             IPAddr.new(credential.key).include?(@ip_address)
           end
 
