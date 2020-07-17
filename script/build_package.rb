@@ -97,12 +97,12 @@ filename = "postal-#{version}-#{last_commit}.tgz"
 require 'net/ssh'
 require 'net/scp'
 Net::SSH.start("postal.atech.media") do |ssh|
-  ssh.exec!("rm -Rf /var/www/postal/packages/#{CHANNEL}/#{filename}")
+  ssh.exec!("rm -Rf /home/atechmedia/postal.atech.media/packages/#{CHANNEL}/#{filename}")
   puts "Uploading..."
-  ssh.scp.upload!(PACKAGE_PATH.to_s, "/var/www/postal/packages/#{CHANNEL}/#{filename}")
+  ssh.scp.upload!(PACKAGE_PATH.to_s, "/home/atechmedia/postal.atech.media/packages/#{CHANNEL}/#{filename}")
   puts "Making latest..."
-  ssh.exec!("rm -Rf /var/www/postal/packages/#{CHANNEL}/latest.tgz")
-  ssh.exec!("ln -s /var/www/postal/packages/#{CHANNEL}/#{filename} /var/www/postal/packages/#{CHANNEL}/latest.tgz")
+  ssh.exec!("rm -Rf /home/atechmedia/postal.atech.media/packages/#{CHANNEL}/latest.tgz")
+  ssh.exec!("ln -s /home/atechmedia/postal.atech.media/packages/#{CHANNEL}/#{filename} /home/atechmedia/postal.atech.media/packages/#{CHANNEL}/latest.tgz")
 end
 
 puts "\e[32mDone. Package is live at https://postal.atech.media/packages/#{CHANNEL}/latest.tgz\e[0m"
