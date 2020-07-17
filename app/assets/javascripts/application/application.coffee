@@ -53,3 +53,21 @@ $ ->
     $(element, $link.parent()).toggle()
     false
 
+  toggleCredentialInputs = (type)->
+    $('[data-credential-key-type]').hide()
+    $('[data-credential-key-type] input').attr('disabled', true)
+    if type == 'SMTP-IP'
+      $('[data-credential-key-type=smtp-ip]').show()
+      $('[data-credential-key-type=smtp-ip] input').attr('disabled', false)
+    else
+      $('[data-credential-key-type=all]').show()
+
+
+  $(document).on 'change', 'select#credential_type', ->
+    value = $(this).val()
+    toggleCredentialInputs(value)
+
+  $(document).on 'turbolinks:load', ->
+    credentialTypeInput = $('select#credential_type')
+    if credentialTypeInput.length
+      toggleCredentialInputs(credentialTypeInput.val())

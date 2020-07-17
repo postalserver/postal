@@ -12,24 +12,37 @@
 #  created_at   :datetime
 #  updated_at   :datetime
 #  hold         :boolean          default(FALSE)
+#  uuid         :string(255)
 #
 
 class Credential < ApplicationRecord
 
+  include HasUUID
+
   belongs_to :server
 
-  TYPES = ['SMTP', 'API']
+  TYPES = ['SMTP', 'API', 'SMTP-IP']
 
   validates :key, :presence => true, :uniqueness => true
   validates :type, :inclusion => {:in => TYPES}
   validates :name, :presence => true
-
-  random_string :key, :type => :chars, :length => 24, :unique => true
+  validate :validate_key_cannot_be_changed
+  validate :validate_key_for_smtp_ip
 
   serialize :options, Hash
 
+  before_validation :generate_key
+
+
+  def generate_key
+    return if self.type == 'SMTP-IP'
+    return if self.persisted?
+
+    self.key = SecureRandomString.new(24)
+  end
+
   def to_param
-    key
+    uuid
   end
 
   def use
@@ -52,6 +65,32 @@ class Credential < ApplicationRecord
 
   def to_smtp_plain
     Base64.encode64("\0XX\0#{self.key}").strip
+  end
+
+  def ipaddr
+    return unless type == 'SMTP-IP'
+
+    @ipaddr ||= IPAddr.new(self.key)
+  rescue IPAddr::InvalidAddressError
+    nil
+  end
+
+  private
+
+  def validate_key_cannot_be_changed
+    return if new_record?
+    return unless key_changed?
+    return if type == 'SMTP-IP'
+
+    errors.add :key, "cannot be changed"
+  end
+
+  def validate_key_for_smtp_ip
+    return unless type == 'SMTP-IP'
+
+    IPAddr.new(self.key.to_s)
+  rescue IPAddr::InvalidAddressError
+    errors.add :key, "must be a valid IPv4 or IPv6 address"
   end
 
 end
