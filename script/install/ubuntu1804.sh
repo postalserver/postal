@@ -75,4 +75,4 @@ service nginx reload
 #
 echo
 echo "Installation complete"
-echo -e "Now run \e[1mpostal make-user\e[0m to set up your user."
+echo "Now run \e[1mpostal make-user\e[0m to set up your user."
