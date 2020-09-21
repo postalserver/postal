@@ -32,7 +32,7 @@ module Postal
 
     def normalized_headers
       Array.new.tap do |new_headers|
-        headers.select { |h| h.match(/^(to|from|date|subject|message-id):/i) }.each do |h|
+        headers.select { |h| h.match(/^(to|cc|from|reply-to|date|subject|message-id|content-transfer-encoding|mime-version|list-unsubscribe):/i) }.each do |h|
           new_headers << normalize_header(h)
         end
       end
