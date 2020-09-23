@@ -8,7 +8,6 @@ class SendWebhookJob < Postal::Job
           if key.to_s =~ /\A\_(\w+)/
             begin
               new_items[$1] = server.message_db.message(value.to_i).webhook_hash
-            rescue Postal::MessageDB::Message::NotFound
             end
           end
         end

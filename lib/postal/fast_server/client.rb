@@ -38,7 +38,7 @@ module Postal
             @socket = @raw_socket
           end
 
-          Timeout::timeout(20) do
+          Timeout.timeout(20) do
             # Read the request line
             request = @socket.gets.to_s.chomp
             # Split the request into its 3 parts

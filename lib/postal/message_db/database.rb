@@ -348,7 +348,7 @@ module Postal
 
       def hash_to_sql(hash, joiner = ', ')
         hash.map do |key, value|
-          if value.is_a?(Array) && value.all? { |v| v.is_a?(Fixnum) }
+          if value.is_a?(Array) && value.all? { |v| v.is_a?(Integer) }
             "`#{key}` IN (#{value.join(', ')})"
           elsif value.is_a?(Array)
             escaped_values = value.map { |v| escape(v) }.join(', ')

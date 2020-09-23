@@ -215,7 +215,6 @@
       else
         time = Chronic.parse(string, :context => :past)
       end
-    rescue
     end
 
     if time.nil?

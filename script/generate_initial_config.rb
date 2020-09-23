@@ -15,19 +15,19 @@ unless File.exist?(Postal.config_file_path)
   puts "Created example config file at #{Postal.config_file_path}"
 end
 
-unless File.exists?(Postal.lets_encrypt_private_key_path)
+unless File.exist?(Postal.lets_encrypt_private_key_path)
   key = OpenSSL::PKey::RSA.new(2048).to_s
   File.open(Postal.lets_encrypt_private_key_path, 'w') { |f| f.write(key) }
   puts "Created new private key for Let's Encrypt"
 end
 
-unless File.exists?(Postal.signing_key_path)
+unless File.exist?(Postal.signing_key_path)
   key = OpenSSL::PKey::RSA.new(1024).to_s
   File.open(Postal.signing_key_path, 'w') { |f| f.write(key) }
   puts "Created new signing key for DKIM & HTTP requests"
 end
 
-unless File.exists?(Postal.fast_server_default_private_key_path)
+unless File.exist?(Postal.fast_server_default_private_key_path)
   key = OpenSSL::PKey::RSA.new(2048).to_s
   File.open(Postal.fast_server_default_private_key_path, 'w') { |f| f.write(key) }
   puts "Created new private key for default fast server TLS connections"

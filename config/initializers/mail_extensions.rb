@@ -15,7 +15,7 @@ module Mail
   class Message
     ## Extract plain text body of message
     def plain_body
-      if self.multipart? and self.text_part
+      if self.multipart? && self.text_part
         self.text_part.decoded
       elsif self.mime_type == 'text/plain' || self.mime_type.nil?
         self.decoded
@@ -26,7 +26,7 @@ module Mail
 
     ## Extract HTML text body of message
     def html_body
-      if self.multipart? and self.html_part
+      if self.multipart? && self.html_part
         self.html_part.decoded
       elsif self.mime_type == 'text/html'
         self.decoded
@@ -90,7 +90,7 @@ module Mail
       @parts_list = parts_list
       @content_disposition_type = 'attachment'
       parts_list.map { |p|
-        (p.parts.empty? and p.attachment?) ? p : p.attachments
+        (p.parts.empty? && p.attachment?) ? p : p.attachments
       }.flatten.compact.each { |a| self << a }
       self
     end

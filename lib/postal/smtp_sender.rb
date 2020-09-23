@@ -188,7 +188,6 @@ module Postal
 
       result.time = (Time.now - start_time).to_f.round(2)
       return result
-    ensure
     end
 
     def finish
