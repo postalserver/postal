@@ -196,6 +196,7 @@ module Postal
           @credential.use
           "235 Granted for #{@credential.server.organization.permalink}/#{@credential.server.permalink}"
         else
+          log "\e[33m   WARN: AUTH failure for #{@ip_address}\e[0m"
           "535 Invalid credential"
         end
       end
