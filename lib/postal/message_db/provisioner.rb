@@ -33,7 +33,7 @@ module Postal
       # Creates a new empty database
       #
       def create
-        @database.query("CREATE DATABASE `#{@database.database_name}` CHARSET utf8 COLLATE UTF8_UNICODE_CI;")
+        @database.query("CREATE DATABASE `#{@database.database_name}` CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;")
         true
       rescue Mysql2::Error => e
         e.message =~ /database exists/ ? false : raise
@@ -185,7 +185,7 @@ module Postal
             s << ", PRIMARY KEY (`id`)"
           end
 
-          s << ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;"
+          s << ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;"
         end
       end
 
