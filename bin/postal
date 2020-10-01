@@ -16,7 +16,7 @@ fi
 if [ $SHOULD_SUDO == "yes" ] && [ $USER != "postal" ]; then
     run() {
         HOME=/opt/postal
-        eval "sudo -u postal $@"
+        eval "sudo -E -u postal $@"
     }
 else
     run() {
