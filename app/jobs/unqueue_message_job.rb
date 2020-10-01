@@ -442,6 +442,7 @@ class UnqueueMessageJob < Postal::Job
 
       else
         log "Couldn't get lock for message #{params['id']}. I won't do this."
+        original_message.retry_later
       end
     else
       log "No queued message with ID #{params['id']} was available for processing."
