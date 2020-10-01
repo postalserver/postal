@@ -85,7 +85,7 @@ module Postal
       #
       def copy_attributes_from_raw_message
         if self.raw_message
-          self.subject = self.headers['subject']&.last
+          self.subject = self.headers['subject']&.last.to_s[0,200]
           self.message_id = self.headers['message-id']&.last
           if self.message_id
             self.message_id = self.message_id.gsub(/.*</, '').gsub(/>.*/, '').strip
