@@ -26,6 +26,8 @@ apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74C
 add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://mirrors.coreix.net/mariadb/repo/10.1/ubuntu bionic main'
 wget -O - "https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey" | sudo apt-key add -
 add-apt-repository 'deb https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu/ bionic main'
+wget -O - "https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc" | sudo apt-key add -
+add-apt-repository 'deb https://packages.erlang-solutions.com/ubuntu bionic contrib'
 apt update
 export DEBIAN_FRONTEND=noninteractive
 apt install -y ruby2.3 ruby2.3-dev build-essential libssl-dev mariadb-server libmysqlclient-dev rabbitmq-server nodejs git nginx wget nano
