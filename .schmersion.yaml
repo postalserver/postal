@@ -1,0 +1,14 @@
+exports:
+  - name: CHANGELOG.md
+    formatter: markdown
+    options:
+      title: CHANGELOG
+      description: This file contains all the latest changes and updates to Postal.
+      sections:
+        - title: Features
+          types: [feat]
+        - title: Bug Fixes
+          types: [fix]
+#
+# There are additional options you can define, check out the README for details.
+# https://github.com/krystal/schmersion

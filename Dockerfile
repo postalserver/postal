@@ -1,16 +1,19 @@
-FROM ruby:2.6
+FROM ruby:2.6 AS base
 
-RUN apt-get update
-RUN apt-get install software-properties-common -y
-
-# Setup additional repositories
-RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
-RUN add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://mirrors.coreix.net/mariadb/repo/10.1/ubuntu xenial main'
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN apt-get update
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+  software-properties-common \
+  && apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8 \
+  && add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://mirrors.coreix.net/mariadb/repo/10.1/ubuntu xenial main' \
+  && (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) \
+  && (echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list) \
+  && (curl -sL https://deb.nodesource.com/setup_12.x | bash -) \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install main dependencies
-RUN apt-get install -y \
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends \
   build-essential  \
   curl \
   libmariadbclient-dev \
@@ -24,9 +27,7 @@ RUN mkdir -p /opt/postal/app /opt/postal/config
 WORKDIR /opt/postal/app
 
 # Install bundler
-RUN gem install bundler --no-doc
-RUN bundle config frozen 1
-RUN bundle config build.sassc --disable-march-tune-native
+RUN gem install bundler -v 2.1.4 --no-doc
 
 # Install the latest and active gem dependencies and re-run
 # the appropriate commands to handle installs.
@@ -34,15 +35,21 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install -j 4
 
 # Copy the application (and set permissions)
+COPY ./docker/wait-for.sh /docker-entrypoint.sh
 COPY --chown=postal . .
 
+# Export the version
+ARG VERSION=unspecified
+RUN echo $VERSION > VERSION
+
+# Set the CMD
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+CMD ["bundle", "exec"]
+
+FROM base AS prod
 # Copy temporary configuration file which can be used for
 # running the asset precompilation.
 COPY --chown=postal config/postal.defaults.yml /opt/postal/config/postal.yml
 
-# Precompile assets
 RUN POSTAL_SKIP_CONFIG_CHECK=1 RAILS_GROUPS=assets bundle exec rake assets:precompile
 RUN touch /opt/postal/app/public/assets/.prebuilt
-
-# Set the CMD
-CMD ["bundle", "exec"]

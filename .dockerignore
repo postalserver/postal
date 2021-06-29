@@ -24,5 +24,3 @@ node_modules
 Dockerfile
 vendor/bundle
 .cache
-docker/*
-PotamusFile
