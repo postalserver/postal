@@ -203,7 +203,15 @@ module Postal
         mx_servers = []
         Resolv::DNS.open do |dns|
           dns.timeouts = [10,5]
-          mx_servers = dns.getresources(@domain, Resolv::DNS::Resource::IN::MX).map { |m| [m.preference.to_i, m.exchange.to_s] }.sort.map{ |m| m[1] }
+          mx_servers = dns.getresources(@domain, Resolv::DNS::Resource::IN::MX).map { |m| [m.preference.to_i, m.exchange.to_s] }.sort{
+            # sort equal mx-preference randomly
+            |a,b|
+            if a[0] == b[0]
+              [-1,1].sample
+            else
+              a <=> b
+            end
+          }.map{ |m| m[1] }
           if mx_servers.empty?
             mx_servers = [@domain] # This will be resolved to an A or AAAA record later
           end
