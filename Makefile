@@ -58,7 +58,6 @@ endif
 DOCKER_BUILD_CMD = DOCKER_BUILDKIT=1 docker \
 	build $(if $(TTY),,--progress plain) \
 	--build-arg VERSION=$(VERSION) \
-	--secret "id=bundle_config,src=$(BUNDLE_CONFIG)" \
 	.
 
 DOCKER_CI_BUILD_CMD = $(DOCKER_BUILD_CMD) --target=ci
