@@ -40,20 +40,20 @@ jobs:
       - name: Build and push Docker image
         run: make docker-release
 
-  build-release:
-    runs-on: self-hosted
-    needs: [test]
-    if: contains(github.ref, 'refs/tags/')
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+  # build-release:
+  #   runs-on: self-hosted
+  #   needs: [test]
+  #   if: contains(github.ref, 'refs/tags/')
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Parse git ref
-        run: |
-          echo "DOCKER_TAG_VERSION=$(basename $GITHUB_REF)" >> $GITHUB_ENV
+  #     - name: Parse git ref
+  #       run: |
+  #         echo "DOCKER_TAG_VERSION=$(basename $GITHUB_REF)" >> $GITHUB_ENV
 
-      - name: Build and push Docker image
-        run: make docker-release
-        env:
-          DOCKER_TAG_NAME: "latest"
+  #     - name: Build and push Docker image
+  #       run: make docker-release
+  #       env:
+  #         DOCKER_TAG_NAME: "latest"
