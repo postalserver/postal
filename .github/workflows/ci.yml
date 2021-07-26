@@ -1,0 +1,59 @@
+---
+name: CI
+on: [push]
+
+jobs:
+  # lint:
+  #   name: Lint
+  #   runs-on: self-hosted
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - run: make ci-lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: make ci-test
+
+  build-latest:
+    runs-on: ubuntu-20.04
+    needs: [test]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Parse git ref
+        run: |
+          echo "DOCKER_TAG_NAME=$(basename $GITHUB_REF)" >> $GITHUB_ENV
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: make docker-release
+
+  build-release:
+    runs-on: self-hosted
+    needs: [test]
+    if: contains(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Parse git ref
+        run: |
+          echo "DOCKER_TAG_VERSION=$(basename $GITHUB_REF)" >> $GITHUB_ENV
+
+      - name: Build and push Docker image
+        run: make docker-release
+        env:
+          DOCKER_TAG_NAME: "latest"
