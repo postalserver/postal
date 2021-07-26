@@ -15,6 +15,7 @@ RUN apt-get update \
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   build-essential  \
+  netcat \
   curl \
   libmariadbclient-dev \
   nano \
@@ -46,6 +47,10 @@ RUN echo $VERSION > VERSION
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD ["bundle", "exec"]
 
+# ci target - use --target=ci to skip asset compilation
+FROM base AS ci
+
+# prod target - default if no --target option is given
 FROM base AS prod
 # Copy temporary configuration file which can be used for
 # running the asset precompilation.

@@ -1,0 +1,8 @@
+development:
+  url: <%= Postal.database_url %>
+
+production:
+  url: <%= Postal.database_url %>
+
+test:
+  url: <%= Postal.database_url %>

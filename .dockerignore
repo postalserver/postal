@@ -13,7 +13,6 @@ Procfile.local
 log/*
 storage/*
 tmp/*
-spec/*
 .git/*
 .github/*
 .vscode/*

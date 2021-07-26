@@ -39,7 +39,7 @@ module Postal
       elsif __FILE__ =~ /\A\/opt\/postal/
         Pathname.new("/opt/postal/config")
       else
-        Pathname.new(File.expand_path("../../../config", __FILE__))
+        Pathname.new(File.expand_path("../../../config/postal", __FILE__))
       end
     end
   end

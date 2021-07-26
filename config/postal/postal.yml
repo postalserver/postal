@@ -1,0 +1,37 @@
+web_server:
+  bind_address: 0.0.0.0
+  port: 5000
+
+smtp_server:
+  port: 2525
+
+main_db:
+  host: mariadb.services
+  username: root
+  password: llamafarm123
+  database: postal
+
+message_db:
+  host: mariadb.services
+  username: root
+  password: llamafarm123
+  prefix: postal
+
+rabbitmq:
+  host: rabbitmq.services
+  username: guest
+  password: guest
+  vhost: postal
+
+dns:
+  mx_records:
+    - mx.postal.example.com
+  smtp_server_hostname: postal.example.com
+  spf_include: spf.postal.example.com
+  return_path: rp.postal.example.com
+  route_domain: routes.postal.example.com
+  track_domain: track.postal.example.com
+
+rails:
+  secret_key: 18bc35146c195d77c1f716d9d4b2e22bbc538e99892276152cce133360d4f9543f5006c29c952e8d0821fcbda482d744f9663863a4c8f94b2c746c8ff63a162fe2d885312b16e2675e01cade0477e0206e3a946b9315183106e3a53bf8676b5079849a95cb0e0d90e228877bdcce49e741b1e6ed3538aaa21e0ccfd83c2a8b12
+  environment: development

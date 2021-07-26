@@ -1,0 +1,51 @@
+general:
+  use_ip_pools: false
+
+web_server:
+  bind_address: 127.0.0.1
+  port: 5000
+
+smtp_server:
+  port: 2525
+
+logging:
+  stdout: false
+
+main_db:
+  host: mariadb
+  username: root
+  password:
+  database: postal
+
+message_db:
+  host: mariadb
+  username: root
+  password:
+  prefix: postal
+
+rabbitmq:
+  host: rabbitmq
+  username: guest
+  password: guest
+  vhost: null
+
+dns:
+  mx_records:
+    - mx.postal.example.com
+  smtp_server_hostname: postal.example.com
+  spf_include: spf.postal.example.com
+  return_path: rp.postal.example.com
+  route_domain: routes.postal.example.com
+  track_domain: track.postal.example.com
+
+smtp:
+  host: 127.0.0.1
+  port: 2525
+  username:
+  password:
+  from_name: Postal
+  from_address: postal@yourdomain.com
+
+rails:
+  secret_key: 5e82ca222ccc8642fb38a8ea4b847408b983b42a497ec16b499ed89ba506a4edcab8ac015b32dbd1ea620119484e0c1dc056f97b4b37cd29146192df5ccd6abec345a0125c424daad12430a4796d108197c746f5eb8e9e1faa36a8ff8d0c5a9cf00191f997c354341fd656ca0ef9d7b40a37ea4b1b1e78fe9030fa9990dbb662
+  environment: test

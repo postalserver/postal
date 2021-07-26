@@ -23,6 +23,8 @@ config/lets_encrypt.pem
 config/signing.key
 config/fast_server.cert
 config/fast_server.key
+config/postal/**/*
+
 
 public/assets
 vendor/bundle
