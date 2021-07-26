@@ -21,7 +21,7 @@
 # ==============================================================================
 
 # Docker image name to release the production image as.
-DOCKER_IMAGE := postalhq/postal
+DOCKER_IMAGE := ghcr.io/postalhq/postal
 
 # Path to bundle config
 BUNDLE_CONFIG ?= $(HOME)/.bundle/config
