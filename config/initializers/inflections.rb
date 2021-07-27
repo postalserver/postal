@@ -19,5 +19,6 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.acronym 'UUID'
   inflect.acronym 'HTTP'
   inflect.acronym 'DB'
+  inflect.acronym 'MX'
   inflect.acronym 'DKIM'
 end

@@ -19,12 +19,13 @@ module Postal
     autoload :MessageInspection
     autoload :MessageParser
     autoload :MessageRequeuer
+    autoload :MXLookup
     autoload :QueryString
     autoload :RabbitMQ
     autoload :ReplySeparator
     autoload :RspecHelpers
-    autoload :SendResult
     autoload :Sender
+    autoload :SendResult
     autoload :SMTPSender
     autoload :SMTPServer
     autoload :SpamCheck
