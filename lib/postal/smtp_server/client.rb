@@ -6,6 +6,7 @@ module Postal
     class Client
 
       CRAM_MD5_DIGEST = OpenSSL::Digest.new('md5')
+      LOG_REDACTION_STRING = "[redacted]".freeze
 
       attr_reader :logging_enabled
 
@@ -40,16 +41,29 @@ module Postal
 
       def handle(data)
         if @state == :preauth
-          proxy(data)
+          return proxy(data)
+        end
+
+        log "\e[32m<= #{sanitize_input_for_log(data.strip)}\e[0m"
+        if @proc
+          @proc.call(data)
+
         else
-          if @proc
-            log "\e[32m<= #{data.strip}\e[0m"
-            @proc.call(data)
-          else
-            log "\e[32m<= #{data.strip}\e[0m"
-            handle_command(data)
+          handle_command(data)
+        end
+      end
+
+      def sanitize_input_for_log(data)
+        if @password_expected_next
+          @password_expected_next = false
+          if data =~ /\A[a-z0-9]{3,}\=*\z/i
+            return LOG_REDACTION_STRING
           end
         end
+
+        data = data.dup
+        data.gsub!(/(.*AUTH \w+) (.*)\z/i) { "#{$1} #{LOG_REDACTION_STRING}" }
+        data
       end
 
       def finished?
@@ -163,6 +177,7 @@ module Postal
         data = data.gsub(/AUTH PLAIN ?/i, '')
         if data.strip == ''
           @proc = handler
+          @password_expected_next = true
           '334'
         else
           handler.call(data)
@@ -178,16 +193,16 @@ module Postal
 
         username_handler = Proc.new do |data|
           @proc = password_handler
-          '334 UGFzc3dvcmQ6'
+          @password_expected_next = true
+          '334 UGFzc3dvcmQ6' # "Password:"
         end
 
         data = data.gsub!(/AUTH LOGIN ?/i, '')
         if data.strip == ''
           @proc = username_handler
-          '334 VXNlcm5hbWU6'
+          '334 VXNlcm5hbWU6' # "Username:"
         else
-          @proc = password_handler
-          '334 UGFzc3dvcmQ6'
+          username_handler.call(nil)
         end
       end
 
