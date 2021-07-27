@@ -12,16 +12,19 @@
           %td IPv4
           %td IPv6
           %td Hostname
+          %td Priority
       %tbody
-        - if @ip_pool.ip_addresses.empty?
+        - ips = @ip_pool.ip_addresses.order_by_priority
+        - if ips.empty?
           %tr
             %td.dataTable__empty{:colspan => 3} There are no IP addresses assigned to this pool yet.
         - else
-          - for ip in @ip_pool.ip_addresses
+          - for ip in ips
             %tr
               %td{:width => "20%"}= link_to ip.ipv4, [:edit, @ip_pool, ip], :class => "u-link"
-              %td{:width => "40%"}= ip.ipv6
-              %td{:width => "40%"}= ip.hostname
+              %td{:width => "35%"}= ip.ipv6
+              %td{:width => "35%"}= ip.hostname
+              %td{:width => "10%"}= ip.priority
     %p= link_to "Add an IP address to pool", [:new, @ip_pool, :ip_address], :class => "u-link"
 
 
