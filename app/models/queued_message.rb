@@ -63,7 +63,7 @@ class QueuedMessage < ApplicationRecord
 
   def allocate_ip_address
     if Postal.ip_pools? && self.message && pool = self.server.ip_pool_for_message(self.message)
-      self.ip_address = pool.ip_addresses.order("RAND()").first
+      self.ip_address = pool.ip_addresses.select_by_priority
     end
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_17_083943) do
+ActiveRecord::Schema.define(version: 2021_07_27_210551) do
 
   create_table "additional_route_endpoints", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.integer "route_id"
@@ -124,6 +124,7 @@ ActiveRecord::Schema.define(version: 2020_07_17_083943) do
     t.datetime "created_at", precision: 6
     t.datetime "updated_at", precision: 6
     t.string "hostname"
+    t.integer "priority"
   end
 
   create_table "ip_pool_rules", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|

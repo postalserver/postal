@@ -10,6 +10,19 @@
     .fieldSet__field
       = f.label :hostname, :class => 'fieldSet__label'
       .fieldSet__input= f.text_field :hostname, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :priority, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :priority, :class => 'input input--text', placeholder: '100'
+        %p.fieldSet__text
+          This priority will determine the likelihood of this IP address being selected
+          for use when sending a message. The higher the number the more likely the IP
+          is to be chosen. By defalt, the priority is set to the maximum value of 100.
+          This can be used to warm up new IP addresses by adding them with a low priority.
+          To give an indication of how this works, if you have three IPs with 1, 50 and 100
+          as their priorities, and you send 100,000 emails, the priority 1 address will receive
+          a tiny percentage, the priority 50 will receive roughly 25% and the priority 100 will
+          receive roughly 75%.
 
   .fieldSetSubmit.buttonSet
     = f.submit :class => 'button button--positive js-form-submit'
