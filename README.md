@@ -10,4 +10,4 @@ The application has been running in production for us for nearly 6 months and we
 * [Quick install guide](https://github.com/atech/postal/wiki/Quick-Install)
 * [Installation docs](https://github.com/atech/postal/wiki/Installation)
 * [FAQs](https://github.com/atech/postal/wiki/FAQs) & [Features](https://github.com/atech/postal/wiki/Features)
-* [Google Group](https://groups.google.com/forum/#!forum/postal-talk) - for support, questions or comments.
+* [Slack Channel](https://slack.k.io/) - for live support, questions or comments.
