@@ -1,4 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: 🙏 Help and Support
+    url: https://github.com/postalhq/postal/discussions/new?category=Help-and-Support
     about: Get friendly support from the community on Github Discussions.
+
+  
