@@ -56,9 +56,7 @@ Rails.application.routes.draw do
       post :suspend, :on => :member
       post :unsuspend, :on => :member
     end
-    resources :users do
-      post :make_owner, :on => :member
-    end
+
     resources :ip_pool_rules
     resources :ip_pools, :controller => 'organization_ip_pools' do
       put :assignments, :on => :collection
@@ -71,6 +69,7 @@ Rails.application.routes.draw do
   end
 
   resources :organizations, :except => [:index]
+  resources :users
   resources :ip_pools do
     resources :ip_addresses
   end
@@ -79,16 +78,15 @@ Rails.application.routes.draw do
   patch 'settings' => 'user#update'
   post 'persist' => 'sessions#persist'
 
-  match 'verify' => 'user#verify', :via => [:get, :post]
-  get 'signup/:invite_token' => 'user#new', :as => 'new_signup'
-  post 'signup' => 'user#create'
-  match 'join/:token' => 'user#join', :via => [:get, :post, :delete], :as => 'join'
   get 'login' => 'sessions#new'
   post 'login' => 'sessions#create'
   get 'login/token' => 'sessions#create_with_token'
   delete 'logout' => 'sessions#destroy'
   match 'login/reset' => 'sessions#begin_password_reset', :via => [:get, :post]
   match 'login/reset/:token' => 'sessions#finish_password_reset', :via => [:get, :post]
-  root 'organizations#index'
+
+
   get 'ip' => 'sessions#ip'
+
+  root 'organizations#index'
 end

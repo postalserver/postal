@@ -62,7 +62,6 @@ $ ->
     else
       $('[data-credential-key-type=all]').show()
 
-
   $(document).on 'change', 'select#credential_type', ->
     value = $(this).val()
     toggleCredentialInputs(value)

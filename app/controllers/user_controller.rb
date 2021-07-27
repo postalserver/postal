@@ -1,7 +1,6 @@
 class UserController < ApplicationController
 
   skip_before_action :login_required, :only => [:new, :create, :join]
-  skip_before_action :verified_email_required, :only => [:edit, :update, :verify]
 
   def new
     @user_invite = UserInvite.active.find_by!(:uuid => params[:invite_token])

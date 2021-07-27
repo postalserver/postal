@@ -3,17 +3,14 @@
 .pageHeader
   %h1.pageHeader__title
     %span.pageHeader__titlePrevious
-      = @organization.name
-      &rarr;
-      Users
+      = link_to 'Users', :users
       &rarr;
     Add user
 
-= render 'organizations/nav', :active_nav => :users
 .pageContent.pageContent--compact
   %p.pageContent__intro.u-margin
-    To add someone to your organization enter their e-mail address below. If
-    they don't already have a Postal account, they'll need to create one
-    before you can add them to your account.
+    To add someone to this Postal installation, you can add them below. You'll need to
+    choose whether to make them an admin (full access to all organizations and settings)
+    or whether you wish to limit them to specific organizations.
   = render 'form'
 

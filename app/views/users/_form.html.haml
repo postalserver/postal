@@ -1,24 +1,44 @@
-= form_for @organization_user, :url => @organization_user.new_record? ? organization_users_path(organization) : organization_user_path(organization, @organization_user.user), :remote => true do |f|
+= form_for @user, :url => @user.new_record? ? users_path : user_path(@user), :remote => true do |f|
   = f.error_messages
-  = hidden_field_tag 'invite', params[:invite]
-  %fieldset.fieldSet
+  .fieldSet
+    .fieldSet__title
+      Enter user details
+    .fieldSet__field
+      = f.label :first_name, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :first_name, :class => 'input input--text', :autofocus => true
+    .fieldSet__field
+      = f.label :last_name, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :last_name, :class => 'input input--text'
     .fieldSet__field
       = f.label :email_address, :class => 'fieldSet__label'
-      .fieldSet__input
-        = f.text_field :email_address, :autofocus => true, :class => 'input input--text', :disabled => @organization_user.persisted?
+      .fieldSet__input= f.text_field :email_address, :class => 'input input--text', autocomplete: 'one-time-code'
+    - unless @user.persisted?
+      .fieldSet__field
+        = f.label :password, :class => 'fieldSet__label'
+        .fieldSet__input= f.password_field :password, :class => 'input input--text', :placeholder => '•••••••••••', autocomplete: 'one-time-code'
+      .fieldSet__field
+        = f.label :password_confirmation, "Confirm".html_safe, :class => 'fieldSet__label'
+        .fieldSet__input= f.password_field :password_confirmation, :class => 'input input--text', :placeholder => '•••••••••••', autocomplete: 'one-time-code'
+
+  %fieldset.fieldSet
     .fieldSet__title
       What level of access do you wish to grant?
+    .fieldSet__titleSubText
+      Admin users have full access to all organizations and settings. Non-admin users will only
+      have access to the organizations that you select here.
     .fieldSet__field
-      = f.label :admin, :class => 'fieldSet__label'
+      .fieldSet__label Admin?
       .fieldSet__input
-        = f.select :admin, [["No - do not grant admin access", false], ["Yes - grant admin access", true]], {},:class => 'input input--select'
-        %p.fieldSet__text
-          Users who have admin access will be permitted to manage the organization as if they had the same
-          access as the organization owner. This includes managing users, creating & deleting mail servers,
-          and even removing the account. This level of access should granted carefully.
-          Regardless of which level you select, this user will have access to all servers within the organization.
+        = hidden_field_tag 'user[organization_ids][]'
+        = f.select :admin, [["Yes - grant admin access", true], ["No - do not grant admin access", false]], {},:class => 'input input--select fieldSet__checkboxListAfter js-checkbox-list-toggle'
+        %ul.checkboxList{:class => [@user.admin? ? 'is-hidden' : '']}
+          - for org in Organization.order(:name).to_a
+            %li.checkboxList__item
+              .checkboxList__checkbox= check_box_tag "user[organization_ids][]", org.id, @user.organizations.include?(org), :id => "org_#{org.id}"
+              .checkboxList__label
+                = label_tag "org_#{org.id}", org.name, :class => 'checkboxList__actualLabel'
 
   .fieldSetSubmit.buttonSet
-    = submit_tag @organization_user.new_record? ? "Add User" : "Save User", :class => 'button button--positive js-form-submit'
+    = submit_tag @user.new_record? ? "Add User" : "Save User", :class => 'button button--positive js-form-submit'
     .fieldSetSubmit__delete
-      = link_to "Back to user list", [organization, :users], :class => 'button button--neutral'
+      = link_to "Back to user list", :users, :class => 'button button--neutral'

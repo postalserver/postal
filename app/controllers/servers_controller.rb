@@ -2,7 +2,6 @@ class ServersController < ApplicationController
 
   include WithinOrganization
 
-  before_action :require_organization_admin, :only => [:new, :create, :delete, :destroy]
   before_action :admin_required, :only => [:advanced, :suspend, :unsuspend]
   before_action { params[:id] && @server = organization.servers.present.find_by_permalink!(params[:id]) }
 

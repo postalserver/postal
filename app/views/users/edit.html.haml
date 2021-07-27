@@ -3,13 +3,10 @@
 .pageHeader
   %h1.pageHeader__title
     %span.pageHeader__titlePrevious
-      = @organization.name
-      &rarr;
-      Users
+      = link_to 'Users', users_path
       &rarr;
     Edit user permissions
 
-= render 'organizations/nav', :active_nav => :users
 .pageContent.pageContent--compact
   = render 'form'
 
