@@ -8,5 +8,4 @@
       %li.navBar__item= link_to "IP Rules", [organization, @server, :ip_pool_rules], :class => ['navBar__link', active_nav == :ip_pool_rules ? 'is-active' : '']
     - if current_user.admin?
       %li.navBar__item= link_to "Advanced Settings", [:advanced, organization, @server], :class => ['navBar__link', active_nav == :admin ? 'is-active' : '']
-    - if organization.admin?(current_user)
-      %li.navBar__item= link_to "Delete", [:delete, organization, @server], :class => ['navBar__link', active_nav == :delete ? 'is-active' : '']
+    %li.navBar__item= link_to "Delete", [:delete, organization, @server], :class => ['navBar__link', active_nav == :delete ? 'is-active' : '']

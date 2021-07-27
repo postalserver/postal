@@ -119,10 +119,6 @@ class Server < ApplicationRecord
     end
   end
 
-  def accessible_by?(user)
-    organization.accessible_by?(user)
-  end
-
   def to_param
     permalink
   end

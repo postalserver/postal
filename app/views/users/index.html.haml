@@ -1,57 +1,21 @@
 - page_title << "Users"
 .pageHeader
   %h1.pageHeader__title
-    %span.pageHeader__titlePrevious
-      = @organization.name
-      &rarr;
     Users
 
-= render 'organizations/nav', :active_nav => :users
 .pageContent.pageContent--compact
-  - if @users.empty? && @pending_users.empty?
-    .noData.noData--clean
-      %p.noData__title There are no users assigned to this organization.
-      %p.noData__text
-        You add additional users that will be permitted to access this organization.
-        They will be sent an email and they'll be able to create an account which will
-        allow them to login and access this organization.
-      %p.noData__button.buttonSet.buttonSet--center
-        = link_to "Invite the first user", [:new, organization, :user], :class => 'button button--positive'
+  %ul.userList.u-margin
+    - for user in @users
+      %li.userList__item
+        = image_tag user.avatar_url, :class => 'userList__avatar'
+        .userList__details
+          %p.userList__name
+            = user.name
+            - if user.admin?
+              %span.userList__admin.label Admin
+          %p.userList__email= user.email_address
+        %ul.userList__actions
+          %li= link_to "Edit permissions", [:edit, user]
+          %li= link_to "Delete user", user, :method => :delete, :data => {:confirm => "Are you sure you wish to revoke #{user.name}'s access?", :disable_with => "Deleting..."}, :remote => true, :class => 'userList__revoke'
 
-  - else
-    %p.pageContent__intro.u-margin
-      You can share access to this organization with other people by adding them
-      here. They'll need to create their own account first and then you'll be able
-      to add them to your organization by entering their e-mail address.
-
-    %ul.userList.u-margin
-      - for user in @users
-        %li.userList__item
-          = image_tag user.user.avatar_url, :class => 'userList__avatar'
-          .userList__details
-            %p.userList__name
-              = user.user.name
-              - if user.user == organization.owner
-                %span.userList__owner.label Owner
-              - elsif user.admin?
-                %span.userList__admin.label Admin
-            %p.userList__email= user.user.email_address
-          %ul.userList__actions
-            - if organization.owner != user.user
-              %li= link_to "Edit permissions", [:edit, organization, user.user]
-              - if organization.owner == current_user
-                %li= link_to "Make owner", [:make_owner, organization, user.user], :method => :post, :data => {:confirm => "Are you sure you wish to make #{user.user.name} the owner of this organization? They will be granted full admin access. You won't be able to change this back.", :disable_with => "Promoting..."}, :remote => true
-              %li= link_to "Revoke access", [organization, user.user], :method => :delete, :data => {:confirm => "Are you sure you wish to revoke #{user.user.name}'s access to the organization?", :disable_with => "Deleting..."}, :remote => true, :class => 'userList__revoke'
-      - for user in @pending_users
-        %li.userList__item
-          = image_tag user.user.avatar_url, :class => 'userList__avatar'
-          .userList__details
-            %p.userList__name
-              = user.user.email_address
-              %span.userList__pending.label Pending
-          %ul.userList__actions
-            %li= link_to "Edit permissions", edit_organization_user_path(organization, user.user, :invite => 1)
-            %li= link_to "Cancel invitation", organization_user_path(organization, user.user, :invite => 1), :method => :delete, :data => {:confirm => "Are you sure you wish to cancel this invitation?", :disable_with => "Deleting..."}, :remote => true, :class => 'userList__revoke'
-
-
-    %p.u-center= link_to "Invite a new user", [:new, organization, :user], :class => 'button button--positive'
+  %p.u-center= link_to "Add a new user", :new_user, :class => 'button button--positive'

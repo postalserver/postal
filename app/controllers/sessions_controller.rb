@@ -3,7 +3,6 @@ class SessionsController < ApplicationController
   layout 'sub'
 
   skip_before_action :login_required, :only => [:new, :create, :create_with_token, :begin_password_reset, :finish_password_reset, :ip, :raise_error]
-  skip_before_action :verified_email_required
 
   def create
     login(User.authenticate(params[:email_address], params[:password]))

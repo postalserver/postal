@@ -29,18 +29,20 @@
             %li.siteHeader__navItem.siteHeader__navItem--organization
               = link_to organization.name, organization_root_path(organization), :class => 'siteHeader__navLinkWithMenu'
               %ul.siteHeader__subMenu
-                %li.siteHeader__subMenuItem.siteHeader__subMenuItem--header= link_to organization.name, organization_settings_path(organization)
-                - if organization.admin?(current_user)
-                  %li.siteHeader__subMenuItem= link_to "Organization Settings", organization_settings_path(organization), :class => 'siteHeader__subMenuLink'
-                  %li.siteHeader__subMenuItem= link_to "Manage Users", organization_users_path(organization), :class => 'siteHeader__subMenuLink'
+                %li.siteHeader__subMenuItem.siteHeader__subMenuItem--header= link_to organization.name, organization_root_path(organization)
+                %li.siteHeader__subMenuItem= link_to "Mail servers", organization_root_path(organization), :class => 'siteHeader__subMenuLink'
+                %li.siteHeader__subMenuItem= link_to "Domains", organization_domains_path(organization), :class => 'siteHeader__subMenuLink'
+                %li.siteHeader__subMenuItem= link_to "Organization Settings", organization_settings_path(organization), :class => 'siteHeader__subMenuLink'
                 - if current_user.admin?
                   %li.siteHeader__subMenuItem= link_to "Create new organization", :new_organization, :class => 'siteHeader__subMenuLink'
                 - if current_user.organizations.present.count > 1
                   %li.siteHeader__subMenuItem= link_to "Switch organization", root_path, :class => 'siteHeader__subMenuLink'
           %li.siteHeader__navItem.siteHeader__navItem--user= current_user.name
           %li.siteHeader__navItem= link_to "My Settings", settings_path, :class => 'sideHeader__navItemLink'
-          - if current_user.admin? && Postal.ip_pools?
-            %li.siteHeader__navItem= link_to "IP Pools", ip_pools_path, :class => 'sideHeader__navItemLink'
+          - if current_user.admin?
+            - if Postal.ip_pools?
+              %li.siteHeader__navItem= link_to "IP Pools", ip_pools_path, :class => 'sideHeader__navItemLink'
+            %li.siteHeader__navItem= link_to "Users", users_path, :class => 'sideHeader__navItemLink'
           %li.siteHeader__navItem= link_to "Logout", logout_path, :method => :delete, :class => 'sideHeader__navItemLink'
 
     .siteContent

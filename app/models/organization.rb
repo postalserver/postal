@@ -69,20 +69,6 @@ class Organization < ApplicationRecord
     suspended_at.present?
   end
 
-  def admin?(user)
-    user.admin? ||
-    !!(owner?(user) || user_assignment(user)&.admin?)
-  end
-
-  def owner?(user)
-    self.owner == user
-  end
-
-  def accessible_by?(user)
-    user.admin? ||
-    !!(user_assignment(user))
-  end
-
   def user_assignment(user)
     @user_assignments ||= {}
     @user_assignments[user.id] ||= organization_users.where(:user => user).first

@@ -1,7 +1,6 @@
 class OrganizationsController < ApplicationController
 
-  before_action :admin_required, :only => [:new, :create]
-  before_action :require_organization_admin, :only => [:edit, :update, :delete, :destroy]
+  before_action :admin_required, :only => [:new, :create, :delete, :destroy]
 
   def index
     if current_user.admin?

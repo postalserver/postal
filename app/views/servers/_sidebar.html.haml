@@ -13,5 +13,4 @@
             %p.sidebarServerList__mode.label{:class => "label--serverStatus-#{server.status.underscore}"}= t("server_statuses.#{server.status.underscore}")
             %p.sidebarServerList__title= server.name
             %p.sidebarServerList__quantity #{number_with_precision server.message_rate, :precision => 2} messages/minute
-      - if organization.admin?(current_user)
-        %p.sidebar__new= link_to "Build a new mail server", [:new, organization, :server]
+      %p.sidebar__new= link_to "Build a new mail server", [:new, organization, :server]
