@@ -4,4 +4,6 @@ contact_links:
     url: https://github.com/postalhq/postal/discussions/new?category=Help-and-Support
     about: Get friendly support from the community on Github Discussions.
 
-  
+  - name: 🦊 Feature Suggestions
+    url: https://github.com/postalhq/postal/discussions/new?category=Feature-Suggestions
+    about: Suggest a new feature that should be added to Postal.
