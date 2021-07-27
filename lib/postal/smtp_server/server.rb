@@ -49,7 +49,7 @@ module Postal
         if ENV['SERVER_FD']
           @server = TCPServer.for_fd(ENV['SERVER_FD'].to_i)
         else
-          @server = TCPServer.open('::', Postal.config.smtp_server.port)
+          @server = TCPServer.open(Postal.config.smtp_server.bind_address, Postal.config.smtp_server.port)
         end
         @server.autoclose = false
         @server.close_on_exec = false
@@ -62,7 +62,7 @@ module Postal
           @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPCNT, 5)
         end
         ENV['SERVER_FD'] = @server.to_i.to_s
-        logger.info "Listening on port #{Postal.config.smtp_server.port}"
+        logger.info "Listening on  #{Postal.config.smtp_server.bind_address}:#{Postal.config.smtp_server.port}"
       end
 
       def unlisten
