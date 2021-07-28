@@ -10,7 +10,7 @@ describe Postal::DKIMHeader do
     frontmatter, email = contents.split(/^---\n/m, 2)
     frontmatter = YAML.load(frontmatter)
     email.strip
-    it "works with #{path.split('/').first}" do
+    it "works with #{path.split('/').last}" do
       mocked_time = Time.at(frontmatter['time'].to_i)
       allow(Time).to receive(:now).and_return(mocked_time)
 

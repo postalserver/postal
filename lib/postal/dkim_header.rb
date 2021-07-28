@@ -13,7 +13,7 @@ module Postal
       end
       @domain = domain
       @message = message
-      @raw_headers, @raw_body = @message.split(/\r?\n\r?\n/, 2)
+      @raw_headers, @raw_body = @message.gsub(/\r?\n/, "\r\n").split(/\r\n\r\n/, 2)
     end
 
     def dkim_header
@@ -76,17 +76,18 @@ module Postal
 
         # a. Reduce whitespace
         #
+        # * Reduce all sequences of WSP within a line to a single SP character.
+        content.gsub!(/[ \t]+/, ' ')
+
         # * Ignore all whitespace at the end of lines.  Implementations MUST NOT
         #   remove the CRLF at the end of the line.
         content.gsub!(/ \r\n/, "\r\n")
-
-        # * Reduce all sequences of WSP within a line to a single SP character.
-        content.gsub!(/[ \t]+/, ' ')
 
         # b. Ignore all empty lines at the end of the message body.
         content.gsub!(/[ \r\n]*\z/, '')
 
         content += "\r\n"
+        content
       end
     end
 
