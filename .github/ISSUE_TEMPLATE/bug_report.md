@@ -35,4 +35,4 @@ If applicable, add screenshots to help explain your problem.
 
 ## Additional information/context
 
-Add any other context about the problem here.
+Add any other context about the problem here. It is particularily useful to include log extracts (after removing private information). 
