@@ -39,22 +39,54 @@ module Postal
     end
 
     def normalize_header(content)
-      content.gsub!(/[ \t]+/, ' ')                          # Tidy whitespace
-      key, value = content.split(':', 2).map{ |a| a.strip } # Split into key/value and strip whitespace
-      key.downcase!                                         # Downcase the key
-      key + ':' + value                                     # Rejoin
+      content = content.dup
+
+      # From the DKIM RFC6376
+      # https://datatracker.ietf.org/doc/html/rfc6376#section-3.4.2
+
+      # Split the key and value.
+      key, value = content.split(':', 2)
+
+      # Convert all header field names (not the header field values) to
+      # lowercase.  For example, convert "SUBJect: AbC" to "subject: AbC".
+      key.downcase!
+
+      # Unfold all header field continuation lines as described in [RFC5322]
+      value.gsub!(/\r?\n[ \t]+/, ' ')
+
+      # Convert all sequences of one or more WSP characters to a single SP character.
+      value.gsub!(/[ \t]+/, ' ')
+
+      # Delete all WSP characters at the end of each unfolded header field value.
+      value.gsub!(/[ \t]*\z/, '')
+
+      # Delete any WSP characters remaining after the colon separating the header field name from the header field value.
+      value.gsub!(/\A[ \t]*/, '')
+
+      # Join together
+      key + ':' + value
     end
 
     def normalized_body
       @normalized_body ||= begin
         content = @raw_body.dup
-        content.gsub!("\r", '')         # Make sure we have no random CRs
-        content.gsub!("\n", "\r\n")     # Convert to CRLF
-        content.gsub!(/[ \t]+/, ' ')    # Tidy whitespace
-        content.gsub!(" \r\n", "\r\n")  # Remove trailing whitespace
-        content.gsub!(/(\r\n)+\z/, "")  # Remove trailing lines
-        content.gsub!(/\z/, "\r\n")     # Add a final newline
-        content
+
+        # From the DKIM RFC6376
+        # https://datatracker.ietf.org/doc/html/rfc6376#section-3.4.4
+
+        # a. Reduce whitespace
+        #
+        # * Ignore all whitespace at the end of lines.  Implementations MUST NOT
+        #   remove the CRLF at the end of the line.
+        content.gsub!(/ \r\n/, "\r\n")
+
+        # * Reduce all sequences of WSP within a line to a single SP character.
+        content.gsub!(/[ \t]+/, ' ')
+
+        # b. Ignore all empty lines at the end of the message body.
+        content.gsub!(/[ \r\n]*\z/, '')
+
+        content += "\r\n"
       end
     end
 
