@@ -6,7 +6,7 @@ module Postal
       end
 
       def self.find_one(database, query)
-        query = {:id => query.to_i} if query.is_a?(Fixnum)
+        query = {:id => query.to_i} if query.is_a?(Integer)
         if message = database.select('messages', :where => query, :limit => 1).first
           Message.new(database, message)
         else

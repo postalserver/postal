@@ -256,7 +256,7 @@ class UnqueueMessageJob < Postal::Job
 
                 if result.retry
                   log "#{log_prefix} Message requeued for trying later."
-                  queued_message.retry_later(result.retry.is_a?(Fixnum) ? result.retry : nil)
+                  queued_message.retry_later(result.retry.is_a?(Integer) ? result.retry : nil)
                   queued_message.allocate_ip_address
                   queued_message.update_column(:ip_address_id, queued_message.ip_address&.id)
                 else
@@ -419,7 +419,7 @@ class UnqueueMessageJob < Postal::Job
               queued_message.message.create_delivery(result.type, :details => result.details, :output => result.output, :sent_with_ssl => result.secure, :log_id => result.log_id, :time => result.time)
               if result.retry
                 log "#{log_prefix} Message requeued for trying later."
-                queued_message.retry_later(result.retry.is_a?(Fixnum) ? result.retry : nil)
+                queued_message.retry_later(result.retry.is_a?(Integer) ? result.retry : nil)
               else
                 log "#{log_prefix} Processing complete"
                 queued_message.destroy
