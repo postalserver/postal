@@ -2,62 +2,41 @@
 ROOT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
 set -e
 
-# If we're executing from /usr then we should update the root directory
-# to our default installation path and we should be allowed to sudo.
-if [ $ROOT_DIR == "/usr" ]; then
-  SHOULD_SUDO="yes"
-  ROOT_DIR=/opt/postal/app
-else
-  SHOULD_SUDO="no"
-fi
-
-# If we we can sudo and the current user isn't postal, then automatically
-# run commands as the postal user
-if [ $SHOULD_SUDO == "yes" ] && [ $USER != "postal" ]; then
-    run() {
-        HOME=/opt/postal
-        eval "sudo -E -u postal $@"
-    }
-else
-    run() {
-        eval $@
-    }
-fi
+run() {
+    eval $@
+}
 
 # Enter the root directory
 cd $ROOT_DIR
 
 # Run the right command
 case "$1" in
-    start)
-        run "bundle exec ruby script/update_process_concurrency.rb"
-        run "procodile start"
+    web-server)
+        run "bundle exec puma -C config/puma.rb"
         ;;
 
-    stop)
-        run "procodile stop -s --wait"
+    smtp-server)
+        run "bundle exec rake postal:smtp_server"
         ;;
 
-    restart)
-        run "bundle exec ruby script/update_process_concurrency.rb"
-        run "procodile restart"
+    worker)
+        run "bundle exec ruby script/worker.rb"
         ;;
 
-    status)
-        run "procodile status"
+    cron)
+        run "bundle exec rake postal:cron"
         ;;
 
-    run)
-        run "bundle exec ruby script/update_process_concurrency.rb"
-        run "LOG_TO_STDOUT=1 procodile start -f --no-respawn --stop-when-none"
+    requeuer)
+        run "bundle exec rake postal:requeuer"
+        ;;
+
+    initialize)
+        echo 'Initializing database'
+        run "bundle exec rake db:create db:schema:load db:seed"
         ;;
 
     upgrade)
-        if [ ! -f "public/assets/.prebuilt" ]; then
-            echo 'Compiling Assets'
-            export RAILS_GROUPS=assets
-            run "bundle exec rake assets:precompile"
-        fi
         echo 'Migrating database'
         run "bundle exec rake db:migrate"
         ;;
@@ -66,26 +45,8 @@ case "$1" in
         run "bundle exec rails console"
         ;;
 
-    initialize-config)
-        run "bundle exec ruby script/generate_initial_config.rb"
-        ;;
-
-    initialize)
-        echo 'Initializing database'
-        run "bundle exec rake db:schema:load db:seed"
-        if [ ! -f "public/assets/.prebuilt" ]; then
-            echo 'Compiling Assets'
-            export RAILS_GROUPS=assets
-            run "bundle exec rake assets:precompile"
-        fi
-        ;;
-
     default-dkim-record)
         run "bundle exec ruby script/default_dkim_record.rb"
-        ;;
-
-    auto-upgrade)
-        run "ruby script/auto_upgrade.rb $@"
         ;;
 
     make-user)
@@ -96,42 +57,32 @@ case "$1" in
         run "bundle exec ruby script/test_app_smtp.rb $2"
         ;;
 
-    bundle)
-        if [ -n "$2" ]; then
-            if [ -f "public/assets/.prebuilt" ]; then
-                # If there are prebuilt assets, don't install the asset gems
-                run "bundle install --path=$2 --jobs=2 --clean --without=development assets"
-            else
-                run "bundle install --path=$2 --jobs=2 --clean --without=development"
-            fi
-        else
-          echo "usage: $0 bundle path/to/vendor/dir"
-          exit 1
-        fi
-        ;;
-
     version)
         run "bundle exec ruby script/version.rb"
         ;;
 
     *)
-        echo $"Usage: $0 [command]"
+        echo "Usage: postal [command]"
         echo
-        echo "Frequently used commands:"
-        echo -e " * \e[35mstart|stop|restart\e[0m - start/stop/restart Postal in background"
-        echo -e " * \e[35mstatus\e[0m - show the current status of Postal"
-        echo -e " * \e[35mrun\e[0m - run Postal in the foreground"
-        echo -e " * \e[35mversion\e[0m - show the current Postal version"
+        echo "Server components:"
         echo
-        echo "Other commands:"
-        echo -e " * \e[35mconsole\e[0m - open a Postal system console (debug only)"
-        echo -e " * \e[35mauto-upgrade\e[0m - upgrade to the latest version of Postal"
-        echo -e " * \e[35minitialize-config\e[0m - initialize a new config directory"
-        echo -e " * \e[35minitialize\e[0m - generate assets and load the database for the first time"
-        echo -e " * \e[35mdefault-dkim-record\e[0m - show the default DKIM DNS record"
-        echo -e " * \e[35mregister-lets-encrypt\e[0m - register the generated Let's Encrypt key"
-        echo -e " * \e[35mupgrade\e[0m - upgrade the Postal installation"
-        echo -e " * \e[35mbundle\e[0m - download & install all required Ruby dependencies"
-        echo -e " * \e[35mmake-user\e[0m - create a new admin user"
+        echo -e " * \e[35mweb-server\e[0m - run the web server"
+        echo -e " * \e[35msmtp-server\e[0m - run the SMTP server"
+        echo -e " * \e[35mworker\e[0m - run a worker"
+        echo -e " * \e[35mcron\e[0m - run the cron process"
+        echo -e " * \e[35mrequeuer\e[0m - run the message requeuer"
+        echo
+        echo "Setup/upgrade tools:"
+        echo
+        echo -e " * \e[32minitialize\e[0m - create and load the DB schema"
+        echo -e " * \e[32mupgrade\e[0m - upgrade the DB schema"
+        echo
+        echo "Other tools:"
+        echo
+        echo -e " * \e[34mversion\e[0m - show the current Postal version"
+        echo -e " * \e[34mmake-user\e[0m - create a new global admin user"
+        echo -e " * \e[34mdefault-dkim-record\e[0m - display the default DKIM record"
+        echo -e " * \e[34mconsole\e[0m - open an interactive console"
+        echo -e " * \e[34mtest-app-smtp\e[0m - send a test message through Postal"
         echo
 esac
