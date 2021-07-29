@@ -23,6 +23,10 @@ RUN apt-get update && \
 
 RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
 
+# Configure 'postal' to work everywhere (when the binary exists
+# later in this process)
+ENV PATH="/opt/postal/app/bin:${PATH}"
+
 # Setup an application
 RUN useradd -r -d /opt/postal -m -s /bin/bash -u 999 postal
 USER postal
@@ -45,18 +49,18 @@ COPY --chown=postal . .
 ARG VERSION=unspecified
 RUN echo $VERSION > VERSION
 
+# Set the path to the config
+ENV POSTAL_CONFIG_ROOT=/config
+
 # Set the CMD
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
-CMD ["bundle", "exec"]
+CMD ["postal"]
 
 # ci target - use --target=ci to skip asset compilation
 FROM base AS ci
 
 # prod target - default if no --target option is given
 FROM base AS prod
-# Copy temporary configuration file which can be used for
-# running the asset precompilation.
-COPY --chown=postal config/postal.defaults.yml /opt/postal/config/postal.yml
 
 RUN POSTAL_SKIP_CONFIG_CHECK=1 RAILS_GROUPS=assets bundle exec rake assets:precompile
 RUN touch /opt/postal/app/public/assets/.prebuilt
