@@ -34,8 +34,6 @@ class TrackDomain < ApplicationRecord
   scope :ok, -> { where(:dns_status => 'OK')}
 
   after_create :check_dns, :unless => :dns_status
-  after_create :create_ssl_certificate_if_missing
-  after_destroy :delete_ssl_certificate_when_not_in_use
 
   before_validation do
     self.server = self.domain.server if self.domain && self.server.nil?
@@ -73,34 +71,13 @@ class TrackDomain < ApplicationRecord
     dns_ok?
   end
 
-  def has_ssl?
-    ssl_certificate && ssl_certificate.active?
-  end
-
   def use_ssl?
-    ssl_enabled? && has_ssl?
-  end
-
-  def ssl_certificate
-    @ssl_certificate ||= TrackCertificate.where(:domain => self.full_name).first
+    ssl_enabled?
   end
 
   def validate_domain_belongs_to_server
     if self.domain && ![self.server, self.server.organization].include?(self.domain.owner)
       errors.add :domain, "does not belong to the server or the server's organization"
-    end
-  end
-
-  def create_ssl_certificate_if_missing
-    unless TrackCertificate.where(:domain => self.full_name).exists?
-      TrackCertificate.create!(:domain => self.full_name)
-    end
-  end
-
-  def delete_ssl_certificate_when_not_in_use
-    others = TrackDomain.includes(:domain).where(:name => self.name, :domains => {:name => self.domain.name})
-    if others.empty?
-      TrackCertificate.where(:domain => self.full_name).destroy_all
     end
   end
 

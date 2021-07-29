@@ -151,35 +151,6 @@ module Postal
     end
   end
 
-  def self.fast_server_default_private_key_path
-    config.fast_server.default_private_key_path || config_root.join('fast_server.key')
-  end
-
-  def self.fast_server_default_private_key
-    @fast_server_default_private_key ||= OpenSSL::PKey::RSA.new(File.read(fast_server_default_private_key_path))
-  end
-
-  def self.fast_server_default_certificate_path
-    config.fast_server.default_tls_certificate_path || config_root.join('fast_server.cert')
-  end
-
-  def self.fast_server_default_certificate_data
-    @fast_server_default_certificate_data ||= File.read(fast_server_default_certificate_path)
-  end
-
-  def self.fast_server_default_certificates
-    @fast_server_default_certificates ||= begin
-      certs = self.fast_server_default_certificate_data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
-      certs.map do |c|
-        OpenSSL::X509::Certificate.new(c)
-      end.freeze
-    end
-  end
-
-  def self.lets_encrypt_private_key_path
-    @lets_encrypt_private_key_path ||= Postal.config_root.join('lets_encrypt.pem')
-  end
-
   def self.signing_key_path
     config_root.join('signing.key')
   end
@@ -203,17 +174,9 @@ module Postal
       raise ConfigError, "No config found at #{self.config_file_path}"
     end
 
-    unless File.exists?(self.lets_encrypt_private_key_path)
-      raise ConfigError, "No Let's Encrypt private key found at #{self.lets_encrypt_private_key_path}"
-    end
-
     unless File.exists?(self.signing_key_path)
       raise ConfigError, "No signing key found at #{self.signing_key_path}"
     end
-  end
-
-  def self.tracking_available?
-    self.config.fast_server.enabled?
   end
 
   def self.ip_pools?

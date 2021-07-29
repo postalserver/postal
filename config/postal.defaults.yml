@@ -21,20 +21,6 @@ web_server:
   port: 5000
   max_threads: 5
 
-fast_server:
-  enabled: false
-  bind_address:
-    # Set appropriate IP addresses to listen on. These should be dedicated IP
-    # addresses just used for this server. You should list IPv4 and IPv6 addresses
-    # as appropriate.
-    # - 1.2.3.4
-    # - abcd:a:b:c:d::1
-  port: 80
-  ssl_port: 443
-  proxy_protocol: false
-  default_private_key_path: # Defaults to config/fast_server.key
-  default_tls_certificate_path: # Defaults to config/fast_server.cert
-
 main_db:
   host: 127.0.0.1
   port: 3306

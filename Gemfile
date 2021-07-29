@@ -27,7 +27,6 @@ gem 'sentry-raven'
 gem 'gelf'
 gem 'moonrope'
 gem 'jwt'
-gem 'acme-client'
 gem 'highline', :require => false
 gem 'resolv', '~> 0.2.1'
 

@@ -28,11 +28,6 @@ namespace :postal do
     end
   end
 
-  desc 'Start the fast server'#
-  task :fast_server => :environment do
-    Postal::FastServer::Server.new.run
-  end
-
 end
 
 Rake::Task['db:migrate'].enhance do

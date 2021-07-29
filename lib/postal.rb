@@ -9,7 +9,6 @@ module Postal
     autoload :Countries
     autoload :DKIMHeader
     autoload :Error
-    autoload :FastServer
     autoload :Helpers
     autoload :HTTP
     autoload :HTTPSender
@@ -29,6 +28,7 @@ module Postal
     autoload :SMTPSender
     autoload :SMTPServer
     autoload :SpamCheck
+    autoload :TrackingMiddleware
     autoload :UserCreator
     autoload :Version
     autoload :Worker
@@ -37,7 +37,6 @@ module Postal
   def self.eager_load!
     super
     Postal::MessageDB.eager_load!
-    Postal::FastServer.eager_load!
     Postal::SMTPServer.eager_load!
   end
 

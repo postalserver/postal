@@ -9,8 +9,6 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    acme-client (2.0.0)
-      faraday (~> 0.9, >= 0.9.1)
     actioncable (5.2.6)
       actionpack (= 5.2.6)
       nio4r (~> 2.0)
@@ -249,7 +247,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  acme-client
   annotate
   authie (~> 3.0)
   autoprefixer-rails

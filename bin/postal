@@ -84,10 +84,6 @@ case "$1" in
         run "bundle exec ruby script/default_dkim_record.rb"
         ;;
 
-    register-lets-encrypt)
-        run "bundle exec ruby script/register_lets_encrypt.rb $2"
-        ;;
-
     auto-upgrade)
         run "ruby script/auto_upgrade.rb $@"
         ;;
