@@ -19,7 +19,7 @@ describe Postal::MessageParser do
       track_domain = create(:track_domain, :server => server, :domain => message.domain)
       parser = Postal::MessageParser.new(message)
       expect(parser.actioned?).to be true
-      expect(parser.new_body).to match(/\AHello world! http:\/\/click\.#{message.domain.name}/)
+      expect(parser.new_body).to match(/\AHello world! https:\/\/click\.#{message.domain.name}/)
       expect(parser.tracked_links).to eq 1
     end
   end

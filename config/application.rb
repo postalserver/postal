@@ -28,5 +28,9 @@ module Postal
 
     # Disable field_with_errors
     config.action_view.field_error_proc = Proc.new { |t, i| t }
+
+    # Load the tracking server middleware
+    require 'postal/tracking_middleware'
+    config.middleware.use Postal::TrackingMiddleware
   end
 end

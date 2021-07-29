@@ -2,12 +2,6 @@ web:
   host: postal.example.com
   protocol: https
 
-fast_server:
-  enabled: true
-  bind_address: 0.0.0.0
-  port: 5010
-  ssl_port: 5011
-
 general:
   use_ip_pools: false
 

@@ -5,9 +5,6 @@ web_server:
   bind_address: 127.0.0.1
   port: 5000
 
-fast_server:
-  enabled: true
-
 smtp_server:
   port: 2525
 

@@ -31,10 +31,7 @@
                 %li.domainList__check.domainList__check--warning{:title => track_domain.dns_error} CNAME not configured correctly
 
               - if track_domain.ssl_enabled?
-                - if track_domain.has_ssl?
-                  %li.domainList__check.domainList__check--ok= link_to "SSL enabled", [:toggle_ssl, organization, @server, track_domain], :remote => true, :method => :post
-                - else
-                  %li.domainList__check.domainList__check--neutral= link_to "SSL setup in progress", [:toggle_ssl, organization, @server, track_domain], :remote => true, :method => :post
+                %li.domainList__check.domainList__check--neutral= link_to "SSL enabled", [:toggle_ssl, organization, @server, track_domain], :remote => true, :method => :post
               - else
                 %li.domainList__check.domainList__check--neutral-cross= link_to "SSL disabled", [:toggle_ssl, organization, @server, track_domain], :remote => true, :method => :post
 
