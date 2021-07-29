@@ -28,7 +28,8 @@ module Postal
     @config ||= begin
       require 'hashie/mash'
       config = Hashie::Mash.new(self.defaults)
-      config.deep_merge(self.yaml_config)
+      config = config.deep_merge(self.yaml_config)
+      config.deep_merge(self.local_yaml_config)
     end
   end
 
@@ -62,6 +63,14 @@ module Postal
 
   def self.yaml_config
     @yaml_config ||= File.exist?(config_file_path) ? YAML.load_file(config_file_path) : {}
+  end
+
+  def self.local_config_file_path
+    @local_config_file_path ||= File.join(config_root, 'postal.local.yml')
+  end
+
+  def self.local_yaml_config
+    @local_yaml_config ||= File.exist?(local_config_file_path) ? YAML.load_file(local_config_file_path) : {}
   end
 
   def self.defaults_file_path

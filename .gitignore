@@ -25,6 +25,7 @@ config/fast_server.cert
 config/fast_server.key
 config/postal/**/*
 
+spec/config/postal.local.yml
 
 public/assets
 vendor/bundle
