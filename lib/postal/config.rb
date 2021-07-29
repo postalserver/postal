@@ -37,8 +37,6 @@ module Postal
     @config_root ||= begin
       if ENV['POSTAL_CONFIG_ROOT']
         Pathname.new(ENV['POSTAL_CONFIG_ROOT'])
-      elsif __FILE__ =~ /\A\/opt\/postal/
-        Pathname.new("/opt/postal/config")
       else
         Pathname.new(File.expand_path("../../../config/postal", __FILE__))
       end
@@ -49,8 +47,6 @@ module Postal
     @log_root ||= begin
       if config.logging.root
         Pathname.new(config.logging.root)
-      elsif __FILE__ =~ /\/opt\/postal/
-        Pathname.new("/opt/postal/log")
       else
         app_root.join('log')
       end
