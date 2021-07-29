@@ -22,9 +22,7 @@ class WebhookEvent < ApplicationRecord
     'MessageBounced',
     'MessageLinkClicked',
     'MessageLoaded',
-    'DomainDNSError',
-    'SendLimitApproaching',
-    'SendLimitExceeded'
+    'DomainDNSError'
   ]
 
   belongs_to :webhook
