@@ -8,9 +8,6 @@ hash = {
   'processes' => {
     'worker' => {
       'quantity' => worker_quantity
-    },
-    'fast' => {
-      'quantity' => Postal.config.fast_server.enabled? ? 1 : 0
     }
   }
 }.to_yaml

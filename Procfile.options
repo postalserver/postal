@@ -4,8 +4,6 @@ pid_root: /tmp/postal/pids
 processes:
   web:
     restart_mode: usr1
-  fast:
-    restart_mode: term-start
   smtp:
     restart_mode: usr1
   worker:

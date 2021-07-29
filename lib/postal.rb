@@ -13,7 +13,6 @@ module Postal
     autoload :HTTP
     autoload :HTTPSender
     autoload :Job
-    autoload :LetsEncrypt
     autoload :MessageDB
     autoload :MessageInspection
     autoload :MessageParser
