@@ -21,6 +21,8 @@ RUN apt-get update && \
   nano \
   nodejs
 
+RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
+
 # Setup an application
 RUN useradd -r -d /opt/postal -m -s /bin/bash -u 999 postal
 USER postal
