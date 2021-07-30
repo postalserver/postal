@@ -28,3 +28,5 @@ public/assets
 vendor/bundle
 
 Procfile.local
+VERSION
+

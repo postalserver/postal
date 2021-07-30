@@ -1,0 +1,25 @@
+.footer__links {
+  display:flex;
+  margin-left:auto;
+  align-items: center;
+  font-size:13px;
+  color:#999;
+  li {
+    height:24px;
+
+  }
+  li + li {
+    margin-left:18px;
+  }
+  a {
+    text-decoration: underline;
+  }
+}
+
+.footer__name {
+  height:16px;
+  background:image-url('icon.svg') no-repeat 0 0;
+  background-size:16px;
+  padding-left:22px;
+  font-weight:bold;
+}

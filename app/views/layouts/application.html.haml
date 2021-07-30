@@ -52,6 +52,10 @@
 
       %section.siteContent__main
         = yield
+        %footer.siteContent__footer
+          %ul.footer__links
+            %li.footer__name
+              Powered by #{link_to "Postal", "https://postalserver.io", target: '_blank'} #{Postal.version}.
+            %li= link_to "Documentation", "https://docs.postalserver.io", target: '_blank'
+            %li= link_to "Ask for help", "https://discussions.postalserver.io", target: '_blank'
 
-    - if logged_in?
-      <!--- Postal Version #{Postal.version} -->
