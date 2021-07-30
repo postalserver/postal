@@ -1,8 +1,12 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 🙏 Help and Support
-    url: https://github.com/postalhq/postal/discussions/new?category=Help-and-Support
-    about: Get friendly support from the community on Github Discussions.
+  - name: 💻 Installation help
+    url: https://github.com/postalhq/postal/discussions/new?category=Installation-help
+    about: If you have questions about running Postal on your servers, use GitHub Discussions.
+
+  - name: 🙏 Help with using Postal
+    url: https://github.com/postalserver/postal/discussions/new?category=Help-with-using-Postal
+    about: If you need help using Postal's features, use GitHub Discussions.
 
   - name: 🦊 Feature Suggestions
     url: https://github.com/postalhq/postal/discussions/new?category=Feature-Suggestions
