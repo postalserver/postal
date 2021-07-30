@@ -30,7 +30,7 @@
         %p.pageContent__definitionCode= Postal.config.dns.smtp_server_hostname
       %dt Port
       %dd
-        %p.pageContent__definitionCode 25 or 2525
+        %p.pageContent__definitionCode= Postal.config.smtp_server.port
         %p.pageContent__definitionText
           The SMTP service supports STARTTLS if you wish to send messages securely. Be aware that security
           cannot guaranteed all the way to their final destination.
