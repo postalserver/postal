@@ -17,7 +17,7 @@ module Postal
     end
 
     def dkim_header
-      "DKIM-Signature: v=1;" + dkim_properties + signature
+      "DKIM-Signature: v=1; " + dkim_properties.join("\r\n\t") + signature.scan(/.{1,72}/).join("\r\n\t")
     end
 
     private
@@ -96,16 +96,18 @@ module Postal
     end
 
     def dkim_properties
-      String.new.tap do |header|
-        header << " a=rsa-sha256; c=relaxed/relaxed;"
-        header << " d=#{@domain_name}; s=#{@dkim_identifier}; t=#{Time.now.utc.to_i};"
-        header << " bh=#{body_hash}; h=#{header_names.join(':')};"
-        header << " b="
+      Array.new.tap do |header|
+        header << "a=rsa-sha256; c=relaxed/relaxed;"
+        header << "d=#{@domain_name};"
+        header << "s=#{@dkim_identifier}; t=#{Time.now.utc.to_i};"
+        header << "bh=#{body_hash};"
+        header << "h=#{header_names.join(':')};"
+        header << "b="
       end
     end
 
     def dkim_header_for_signing
-      "dkim-signature:v=1;" + dkim_properties
+      "dkim-signature:v=1; #{dkim_properties.join(' ')}"
     end
 
     def signable_header_string
