@@ -20,11 +20,12 @@ describe Postal::DKIMHeader do
       allow(domain).to receive(:dkim_key).and_return(OpenSSL::PKey::RSA.new(frontmatter['private_key']))
       allow(domain).to receive(:dkim_identifier).and_return(frontmatter['dkim_identifier'])
 
-      expectation = "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; "  \
-                    "d=#{frontmatter['domain']}; s=#{frontmatter['dkim_identifier']}; t=#{mocked_time.to_i}; " \
-                    "bh=#{frontmatter['bh']}; "\
-                    "h=#{frontmatter['headers']}; " \
-                    "b=#{frontmatter['b']}"
+      expectation = "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n"  \
+                    "\td=#{frontmatter['domain']};\r\n" \
+                    "\ts=#{frontmatter['dkim_identifier']}; t=#{mocked_time.to_i};\r\n" \
+                    "\tbh=#{frontmatter['bh']};\r\n"\
+                    "\th=#{frontmatter['headers']};\r\n" \
+                    "\tb=#{frontmatter['b'].scan(/.{1,72}/).join("\r\n\t")}"
 
       header = described_class.new(domain, email)
 
