@@ -22,7 +22,9 @@ module Postal
       def inspectors
         Array.new.tap do |inspectors|
 
-          if Postal.config.spamd&.enabled
+          if Postal.config.rspamd&.enabled
+            inspectors << MessageInspectors::Rspamd.new(Postal.config.rspamd)
+          elsif Postal.config.spamd&.enabled
             inspectors << MessageInspectors::SpamAssassin.new(Postal.config.spamd)
           end
 

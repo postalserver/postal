@@ -102,6 +102,14 @@ rails:
   environment: production
   secret_key:
 
+rspamd:
+  enabled: false
+  host: 127.0.0.1
+  port: 11334
+  ssl: false
+  password: null
+  flags: null
+
 spamd:
   enabled: false
   host: 127.0.0.1

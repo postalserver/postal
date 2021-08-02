@@ -3,6 +3,7 @@ module Postal
     extend ActiveSupport::Autoload
     eager_autoload do
       autoload :Clamav
+      autoload :Rspamd
       autoload :SpamAssassin
     end
   end
