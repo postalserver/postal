@@ -69,8 +69,8 @@ class Server < ApplicationRecord
   default_value :raw_message_retention_days, -> { 30 }
   default_value :raw_message_retention_size, -> { 2048 }
   default_value :message_retention_days, -> { 60 }
-  default_value :spam_threshold, -> { 5.0 }
-  default_value :spam_failure_threshold, -> { 20.0 }
+  default_value :spam_threshold, -> { Postal.config.general.default_spam_threshold }
+  default_value :spam_failure_threshold, -> { Postal.config.general.default_spam_failure_threshold }
 
   validates :name, :presence => true, :uniqueness => {:scope => :organization_id}
   validates :mode, :inclusion => {:in => MODES}
