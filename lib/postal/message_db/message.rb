@@ -498,14 +498,16 @@ module Postal
       # Inspect this message
       #
       def inspect_message
-        if result = MessageInspection.new(self.raw_message, self.scope&.to_sym)
-          # Update the messages table with the results of our inspection
-          update(:inspected => 1, :spam_score => result.filtered_spam_score,  :threat => result.threat?, :threat_details => result.threat_message)
-          # Add any spam details into the spam checks database
-          self.database.insert_multi(:spam_checks, [:message_id, :code, :score, :description], result.filtered_spam_checks.map { |d| [self.id, d.code, d.score, d.description]})
-          # Return the result
-          result
-        end
+        result = MessageInspection.scan(self, self.scope&.to_sym)
+
+        # Update the messages table with the results of our inspection
+        update(:inspected => 1, :spam_score => result.spam_score,  :threat => result.threat?, :threat_details => result.threat_message)
+
+        # Add any spam details into the spam checks database
+        self.database.insert_multi(:spam_checks, [:message_id, :code, :score, :description], result.spam_checks.map { |d| [self.id, d.code, d.score, d.description] })
+
+        # Return the result
+        result
       end
 
       #

@@ -15,6 +15,8 @@ module Postal
     autoload :Job
     autoload :MessageDB
     autoload :MessageInspection
+    autoload :MessageInspector
+    autoload :MessageInspectors
     autoload :MessageParser
     autoload :MessageRequeuer
     autoload :MXLookup
@@ -37,6 +39,7 @@ module Postal
     super
     Postal::MessageDB.eager_load!
     Postal::SMTPServer.eager_load!
+    Postal::MessageInspectors.eager_load!
   end
 
 end
