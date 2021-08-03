@@ -47,13 +47,13 @@ module Postal
 
       def webhook_hash
         {
-          :message => @message.webhook_hash,
-          :status => self.status,
-          :details => self.details,
-          :output => self.output.to_s.force_encoding("UTF-8").scrub,
-          :sent_with_ssl => self.sent_with_ssl,
-          :timestamp => @attributes["timestamp"],
-          :time => self.time
+          message: @message.webhook_hash,
+          status: self.status,
+          details: self.details,
+          output: self.output.to_s.force_encoding("UTF-8").scrub,
+          sent_with_ssl: self.sent_with_ssl,
+          timestamp: @attributes["timestamp"],
+          time: self.time
         }
       end
 

@@ -19,18 +19,18 @@ class Domain
     self.save!
     if source == :auto && !dns_ok? && self.owner.is_a?(Server)
       WebhookRequest.trigger(self.owner, "DomainDNSError", {
-        :server => self.owner.webhook_hash,
-        :domain => self.name,
-        :uuid => self.uuid,
-        :dns_checked_at => self.dns_checked_at.to_f,
-        :spf_status => self.spf_status,
-        :spf_error => self.spf_error,
-        :dkim_status => self.dkim_status,
-        :dkim_error => self.dkim_error,
-        :mx_status => self.mx_status,
-        :mx_error => self.mx_error,
-        :return_path_status => self.return_path_status,
-        :return_path_error => self.return_path_error
+        server: self.owner.webhook_hash,
+        domain: self.name,
+        uuid: self.uuid,
+        dns_checked_at: self.dns_checked_at.to_f,
+        spf_status: self.spf_status,
+        spf_error: self.spf_error,
+        dkim_status: self.dkim_status,
+        dkim_error: self.dkim_error,
+        mx_status: self.mx_status,
+        mx_error: self.mx_error,
+        return_path_status: self.return_path_status,
+        return_path_error: self.return_path_error
       })
     end
     dns_ok?

@@ -26,7 +26,7 @@ FactoryBot.define do
     association :server
 
     after(:build) do |track_domain|
-      track_domain.domain ||= create(:domain, :owner => track_domain.server)
+      track_domain.domain ||= create(:domain, owner: track_domain.server)
     end
   end
 

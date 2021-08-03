@@ -27,6 +27,6 @@ class WebhookEvent < ApplicationRecord
 
   belongs_to :webhook
 
-  validates :event, :presence => true
+  validates :event, presence: true
 
 end

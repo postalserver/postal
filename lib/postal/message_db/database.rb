@@ -22,7 +22,7 @@ module Postal
       #
       def schema_version
         @schema_version ||= begin
-          last_migration = select(:migrations, :order => :version, :direction => "DESC", :limit => 1).first
+          last_migration = select(:migrations, order: :version, direction: "DESC", limit: 1).first
           last_migration ? last_migration["version"] : 0
         rescue Mysql2::Error => e
           e.message =~ /doesn\'t exist/ ? 0 : raise
@@ -111,8 +111,8 @@ module Postal
         table_name = raw_table_name_for_date(date)
         begin
           headers, body = data.split(/\r?\n\r?\n/, 2)
-          headers_id = insert(table_name, :data => headers)
-          body_id = insert(table_name, :data => body)
+          headers_id = insert(table_name, data: headers)
+          body_id = insert(table_name, data: body)
         rescue Mysql2::Error => e
           if e.message =~ /doesn\'t exist/
             provisioner.create_raw_table(table_name)
@@ -183,8 +183,8 @@ module Postal
         offset = (page - 1) * per_page
 
         result = {}
-        result[:total] = select(table, options.merge(:count => true))
-        result[:records] = select(table, options.merge(:limit => per_page, :offset => offset))
+        result[:total] = select(table, options.merge(count: true))
+        result[:records] = select(table, options.merge(limit: per_page, offset: offset))
         result[:per_page] = per_page
         result[:total_pages], remainder = result[:total].divmod(per_page)
         result[:total_pages] += 1 if remainder > 0
@@ -320,7 +320,7 @@ module Postal
         time = Time.now.to_f - start_time
         logger.debug "  \e[4;34mMessageDB Query (#{time.round(2)}s) \e[0m  \e[33m#{query}\e[0m"
         if time > 0.5 && query =~ /\A(SELECT|UPDATE|DELETE) /
-          id = Nifty::Utils::RandomString.generate(:length => 6).upcase
+          id = Nifty::Utils::RandomString.generate(length: 6).upcase
           explain_result = ResultForExplainPrinter.new(connection.query("EXPLAIN #{query}"))
           slow_query_logger.info "[#{id}] EXPLAIN #{query}"
           for line in ActiveRecord::ConnectionAdapters::MySQL::ExplainPrettyPrinter.new.pp(explain_result, time).split("\n")

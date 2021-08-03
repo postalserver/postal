@@ -45,26 +45,26 @@ class Domain < ApplicationRecord
 
   VERIFICATION_EMAIL_ALIASES = ["webmaster", "postmaster", "admin", "administrator", "hostmaster"]
 
-  belongs_to :server, :optional => true
-  belongs_to :owner, :optional => true, :polymorphic => true
-  has_many :routes, :dependent => :destroy
-  has_many :track_domains, :dependent => :destroy
+  belongs_to :server, optional: true
+  belongs_to :owner, optional: true, polymorphic: true
+  has_many :routes, dependent: :destroy
+  has_many :track_domains, dependent: :destroy
 
   VERIFICATION_METHODS = ["DNS", "Email"]
 
-  validates :name, :presence => true, :format => {:with => /\A[a-z0-9\-\.]*\z/}, :uniqueness => {:scope => [:owner_type, :owner_id], :message => "is already added"}
-  validates :verification_method, :inclusion => {:in => VERIFICATION_METHODS}
+  validates :name, presence: true, format: {with: /\A[a-z0-9\-\.]*\z/}, uniqueness: {scope: [:owner_type, :owner_id], message: "is already added"}
+  validates :verification_method, inclusion: {in: VERIFICATION_METHODS}
 
-  random_string :dkim_identifier_string, :type => :chars, :length => 6, :unique => true, :upper_letters_only => true
+  random_string :dkim_identifier_string, type: :chars, length: 6, unique: true, upper_letters_only: true
 
   before_create :generate_dkim_key
 
-  scope :verified, -> { where.not(:verified_at => nil) }
+  scope :verified, -> { where.not(verified_at: nil) }
 
-  when_attribute :verification_method, :changes_to => :anything do
+  when_attribute :verification_method, changes_to: :anything do
     before_save do
       if self.verification_method == "DNS"
-        self.verification_token = Nifty::Utils::RandomString.generate(:length => 32)
+        self.verification_token = Nifty::Utils::RandomString.generate(length: 32)
       elsif self.verification_method == "Email"
         self.verification_token = rand(999999).to_s.ljust(6, "0")
       else
@@ -135,7 +135,7 @@ class Domain < ApplicationRecord
   end
 
   def resolver
-    @resolver ||= Postal.config.general.use_local_ns_for_domains? ? Resolv::DNS.new : Resolv::DNS.new(:nameserver => nameservers)
+    @resolver ||= Postal.config.general.use_local_ns_for_domains? ? Resolv::DNS.new : Resolv::DNS.new(nameserver: nameservers)
   end
 
   private

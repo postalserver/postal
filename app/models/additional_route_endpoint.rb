@@ -13,7 +13,7 @@
 class AdditionalRouteEndpoint < ApplicationRecord
 
   belongs_to :route
-  belongs_to :endpoint, :polymorphic => true
+  belongs_to :endpoint, polymorphic: true
 
   validate :validate_endpoint_belongs_to_server
   validate :validate_wildcard
@@ -25,7 +25,7 @@ class AdditionalRouteEndpoint < ApplicationRecord
       raise Postal::Error, "Invalid endpoint class name '#{class_name}'"
     end
     if uuid = class_name.constantize.find_by_uuid(id)
-      where(:endpoint_type => class_name, :endpoint_id => uuid).first
+      where(endpoint_type: class_name, endpoint_id: uuid).first
     else
       nil
     end

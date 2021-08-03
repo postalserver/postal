@@ -1,7 +1,7 @@
 module HasUUID
   def self.included(base)
     base.class_eval do
-      random_string :uuid, :type => :uuid, :unique => true
+      random_string :uuid, type: :uuid, unique: true
     end
   end
 

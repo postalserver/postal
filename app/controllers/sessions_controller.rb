@@ -2,7 +2,7 @@ class SessionsController < ApplicationController
 
   layout "sub"
 
-  skip_before_action :login_required, :only => [:new, :create, :create_with_token, :begin_password_reset, :finish_password_reset, :ip, :raise_error]
+  skip_before_action :login_required, only: [:new, :create, :create_with_token, :begin_password_reset, :finish_password_reset, :ip, :raise_error]
 
   def create
     login(User.authenticate(params[:email_address], params[:password]))
@@ -33,24 +33,24 @@ class SessionsController < ApplicationController
 
   def persist
     auth_session.persist! if logged_in?
-    render :plain => "OK"
+    render plain: "OK"
   end
 
   def begin_password_reset
     if request.post?
-      if user = User.where(:email_address => params[:email_address]).first
+      if user = User.where(email_address: params[:email_address]).first
         user.begin_password_reset(params[:return_to])
-        redirect_to login_path(:return_to => params[:return_to]), :notice => "Please check your e-mail and click the link in the e-mail we've sent you."
+        redirect_to login_path(return_to: params[:return_to]), notice: "Please check your e-mail and click the link in the e-mail we've sent you."
       else
-        redirect_to login_reset_path(:return_to => params[:return_to]), :alert => "No user exists with that e-mail address. Please check and try again."
+        redirect_to login_reset_path(return_to: params[:return_to]), alert: "No user exists with that e-mail address. Please check and try again."
       end
     end
   end
 
   def finish_password_reset
-    @user = User.where(:password_reset_token => params[:token]).where("password_reset_token_valid_until > ?", Time.now).first
+    @user = User.where(password_reset_token: params[:token]).where("password_reset_token_valid_until > ?", Time.now).first
     if @user.nil?
-      redirect_to login_path(:return_to => params[:return_to]), :alert => "This link has expired or never existed. Please choose reset password to try again."
+      redirect_to login_path(return_to: params[:return_to]), alert: "This link has expired or never existed. Please choose reset password to try again."
     end
 
     if request.post?
@@ -62,13 +62,13 @@ class SessionsController < ApplicationController
       @user.password_confirmation = params[:password_confirmation]
       if @user.save
         login(@user)
-        redirect_to_with_return_to root_path, :notice => "Your new password has been set and you've been logged in."
+        redirect_to_with_return_to root_path, notice: "Your new password has been set and you've been logged in."
       end
     end
   end
 
   def ip
-    render :plain => "ip: #{request.ip} remote ip: #{request.remote_ip}"
+    render plain: "ip: #{request.ip} remote ip: #{request.remote_ip}"
   end
 
 end

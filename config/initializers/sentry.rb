@@ -9,6 +9,6 @@ if Postal.config.general&.exception_url
       config.environments << "development"
     end
     config.silence_ready = true
-    config.tags = {:process => ENV["PROC_NAME"]}
+    config.tags = {process: ENV["PROC_NAME"]}
   end
 end

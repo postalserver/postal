@@ -26,7 +26,7 @@ FactoryBot.define do
   factory :organization do
     name { "Acme Inc" }
     sequence(:permalink) { |n| "org#{n}" }
-    association :owner, :factory => :user
+    association :owner, factory: :user
   end
 
 end

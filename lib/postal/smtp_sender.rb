@@ -10,7 +10,7 @@ module Postal
       @smtp_client = nil
       @connection_errors = []
       @hostnames = []
-      @log_id = Nifty::Utils::RandomString.generate(:length => 8).upcase
+      @log_id = Nifty::Utils::RandomString.generate(length: 8).upcase
     end
 
     def start
@@ -177,7 +177,7 @@ module Postal
       rescue => e
         log "#{e.class}: #{e.message}"
         if defined?(Raven)
-          Raven.capture_exception(e, :extra => {:log_id => @log_id, :server_id => message.server.id, :message_id => message.id})
+          Raven.capture_exception(e, extra: {log_id: @log_id, server_id: message.server.id, message_id: message.id})
         end
         result.type = "SoftFail"
         result.retry = true
@@ -256,9 +256,9 @@ module Postal
       hosts = Postal.config.smtp_relays.map do |relay|
         if relay.hostname.present?
           {
-            :hostname => relay.hostname,
-            :port => relay.port,
-            :ssl_mode => relay.ssl_mode
+            hostname: relay.hostname,
+            port: relay.port,
+            ssl_mode: relay.ssl_mode
           }
         else
           nil

@@ -14,11 +14,11 @@ module Postal
       end
 
       conn = Bunny.new(
-        :hosts => bunny_host,
-        :port => Postal.config.rabbitmq&.port || 5672,
-        :username => Postal.config.rabbitmq&.username || "guest",
-        :password => Postal.config.rabbitmq&.password || "guest",
-        :vhost => Postal.config.rabbitmq&.vhost || nil
+        hosts: bunny_host,
+        port: Postal.config.rabbitmq&.port || 5672,
+        username: Postal.config.rabbitmq&.username || "guest",
+        password: Postal.config.rabbitmq&.password || "guest",
+        vhost: Postal.config.rabbitmq&.vhost || nil
       )
       conn.start
       conn

@@ -37,7 +37,7 @@ module Postal
       end
 
       begin
-        message = message_db.message(:token => message_token)
+        message = message_db.message(token: message_token)
         message.create_load(request)
       rescue Postal::MessageDB::Message::NotFound
         # This message has been removed, we'll just continue to serve the image
@@ -55,7 +55,7 @@ module Postal
         headers["Content-Length"] = TRACKING_PIXEL.bytesize.to_s
         return [200, headers, [TRACKING_PIXEL]]
       when /\Ahttps?\:\/\//
-        response = Postal::HTTP.get(source_image, :timeout => 3)
+        response = Postal::HTTP.get(source_image, timeout: 3)
         if response[:code] == 200
           headers = {}
           headers["Content-Type"] = response[:headers]["content-type"]&.first
@@ -78,16 +78,16 @@ module Postal
         return [404, {}, ["Invalid Server Token"]]
       end
 
-      link = message_db.select(:links, :where => {:token => link_token}, :limit => 1).first
+      link = message_db.select(:links, where: {token: link_token}, limit: 1).first
       if link.nil?
         return [404, {}, ["Link not found"]]
       end
 
       time = Time.now.to_f
       if link["message_id"]
-        message_db.update(:messages, {:clicked => time}, :where => {:id => link["message_id"]})
-        message_db.insert(:clicks, {:message_id => link["message_id"], :link_id => link["id"], :ip_address => request.ip, :user_agent => request.user_agent, :timestamp => time})
-        SendWebhookJob.queue(:main, :server_id => message_db.server_id, :event => "MessageLinkClicked", :payload => {:_message => link["message_id"], :url => link["url"], :token => link["token"], :ip_address => request.ip, :user_agent => request.user_agent})
+        message_db.update(:messages, {clicked: time}, where: {id: link["message_id"]})
+        message_db.insert(:clicks, {message_id: link["message_id"], link_id: link["id"], ip_address: request.ip, user_agent: request.user_agent, timestamp: time})
+        SendWebhookJob.queue(:main, server_id: message_db.server_id, event: "MessageLinkClicked", payload: {_message: link["message_id"], url: link["url"], token: link["token"], ip_address: request.ip, user_agent: request.user_agent})
       end
 
       return [307, {"Location" => link["url"]}, ["Redirected to: #{link['url']}"]]

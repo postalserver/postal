@@ -24,7 +24,7 @@ module HasMessage
       end
       message_ids = queued_messages.map(&:message_id).uniq
       server = queued_messages.first&.server
-      messages = server.message_db.messages(:where => {:id => message_ids}).each_with_object({}) do |message, hash|
+      messages = server.message_db.messages(where: {id: message_ids}).each_with_object({}) do |message, hash|
         hash[message.id] = message
       end
       queued_messages.each do |queued_message|

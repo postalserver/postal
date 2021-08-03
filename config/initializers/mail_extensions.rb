@@ -78,9 +78,9 @@ module Mail
         decoded = body_text.gsub(/\+.*?\-/m) {|n|Base64.decode64(n[1..-2]+"===").force_encoding("UTF-16BE").encode("UTF-8")}
       else
         body_text.force_encoding(charset_tmp)
-        decoded = body_text.encode("utf-8", :invalid => :replace, :undef => :replace)
+        decoded = body_text.encode("utf-8", invalid: :replace, undef: :replace)
       end
-      decoded.valid_encoding? ? decoded : decoded.encode("utf-16le", :invalid => :replace, :undef => :replace).encode("utf-8")
+      decoded.valid_encoding? ? decoded : decoded.encode("utf-16le", invalid: :replace, undef: :replace).encode("utf-8")
     end
   end
 

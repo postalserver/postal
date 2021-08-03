@@ -8,7 +8,7 @@ module Postal
       @actioned = false
       @tracked_links = 0
       @tracked_images = 0
-      @domain = @message.server.track_domains.where(:domain => @message.domain, :dns_status => "OK").first
+      @domain = @message.server.track_domains.where(domain: @message.domain, dns_status: "OK").first
 
       if @domain
         @parsed_output = generate

@@ -4,7 +4,7 @@ module Postal
     def initialize(endpoint, options = {})
       @endpoint = endpoint
       @options = options
-      @log_id = Nifty::Utils::RandomString.generate(:length => 8).upcase
+      @log_id = Nifty::Utils::RandomString.generate(length: 8).upcase
     end
 
     def send_message(message)
@@ -17,9 +17,9 @@ module Postal
       request_options[:timeout] = @endpoint.timeout || 5
       case @endpoint.encoding
       when "BodyAsJSON"
-        request_options[:json] = parameters(message, :flat => false).to_json
+        request_options[:json] = parameters(message, flat: false).to_json
       when "FormData"
-        request_options[:params] = parameters(message, :flat => true)
+        request_options[:params] = parameters(message, flat: true)
       end
 
       log "Sending request to #{@endpoint.url}"
@@ -65,27 +65,27 @@ module Postal
       case @endpoint.format
       when "Hash"
         hash = {
-          :id => message.id,
-          :rcpt_to => message.rcpt_to,
-          :mail_from => message.mail_from,
-          :token => message.token,
-          :subject => message.subject,
-          :message_id => message.message_id,
-          :timestamp => message.timestamp.to_f,
-          :size => message.size,
-          :spam_status => message.spam_status,
-          :bounce => message.bounce == 1 ? true : false,
-          :received_with_ssl => message.received_with_ssl == 1,
-          :to => message.headers["to"]&.last,
-          :cc => message.headers["cc"]&.last,
-          :from => message.headers["from"]&.last,
-          :date => message.headers["date"]&.last,
-          :in_reply_to => message.headers["in-reply-to"]&.last,
-          :references => message.headers["references"]&.last,
-          :html_body => message.html_body,
-          :attachment_quantity => message.attachments.size,
-          :auto_submitted => message.headers["auto-submitted"]&.last,
-          :reply_to => message.headers["reply-to"]
+          id: message.id,
+          rcpt_to: message.rcpt_to,
+          mail_from: message.mail_from,
+          token: message.token,
+          subject: message.subject,
+          message_id: message.message_id,
+          timestamp: message.timestamp.to_f,
+          size: message.size,
+          spam_status: message.spam_status,
+          bounce: message.bounce == 1 ? true : false,
+          received_with_ssl: message.received_with_ssl == 1,
+          to: message.headers["to"]&.last,
+          cc: message.headers["cc"]&.last,
+          from: message.headers["from"]&.last,
+          date: message.headers["date"]&.last,
+          in_reply_to: message.headers["in-reply-to"]&.last,
+          references: message.headers["references"]&.last,
+          html_body: message.html_body,
+          attachment_quantity: message.attachments.size,
+          auto_submitted: message.headers["auto-submitted"]&.last,
+          reply_to: message.headers["reply-to"]
         }
 
         if @endpoint.strip_replies
@@ -105,10 +105,10 @@ module Postal
           else
             hash[:attachments] = message.attachments.map do |a|
               {
-                :filename => a.filename,
-                :content_type => a.mime_type,
-                :size => a.body.to_s.bytesize,
-                :data => Base64.encode64(a.body.to_s)
+                filename: a.filename,
+                content_type: a.mime_type,
+                size: a.body.to_s.bytesize,
+                data: Base64.encode64(a.body.to_s)
               }
             end
           end
@@ -117,12 +117,12 @@ module Postal
         hash
       when "RawMessage"
         {
-          :id => message.id,
-          :rcpt_to => message.rcpt_to,
-          :mail_from => message.mail_from,
-          :message => Base64.encode64(message.raw_message),
-          :base64 => true,
-          :size => message.size.to_i
+          id: message.id,
+          rcpt_to: message.rcpt_to,
+          mail_from: message.mail_from,
+          message: Base64.encode64(message.raw_message),
+          base64: true,
+          size: message.size.to_i
         }
       else
         {}

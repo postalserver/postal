@@ -17,7 +17,7 @@ class IPPoolRule < ApplicationRecord
 
   include HasUUID
 
-  belongs_to :owner, :polymorphic => true
+  belongs_to :owner, polymorphic: true
   belongs_to :ip_pool
 
   validate :validate_from_and_to_addresses

@@ -36,7 +36,7 @@ module Postal
       end
 
       def id
-        @id ||= Nifty::Utils::RandomString.generate(:length => 6).upcase
+        @id ||= Nifty::Utils::RandomString.generate(length: 6).upcase
       end
 
       def handle(data)
@@ -207,7 +207,7 @@ module Postal
       end
 
       def authenticate(password)
-        if @credential = Credential.where(:type => "SMTP", :key => password).first
+        if @credential = Credential.where(type: "SMTP", key: password).first
           @credential.use
           "235 Granted for #{@credential.server.organization.permalink}/#{@credential.server.permalink}"
         else
@@ -224,10 +224,10 @@ module Postal
           @proc = nil
           username, password = Base64.decode64(data).split(" ", 2).map{ |a| a.chomp }
           org_permlink, server_permalink = username.split(/[\/\_]/, 2)
-          server = ::Server.includes(:organization).where(:organizations => {:permalink => org_permlink}, :permalink => server_permalink).first
+          server = ::Server.includes(:organization).where(organizations: {permalink: org_permlink}, permalink: server_permalink).first
           next "535 Denied" if server.nil?
           grant = nil
-          server.credentials.where(:type => "SMTP").each do |credential|
+          server.credentials.where(type: "SMTP").each do |credential|
             correct_response = OpenSSL::HMAC.hexdigest(CRAM_MD5_DIGEST, credential.key, challenge)
             if password == correct_response
               @credential = credential
@@ -283,7 +283,7 @@ module Postal
         if domain == Postal.config.dns.return_path || domain =~ /\A#{Regexp.escape(Postal.config.dns.custom_return_path_prefix)}\./
           # This is a return path
           @state = :rcpt_to_received
-          if server = ::Server.where(:token => uname).first
+          if server = ::Server.where(token: uname).first
             if server.suspended?
               "535 Mail server has been suspended"
             else
@@ -298,7 +298,7 @@ module Postal
         elsif domain == Postal.config.dns.route_domain
           # This is an email direct to a route. This isn't actually supported yet.
           @state = :rcpt_to_received
-          if route = Route.where(:token => uname).first
+          if route = Route.where(token: uname).first
             if route.server.suspended?
               "535 Mail server has been suspended"
             elsif route.mode == "Reject"
@@ -306,7 +306,7 @@ module Postal
             else
               log "Added route #{route.id} to recipients (tag: #{tag.inspect})"
               actual_rcpt_to = "#{route.name}" + (tag ? "+#{tag}" : "") + "@#{route.domain.name}"
-              @recipients << [:route, actual_rcpt_to, route.server, :route => route]
+              @recipients << [:route, actual_rcpt_to, route.server, route: route]
               "250 OK"
             end
           else
@@ -333,13 +333,13 @@ module Postal
             "550 Route does not accept incoming messages"
           else
             log "Added route #{route.id} to recipients (tag: #{tag.inspect})"
-            @recipients << [:route, rcpt_to, route.server, :route => route]
+            @recipients << [:route, rcpt_to, route.server, route: route]
             "250 OK"
           end
 
         else
           # User is trying to relay but is not authenticated. Try to authenticate by IP address
-          @credential = Credential.where(:type => "SMTP-IP").all.sort_by { |c| c.ipaddr&.prefix || 0 }.reverse.find do |credential|
+          @credential = Credential.where(type: "SMTP-IP").all.sort_by { |c| c.ipaddr&.prefix || 0 }.reverse.find do |credential|
             credential.ipaddr.include?(@ip_address)
           end
 
@@ -452,7 +452,7 @@ module Postal
             message.save
 
           when :bounce
-            if rp_route = server.routes.where(:name => "__returnpath__").first
+            if rp_route = server.routes.where(name: "__returnpath__").first
               # If there's a return path route, we can use this to create the message
               rp_route.create_messages do |message|
                 message.rcpt_to = rcpt_to

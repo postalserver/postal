@@ -22,7 +22,7 @@ module Postal
               Dir.chdir(ENV["APP_ROOT"])
             end
             ENV.delete("BUNDLE_GEMFILE")
-            exec("bundle exec --keep-file-descriptors rake postal:smtp_server", :close_others => false)
+            exec("bundle exec --keep-file-descriptors rake postal:smtp_server", close_others: false)
           end
         end
 
@@ -115,7 +115,7 @@ module Postal
               rescue => e
                 # If something goes wrong, log as appropriate and disconnect the client
                 if defined?(Raven)
-                  Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+                  Raven.capture_exception(e, extra: {log_id: (client.id rescue nil)})
                 end
                 logger.error "An error occurred while accepting a new client."
                 logger.error "#{e.class}: #{e.message}"
@@ -214,7 +214,7 @@ module Postal
                 # Something went wrong, log as appropriate
                 client_id = client ? client.id : "------"
                 if defined?(Raven)
-                  Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
+                  Raven.capture_exception(e, extra: {log_id: (client.id rescue nil)})
                 end
                 logger.error "[#{client_id}] An error occurred while processing data from a client."
                 logger.error "[#{client_id}] #{e.class}: #{e.message}"

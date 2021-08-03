@@ -33,7 +33,7 @@ RSpec.configure do |config|
     # Because the mail databases don't use any transactions, all data left in the
     # database will be left there unless removed.
     DatabaseCleaner.start
-    GLOBAL_SERVER = FactoryBot.create(:server, :provision_database => true)
+    GLOBAL_SERVER = FactoryBot.create(:server, provision_database: true)
   end
 
   config.after(:suite) do

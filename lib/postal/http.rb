@@ -59,32 +59,32 @@ module Postal
         Timeout.timeout(timeout) do
           result = connection.request(request)
           {
-            :code => result.code.to_i,
-            :body => result.body,
-            :headers => result.to_hash,
-            :secure => @ssl
+            code: result.code.to_i,
+            body: result.body,
+            headers: result.to_hash,
+            secure: @ssl
           }
         end
       rescue OpenSSL::SSL::SSLError => e
         {
-          :code => -3,
-          :body => "Invalid SSL certificate",
-          :headers =>{},
-          :secure => @ssl
+          code: -3,
+          body: "Invalid SSL certificate",
+          headers: {},
+          secure: @ssl
         }
       rescue SocketError, Errno::ECONNRESET, EOFError, Errno::EINVAL, Errno::ENETUNREACH, Errno::EHOSTUNREACH, Errno::ECONNREFUSED => e
         {
-          :code => -2,
-          :body => e.message,
-          :headers => {},
-          :secure => @ssl
+          code: -2,
+          body: e.message,
+          headers: {},
+          secure: @ssl
         }
       rescue Timeout::Error => e
         {
-          :code => -1,
-          :body => "Timed out after #{timeout}s",
-          :headers => {},
-          :secure => @ssl
+          code: -1,
+          body: "Timed out after #{timeout}s",
+          headers: {},
+          secure: @ssl
         }
       end
     end

@@ -27,17 +27,17 @@ class Route < ApplicationRecord
   include HasUUID
 
   belongs_to :server
-  belongs_to :domain, :optional => true
-  belongs_to :endpoint, :polymorphic => true, :optional => true
-  has_many :additional_route_endpoints, :dependent => :destroy
+  belongs_to :domain, optional: true
+  belongs_to :endpoint, polymorphic: true, optional: true
+  has_many :additional_route_endpoints, dependent: :destroy
 
   SPAM_MODES = ["Mark", "Quarantine", "Fail"]
   ENDPOINT_TYPES = ["SMTPEndpoint", "HTTPEndpoint", "AddressEndpoint"]
 
-  validates :name, :presence => true, :format => /\A(([a-z0-9\-\.]*)|(\*)|(__returnpath__))\z/
-  validates :spam_mode, :inclusion => {:in => SPAM_MODES}
-  validates :endpoint, :presence => {:if => proc { self.mode == "Endpoint" }}
-  validates :domain_id, :presence => {:unless => :return_path?}
+  validates :name, presence: true, format: /\A(([a-z0-9\-\.]*)|(\*)|(__returnpath__))\z/
+  validates :spam_mode, inclusion: {in: SPAM_MODES}
+  validates :endpoint, presence: {if: proc { self.mode == "Endpoint" }}
+  validates :domain_id, presence: {unless: :return_path?}
   validate :validate_route_is_routed
   validate :validate_domain_belongs_to_server
   validate :validate_endpoint_belongs_to_server
@@ -47,7 +47,7 @@ class Route < ApplicationRecord
 
   after_save :save_additional_route_endpoints
 
-  random_string :token, :type => :chars, :length => 8, :unique => true
+  random_string :token, type: :chars, length: 8, unique: true
 
   def return_path?
     name == "__returnpath__"
@@ -113,7 +113,7 @@ class Route < ApplicationRecord
         if existing = additional_route_endpoints.find_by_endpoint(item)
           seen << existing.id
         else
-          route = additional_route_endpoints.build(:_endpoint => item)
+          route = additional_route_endpoints.build(_endpoint: item)
           if route.save
             seen << route.id
           else
@@ -124,7 +124,7 @@ class Route < ApplicationRecord
           end
         end
       end
-      additional_route_endpoints.where.not(:id => seen).destroy_all
+      additional_route_endpoints.where.not(id: seen).destroy_all
     end
   end
 
@@ -198,11 +198,11 @@ class Route < ApplicationRecord
   def validate_name_uniqueness
     return if self.server.nil?
     if self.domain
-      if route = Route.includes(:domain).where(:domains => {:name => self.domain.name}, :name => self.name).where.not(:id => self.id).first
+      if route = Route.includes(:domain).where(domains: {name: self.domain.name}, name: self.name).where.not(id: self.id).first
         errors.add :name, "is configured on the #{route.server.full_permalink} mail server"
       end
     else
-      if route = Route.where(:name => "__returnpath__").where.not(:id => self.id).exists?
+      if route = Route.where(name: "__returnpath__").where.not(id: self.id).exists?
         errors.add :base, "A return path route already exists for this server"
       end
     end
@@ -223,9 +223,9 @@ class Route < ApplicationRecord
   end
 
   def self.find_by_name_and_domain(name, domain)
-    route = Route.includes(:domain).where(:name => name, :domains => {:name => domain}).first
+    route = Route.includes(:domain).where(name: name, domains: {name: domain}).first
     if route.nil?
-      route = Route.includes(:domain).where(:name => "*", :domains => {:name => domain}).first
+      route = Route.includes(:domain).where(name: "*", domains: {name: domain}).first
     end
     route
   end

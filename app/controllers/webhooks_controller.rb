@@ -8,7 +8,7 @@ class WebhooksController < ApplicationController
   end
 
   def new
-    @webhook = @server.webhooks.build(:all_events => true)
+    @webhook = @server.webhooks.build(all_events: true)
   end
 
   def create
@@ -45,7 +45,7 @@ class WebhooksController < ApplicationController
   private
 
   def safe_params
-    params.require(:webhook).permit(:name, :url, :all_events, :enabled, :events => [])
+    params.require(:webhook).permit(:name, :url, :all_events, :enabled, events: [])
   end
 
 end

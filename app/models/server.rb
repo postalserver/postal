@@ -49,22 +49,22 @@ class Server < ApplicationRecord
   attr_accessor :provision_database
 
   belongs_to :organization
-  belongs_to :ip_pool, :optional => true
-  has_many :domains, :dependent => :destroy, :as => :owner
-  has_many :credentials, :dependent => :destroy
-  has_many :smtp_endpoints, :dependent => :destroy
-  has_many :http_endpoints, :dependent => :destroy
-  has_many :address_endpoints, :dependent => :destroy
-  has_many :routes, :dependent => :destroy
-  has_many :queued_messages, :dependent => :delete_all
-  has_many :webhooks, :dependent => :destroy
-  has_many :webhook_requests, :dependent => :destroy
-  has_many :track_domains, :dependent => :destroy
-  has_many :ip_pool_rules, :dependent => :destroy, :as => :owner
+  belongs_to :ip_pool, optional: true
+  has_many :domains, dependent: :destroy, as: :owner
+  has_many :credentials, dependent: :destroy
+  has_many :smtp_endpoints, dependent: :destroy
+  has_many :http_endpoints, dependent: :destroy
+  has_many :address_endpoints, dependent: :destroy
+  has_many :routes, dependent: :destroy
+  has_many :queued_messages, dependent: :delete_all
+  has_many :webhooks, dependent: :destroy
+  has_many :webhook_requests, dependent: :destroy
+  has_many :track_domains, dependent: :destroy
+  has_many :ip_pool_rules, dependent: :destroy, as: :owner
 
   MODES = ["Live", "Development"]
 
-  random_string :token, :type => :chars, :length => 6, :unique => true, :upper_letters_only => true
+  random_string :token, type: :chars, length: 6, unique: true, upper_letters_only: true
   default_value :permalink, -> { name ? name.parameterize : nil}
   default_value :raw_message_retention_days, -> { 30 }
   default_value :raw_message_retention_size, -> { 2048 }
@@ -72,12 +72,12 @@ class Server < ApplicationRecord
   default_value :spam_threshold, -> { Postal.config.general.default_spam_threshold }
   default_value :spam_failure_threshold, -> { Postal.config.general.default_spam_failure_threshold }
 
-  validates :name, :presence => true, :uniqueness => {:scope => :organization_id}
-  validates :mode, :inclusion => {:in => MODES}
-  validates :permalink, :presence => true, :uniqueness => {:scope => :organization_id}, :format => {:with => /\A[a-z0-9\-]*\z/}, :exclusion => {:in => RESERVED_PERMALINKS}
+  validates :name, presence: true, uniqueness: {scope: :organization_id}
+  validates :mode, inclusion: {in: MODES}
+  validates :permalink, presence: true, uniqueness: {scope: :organization_id}, format: {with: /\A[a-z0-9\-]*\z/}, exclusion: {in: RESERVED_PERMALINKS}
   validate :validate_ip_pool_belongs_to_organization
 
-  before_validation(:on => :create) do
+  before_validation(on: :create) do
     self.token = self.token.downcase if self.token
   end
 
@@ -87,7 +87,7 @@ class Server < ApplicationRecord
     end
   end
 
-  after_commit(:on => :destroy) do
+  after_commit(on: :destroy) do
     unless self.provision_database == false
       message_db.provisioner.drop
     end
@@ -132,22 +132,22 @@ class Server < ApplicationRecord
   end
 
   def message_rate
-    @message_rate ||= message_db.live_stats.total(60, :types => [:incoming, :outgoing]) / 60.0
+    @message_rate ||= message_db.live_stats.total(60, types: [:incoming, :outgoing]) / 60.0
   end
 
   def held_messages
-    @held_messages ||= message_db.messages(:where => {:held => 1}, :count => true)
+    @held_messages ||= message_db.messages(where: {held: 1}, count: true)
   end
 
   def throughput_stats
     @throughput_stats ||= begin
-      incoming = message_db.live_stats.total(60, :types => [:incoming])
-      outgoing = message_db.live_stats.total(60, :types => [:outgoing])
+      incoming = message_db.live_stats.total(60, types: [:incoming])
+      outgoing = message_db.live_stats.total(60, types: [:outgoing])
       outgoing_usage = send_limit ? (outgoing / send_limit.to_f) * 100 : 0
       {
-        :incoming => incoming,
-        :outgoing => outgoing,
-        :outgoing_usage => outgoing_usage
+        incoming: incoming,
+        outgoing: outgoing,
+        outgoing_usage: outgoing_usage
       }
     end
   end
@@ -166,7 +166,7 @@ class Server < ApplicationRecord
   end
 
   def domain_stats
-    domains = Domain.where(:owner_id => self.id, :owner_type => "Server").to_a
+    domains = Domain.where(owner_id: self.id, owner_type: "Server").to_a
     total, unverified, bad_dns = 0, 0, 0
     domains.each do |domain|
       total += 1
@@ -178,15 +178,15 @@ class Server < ApplicationRecord
 
   def webhook_hash
     {
-      :uuid => self.uuid,
-      :name => self.name,
-      :permalink => self.permalink,
-      :organization => self.organization&.permalink
+      uuid: self.uuid,
+      name: self.name,
+      permalink: self.permalink,
+      organization: self.organization&.permalink
     }
   end
 
   def send_volume
-    @send_volume ||= message_db.live_stats.total(60, :types => [:outgoing])
+    @send_volume ||= message_db.live_stats.total(60, types: [:outgoing])
   end
 
   def send_limit_approaching?
@@ -200,7 +200,7 @@ class Server < ApplicationRecord
   def send_limit_warning(type)
     AppMailer.send("server_send_limit_#{type}", self).deliver
     self.update_column("send_limit_#{type}_notified_at", Time.now)
-    WebhookRequest.trigger(self, "SendLimit#{type.to_s.capitalize}", :server => webhook_hash, :volume => self.send_volume, :limit => self.send_limit)
+    WebhookRequest.trigger(self, "SendLimit#{type.to_s.capitalize}", server: webhook_hash, volume: self.send_volume, limit: self.send_limit)
   end
 
   def queue_size
@@ -209,12 +209,12 @@ class Server < ApplicationRecord
 
   def stats
     {
-      :queue => queue_size,
-      :held => self.held_messages,
-      :bounce_rate => self.bounce_rate,
-      :message_rate => self.message_rate,
-      :throughput => self.throughput_stats,
-      :size => self.message_db.total_size
+      queue: queue_size,
+      held: self.held_messages,
+      bounce_rate: self.bounce_rate,
+      message_rate: self.message_rate,
+      throughput: self.throughput_stats,
+      size: self.message_db.total_size
     }
   end
 
@@ -227,11 +227,11 @@ class Server < ApplicationRecord
     uname, _ = uname.split("+", 2)
 
     # Check the server's domain
-    if domain = Domain.verified.order(:owner_type => :desc).where("(owner_type = 'Organization' AND owner_id = ?) OR (owner_type = 'Server' AND owner_id = ?)", self.organization_id, self.id).where(:name => domain_name).first
+    if domain = Domain.verified.order(owner_type: :desc).where("(owner_type = 'Organization' AND owner_id = ?) OR (owner_type = 'Server' AND owner_id = ?)", self.organization_id, self.id).where(name: domain_name).first
       return domain
     end
 
-    if any_domain = self.domains.verified.where(:use_for_any => true).order(:name).first
+    if any_domain = self.domains.verified.where(use_for_any: true).order(:name).first
       return any_domain
     end
   end
@@ -276,7 +276,7 @@ class Server < ApplicationRecord
   def ip_pool_for_message(message)
     if message.scope == "outgoing"
       [self, self.organization].each do |scope|
-        rules = scope.ip_pool_rules.order(:created_at => :desc)
+        rules = scope.ip_pool_rules.order(created_at: :desc)
         rules.each do |rule|
           if rule.apply_to_message?(message)
             return rule.ip_pool
@@ -311,15 +311,15 @@ class Server < ApplicationRecord
     server = nil
     if id.is_a?(String)
       if id =~ /\A(\w+)\/(\w+)\z/
-        server = includes(:organization).where(:organizations => {:permalink => $1}, :permalink => $2).first
+        server = includes(:organization).where(organizations: {permalink: $1}, permalink: $2).first
       end
     else
-      server = where(:id => id).first
+      server = where(id: id).first
     end
 
     if extra
       if extra.is_a?(String)
-        server.domains.where(:name => extra.to_s).first
+        server.domains.where(name: extra.to_s).first
       else
         server.message(extra.to_i)
       end

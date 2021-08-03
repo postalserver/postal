@@ -98,9 +98,9 @@ class OutgoingMessagePrototype
   def attachments
     (@attachments || []).map do |attachment|
       {
-        :name => attachment[:name],
-        :content_type => attachment[:content_type] || "application/octet-stream",
-        :data => attachment[:base64] ? Base64.decode64(attachment[:data]) : attachment[:data]
+        name: attachment[:name],
+        content_type: attachment[:content_type] || "application/octet-stream",
+        data: attachment[:base64] ? Base64.decode64(attachment[:data]) : attachment[:data]
       }
     end
   end
@@ -175,8 +175,8 @@ class OutgoingMessagePrototype
       end
       attachments.each do |attachment|
         mail.attachments[attachment[:name]] = {
-          :mime_type => attachment[:content_type],
-          :content => attachment[:data]
+          mime_type: attachment[:content_type],
+          content: attachment[:data]
         }
       end
       mail.header["Received"] = "from #{@source_type} (#{self.resolved_hostname} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822.to_s}"
@@ -197,7 +197,7 @@ class OutgoingMessagePrototype
     message.received_with_ssl = true
     message.bounce = @bounce ? 1 : 0
     message.save
-    {:id => message.id, :token => message.token}
+    {id: message.id, token: message.token}
   end
 
   def resolved_hostname

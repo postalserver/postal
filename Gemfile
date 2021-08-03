@@ -13,7 +13,7 @@ gem "hashie"
 gem "authie", "~> 3.0"
 gem "dynamic_form"
 gem "changey"
-gem "mail", :git => "https://github.com/mikel/mail.git", :branch => "2-7-stable"
+gem "mail", git: "https://github.com/mikel/mail.git", branch: "2-7-stable"
 gem "autoprefixer-rails"
 gem "bunny"
 gem "secure_headers"
@@ -27,7 +27,7 @@ gem "sentry-raven"
 gem "gelf"
 gem "moonrope"
 gem "jwt"
-gem "highline", :require => false
+gem "highline", require: false
 gem "resolv", "~> 0.2.1"
 
 group :development, :assets do

@@ -61,7 +61,7 @@ module Postal
               logger.warn "[#{message['id']}]    " + line
             end
             if defined?(Raven)
-              Raven.capture_exception(e, :extra => {:job_id => message["id"]})
+              Raven.capture_exception(e, extra: {job_id: message["id"]})
             end
           ensure
             logger.info "[#{message['id']}] Finished processing \e[34m#{message['class_name']}\e[0m job in #{Time.now - start_time}s"
@@ -84,7 +84,7 @@ module Postal
       if @active_queues[queue]
         logger.info "Attempted to join queue #{queue} but already joined."
       else
-        consumer = self.class.job_queue(queue).subscribe(:manual_ack => true) do |delivery_info, properties, body|
+        consumer = self.class.job_queue(queue).subscribe(manual_ack: true) do |delivery_info, properties, body|
           receive_job(delivery_info, properties, body)
         end
         @active_queues[queue] = consumer
@@ -198,7 +198,7 @@ module Postal
     def self.job_queue(name)
       @job_queues ||= {}
       @job_queues[name] ||= begin
-        job_channel.queue("deliver-jobs-#{name}", :durable => true, :arguments => {"x-message-ttl" => 60000})
+        job_channel.queue("deliver-jobs-#{name}", durable: true, arguments: {"x-message-ttl" => 60000})
       end
     end
 

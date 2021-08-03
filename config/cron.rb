@@ -10,17 +10,17 @@ module Clockwork
     SendNotificationsJob.queue(:main)
   end
 
-  every 1.hour, "every-hour", :at => ["**:15"] do
+  every 1.hour, "every-hour", at: ["**:15"] do
     CheckAllDNSJob.queue(:main)
     ExpireHeldMessagesJob.queue(:main)
     CleanupAuthieSessionsJob.queue(:main)
   end
 
-  every 1.hour, "every-hour", :at => ["**:45"] do
+  every 1.hour, "every-hour", at: ["**:45"] do
     PruneWebhookRequestsJob.queue(:main)
   end
 
-  every 1.day, "every-day", :at => ["03:00"] do
+  every 1.day, "every-day", at: ["03:00"] do
     ProcessMessageRetentionJob.queue(:main)
     PruneSuppressionListsJob.queue(:main)
   end
