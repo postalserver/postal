@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 trap("INT") { puts ; exit }
 
-
 if ARGV[0].nil? || !(ARGV[0] =~ /@/)
   puts "usage: postal test-app-smtp [email address]"
   exit 1

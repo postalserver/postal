@@ -33,7 +33,6 @@ class Credential < ApplicationRecord
 
   before_validation :generate_key
 
-
   def generate_key
     return if type == "SMTP-IP"
     return if persisted?

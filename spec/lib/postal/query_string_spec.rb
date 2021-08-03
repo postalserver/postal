@@ -6,7 +6,6 @@ describe Postal::QueryString do
     expect(qs.to_hash["to"]).to eq "test@example.com"
   end
 
-
   it "should work with a multiple items" do
     qs = Postal::QueryString.new("to: test@example.com from: another@example.com")
     expect(qs.to_hash["to"]).to eq "test@example.com"

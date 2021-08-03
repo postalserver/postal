@@ -62,7 +62,6 @@ module ApplicationHelper
         s << "</optgroup>"
       end
 
-
       smtp_endpoints = server.smtp_endpoints.order(:name).to_a
       if smtp_endpoints.present?
         s << "<optgroup label='SMTP Endpoints'>"

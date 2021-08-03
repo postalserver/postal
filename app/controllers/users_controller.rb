@@ -51,5 +51,4 @@ class UsersController < ApplicationController
     redirect_to_with_json :users, notice: "#{@user.name} has been removed"
   end
 
-
 end

@@ -84,7 +84,6 @@ Rails.application.routes.draw do
   match "login/reset" => "sessions#begin_password_reset", :via => [:get, :post]
   match "login/reset/:token" => "sessions#finish_password_reset", :via => [:get, :post]
 
-
   get "ip" => "sessions#ip"
 
   root "organizations#index"

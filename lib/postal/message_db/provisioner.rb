@@ -188,7 +188,6 @@ module Postal
         end
       end
 
-
     end
   end
 end
