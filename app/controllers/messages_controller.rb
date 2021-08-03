@@ -55,10 +55,12 @@ class MessagesController < ApplicationController
     get_messages("outgoing")
     respond_to do |wants|
       wants.html
-      wants.json { render json: {
-        flash: flash.each_with_object({}) { |(type, message), hash| hash[type] = message },
-        region_html: render_to_string(partial: "index", formats: [:html])
-      }}
+      wants.json do
+        render json: {
+          flash: flash.each_with_object({}) { |(type, message), hash| hash[type] = message },
+          region_html: render_to_string(partial: "index", formats: [:html])
+        }
+      end
     end
   end
 
@@ -67,10 +69,12 @@ class MessagesController < ApplicationController
     get_messages("incoming")
     respond_to do |wants|
       wants.html
-      wants.json { render json: {
-        flash: flash.each_with_object({}) { |(type, message), hash| hash[type] = message },
-        region_html: render_to_string(partial: "index", formats: [:html])
-      }}
+      wants.json do
+        render json: {
+          flash: flash.each_with_object({}) { |(type, message), hash| hash[type] = message },
+          region_html: render_to_string(partial: "index", formats: [:html])
+        }
+      end
     end
   end
 
