@@ -115,7 +115,7 @@ module Postal
     end
 
     def signature
-      Base64.encode64(@dkim_key.sign(OpenSSL::Digest::SHA256.new, signable_header_string)).gsub("\n", "")
+      Base64.encode64(@dkim_key.sign(OpenSSL::Digest.new('SHA256'), signable_header_string)).gsub("\n", "")
     end
 
   end
