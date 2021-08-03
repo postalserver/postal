@@ -3,7 +3,7 @@ module Postal
     class SpamAssassin < MessageInspector
 
       EXCLUSIONS = {
-        :outgoing => ['NO_RECEIVED', 'NO_RELAYS', 'ALL_TRUSTED', 'FREEMAIL_FORGED_REPLYTO', 'RDNS_DYNAMIC', 'CK_HELO_GENERIC', /^SPF\_/, /^HELO\_/, /DKIM_/, /^RCVD_IN_/],
+        :outgoing => ["NO_RECEIVED", "NO_RELAYS", "ALL_TRUSTED", "FREEMAIL_FORGED_REPLYTO", "RDNS_DYNAMIC", "CK_HELO_GENERIC", /^SPF\_/, /^HELO\_/, /DKIM_/, /^RCVD_IN_/],
         :incoming => []
       }
 

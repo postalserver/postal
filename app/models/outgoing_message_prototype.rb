@@ -1,4 +1,4 @@
-require 'resolv'
+require "resolv"
 
 class OutgoingMessagePrototype
 
@@ -99,7 +99,7 @@ class OutgoingMessagePrototype
     (@attachments || []).map do |attachment|
       {
         :name => attachment[:name],
-        :content_type => attachment[:content_type] || 'application/octet-stream',
+        :content_type => attachment[:content_type] || "application/octet-stream",
         :data => attachment[:base64] ? Base64.decode64(attachment[:data]) : attachment[:data]
       }
     end
@@ -113,15 +113,15 @@ class OutgoingMessagePrototype
     end
 
     if to_addresses.size > 50
-      @errors << 'TooManyToAddresses'
+      @errors << "TooManyToAddresses"
     end
 
     if cc_addresses.size > 50
-      @errors << 'TooManyCCAddresses'
+      @errors << "TooManyCCAddresses"
     end
 
     if bcc_addresses.size > 50
-      @errors << 'TooManyBCCAddresses'
+      @errors << "TooManyBCCAddresses"
     end
 
     if @plain_body.blank? && @html_body.blank?
@@ -154,8 +154,8 @@ class OutgoingMessagePrototype
       if @custom_headers.is_a?(Hash)
         @custom_headers.each { |key, value| mail[key.to_s] = value.to_s }
       end
-      mail.to = self.to_addresses.join(', ') if self.to_addresses.present?
-      mail.cc = self.cc_addresses.join(', ') if self.cc_addresses.present?
+      mail.to = self.to_addresses.join(", ") if self.to_addresses.present?
+      mail.cc = self.cc_addresses.join(", ") if self.cc_addresses.present?
       mail.from = @from
       mail.sender = @sender
       mail.subject = @subject
@@ -179,7 +179,7 @@ class OutgoingMessagePrototype
           :content => attachment[:data]
         }
       end
-      mail.header['Received'] = "from #{@source_type} (#{self.resolved_hostname} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822.to_s}"
+      mail.header["Received"] = "from #{@source_type} (#{self.resolved_hostname} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822.to_s}"
       mail.message_id = "<#{@message_id}>"
       mail.to_s
     end
@@ -187,7 +187,7 @@ class OutgoingMessagePrototype
 
   def create_message(address)
     message = @server.message_db.new_message
-    message.scope = 'outgoing'
+    message.scope = "outgoing"
     message.rcpt_to = address
     message.mail_from = self.from_address
     message.domain_id = self.domain.id

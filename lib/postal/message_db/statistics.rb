@@ -45,7 +45,7 @@ module Postal
           end
         end
         @database.select("stats_#{type}", :where => {:time => items.keys.map(&:to_i)}, :fields => [:time] | counters).each do |data|
-          time = Time.zone.at(data.delete('time'))
+          time = Time.zone.at(data.delete("time"))
           data.each do |key, value|
             items[time][key.to_sym] = value
           end

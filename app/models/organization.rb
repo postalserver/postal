@@ -23,7 +23,7 @@
 
 class Organization < ApplicationRecord
 
-  RESERVED_PERMALINKS = ['new', 'edit', 'remove', 'delete', 'destroy', 'admin', 'mail', 'org', 'server']
+  RESERVED_PERMALINKS = ["new", "edit", "remove", "delete", "destroy", "admin", "mail", "org", "server"]
 
   INITIAL_QUOTA = 10
   INITIAL_SUPER_QUOTA = 10000
@@ -34,13 +34,13 @@ class Organization < ApplicationRecord
   validates :permalink, :presence => true, :format => {:with => /\A[a-z0-9\-]*\z/}, :uniqueness => true, :exclusion => {:in => RESERVED_PERMALINKS}
   validates :time_zone, :presence => true
 
-  default_value :time_zone, -> { 'UTC' }
+  default_value :time_zone, -> { "UTC" }
   default_value :permalink, -> { Organization.find_unique_permalink(self.name) if self.name }
 
-  belongs_to :owner, :class_name => 'User'
+  belongs_to :owner, :class_name => "User"
   has_many :organization_users, :dependent => :destroy
-  has_many :users, :through => :organization_users, :source_type => 'User'
-  has_many :user_invites, :through => :organization_users, :source_type => 'UserInvite', :source => :user
+  has_many :users, :through => :organization_users, :source_type => "User"
+  has_many :user_invites, :through => :organization_users, :source_type => "UserInvite", :source => :user
   has_many :servers, :dependent => :destroy
   has_many :domains, :as => :owner, :dependent => :destroy
   has_many :organization_ip_pools, :dependent => :destroy
@@ -55,9 +55,9 @@ class Organization < ApplicationRecord
 
   def status
     if self.suspended?
-      'Suspended'
+      "Suspended"
     else
-      'Active'
+      "Active"
     end
   end
 

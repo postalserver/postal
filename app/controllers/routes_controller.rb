@@ -18,7 +18,7 @@ class RoutesController < ApplicationController
     if @route.save
       redirect_to_with_json [organization, @server, :routes]
     else
-      render_form_errors 'new', @route
+      render_form_errors "new", @route
     end
   end
 
@@ -26,7 +26,7 @@ class RoutesController < ApplicationController
     if @route.update(safe_params)
       redirect_to_with_json [organization, @server, :routes]
     else
-      render_form_errors 'edit', @route
+      render_form_errors "edit", @route
     end
   end
 

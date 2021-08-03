@@ -1,5 +1,5 @@
-require 'net/https'
-require 'uri'
+require "net/https"
+require "uri"
 
 module Postal
   module HTTP
@@ -29,7 +29,7 @@ module Postal
       elsif options[:json].is_a?(String)
         # If we have a JSON string, set the content type and body to be the JSON
         # data
-        request.add_field 'Content-Type', 'application/json'
+        request.add_field "Content-Type", "application/json"
         request.body = options[:json]
 
       elsif options[:text_body]
@@ -38,15 +38,15 @@ module Postal
       end
 
       if options[:sign]
-        signature = EncryptoSigno.sign(Postal.signing_key, request.body.to_s).gsub("\n", '')
-        request.add_field 'X-Postal-Signature', signature
+        signature = EncryptoSigno.sign(Postal.signing_key, request.body.to_s).gsub("\n", "")
+        request.add_field "X-Postal-Signature", signature
       end
 
-      request['User-Agent'] = options[:user_agent] || "Postal/#{Postal.version}"
+      request["User-Agent"] = options[:user_agent] || "Postal/#{Postal.version}"
 
       connection = Net::HTTP.new(uri.host, uri.port)
 
-      if uri.scheme == 'https'
+      if uri.scheme == "https"
         connection.use_ssl = true
         connection.verify_mode = OpenSSL::SSL::VERIFY_PEER
         ssl = true

@@ -22,7 +22,7 @@ FactoryBot.define do
 
   factory :track_domain do
     name { "click" }
-    dns_status { 'OK' }
+    dns_status { "OK" }
     association :server
 
     after(:build) do |track_domain|

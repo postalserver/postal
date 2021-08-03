@@ -16,7 +16,7 @@ class TrackDomainsController < ApplicationController
     if @track_domain.save
       redirect_to_with_json [:return_to, [organization, @server, :track_domains]]
     else
-      render_form_errors 'new', @track_domain
+      render_form_errors "new", @track_domain
     end
   end
 
@@ -24,7 +24,7 @@ class TrackDomainsController < ApplicationController
     if @track_domain.update(params.require(:track_domain).permit(:track_loads, :track_clicks, :excluded_click_domains, :ssl_enabled))
       redirect_to_with_json [organization, @server, :track_domains]
     else
-      render_form_errors 'edit', @track_domain
+      render_form_errors "edit", @track_domain
     end
   end
 

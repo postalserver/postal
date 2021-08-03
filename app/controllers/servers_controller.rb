@@ -23,7 +23,7 @@ class ServersController < ApplicationController
     @first_date = graph_data.first.first
     @last_date = graph_data.last.first
     @graph_data = graph_data.map(&:last)
-    @messages = @server.message_db.messages(:order => 'id', :direction => 'desc', :limit => 6)
+    @messages = @server.message_db.messages(:order => "id", :direction => "desc", :limit => 6)
   end
 
   def new
@@ -35,7 +35,7 @@ class ServersController < ApplicationController
     if @server.save
       redirect_to_with_json organization_server_path(organization, @server)
     else
-      render_form_errors 'new', @server
+      render_form_errors "new", @server
     end
   end
 
@@ -45,7 +45,7 @@ class ServersController < ApplicationController
     if @server.update(safe_params(*extra_params))
       redirect_to_with_json organization_server_path(organization, @server), :notice => "Server settings have been updated"
     else
-      render_form_errors 'edit', @server
+      render_form_errors "edit", @server
     end
   end
 

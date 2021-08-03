@@ -34,23 +34,23 @@
 #  index_domains_on_uuid       (uuid)
 #
 
-require 'resolv'
+require "resolv"
 
 class Domain < ApplicationRecord
 
   include HasUUID
 
-  require_dependency 'domain/dns_checks'
-  require_dependency 'domain/dns_verification'
+  require_dependency "domain/dns_checks"
+  require_dependency "domain/dns_verification"
 
-  VERIFICATION_EMAIL_ALIASES = ['webmaster', 'postmaster', 'admin', 'administrator', 'hostmaster']
+  VERIFICATION_EMAIL_ALIASES = ["webmaster", "postmaster", "admin", "administrator", "hostmaster"]
 
   belongs_to :server, :optional => true
   belongs_to :owner, :optional => true, :polymorphic => true
   has_many :routes, :dependent => :destroy
   has_many :track_domains, :dependent => :destroy
 
-  VERIFICATION_METHODS = ['DNS', 'Email']
+  VERIFICATION_METHODS = ["DNS", "Email"]
 
   validates :name, :presence => true, :format => {:with => /\A[a-z0-9\-\.]*\z/}, :uniqueness => {:scope => [:owner_type, :owner_id], :message => "is already added"}
   validates :verification_method, :inclusion => {:in => VERIFICATION_METHODS}
@@ -63,10 +63,10 @@ class Domain < ApplicationRecord
 
   when_attribute :verification_method, :changes_to => :anything do
     before_save do
-      if self.verification_method == 'DNS'
+      if self.verification_method == "DNS"
         self.verification_token = Nifty::Utils::RandomString.generate(:length => 32)
-      elsif self.verification_method == 'Email'
-        self.verification_token = rand(999999).to_s.ljust(6, '0')
+      elsif self.verification_method == "Email"
+        self.verification_token = rand(999999).to_s.ljust(6, "0")
       else
         self.verification_token = nil
       end
@@ -83,9 +83,9 @@ class Domain < ApplicationRecord
   end
 
   def parent_domains
-    parts = self.name.split('.')
+    parts = self.name.split(".")
     parts[0,parts.size-1].each_with_index.map do |p, i|
-      parts[i..-1].join('.')
+      parts[i..-1].join(".")
     end
   end
 
@@ -114,7 +114,7 @@ class Domain < ApplicationRecord
   end
 
   def dkim_record
-    public_key = dkim_key.public_key.to_s.gsub(/\-+[A-Z ]+\-+\n/, '').gsub(/\n/, '')
+    public_key = dkim_key.public_key.to_s.gsub(/\-+[A-Z ]+\-+\n/, "").gsub(/\n/, "")
     "v=DKIM1; t=s; h=sha256; p=#{public_key};"
   end
 
@@ -143,9 +143,9 @@ class Domain < ApplicationRecord
   def get_nameservers
     local_resolver = Resolv::DNS.new
     ns_records = []
-    parts = name.split('.')
+    parts = name.split(".")
     (parts.size - 1).times do |n|
-      d = parts[n, parts.size - n + 1].join('.')
+      d = parts[n, parts.size - n + 1].join(".")
       ns_records = local_resolver.getresources(d, Resolv::DNS::Resource::IN::NS).map { |s| s.name.to_s }
       break unless ns_records.blank?
     end

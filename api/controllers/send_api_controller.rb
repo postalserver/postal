@@ -21,16 +21,16 @@ controller :send do
     param :headers, "A hash of additional headers", :type => Hash
     param :bounce, "Is this message a bounce?", :type => :boolean
     # Errors
-    error 'ValidationError', "The provided data was not sufficient to send an email", :attributes => {:errors => "A hash of error details"}
-    error 'NoRecipients', "There are no recipients defined to receive this message"
-    error 'NoContent', "There is no content defined for this e-mail"
-    error 'TooManyToAddresses', "The maximum number of To addresses has been reached (maximum 50)"
-    error 'TooManyCCAddresses', "The maximum number of CC addresses has been reached (maximum 50)"
-    error 'TooManyBCCAddresses', "The maximum number of BCC addresses has been reached (maximum 50)"
-    error 'FromAddressMissing', "The From address is missing and is required"
-    error 'UnauthenticatedFromAddress', "The From address is not authorised to send mail from this server"
-    error 'AttachmentMissingName', "An attachment is missing a name"
-    error 'AttachmentMissingData', "An attachment is missing data"
+    error "ValidationError", "The provided data was not sufficient to send an email", :attributes => {:errors => "A hash of error details"}
+    error "NoRecipients", "There are no recipients defined to receive this message"
+    error "NoContent", "There is no content defined for this e-mail"
+    error "TooManyToAddresses", "The maximum number of To addresses has been reached (maximum 50)"
+    error "TooManyCCAddresses", "The maximum number of CC addresses has been reached (maximum 50)"
+    error "TooManyBCCAddresses", "The maximum number of BCC addresses has been reached (maximum 50)"
+    error "FromAddressMissing", "The From address is missing and is required"
+    error "UnauthenticatedFromAddress", "The From address is not authorised to send mail from this server"
+    error "AttachmentMissingName", "An attachment is missing a name"
+    error "AttachmentMissingData", "An attachment is missing data"
     # Return
     returns Hash
     # Action
@@ -51,9 +51,9 @@ controller :send do
       attributes[:attachments] = []
       (params.attachments || []).each do |attachment|
         next unless attachment.is_a?(Hash)
-        attributes[:attachments] << {:name => attachment['name'], :content_type => attachment['content_type'], :data => attachment['data'], :base64 => true}
+        attributes[:attachments] << {:name => attachment["name"], :content_type => attachment["content_type"], :data => attachment["data"], :base64 => true}
       end
-      message = OutgoingMessagePrototype.new(identity.server, request.ip, 'api', attributes)
+      message = OutgoingMessagePrototype.new(identity.server, request.ip, "api", attributes)
       message.credential = identity
       if message.valid?
         result = message.create_messages
@@ -72,19 +72,19 @@ controller :send do
     param :data, "A base64 encoded RFC2822 message to send", :type => String, :required => true
     param :bounce, "Is this message a bounce?", :type => :boolean
     returns Hash
-    error 'UnauthenticatedFromAddress', "The From address is not authorised to send mail from this server"
+    error "UnauthenticatedFromAddress", "The From address is not authorised to send mail from this server"
     action do
       # Decode the raw message
       raw_message = Base64.decode64(params.data)
 
       # Parse through mail to get the from/sender headers
       mail = Mail.new(raw_message.split("\r\n\r\n", 2).first)
-      from_headers = {'from' => mail.from, 'sender' => mail.sender}
+      from_headers = {"from" => mail.from, "sender" => mail.sender}
       authenticated_domain = identity.server.find_authenticated_domain_from_headers(from_headers)
 
       # If we're not authenticated, don't continue
       if authenticated_domain.nil?
-        error 'UnauthenticatedFromAddress'
+        error "UnauthenticatedFromAddress"
       end
 
       # Store the result ready to return
@@ -95,7 +95,7 @@ controller :send do
         message.mail_from = params.mail_from
         message.raw_message = raw_message
         message.received_with_ssl = true
-        message.scope = 'outgoing'
+        message.scope = "outgoing"
         message.domain_id = authenticated_domain.id
         message.credential_id = identity.id
         message.bounce = params.bounce ? 1 : 0

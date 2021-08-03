@@ -28,7 +28,7 @@ class AddressEndpoint < ApplicationRecord
   end
 
   def update_routes
-    self.routes.each { |r| r.update(:endpoint => nil, :mode => 'Reject') }
+    self.routes.each { |r| r.update(:endpoint => nil, :mode => "Reject") }
   end
 
   def description
@@ -36,7 +36,7 @@ class AddressEndpoint < ApplicationRecord
   end
 
   def domain
-    address.split('@', 2).last
+    address.split("@", 2).last
   end
 
 end

@@ -24,7 +24,7 @@ class SMTPEndpoint < ApplicationRecord
   has_many :routes, :as => :endpoint
   has_many :additional_route_endpoints, :dependent => :destroy, :as => :endpoint
 
-  SSL_MODES = ['None', 'Auto', 'STARTTLS', 'TLS']
+  SSL_MODES = ["None", "Auto", "STARTTLS", "TLS"]
 
   before_destroy :update_routes
 
@@ -42,7 +42,7 @@ class SMTPEndpoint < ApplicationRecord
   end
 
   def update_routes
-    self.routes.each { |r| r.update(:endpoint => nil, :mode => 'Reject') }
+    self.routes.each { |r| r.update(:endpoint => nil, :mode => "Reject") }
   end
 
 end

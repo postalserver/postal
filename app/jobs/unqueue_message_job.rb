@@ -1,6 +1,6 @@
 class UnqueueMessageJob < Postal::Job
   def perform
-    if original_message = QueuedMessage.find_by_id(params['id'])
+    if original_message = QueuedMessage.find_by_id(params["id"])
       if original_message.acquire_lock
 
         log "Lock acquired for queued message #{original_message.id}"
@@ -45,7 +45,7 @@ class UnqueueMessageJob < Postal::Job
             #
             if queued_message.server.suspended?
               log "#{log_prefix} Server is suspended. Holding message."
-              queued_message.message.create_delivery('Held', :details => "Mail server has been suspended. No e-mails can be processed at present. Contact support for assistance.")
+              queued_message.message.create_delivery("Held", :details => "Mail server has been suspended. No e-mails can be processed at present. Contact support for assistance.")
               queued_message.destroy
               next
             end
@@ -53,19 +53,19 @@ class UnqueueMessageJob < Postal::Job
             # We might not be able to send this any more, check the attempts
             if queued_message.attempts >= Postal.config.general.maximum_delivery_attempts
               details = "Maximum number of delivery attempts (#{queued_message.attempts}) has been reached."
-              if queued_message.message.scope == 'incoming'
+              if queued_message.message.scope == "incoming"
                 # Send bounces to incoming e-mails when they are hard failed
                 if bounce_id = queued_message.send_bounce
                   details += " Bounce sent to sender (see message <msg:#{bounce_id}>)"
                 end
-              elsif queued_message.message.scope == 'outgoing'
+              elsif queued_message.message.scope == "outgoing"
                 # Add the recipient to the suppression list
                 if queued_message.server.message_db.suppression_list.add(:recipient, queued_message.message.rcpt_to, :reason => "too many soft fails")
                   log "Added #{queued_message.message.rcpt_to} to suppression list because maximum attempts has been reached"
                   details += " Added #{queued_message.message.rcpt_to} to suppression list because delivery has failed #{queued_message.attempts} times."
                 end
               end
-              queued_message.message.create_delivery('HardFail', :details => details)
+              queued_message.message.create_delivery("HardFail", :details => details)
               queued_message.destroy
               log "#{log_prefix} Message has reached maximum number of attempts. Hard failing."
               next
@@ -74,7 +74,7 @@ class UnqueueMessageJob < Postal::Job
             # If the raw message has been removed (removed by retention)
             unless queued_message.message.raw_message?
               log "#{log_prefix} Raw message has been removed. Not sending."
-              queued_message.message.create_delivery('HardFail', :details => "Raw message has been removed. Cannot send message.")
+              queued_message.message.create_delivery("HardFail", :details => "Raw message has been removed. Cannot send message.")
               queued_message.destroy
               next
             end
@@ -82,7 +82,7 @@ class UnqueueMessageJob < Postal::Job
             #
             # Handle Incoming Messages
             #
-            if queued_message.message.scope == 'incoming'
+            if queued_message.message.scope == "incoming"
               #
               # If this is a bounce, we need to handle it as such
               #
@@ -92,7 +92,7 @@ class UnqueueMessageJob < Postal::Job
                 unless original_messages.empty?
                   for original_message in queued_message.message.original_messages
                     queued_message.message.update(:bounce_for_id => original_message.id, :domain_id => original_message.domain_id)
-                    queued_message.message.create_delivery('Processed', :details => "This has been detected as a bounce message for <msg:#{original_message.id}>.")
+                    queued_message.message.create_delivery("Processed", :details => "This has been detected as a bounce message for <msg:#{original_message.id}>.")
                     original_message.bounce!(queued_message.message)
                     log "#{log_prefix} Bounce linked with message #{original_message.id}"
                   end
@@ -105,7 +105,7 @@ class UnqueueMessageJob < Postal::Job
                 # otherwise we'll drop at this point.
                 if queued_message.message.route_id.nil?
                   log "#{log_prefix} No source messages found. Hard failing."
-                  queued_message.message.create_delivery('HardFail', :details => "This message was a bounce but we couldn't link it with any outgoing message and there was no route for it.")
+                  queued_message.message.create_delivery("HardFail", :details => "This message was a bounce but we couldn't link it with any outgoing message and there was no route for it.")
                   queued_message.destroy
                   next
                 end
@@ -140,15 +140,15 @@ class UnqueueMessageJob < Postal::Job
               #
               if queued_message.message.spam_score >= queued_message.server.spam_failure_threshold
                 log "#{log_prefix} Message has a spam score higher than the server's maxmimum. Hard failing."
-                queued_message.message.create_delivery('HardFail', :details => "Message's spam score is higher than the failure threshold for this server. Threshold is currently #{queued_message.server.spam_failure_threshold}.")
+                queued_message.message.create_delivery("HardFail", :details => "Message's spam score is higher than the failure threshold for this server. Threshold is currently #{queued_message.server.spam_failure_threshold}.")
                 queued_message.destroy
                 next
               end
 
               # If the server is in development mode, hold it
-              if queued_message.server.mode == 'Development' && !queued_message.manual?
+              if queued_message.server.mode == "Development" && !queued_message.manual?
                 log "Server is in development mode so holding."
-                queued_message.message.create_delivery('Held', :details => "Server is in development mode.")
+                queued_message.message.create_delivery("Held", :details => "Server is in development mode.")
                 queued_message.destroy
                 log "#{log_prefix} Server is in development mode. Holding."
                 next
@@ -161,16 +161,16 @@ class UnqueueMessageJob < Postal::Job
               if route = queued_message.message.route
 
                 # If the route says we're holding quananteed mail and this is spam, we'll hold this
-                if route.spam_mode == 'Quarantine' && queued_message.message.spam == 1 && !queued_message.manual?
-                  queued_message.message.create_delivery('Held', :details => "Message placed into quarantine.")
+                if route.spam_mode == "Quarantine" && queued_message.message.spam == 1 && !queued_message.manual?
+                  queued_message.message.create_delivery("Held", :details => "Message placed into quarantine.")
                   queued_message.destroy
                   log "#{log_prefix} Route says to quarantine spam message. Holding."
                   next
                 end
 
                 # If the route says we're holding quananteed mail and this is spam, we'll hold this
-                if route.spam_mode == 'Fail' && queued_message.message.spam == 1 && !queued_message.manual?
-                  queued_message.message.create_delivery('HardFail', :details => "Message is spam and the route specifies it should be failed.")
+                if route.spam_mode == "Fail" && queued_message.message.spam == 1 && !queued_message.manual?
+                  queued_message.message.create_delivery("HardFail", :details => "Message is spam and the route specifies it should be failed.")
                   queued_message.destroy
                   log "#{log_prefix} Route says to fail spam message. Hard failing."
                   next
@@ -179,8 +179,8 @@ class UnqueueMessageJob < Postal::Job
                 #
                 # Messages that should be blindly accepted are blindly accepted
                 #
-                if route.mode == 'Accept'
-                  queued_message.message.create_delivery('Processed', :details => "Message has been accepted but not sent to any endpoints.")
+                if route.mode == "Accept"
+                  queued_message.message.create_delivery("Processed", :details => "Message has been accepted but not sent to any endpoints.")
                   queued_message.destroy
                   log "#{log_prefix} Route says to accept without endpoint. Marking as processed."
                   next
@@ -189,14 +189,14 @@ class UnqueueMessageJob < Postal::Job
                 #
                 # Messages that should be accepted and held should be held
                 #
-                if route.mode == 'Hold'
+                if route.mode == "Hold"
                   log "#{log_prefix} Route says to hold message."
                   if queued_message.manual?
                     log "#{log_prefix} Message was queued manually. Marking as processed."
-                    queued_message.message.create_delivery('Processed', :details => "Message has been processed.")
+                    queued_message.message.create_delivery("Processed", :details => "Message has been processed.")
                   else
                     log "#{log_prefix} Message was not queued manually. Holding."
-                    queued_message.message.create_delivery('Held', :details => "Message has been accepted but not sent to any endpoints.")
+                    queued_message.message.create_delivery("Held", :details => "Message has been accepted but not sent to any endpoints.")
                   end
                   queued_message.destroy
                   next
@@ -205,9 +205,9 @@ class UnqueueMessageJob < Postal::Job
                 #
                 # Messages that should be bounced should be bounced (or rejected if they got this far)
                 #
-                if route.mode == 'Bounce' || route.mode == 'Reject'
+                if route.mode == "Bounce" || route.mode == "Reject"
                   if id = queued_message.send_bounce
-                    queued_message.message.create_delivery('HardFail', :details => "Message has been bounced because the route asks for this. See message <msg:#{id}>")
+                    queued_message.message.create_delivery("HardFail", :details => "Message has been bounced because the route asks for this. See message <msg:#{id}>")
                     log "#{log_prefix} Route says to bounce. Hard failing and sent bounce (#{id})."
                   end
                   queued_message.destroy
@@ -227,7 +227,7 @@ class UnqueueMessageJob < Postal::Job
                       sender = cached_sender(Postal::SMTPSender, queued_message.message.endpoint.domain, nil, :force_rcpt_to => queued_message.message.endpoint.address)
                     else
                       log "#{log_prefix} Invalid endpoint for route (#{queued_message.message.endpoint_type})"
-                      queued_message.message.create_delivery('HardFail', :details => "Invalid endpoint for route.")
+                      queued_message.message.create_delivery("HardFail", :details => "Invalid endpoint for route.")
                       queued_message.destroy
                       next
                     end
@@ -240,10 +240,10 @@ class UnqueueMessageJob < Postal::Job
 
                 # Log the result
                 log_details = result.details
-                if result.type =='HardFail' && result.suppress_bounce
+                if result.type =="HardFail" && result.suppress_bounce
                   # The delivery hard failed, but requested that no bounce be sent
                   log "#{log_prefix} Suppressing bounce message after hard fail"
-                elsif result.type =='HardFail' && queued_message.message.send_bounces?
+                elsif result.type =="HardFail" && queued_message.message.send_bounces?
                   # If the message is a hard fail, send a bounce message for this message.
                   log "#{log_prefix} Sending a bounce because message hard failed"
                   if bounce_id = queued_message.send_bounce
@@ -266,7 +266,7 @@ class UnqueueMessageJob < Postal::Job
                 end
               else
                 log "#{log_prefix} No route and/or endpoint available for processing. Hard failing."
-                queued_message.message.create_delivery('HardFail', :details => "Message does not have a route and/or endpoint available for delivery.")
+                queued_message.message.create_delivery("HardFail", :details => "Message does not have a route and/or endpoint available for delivery.")
                 queued_message.destroy
                 next
               end
@@ -275,10 +275,10 @@ class UnqueueMessageJob < Postal::Job
             #
             # Handle Outgoing Messages
             #
-            if queued_message.message.scope == 'outgoing'
+            if queued_message.message.scope == "outgoing"
               if queued_message.message.domain.nil?
                 log "#{log_prefix} Message has no domain. Hard failing."
-                queued_message.message.create_delivery('HardFail', :details => "Message's domain no longer exist")
+                queued_message.message.create_delivery("HardFail", :details => "Message's domain no longer exist")
                 queued_message.destroy
                 next
               end
@@ -288,7 +288,7 @@ class UnqueueMessageJob < Postal::Job
               #
               if queued_message.message.rcpt_to.blank?
                 log "#{log_prefix} Message has no to address. Hard failing."
-                queued_message.message.create_delivery('HardFail', :details => "Message doesn't have an RCPT to")
+                queued_message.message.create_delivery("HardFail", :details => "Message doesn't have an RCPT to")
                 queued_message.destroy
                 next
               end
@@ -298,7 +298,7 @@ class UnqueueMessageJob < Postal::Job
               #
               if !queued_message.manual? && queued_message.message.credential && queued_message.message.credential.hold?
                 log "#{log_prefix} Credential wants us to hold messages. Holding."
-                queued_message.message.create_delivery('Held', :details => "Credential is configured to hold all messages authenticated by it.")
+                queued_message.message.create_delivery("Held", :details => "Credential is configured to hold all messages authenticated by it.")
                 queued_message.destroy
                 next
               end
@@ -308,13 +308,13 @@ class UnqueueMessageJob < Postal::Job
               #
               if !queued_message.manual? && sl = queued_message.server.message_db.suppression_list.get(:recipient, queued_message.message.rcpt_to)
                 log "#{log_prefix} Recipient is on the suppression list. Holding."
-                queued_message.message.create_delivery('Held', :details => "Recipient (#{queued_message.message.rcpt_to}) is on the suppression list (reason: #{sl['reason']})")
+                queued_message.message.create_delivery("Held", :details => "Recipient (#{queued_message.message.rcpt_to}) is on the suppression list (reason: #{sl['reason']})")
                 queued_message.destroy
                 next
               end
 
               # Extract a tag and add it to the message if one doesn't exist
-              if queued_message.message.tag.nil? && tag = queued_message.message.headers['x-postal-tag']
+              if queued_message.message.tag.nil? && tag = queued_message.message.headers["x-postal-tag"]
                 log "#{log_prefix} Added tag #{tag.last}"
                 queued_message.message.update(:tag => tag.last)
               end
@@ -353,7 +353,7 @@ class UnqueueMessageJob < Postal::Job
               if queued_message.server.send_limit_exceeded?
                 # If we're over the limit, we're going to be holding this message
                 queued_message.server.update_columns(:send_limit_exceeded_at => Time.now, :send_limit_approaching_at => nil)
-                queued_message.message.create_delivery('Held', :details => "Message held because send limit (#{queued_message.server.send_limit}) has been reached.")
+                queued_message.message.create_delivery("Held", :details => "Message held because send limit (#{queued_message.server.send_limit}) has been reached.")
                 queued_message.destroy
                 log "#{log_prefix} Server send limit has been exceeded. Holding."
                 next
@@ -368,9 +368,9 @@ class UnqueueMessageJob < Postal::Job
               queued_message.message.database.live_stats.increment(queued_message.message.scope)
 
               # If the server is in development mode, hold it
-              if queued_message.server.mode == 'Development' && !queued_message.manual?
+              if queued_message.server.mode == "Development" && !queued_message.manual?
                 log "Server is in development mode so holding."
-                queued_message.message.create_delivery('Held', :details => "Server is in development mode.")
+                queued_message.message.create_delivery("Held", :details => "Server is in development mode.")
                 queued_message.destroy
                 log "#{log_prefix} Server is in development mode. Holding."
                 next
@@ -393,8 +393,8 @@ class UnqueueMessageJob < Postal::Job
               # If the message has been hard failed, check to see how many other recent hard fails we've had for the address
               # and if there are more than 2, suppress the address for 30 days.
               #
-              if result.type == 'HardFail'
-                recent_hard_fails = queued_message.server.message_db.select(:messages, :where => {:rcpt_to => queued_message.message.rcpt_to, :status => 'HardFail', :timestamp => {:greater_than => 24.hours.ago.to_f}}, :count => true)
+              if result.type == "HardFail"
+                recent_hard_fails = queued_message.server.message_db.select(:messages, :where => {:rcpt_to => queued_message.message.rcpt_to, :status => "HardFail", :timestamp => {:greater_than => 24.hours.ago.to_f}}, :count => true)
                 if recent_hard_fails >= 1
                   if queued_message.server.message_db.suppression_list.add(:recipient, queued_message.message.rcpt_to, :reason => "too many hard fails")
                     log "#{log_prefix} Added #{queued_message.message.rcpt_to} to suppression list because #{recent_hard_fails} hard fails in 24 hours"
@@ -407,7 +407,7 @@ class UnqueueMessageJob < Postal::Job
               #
               # If a message is sent successfully, remove the users from the suppression list
               #
-              if result.type == 'Sent'
+              if result.type == "Sent"
                 if queued_message.server.message_db.suppression_list.remove(:recipient, queued_message.message.rcpt_to)
                   log "#{log_prefix} Removed #{queued_message.message.rcpt_to} from suppression list because success"
                   result.details += "." if result.details =~ /\.\z/

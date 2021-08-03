@@ -1,5 +1,5 @@
-require 'ipaddr'
-require 'nio'
+require "ipaddr"
+require "nio"
 
 module Postal
   module SMTPServer
@@ -18,10 +18,10 @@ module Postal
         trap("USR1") do
           STDOUT.puts "Received USR1 signal, respawning."
           fork do
-            if ENV['APP_ROOT']
-              Dir.chdir(ENV['APP_ROOT'])
+            if ENV["APP_ROOT"]
+              Dir.chdir(ENV["APP_ROOT"])
             end
-            ENV.delete('BUNDLE_GEMFILE')
+            ENV.delete("BUNDLE_GEMFILE")
             exec("bundle exec --keep-file-descriptors rake postal:smtp_server", :close_others => false)
           end
         end
@@ -46,8 +46,8 @@ module Postal
       end
 
       def listen
-        if ENV['SERVER_FD']
-          @server = TCPServer.for_fd(ENV['SERVER_FD'].to_i)
+        if ENV["SERVER_FD"]
+          @server = TCPServer.for_fd(ENV["SERVER_FD"].to_i)
         else
           @server = TCPServer.open(Postal.config.smtp_server.bind_address, Postal.config.smtp_server.port)
         end
@@ -61,7 +61,7 @@ module Postal
           @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPINTVL, 10)
           @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPCNT, 5)
         end
-        ENV['SERVER_FD'] = @server.to_i.to_s
+        ENV["SERVER_FD"] = @server.to_i.to_s
         logger.info "Listening on  #{Postal.config.smtp_server.bind_address}:#{Postal.config.smtp_server.port}"
       end
 
@@ -72,7 +72,7 @@ module Postal
       end
 
       def kill_parent
-        Process.kill('TERM', Process.ppid)
+        Process.kill("TERM", Process.ppid)
       end
 
       def run_event_loop
@@ -81,7 +81,7 @@ module Postal
         # Register the SMTP listener
         @io_selector.register(@server, :r)
         # Create a hash to contain a buffer for each client.
-        buffers = Hash.new { |h, k| h[k] = String.new.force_encoding('BINARY') }
+        buffers = Hash.new { |h, k| h[k] = String.new.force_encoding("BINARY") }
         loop do
           # Wait for an event to occur
           @io_selector.select do |monitor|
@@ -212,7 +212,7 @@ module Postal
                 end
               rescue => e
                 # Something went wrong, log as appropriate
-                client_id = client ? client.id : '------'
+                client_id = client ? client.id : "------"
                 if defined?(Raven)
                   Raven.capture_exception(e, :extra => {:log_id => (client.id rescue nil)})
                 end
@@ -247,12 +247,12 @@ module Postal
 
       def run
         # Write PID to file if path specified
-        if ENV['PID_FILE']
-          File.open(ENV['PID_FILE'], 'w') { |f| f.write(Process.pid.to_s + "\n") }
+        if ENV["PID_FILE"]
+          File.open(ENV["PID_FILE"], "w") { |f| f.write(Process.pid.to_s + "\n") }
         end
         # If we have been spawned to replace an existing processm shut down the
         # parent after listening.
-        if ENV['SERVER_FD']
+        if ENV["SERVER_FD"]
           listen
           kill_parent
         else

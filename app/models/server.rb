@@ -41,7 +41,7 @@
 
 class Server < ApplicationRecord
 
-  RESERVED_PERMALINKS = ['new', 'all', 'search', 'stats', 'edit', 'manage', 'delete', 'destroy', 'remove']
+  RESERVED_PERMALINKS = ["new", "all", "search", "stats", "edit", "manage", "delete", "destroy", "remove"]
 
   include HasUUID
   include HasSoftDestroy
@@ -62,7 +62,7 @@ class Server < ApplicationRecord
   has_many :track_domains, :dependent => :destroy
   has_many :ip_pool_rules, :dependent => :destroy, :as => :owner
 
-  MODES = ['Live', 'Development']
+  MODES = ["Live", "Development"]
 
   random_string :token, :type => :chars, :length => 6, :unique => true, :upper_letters_only => true
   default_value :permalink, -> { name ? name.parameterize : nil}
@@ -95,7 +95,7 @@ class Server < ApplicationRecord
 
   def status
     if self.suspended?
-      'Suspended'
+      "Suspended"
     else
       self.mode
     end
@@ -166,7 +166,7 @@ class Server < ApplicationRecord
   end
 
   def domain_stats
-    domains = Domain.where(:owner_id => self.id, :owner_type => 'Server').to_a
+    domains = Domain.where(:owner_id => self.id, :owner_type => "Server").to_a
     total, unverified, bad_dns = 0, 0, 0
     domains.each do |domain|
       total += 1
@@ -221,10 +221,10 @@ class Server < ApplicationRecord
   def authenticated_domain_for_address(address)
     return nil if address.blank?
     address = Postal::Helpers.strip_name_from_address(address)
-    uname, domain_name = address.split('@', 2)
+    uname, domain_name = address.split("@", 2)
     return nil unless uname
     return nil unless domain_name
-    uname, _ = uname.split('+', 2)
+    uname, _ = uname.split("+", 2)
 
     # Check the server's domain
     if domain = Domain.verified.order(:owner_type => :desc).where("(owner_type = 'Organization' AND owner_id = ?) OR (owner_type = 'Server' AND owner_id = ?)", self.organization_id, self.id).where(:name => domain_name).first
@@ -237,8 +237,8 @@ class Server < ApplicationRecord
   end
 
   def find_authenticated_domain_from_headers(headers)
-    header_to_check = ['from']
-    header_to_check << 'sender' if self.allow_sender?
+    header_to_check = ["from"]
+    header_to_check << "sender" if self.allow_sender?
     header_to_check.each do |header_name|
       if headers[header_name].is_a?(Array)
         values = headers[header_name]
@@ -274,7 +274,7 @@ class Server < ApplicationRecord
   end
 
   def ip_pool_for_message(message)
-    if message.scope == 'outgoing'
+    if message.scope == "outgoing"
       [self, self.organization].each do |scope|
         rules = scope.ip_pool_rules.order(:created_at => :desc)
         rules.each do |rule|

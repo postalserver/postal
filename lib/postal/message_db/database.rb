@@ -22,8 +22,8 @@ module Postal
       #
       def schema_version
         @schema_version ||= begin
-          last_migration = select(:migrations, :order => :version, :direction => 'DESC', :limit => 1).first
-          last_migration ? last_migration['version'] : 0
+          last_migration = select(:migrations, :order => :version, :direction => "DESC", :limit => 1).first
+          last_migration ? last_migration["version"] : 0
         rescue Mysql2::Error => e
           e.message =~ /doesn\'t exist/ ? 0 : raise
         end
@@ -59,7 +59,7 @@ module Postal
       # Return the total size of all stored messages
       #
       def total_size
-        query("SELECT SUM(size) AS size FROM `#{database_name}`.`raw_message_sizes`").first['size'] || 0
+        query("SELECT SUM(size) AS size FROM `#{database_name}`.`raw_message_sizes`").first["size"] || 0
       end
 
       #
@@ -142,17 +142,17 @@ module Postal
         if options[:count]
           sql_query << " COUNT(id) AS count"
         elsif options[:fields]
-          sql_query << " " + options[:fields].map { |f| "`#{f}`" }.join(', ')
+          sql_query << " " + options[:fields].map { |f| "`#{f}`" }.join(", ")
         else
           sql_query << " *"
         end
         sql_query << " FROM `#{database_name}`.`#{table}`"
         if options[:where] && !options[:where].empty?
-          sql_query << " " + build_where_string(options[:where], ' AND ')
+          sql_query << " " + build_where_string(options[:where], " AND ")
         end
         if options[:order]
-          direction = (options[:direction] || 'ASC').upcase
-          raise Postal::Error, "Invalid direction #{options[:direction]}" unless ['ASC', 'DESC'].include?(direction)
+          direction = (options[:direction] || "ASC").upcase
+          raise Postal::Error, "Invalid direction #{options[:direction]}" unless ["ASC", "DESC"].include?(direction)
           sql_query << " ORDER BY `#{options[:order]}` #{direction}"
         end
 
@@ -166,7 +166,7 @@ module Postal
 
         result = query(sql_query)
         if options[:count]
-          result.first['count']
+          result.first["count"]
         else
           result.to_a
         end
@@ -218,8 +218,8 @@ module Postal
       #
       def insert(table, attributes)
         sql_query = "INSERT INTO `#{database_name}`.`#{table}`"
-        sql_query << " (" + attributes.keys.map { |k| "`#{k}`" }.join(', ') + ")"
-        sql_query << " VALUES (" + attributes.values.map { |v| escape(v) }.join(', ') + ")"
+        sql_query << " (" + attributes.keys.map { |k| "`#{k}`" }.join(", ") + ")"
+        sql_query << " VALUES (" + attributes.values.map { |v| escape(v) }.join(", ") + ")"
         with_mysql do |mysql|
           query_on_connection(mysql, sql_query)
           mysql.last_id
@@ -234,9 +234,9 @@ module Postal
           nil
         else
           sql_query = "INSERT INTO `#{database_name}`.`#{table}`"
-          sql_query << " (" + keys.map { |k| "`#{k}`" }.join(', ') + ")"
+          sql_query << " (" + keys.map { |k| "`#{k}`" }.join(", ") + ")"
           sql_query << " VALUES "
-          sql_query << values.map { |v| "(" + v.map { |v| escape(v) }.join(', ') + ")" }.join(', ')
+          sql_query << values.map { |v| "(" + v.map { |v| escape(v) }.join(", ") + ")" }.join(", ")
           query(sql_query)
         end
       end
@@ -251,7 +251,7 @@ module Postal
       #
       def delete(table, options = {})
         sql_query = "DELETE FROM `#{database_name}`.`#{table}`"
-        sql_query << " " + build_where_string(options[:where], ' AND ')
+        sql_query << " " + build_where_string(options[:where], " AND ")
         with_mysql do |mysql|
           query_on_connection(mysql, sql_query)
           mysql.affected_rows
@@ -291,14 +291,14 @@ module Postal
       def escape(value)
         with_mysql do |mysql|
           if value == true
-            '1'
+            "1"
           elsif value == false
-            '0'
+            "0"
           elsif value.nil?
-            'NULL'
+            "NULL"
           else
             if value.to_s.length == 0
-              'NULL'
+              "NULL"
             else
               "'" + mysql.escape(value.to_s) + "'"
             end
@@ -342,16 +342,16 @@ module Postal
         MessageDB::MySQL.client(&block)
       end
 
-      def build_where_string(attributes, joiner = ', ')
+      def build_where_string(attributes, joiner = ", ")
         "WHERE #{hash_to_sql(attributes, joiner)}"
       end
 
-      def hash_to_sql(hash, joiner = ', ')
+      def hash_to_sql(hash, joiner = ", ")
         hash.map do |key, value|
           if value.is_a?(Array) && value.all? { |v| v.is_a?(Integer) }
             "`#{key}` IN (#{value.join(', ')})"
           elsif value.is_a?(Array)
-            escaped_values = value.map { |v| escape(v) }.join(', ')
+            escaped_values = value.map { |v| escape(v) }.join(", ")
             "`#{key}` IN (#{escaped_values})"
           elsif value.is_a?(Hash)
             sql = []

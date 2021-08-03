@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 
-  scope "org/:org_permalink", :as => 'organization' do
+  scope "org/:org_permalink", :as => "organization" do
     resources :domains, :only => [:index, :new, :create, :destroy] do
       match :verify, :on => :member, :via => [:get, :post]
       get :setup, :on => :member
@@ -43,29 +43,29 @@ Rails.application.routes.draw do
       end
       resources :webhooks do
         get :history, :on => :collection
-        get 'history/:uuid', :on => :collection, :action => 'history_request', :as => 'history_request'
+        get "history/:uuid", :on => :collection, :action => "history_request", :as => "history_request"
       end
       get :limits, :on => :member
       get :retention, :on => :member
       get :queue, :on => :member
       get :spam, :on => :member
       get :delete, :on => :member
-      get 'help/outgoing' => 'help#outgoing'
-      get 'help/incoming' => 'help#incoming'
+      get "help/outgoing" => "help#outgoing"
+      get "help/incoming" => "help#incoming"
       get :advanced, :on => :member
       post :suspend, :on => :member
       post :unsuspend, :on => :member
     end
 
     resources :ip_pool_rules
-    resources :ip_pools, :controller => 'organization_ip_pools' do
+    resources :ip_pools, :controller => "organization_ip_pools" do
       put :assignments, :on => :collection
     end
-    root 'servers#index'
-    get 'settings' => 'organizations#edit'
-    patch 'settings' => 'organizations#update'
-    get 'delete' => 'organizations#delete'
-    delete 'delete' => 'organizations#destroy'
+    root "servers#index"
+    get "settings" => "organizations#edit"
+    patch "settings" => "organizations#update"
+    get "delete" => "organizations#delete"
+    delete "delete" => "organizations#destroy"
   end
 
   resources :organizations, :except => [:index]
@@ -74,19 +74,19 @@ Rails.application.routes.draw do
     resources :ip_addresses
   end
 
-  get 'settings' => 'user#edit'
-  patch 'settings' => 'user#update'
-  post 'persist' => 'sessions#persist'
+  get "settings" => "user#edit"
+  patch "settings" => "user#update"
+  post "persist" => "sessions#persist"
 
-  get 'login' => 'sessions#new'
-  post 'login' => 'sessions#create'
-  get 'login/token' => 'sessions#create_with_token'
-  delete 'logout' => 'sessions#destroy'
-  match 'login/reset' => 'sessions#begin_password_reset', :via => [:get, :post]
-  match 'login/reset/:token' => 'sessions#finish_password_reset', :via => [:get, :post]
+  get "login" => "sessions#new"
+  post "login" => "sessions#create"
+  get "login/token" => "sessions#create_with_token"
+  delete "logout" => "sessions#destroy"
+  match "login/reset" => "sessions#begin_password_reset", :via => [:get, :post]
+  match "login/reset/:token" => "sessions#finish_password_reset", :via => [:get, :post]
 
 
-  get 'ip' => 'sessions#ip'
+  get "ip" => "sessions#ip"
 
-  root 'organizations#index'
+  root "organizations#index"
 end

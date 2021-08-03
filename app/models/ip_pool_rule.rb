@@ -24,17 +24,17 @@ class IPPoolRule < ApplicationRecord
   validate :validate_ip_pool_belongs_to_organization
 
   def from
-    from_text ? from_text.gsub(/\r/, '').split(/\n/).map(&:strip) : []
+    from_text ? from_text.gsub(/\r/, "").split(/\n/).map(&:strip) : []
   end
 
   def to
-    to_text ? to_text.gsub(/\r/, '').split(/\n/).map(&:strip) : []
+    to_text ? to_text.gsub(/\r/, "").split(/\n/).map(&:strip) : []
   end
 
   def apply_to_message?(message)
-    if from.present? && message.headers['from'].present?
+    if from.present? && message.headers["from"].present?
       from.each do |condition|
-        if message.headers['from'].any? { |f| self.class.address_matches?(condition, f) }
+        if message.headers["from"].any? { |f| self.class.address_matches?(condition, f) }
           return true
         end
       end
@@ -69,13 +69,13 @@ class IPPoolRule < ApplicationRecord
   def self.address_matches?(condition, address)
     address = Postal::Helpers.strip_name_from_address(address)
     if condition =~ /@/
-      parts = address.split('@')
-      domain, uname = parts.pop, parts.join('@')
-      uname, _ = uname.split('+', 2)
+      parts = address.split("@")
+      domain, uname = parts.pop, parts.join("@")
+      uname, _ = uname.split("+", 2)
       condition == "#{uname}@#{domain}"
     else
       # Match as a domain
-      condition == address.split('@').last
+      condition == address.split("@").last
     end
   end
 

@@ -28,7 +28,7 @@ class DomainsController < ApplicationController
     @domain = scope.build(params.require(:domain).permit(:name, :verification_method))
 
     if current_user.admin?
-      @domain.verification_method = 'DNS'
+      @domain.verification_method = "DNS"
       @domain.verified_at = Time.now
     end
 
@@ -39,7 +39,7 @@ class DomainsController < ApplicationController
         redirect_to_with_json [:verify, organization, @server, @domain]
       end
     else
-      render_form_errors 'new', @domain
+      render_form_errors "new", @domain
     end
   end
 
@@ -56,7 +56,7 @@ class DomainsController < ApplicationController
 
     if request.post?
       case @domain.verification_method
-      when 'DNS'
+      when "DNS"
         if @domain.verify_with_dns
           redirect_to_with_json [:setup, organization, @server, @domain], :notice => "#{@domain.name} has been verified successfully. You now need to configure your DNS records."
         else
@@ -65,7 +65,7 @@ class DomainsController < ApplicationController
             wants.json { render :json => {:flash => {:alert => "We couldn't verify your domain. Please double check you've added the TXT record correctly."}}}
           end
         end
-      when 'Email'
+      when "Email"
         if params[:code]
           if @domain.verification_token == params[:code].to_s.strip
             @domain.verify

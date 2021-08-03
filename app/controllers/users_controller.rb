@@ -16,7 +16,7 @@ class UsersController < ApplicationController
     if @user.save
       redirect_to_with_json :users, :notice => "#{@user.name} has been created successfully."
     else
-      render_form_errors 'new', @user
+      render_form_errors "new", @user
     end
   end
 
@@ -37,7 +37,7 @@ class UsersController < ApplicationController
     if @user.save
       redirect_to_with_json :users, :notice => "Permissions for #{@user.name} have been updated successfully."
     else
-      render_form_errors 'edit', @user
+      render_form_errors "edit", @user
     end
   end
 

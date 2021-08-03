@@ -18,7 +18,7 @@
 #  excluded_click_domains :text(65535)
 #
 
-require 'resolv'
+require "resolv"
 
 class TrackDomain < ApplicationRecord
 
@@ -31,7 +31,7 @@ class TrackDomain < ApplicationRecord
   validates :domain_id, :uniqueness => {:scope => :server_id, :message => "already has a track domain for this server"}
   validate :validate_domain_belongs_to_server
 
-  scope :ok, -> { where(:dns_status => 'OK')}
+  scope :ok, -> { where(:dns_status => "OK")}
 
   after_create :check_dns, :unless => :dns_status
 
@@ -48,21 +48,21 @@ class TrackDomain < ApplicationRecord
   end
 
   def dns_ok?
-    self.dns_status == 'OK'
+    self.dns_status == "OK"
   end
 
   def check_dns
     result = self.domain.resolver.getresources(self.full_name, Resolv::DNS::Resource::IN::CNAME)
     records = result.map { |r| r.name.to_s.downcase }
     if records.empty?
-      self.dns_status = 'Missing'
+      self.dns_status = "Missing"
       self.dns_error = "There is no record at #{self.full_name}"
     else
       if records.size == 1 && records.first == Postal.config.dns.track_domain
-        self.dns_status = 'OK'
+        self.dns_status = "OK"
         self.dns_error = nil
       else
-        self.dns_status = 'Invalid'
+        self.dns_status = "Invalid"
         self.dns_error = "There is a CNAME record at #{self.full_name} but it points to #{records.first} which is incorrect. It should point to #{Postal.config.dns.track_domain}."
       end
     end

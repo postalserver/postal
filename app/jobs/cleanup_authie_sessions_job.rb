@@ -1,4 +1,4 @@
-require 'authie/session'
+require "authie/session"
 
 class CleanupAuthieSessionsJob < Postal::Job
   def perform

@@ -1,4 +1,4 @@
-require_relative 'boot'
+require_relative "boot"
 
 require "rails"
 require "active_model/railtie"
@@ -30,7 +30,7 @@ module Postal
     config.action_view.field_error_proc = Proc.new { |t, i| t }
 
     # Load the tracking server middleware
-    require 'postal/tracking_middleware'
+    require "postal/tracking_middleware"
     config.middleware.use Postal::TrackingMiddleware
   end
 end

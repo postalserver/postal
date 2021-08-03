@@ -16,7 +16,7 @@ class WebhooksController < ApplicationController
     if @webhook.save
       redirect_to_with_json [organization, @server, :webhooks]
     else
-      render_form_errors 'new', @webhook
+      render_form_errors "new", @webhook
     end
   end
 
@@ -24,7 +24,7 @@ class WebhooksController < ApplicationController
     if @webhook.update(safe_params)
       redirect_to_with_json [organization, @server, :webhooks]
     else
-      render_form_errors 'edit', @webhook
+      render_form_errors "edit", @webhook
     end
   end
 

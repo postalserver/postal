@@ -1,16 +1,16 @@
-ENV['POSTAL_CONFIG_ROOT'] ||= File.expand_path('../config', __FILE__)
+ENV["POSTAL_CONFIG_ROOT"] ||= File.expand_path("../config", __FILE__)
 
-require File.expand_path('../../config/environment', __FILE__)
-require 'rspec/rails'
-require 'spec_helper'
-require 'factory_bot'
-require 'database_cleaner'
+require File.expand_path("../../config/environment", __FILE__)
+require "rspec/rails"
+require "spec_helper"
+require "factory_bot"
+require "database_cleaner"
 
 DatabaseCleaner.allow_remote_database_url = true
 ActiveRecord::Base.logger = Logger.new("/dev/null")
 
 FACTORIES_EXCLUDED_FROM_LINT = []
-Dir[File.expand_path('../factories/*.rb', __FILE__)].each { |f| require f }
+Dir[File.expand_path("../factories/*.rb", __FILE__)].each { |f| require f }
 
 ActiveRecord::Migration.maintain_test_schema!
 RSpec.configure do |config|

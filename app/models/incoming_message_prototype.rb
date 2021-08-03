@@ -18,14 +18,14 @@ class IncomingMessagePrototype
   end
 
   def from_address
-    @from.gsub(/.*</, '').gsub(/>.*/, '').strip
+    @from.gsub(/.*</, "").gsub(/>.*/, "").strip
   end
 
   def route
     @routes ||= begin
       if @to.present?
-        uname, domain = @to.split('@', 2)
-        uname, tag = uname.split('+', 2)
+        uname, domain = @to.split("@", 2)
+        uname, tag = uname.split("+", 2)
         @server.routes.includes(:domain).where(:domains => {:name => domain}, :name => uname).first
       else
         nil
@@ -37,7 +37,7 @@ class IncomingMessagePrototype
     (@attachments || []).map do |attachment|
       {
         :name => attachment[:name],
-        :content_type => attachment[:content_type] || 'application/octet-stream',
+        :content_type => attachment[:content_type] || "application/octet-stream",
         :data => attachment[:base64] ? Base64.decode64(attachment[:data]) : attachment[:data]
       }
     end
@@ -95,7 +95,7 @@ class IncomingMessagePrototype
           :content => attachment[:data]
         }
       end
-      mail.header['Received'] = "from #{@source_type} (#{@ip} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822.to_s}"
+      mail.header["Received"] = "from #{@source_type} (#{@ip} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822.to_s}"
       mail.to_s
     end
   end

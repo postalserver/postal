@@ -16,9 +16,9 @@ module Postal
       request_options[:sign] = true
       request_options[:timeout] = @endpoint.timeout || 5
       case @endpoint.encoding
-      when 'BodyAsJSON'
+      when "BodyAsJSON"
         request_options[:json] = parameters(message, :flat => false).to_json
-      when 'FormData'
+      when "FormData"
         request_options[:params] = parameters(message, :flat => true)
       end
 
@@ -33,23 +33,23 @@ module Postal
       end
       if response[:code] >= 200 && response[:code] < 300
         # This is considered a success
-        result.type = 'Sent'
+        result.type = "Sent"
       elsif response[:code] >= 500 && response[:code] < 600
         # This is temporary. They might fix their server so it should soft fail.
-        result.type = 'SoftFail'
+        result.type = "SoftFail"
         result.retry = true
       elsif response[:code] < 0
         # Connection/SSL etc... errors
-        result.type = 'SoftFail'
+        result.type = "SoftFail"
         result.retry = true
         result.connect_error = true
       elsif response[:code] == 429
         # Rate limit exceeded, treat as a hard fail and don't send bounces
-        result.type = 'HardFail'
+        result.type = "HardFail"
         result.suppress_bounce = true
       else
         # This is permanent. Any other error isn't cool with us.
-        result.type = 'HardFail'
+        result.type = "HardFail"
       end
       result.time = (Time.now - start_time).to_f.round(2)
       result
@@ -63,7 +63,7 @@ module Postal
 
     def parameters(message, options = {})
       case @endpoint.format
-      when 'Hash'
+      when "Hash"
         hash = {
           :id => message.id,
           :rcpt_to => message.rcpt_to,
@@ -76,16 +76,16 @@ module Postal
           :spam_status => message.spam_status,
           :bounce => message.bounce == 1 ? true : false,
           :received_with_ssl => message.received_with_ssl == 1,
-          :to => message.headers['to']&.last,
-          :cc => message.headers['cc']&.last,
-          :from => message.headers['from']&.last,
-          :date => message.headers['date']&.last,
-          :in_reply_to => message.headers['in-reply-to']&.last,
-          :references => message.headers['references']&.last,
+          :to => message.headers["to"]&.last,
+          :cc => message.headers["cc"]&.last,
+          :from => message.headers["from"]&.last,
+          :date => message.headers["date"]&.last,
+          :in_reply_to => message.headers["in-reply-to"]&.last,
+          :references => message.headers["references"]&.last,
           :html_body => message.html_body,
           :attachment_quantity => message.attachments.size,
-          :auto_submitted => message.headers['auto-submitted']&.last,
-          :reply_to => message.headers['reply-to']
+          :auto_submitted => message.headers["auto-submitted"]&.last,
+          :reply_to => message.headers["reply-to"]
         }
 
         if @endpoint.strip_replies
@@ -115,7 +115,7 @@ module Postal
         end
 
         hash
-      when 'RawMessage'
+      when "RawMessage"
         {
           :id => message.id,
           :rcpt_to => message.rcpt_to,

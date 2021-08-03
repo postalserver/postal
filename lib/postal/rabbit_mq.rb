@@ -1,11 +1,11 @@
-require 'postal/config'
-require 'bunny'
+require "postal/config"
+require "bunny"
 
 module Postal
   module RabbitMQ
 
     def self.create_connection
-      bunny_host = [ 'localhost' ]
+      bunny_host = [ "localhost" ]
 
       if Postal.config.rabbitmq&.host.is_a?(Array)
         bunny_host = Postal.config.rabbitmq&.host
@@ -16,8 +16,8 @@ module Postal
       conn = Bunny.new(
         :hosts => bunny_host,
         :port => Postal.config.rabbitmq&.port || 5672,
-        :username => Postal.config.rabbitmq&.username || 'guest',
-        :password => Postal.config.rabbitmq&.password || 'guest',
+        :username => Postal.config.rabbitmq&.username || "guest",
+        :password => Postal.config.rabbitmq&.password || "guest",
         :vhost => Postal.config.rabbitmq&.vhost || nil
       )
       conn.start

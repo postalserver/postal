@@ -7,7 +7,7 @@ module Postal
 
       def self.find_one(database, query)
         query = {:id => query.to_i} if query.is_a?(Integer)
-        if message = database.select('messages', :where => query, :limit => 1).first
+        if message = database.select("messages", :where => query, :limit => 1).first
           Message.new(database, message)
         else
           raise NotFound, "No message found matching provided query #{query}"
@@ -15,7 +15,7 @@ module Postal
       end
 
       def self.find(database, options = {})
-        if messages = database.select('messages', options)
+        if messages = database.select("messages", options)
           if messages.is_a?(Array)
             messages.map { |m| Message.new(database, m) }
           else
@@ -27,7 +27,7 @@ module Postal
       end
 
       def self.find_with_pagination(database, page, options = {})
-        messages = database.select_with_pagination('messages', page, options)
+        messages = database.select_with_pagination("messages", page, options)
         messages[:records] = messages[:records].map { |m| Message.new(database, m) }
         messages
       end
@@ -67,7 +67,7 @@ module Postal
         @endpoint ||= begin
           if self.endpoint_type && self.endpoint_id
             self.endpoint_type.constantize.find_by_id(self.endpoint_id)
-          elsif self.route && self.route.mode == 'Endpoint'
+          elsif self.route && self.route.mode == "Endpoint"
             self.route.endpoint
           end
         end
@@ -85,10 +85,10 @@ module Postal
       #
       def copy_attributes_from_raw_message
         if self.raw_message
-          self.subject = self.headers['subject']&.last.to_s[0,200]
-          self.message_id = self.headers['message-id']&.last
+          self.subject = self.headers["subject"]&.last.to_s[0,200]
+          self.message_id = self.headers["message-id"]&.last
           if self.message_id
-            self.message_id = self.message_id.gsub(/.*</, '').gsub(/>.*/, '').strip
+            self.message_id = self.message_id.gsub(/.*</, "").gsub(/>.*/, "").strip
           end
         end
       end
@@ -97,21 +97,21 @@ module Postal
       # Return the timestamp for this message
       #
       def timestamp
-        @timestamp ||= @attributes['timestamp'] ? Time.zone.at(@attributes['timestamp']) : nil
+        @timestamp ||= @attributes["timestamp"] ? Time.zone.at(@attributes["timestamp"]) : nil
       end
 
       #
       # Return the time that the last delivery was attempted
       #
       def last_delivery_attempt
-        @last_delivery_attempt ||= @attributes['last_delivery_attempt'] ? Time.zone.at(@attributes['last_delivery_attempt']) : nil
+        @last_delivery_attempt ||= @attributes["last_delivery_attempt"] ? Time.zone.at(@attributes["last_delivery_attempt"]) : nil
       end
 
       #
       # Return the hold expiry for this message
       #
       def hold_expiry
-        @hold_expiry ||= @attributes['hold_expiry'] ? Time.zone.at(@attributes['hold_expiry']) : nil
+        @hold_expiry ||= @attributes["hold_expiry"] ? Time.zone.at(@attributes["hold_expiry"]) : nil
       end
 
       #
@@ -126,8 +126,8 @@ module Postal
       #
       def create_delivery(status, options = {})
         delivery = Delivery.create(self, options.merge(:status => status))
-        hold_expiry = status == 'Held' ? Postal.config.general.maximum_hold_expiry_days.days.from_now.to_f : nil
-        self.update(:status => status, :last_delivery_attempt => delivery.timestamp.to_f, :held => status == 'Held' ? 1 : 0, :hold_expiry => hold_expiry)
+        hold_expiry = status == "Held" ? Postal.config.general.maximum_hold_expiry_days.days.from_now.to_f : nil
+        self.update(:status => status, :last_delivery_attempt => delivery.timestamp.to_f, :held => status == "Held" ? 1 : 0, :hold_expiry => hold_expiry)
         delivery
       end
 
@@ -136,7 +136,7 @@ module Postal
       #
       def deliveries
         @deliveries ||= begin
-          @database.select('deliveries', :where => {:message_id => self.id}, :order => :timestamp).map do |hash|
+          @database.select("deliveries", :where => {:message_id => self.id}, :order => :timestamp).map do |hash|
             Delivery.new(self, hash)
           end
         end
@@ -147,13 +147,13 @@ module Postal
       #
       def clicks
         @clicks ||= begin
-          clicks = @database.select('clicks', :where => {:message_id => self.id}, :order => :timestamp)
+          clicks = @database.select("clicks", :where => {:message_id => self.id}, :order => :timestamp)
           if clicks.empty?
             []
           else
-            links = @database.select('links', :where => {:id => clicks.map { |c| c['link_id'].to_i }}).group_by { |l| l['id'] }
+            links = @database.select("links", :where => {:id => clicks.map { |c| c["link_id"].to_i }}).group_by { |l| l["id"] }
             clicks.map do |hash|
-              Click.new(hash, links[hash['link_id']].first)
+              Click.new(hash, links[hash["link_id"]].first)
             end
           end
         end
@@ -164,7 +164,7 @@ module Postal
       #
       def loads
         @loads ||= begin
-          loads = @database.select('loads', :where => {:message_id => self.id}, :order => :timestamp)
+          loads = @database.select("loads", :where => {:message_id => self.id}, :order => :timestamp)
           loads.map do |hash|
             Load.new(hash)
           end
@@ -185,7 +185,7 @@ module Postal
         if @attributes.has_key?(name.to_s)
           @attributes[name.to_s]
         elsif name.to_s =~ /\=\z/
-          @attributes[name.to_s.gsub('=', '').to_s] = value
+          @attributes[name.to_s.gsub("=", "").to_s] = value
         else
           nil
         end
@@ -195,7 +195,7 @@ module Postal
       # Has this message been persisted to the database yet?
       #
       def persisted?
-        !@attributes['id'].nil?
+        !@attributes["id"].nil?
       end
 
       #
@@ -213,7 +213,7 @@ module Postal
       def update(attributes_to_change)
         @attributes = @attributes.merge(database.stringify_keys(attributes_to_change))
         if persisted?
-          @database.update('messages', attributes_to_change, :where => {:id => self.id})
+          @database.update("messages", attributes_to_change, :where => {:id => self.id})
         else
           _create
         end
@@ -224,7 +224,7 @@ module Postal
       #
       def delete
         if persisted?
-          @database.delete('messages', :where => {:id => self.id})
+          @database.delete("messages", :where => {:id => self.id})
         end
       end
 
@@ -233,7 +233,7 @@ module Postal
       #
       def raw_headers
         if self.raw_table
-          @raw_headers ||= @database.select(self.raw_table, :where => {:id => self.raw_headers_id}).first&.send(:[], 'data') || ""
+          @raw_headers ||= @database.select(self.raw_table, :where => {:id => self.raw_headers_id}).first&.send(:[], "data") || ""
         else
           ""
         end
@@ -244,7 +244,7 @@ module Postal
       #
       def raw_body
         if self.raw_table
-          @raw ||= @database.select(self.raw_table, :where => {:id => self.raw_body_id}).first&.send(:[], 'data') || ""
+          @raw ||= @database.select(self.raw_table, :where => {:id => self.raw_body_id}).first&.send(:[], "data") || ""
         else
           ""
         end
@@ -261,7 +261,7 @@ module Postal
       # Set the raw message ready for saving later
       #
       def raw_message=(raw)
-        @pending_raw_message = raw.force_encoding('BINARY')
+        @pending_raw_message = raw.force_encoding("BINARY")
       end
 
       #
@@ -310,7 +310,7 @@ module Postal
       # Return the HTML body with any tracking links
       #
       def html_body_without_tracking_image
-        html_body.gsub(/\<p class\=['"]ampimg['"].*?\<\/p\>/, '')
+        html_body.gsub(/\<p class\=['"]ampimg['"].*?\<\/p\>/, "")
       end
 
       #
@@ -341,7 +341,7 @@ module Postal
       # Return the recipient domain for this message
       #
       def recipient_domain
-        self.rcpt_to ? self.rcpt_to.split('@').last : nil
+        self.rcpt_to ? self.rcpt_to.split("@").last : nil
       end
 
       #
@@ -356,10 +356,10 @@ module Postal
       #
       def batch_key
         case self.scope
-        when 'outgoing'
+        when "outgoing"
           key = "outgoing-"
           key += self.recipient_domain.to_s
-        when 'incoming'
+        when "incoming"
           key = "incoming-"
           key += "rt:#{self.route_id}-ep:#{self.endpoint_id}-#{self.endpoint_type}"
         else
@@ -379,15 +379,15 @@ module Postal
       # Return the spam status
       #
       def spam_status
-        return 'NotChecked' unless inspected == 1
-        spam == 1 ? 'Spam' : 'NotSpam'
+        return "NotChecked" unless inspected == 1
+        spam == 1 ? "Spam" : "NotSpam"
       end
 
       #
       # Has this message been held?
       #
       def held?
-        status == 'Held'
+        status == "Held"
       end
 
       #
@@ -444,7 +444,7 @@ module Postal
       # Mark this message as bounced
       #
       def bounce!(bounce_message)
-        create_delivery('Bounced', :details => "We've received a bounce message for this e-mail. See <msg:#{bounce_message.id}> for details.")
+        create_delivery("Bounced", :details => "We've received a bounce message for this e-mail. See <msg:#{bounce_message.id}> for details.")
         SendWebhookJob.queue(:main, :server_id => self.database.server_id, :event => "MessageBounced", :payload => {:_original_message => self.id, :_bounce => bounce_message.id})
       end
 
@@ -459,9 +459,9 @@ module Postal
       # Add a load for this message
       #
       def create_load(request)
-        update('loaded' => Time.now.to_f) if loaded.nil?
+        update("loaded" => Time.now.to_f) if loaded.nil?
         database.insert(:loads, {:message_id => self.id, :ip_address => request.ip, :user_agent => request.user_agent, :timestamp => Time.now.to_f})
-        SendWebhookJob.queue(:main, :server_id => self.database.server_id, :event => 'MessageLoaded', :payload => {:_message => self.id, :ip_address => request.ip, :user_agent => request.user_agent})
+        SendWebhookJob.queue(:main, :server_id => self.database.server_id, :event => "MessageLoaded", :payload => {:_message => self.id, :ip_address => request.ip, :user_agent => request.user_agent})
       end
 
       #
@@ -521,8 +521,8 @@ module Postal
       # Cancel the hold on this message
       #
       def cancel_hold
-        if self.status == 'Held'
-          create_delivery('HoldCancelled', :details => "The hold on this message has been removed without action.")
+        if self.status == "Held"
+          create_delivery("HoldCancelled", :details => "The hold on this message has been removed without action.")
         end
       end
 
@@ -537,7 +537,7 @@ module Postal
           @raw = parse_result.new_body
           @raw_message = nil
         end
-        update('parsed' => 1, 'tracked_links' => parse_result.tracked_links, 'tracked_images' => parse_result.tracked_images)
+        update("parsed" => 1, "tracked_links" => parse_result.tracked_links, "tracked_images" => parse_result.tracked_images)
       end
 
       #
@@ -551,21 +551,21 @@ module Postal
       # Should this message be parsed?
       #
       def should_parse?
-        parsed? == false && headers['x-amp'] != 'skip'
+        parsed? == false && headers["x-amp"] != "skip"
       end
 
       private
 
       def _update
-        @database.update('messages', @attributes.reject {|k,v| k == :id }, :where => {:id => @attributes['id']})
+        @database.update("messages", @attributes.reject {|k,v| k == :id }, :where => {:id => @attributes["id"]})
       end
 
       def _create
         self.timestamp = Time.now.to_f if self.timestamp.blank?
-        self.status = 'Pending' if self.status.blank?
+        self.status = "Pending" if self.status.blank?
         self.token = Nifty::Utils::RandomString.generate(:length => 12) if self.token.blank?
-        last_id = @database.insert('messages', @attributes.reject {|k,v| k == :id })
-        @attributes['id'] = last_id
+        last_id = @database.insert("messages", @attributes.reject {|k,v| k == :id })
+        @attributes["id"] = last_id
         @database.statistics.increment_all(self.timestamp, self.scope)
         Statistic.global.increment!(:total_messages)
         Statistic.global.increment!("total_#{self.scope}".to_sym)

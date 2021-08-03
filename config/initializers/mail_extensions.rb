@@ -1,4 +1,4 @@
-require 'mail'
+require "mail"
 module Mail
   module Encodings
     # Handle windows-1258 as windows-1252 when decoding
@@ -17,7 +17,7 @@ module Mail
     def plain_body
       if self.multipart? and self.text_part
         self.text_part.decoded
-      elsif self.mime_type == 'text/plain' || self.mime_type.nil?
+      elsif self.mime_type == "text/plain" || self.mime_type.nil?
         self.decoded
       else
         nil
@@ -28,7 +28,7 @@ module Mail
     def html_body
       if self.multipart? and self.html_part
         self.html_part.decoded
-      elsif self.mime_type == 'text/html'
+      elsif self.mime_type == "text/html"
         self.decoded
       else
         nil
@@ -71,11 +71,11 @@ module Mail
 
     def decode_body_as_text
       body_text = decode_body
-      charset_tmp = Encoding.find(Ruby19.pick_encoding(charset)) rescue 'ASCII'
-      charset_tmp = 'Windows-1252' if charset_tmp.to_s =~ /windows-?1258/i
-      if charset_tmp == Encoding.find('UTF-7')
-        body_text.force_encoding('UTF-8')
-        decoded = body_text.gsub(/\+.*?\-/m) {|n|Base64.decode64(n[1..-2]+'===').force_encoding('UTF-16BE').encode('UTF-8')}
+      charset_tmp = Encoding.find(Ruby19.pick_encoding(charset)) rescue "ASCII"
+      charset_tmp = "Windows-1252" if charset_tmp.to_s =~ /windows-?1258/i
+      if charset_tmp == Encoding.find("UTF-7")
+        body_text.force_encoding("UTF-8")
+        decoded = body_text.gsub(/\+.*?\-/m) {|n|Base64.decode64(n[1..-2]+"===").force_encoding("UTF-16BE").encode("UTF-8")}
       else
         body_text.force_encoding(charset_tmp)
         decoded = body_text.encode("utf-8", :invalid => :replace, :undef => :replace)
@@ -88,7 +88,7 @@ module Mail
   class AttachmentsList < Array
     def initialize(parts_list)
       @parts_list = parts_list
-      @content_disposition_type = 'attachment'
+      @content_disposition_type = "attachment"
       parts_list.map { |p|
         (p.parts.empty? and p.attachment?) ? p : p.attachments
       }.flatten.compact.each { |a| self << a }

@@ -1,2 +1,5 @@
 inherit_from:
   - https://dev.k.io/rubocop/rubocop.rails.yml
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes

@@ -29,8 +29,8 @@ class HTTPEndpoint < ApplicationRecord
   has_many :routes, :as => :endpoint
   has_many :additional_route_endpoints, :dependent => :destroy, :as => :endpoint
 
-  ENCODINGS = ['BodyAsJSON', 'FormData']
-  FORMATS = ['Hash', 'RawMessage']
+  ENCODINGS = ["BodyAsJSON", "FormData"]
+  FORMATS = ["Hash", "RawMessage"]
 
   before_destroy :update_routes
 
@@ -51,7 +51,7 @@ class HTTPEndpoint < ApplicationRecord
   end
 
   def update_routes
-    self.routes.each { |r| r.update(:endpoint => nil, :mode => 'Reject') }
+    self.routes.each { |r| r.update(:endpoint => nil, :mode => "Reject") }
   end
 
 end

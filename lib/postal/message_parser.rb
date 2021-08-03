@@ -36,11 +36,11 @@ module Postal
           if @mail.mime_type =~ /text\/plain/
             @mail.body = parse(@mail.body.decoded.dup, :text)
             @mail.content_transfer_encoding = nil
-            @mail.charset = 'UTF-8'
+            @mail.charset = "UTF-8"
           elsif @mail.mime_type =~ /text\/html/
             @mail.body = parse(@mail.body.decoded.dup, :html)
             @mail.content_transfer_encoding = nil
-            @mail.charset = 'UTF-8'
+            @mail.charset = "UTF-8"
           end
         end
       else
@@ -66,11 +66,11 @@ module Postal
         if part.content_type =~ /text\/html/
           part.body = parse(part.body.decoded.dup, :html)
           part.content_transfer_encoding = nil
-          part.charset = 'UTF-8'
+          part.charset = "UTF-8"
         elsif part.content_type =~ /text\/plain/
           part.body = parse(part.body.decoded.dup, :text)
           part.content_transfer_encoding = nil
-          part.charset = 'UTF-8'
+          part.charset = "UTF-8"
         elsif part.content_type =~ /multipart\/(alternative|related)/
           unless part.parts.empty?
             parse_parts(part.parts)

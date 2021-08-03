@@ -16,7 +16,7 @@ class IPPoolsController < ApplicationController
     if @ip_pool.save
       redirect_to_with_json [:edit, @ip_pool], :notice => "IP Pool has been added successfully. You can now add IP addresses to it."
     else
-      render_form_errors 'new', @ip_pool
+      render_form_errors "new", @ip_pool
     end
   end
 
@@ -24,7 +24,7 @@ class IPPoolsController < ApplicationController
     if @ip_pool.update(safe_params)
       redirect_to_with_json [:edit, @ip_pool], :notice => "IP Pool has been updated."
     else
-      render_form_errors 'edit', @ip_pool
+      render_form_errors "edit", @ip_pool
     end
   end
 

@@ -19,7 +19,7 @@ class Net::SMTP
   #
   def rset
     @error_occurred = false
-    getok('RSET')
+    getok("RSET")
   end
 
   def rset_errors

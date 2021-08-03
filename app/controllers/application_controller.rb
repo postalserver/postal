@@ -1,4 +1,4 @@
-require 'authie/session'
+require "authie/session"
 
 class ApplicationController < ActionController::Base
 
@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
   helper_method :page_title
 
   def redirect_to_with_return_to(url, *args)
-    if params[:return_to].blank? || !params[:return_to].starts_with?('/')
+    if params[:return_to].blank? || !params[:return_to].starts_with?("/")
       redirect_to url_with_return_to(url), *args
     else
       redirect_to url_with_return_to(url), *args
@@ -54,7 +54,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_timezone
-    Time.zone = logged_in? ? current_user.time_zone : 'UTC'
+    Time.zone = logged_in? ? current_user.time_zone : "UTC"
   end
 
   def append_info_to_payload(payload)
@@ -64,7 +64,7 @@ class ApplicationController < ActionController::Base
   end
 
   def url_with_return_to(url)
-    if params[:return_to].blank? || !params[:return_to].starts_with?('/')
+    if params[:return_to].blank? || !params[:return_to].starts_with?("/")
       url_for(url)
     else
       params[:return_to]

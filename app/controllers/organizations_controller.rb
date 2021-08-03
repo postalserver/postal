@@ -23,7 +23,7 @@ class OrganizationsController < ApplicationController
     if @organization.save
       redirect_to_with_json organization_root_path(@organization)
     else
-      render_form_errors 'new', @organization
+      render_form_errors "new", @organization
     end
   end
 
@@ -36,7 +36,7 @@ class OrganizationsController < ApplicationController
     if @organization_obj.update(params.require(:organization).permit(:name, :time_zone))
       redirect_to_with_json organization_settings_path(@organization_obj), :notice => "Settings for #{@organization_obj.name} have been saved successfully."
     else
-      render_form_errors 'edit', @organization_obj
+      render_form_errors "edit", @organization_obj
     end
   end
 

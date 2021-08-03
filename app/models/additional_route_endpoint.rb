@@ -20,7 +20,7 @@ class AdditionalRouteEndpoint < ApplicationRecord
   validate :validate_uniqueness
 
   def self.find_by_endpoint(endpoint)
-    class_name, id = endpoint.split('#', 2)
+    class_name, id = endpoint.split("#", 2)
     unless Route::ENDPOINT_TYPES.include?(class_name)
       raise Postal::Error, "Invalid endpoint class name '#{class_name}'"
     end
@@ -40,7 +40,7 @@ class AdditionalRouteEndpoint < ApplicationRecord
       self.endpoint = nil
     else
       if value =~ /\#/
-        class_name, id = value.split('#', 2)
+        class_name, id = value.split("#", 2)
         unless Route::ENDPOINT_TYPES.include?(class_name)
           raise Postal::Error, "Invalid endpoint class name '#{class_name}'"
         end
@@ -67,7 +67,7 @@ class AdditionalRouteEndpoint < ApplicationRecord
 
   def validate_wildcard
     if self.route.wildcard?
-      if self.endpoint_type == 'SMTPEndpoint' || self.endpoint_type == 'AddressEndpoint'
+      if self.endpoint_type == "SMTPEndpoint" || self.endpoint_type == "AddressEndpoint"
         errors.add :base, "SMTP or address endpoints are not permitted on wildcard routes"
       end
     end

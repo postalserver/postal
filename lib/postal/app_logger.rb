@@ -1,4 +1,4 @@
-require 'logger'
+require "logger"
 
 module Postal
   class AppLogger < Logger
@@ -16,9 +16,9 @@ module Postal
           if message.nil?
             message = block_given? ? yield : progname
           end
-          message = message.to_s.force_encoding('UTF-8').scrub
-          message_without_ansi = message.gsub(/\e\[([\d\;]+)?m/, '') rescue message
-          n.notify!(:short_message => message_without_ansi, :log_name => @log_name, :facility => 'postal', :application_name => 'postal', :process_name => ENV['PROC_NAME'], :pid => Process.pid)
+          message = message.to_s.force_encoding("UTF-8").scrub
+          message_without_ansi = message.gsub(/\e\[([\d\;]+)?m/, "") rescue message
+          n.notify!(:short_message => message_without_ansi, :log_name => @log_name, :facility => "postal", :application_name => "postal", :process_name => ENV["PROC_NAME"], :pid => Process.pid)
         rescue => e
           # Can't log this to GELF. Soz.
         end
@@ -41,8 +41,8 @@ module Postal
 
     def call(severity, datetime, progname, msg)
       time = datetime.strftime(TIME_FORMAT)
-      if number = ENV['PROC_NAME']
-        id = number.split('.').last.to_i
+      if number = ENV["PROC_NAME"]
+        id = number.split(".").last.to_i
         proc_text = "\e[#{COLORS[id % COLORS.size]}m[#{ENV['PROC_NAME']}:#{Process.pid}]\e[0m"
       else
         proc_text = "[#{Process.pid}]"

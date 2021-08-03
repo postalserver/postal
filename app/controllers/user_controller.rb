@@ -6,7 +6,7 @@ class UserController < ApplicationController
     @user_invite = UserInvite.active.find_by!(:uuid => params[:invite_token])
     @user = User.new
     @user.email_address = @user_invite.email_address
-    render :layout => 'sub'
+    render :layout => "sub"
   end
 
   def create
@@ -18,7 +18,7 @@ class UserController < ApplicationController
       self.current_user = @user
       redirect_to root_path
     else
-      render 'new', :layout => 'sub'
+      render "new", :layout => "sub"
     end
   end
 
@@ -56,7 +56,7 @@ class UserController < ApplicationController
       respond_to do |wants|
         wants.html do
           flash.now[:alert] = "The current password you have entered is incorrect. Please check and try again."
-          render 'edit'
+          render "edit"
         end
         wants.json do
           render :json => {:alert => "The current password you've entered is incorrect. Please check and try again"}
@@ -74,7 +74,7 @@ class UserController < ApplicationController
         redirect_to_with_json settings_path, :notice => "Your settings have been updated successfully."
       end
     else
-      render_form_errors 'edit', @user
+      render_form_errors "edit", @user
     end
   end
 

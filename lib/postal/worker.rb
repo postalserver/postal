@@ -44,14 +44,14 @@ module Postal
     def receive_job(delivery_info, properties, body)
       begin
         message = JSON.parse(body) rescue nil
-        if message && message['class_name']
-          @running_jobs << message['id']
+        if message && message["class_name"]
+          @running_jobs << message["id"]
           set_process_name
           start_time = Time.now
-          Thread.current[:job_id] = message['id']
+          Thread.current[:job_id] = message["id"]
           logger.info "[#{message['id']}] Started processing \e[34m#{message['class_name']}\e[0m job"
           begin
-            klass = message['class_name'].constantize.new(message['id'], message['params'])
+            klass = message["class_name"].constantize.new(message["id"], message["params"])
             klass.perform
             GC.start
           rescue => e
@@ -61,7 +61,7 @@ module Postal
               logger.warn "[#{message['id']}]    " + line
             end
             if defined?(Raven)
-              Raven.capture_exception(e, :extra => {:job_id => message['id']})
+              Raven.capture_exception(e, :extra => {:job_id => message["id"]})
             end
           ensure
             logger.info "[#{message['id']}] Finished processing \e[34m#{message['class_name']}\e[0m job in #{Time.now - start_time}s"
@@ -70,7 +70,7 @@ module Postal
       ensure
         Thread.current[:job_id] = nil
         self.class.job_channel.ack(delivery_info.delivery_tag)
-        @running_jobs.delete(message['id']) if message['id']
+        @running_jobs.delete(message["id"]) if message["id"]
         set_process_name
 
         if @exit && @running_jobs.empty?
@@ -198,7 +198,7 @@ module Postal
     def self.job_queue(name)
       @job_queues ||= {}
       @job_queues[name] ||= begin
-        job_channel.queue("deliver-jobs-#{name}", :durable => true, :arguments => {'x-message-ttl' => 60000})
+        job_channel.queue("deliver-jobs-#{name}", :durable => true, :arguments => {"x-message-ttl" => 60000})
       end
     end
 

@@ -39,7 +39,7 @@ FactoryBot.define do
   factory :domain do
     association :owner, :factory => :user
     sequence(:name) { |n| "example#{n}.com" }
-    verification_method { 'DNS' }
+    verification_method { "DNS" }
     verified_at { Time.now }
   end
 

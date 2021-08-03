@@ -21,7 +21,7 @@ class Credential < ApplicationRecord
 
   belongs_to :server
 
-  TYPES = ['SMTP', 'API', 'SMTP-IP']
+  TYPES = ["SMTP", "API", "SMTP-IP"]
 
   validates :key, :presence => true, :uniqueness => true
   validates :type, :inclusion => {:in => TYPES}
@@ -35,7 +35,7 @@ class Credential < ApplicationRecord
 
 
   def generate_key
-    return if self.type == 'SMTP-IP'
+    return if self.type == "SMTP-IP"
     return if self.persisted?
 
     self.key = SecureRandomString.new(24)
@@ -51,15 +51,15 @@ class Credential < ApplicationRecord
 
   def usage_type
     if last_used_at.nil?
-      'Unused'
+      "Unused"
     elsif last_used_at < 1.year.ago
-      'Inactive'
+      "Inactive"
     elsif last_used_at < 6.months.ago
-      'Dormant'
+      "Dormant"
     elsif last_used_at < 1.month.ago
-      'Quiet'
+      "Quiet"
     else
-      'Active'
+      "Active"
     end
   end
 
@@ -68,7 +68,7 @@ class Credential < ApplicationRecord
   end
 
   def ipaddr
-    return unless type == 'SMTP-IP'
+    return unless type == "SMTP-IP"
 
     @ipaddr ||= IPAddr.new(self.key)
   rescue IPAddr::InvalidAddressError
@@ -80,13 +80,13 @@ class Credential < ApplicationRecord
   def validate_key_cannot_be_changed
     return if new_record?
     return unless key_changed?
-    return if type == 'SMTP-IP'
+    return if type == "SMTP-IP"
 
     errors.add :key, "cannot be changed"
   end
 
   def validate_key_for_smtp_ip
-    return unless type == 'SMTP-IP'
+    return unless type == "SMTP-IP"
 
     IPAddr.new(self.key.to_s)
   rescue IPAddr::InvalidAddressError

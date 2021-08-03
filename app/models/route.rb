@@ -22,7 +22,7 @@
 
 class Route < ApplicationRecord
 
-  MODES = ['Endpoint', 'Accept', 'Hold', 'Bounce', 'Reject']
+  MODES = ["Endpoint", "Accept", "Hold", "Bounce", "Reject"]
 
   include HasUUID
 
@@ -31,12 +31,12 @@ class Route < ApplicationRecord
   belongs_to :endpoint, :polymorphic => true, :optional => true
   has_many :additional_route_endpoints, :dependent => :destroy
 
-  SPAM_MODES = ['Mark', 'Quarantine', 'Fail']
-  ENDPOINT_TYPES = ['SMTPEndpoint', 'HTTPEndpoint', 'AddressEndpoint']
+  SPAM_MODES = ["Mark", "Quarantine", "Fail"]
+  ENDPOINT_TYPES = ["SMTPEndpoint", "HTTPEndpoint", "AddressEndpoint"]
 
   validates :name, :presence => true, :format => /\A(([a-z0-9\-\.]*)|(\*)|(__returnpath__))\z/
   validates :spam_mode, :inclusion => {:in => SPAM_MODES}
-  validates :endpoint, :presence => {:if => proc { self.mode == 'Endpoint' }}
+  validates :endpoint, :presence => {:if => proc { self.mode == "Endpoint" }}
   validates :domain_id, :presence => {:unless => :return_path?}
   validate :validate_route_is_routed
   validate :validate_domain_belongs_to_server
@@ -63,7 +63,7 @@ class Route < ApplicationRecord
 
   def _endpoint
     @endpoint ||= begin
-      if self.mode == 'Endpoint'
+      if self.mode == "Endpoint"
         endpoint ? "#{endpoint.class}##{endpoint.uuid}" : nil
       else
         self.mode
@@ -77,12 +77,12 @@ class Route < ApplicationRecord
       self.mode = nil
     else
       if value =~ /\#/
-        class_name, id = value.split('#', 2)
+        class_name, id = value.split("#", 2)
         unless ENDPOINT_TYPES.include?(class_name)
           raise Postal::Error, "Invalid endpoint class name '#{class_name}'"
         end
         self.endpoint = class_name.constantize.find_by_uuid(id)
-        self.mode = 'Endpoint'
+        self.mode = "Endpoint"
       else
         self.endpoint = nil
         self.mode = value
@@ -95,7 +95,7 @@ class Route < ApplicationRecord
   end
 
   def wildcard?
-    self.name == '*'
+    self.name == "*"
   end
 
   def additional_route_endpoints_array
@@ -138,7 +138,7 @@ class Route < ApplicationRecord
   def create_messages(&block)
     messages = []
     message = self.build_message
-    if self.mode == 'Endpoint' && self.server.message_db.schema_version >= 18
+    if self.mode == "Endpoint" && self.server.message_db.schema_version >= 18
       message.endpoint_type = self.endpoint_type
       message.endpoint_id = self.endpoint_id
     end
@@ -147,7 +147,7 @@ class Route < ApplicationRecord
     messages << message
 
     # Also create any messages for additional endpoints that might exist
-    if self.mode == 'Endpoint' && self.server.message_db.schema_version >= 18
+    if self.mode == "Endpoint" && self.server.message_db.schema_version >= 18
       self.additional_route_endpoints.each do |endpoint|
         next unless endpoint.endpoint
         message = self.build_message
@@ -164,7 +164,7 @@ class Route < ApplicationRecord
 
   def build_message
     message = self.server.message_db.new_message
-    message.scope = 'incoming'
+    message.scope = "incoming"
     message.rcpt_to = self.description
     message.domain_id = self.domain&.id
     message.route_id = self.id
@@ -210,14 +210,14 @@ class Route < ApplicationRecord
 
   def validate_return_path_route_endpoints
     if return_path?
-      if self.mode != 'Endpoint' || self.endpoint_type != 'HTTPEndpoint'
+      if self.mode != "Endpoint" || self.endpoint_type != "HTTPEndpoint"
         errors.add :base, "Return path routes must point to an HTTP endpoint"
       end
     end
   end
 
   def validate_no_additional_routes_on_non_endpoint_route
-    if self.mode != 'Endpoint' && !self.additional_route_endpoints_array.empty?
+    if self.mode != "Endpoint" && !self.additional_route_endpoints_array.empty?
       errors.add :base, "Additional routes are not permitted unless the primary route is an actual endpoint"
     end
   end
@@ -225,7 +225,7 @@ class Route < ApplicationRecord
   def self.find_by_name_and_domain(name, domain)
     route = Route.includes(:domain).where(:name => name, :domains => {:name => domain}).first
     if route.nil?
-      route = Route.includes(:domain).where(:name => '*', :domains => {:name => domain}).first
+      route = Route.includes(:domain).where(:name => "*", :domains => {:name => domain}).first
     end
     route
   end
