@@ -35,7 +35,7 @@ class Organization < ApplicationRecord
   validates :time_zone, presence: true
 
   default_value :time_zone, -> { "UTC" }
-  default_value :permalink, -> { Organization.find_unique_permalink(self.name) if self.name }
+  default_value :permalink, -> { Organization.find_unique_permalink(name) if name }
 
   belongs_to :owner, class_name: "User"
   has_many :organization_users, dependent: :destroy
@@ -49,12 +49,12 @@ class Organization < ApplicationRecord
 
   after_create do
     if pool = IPPool.default
-      self.ip_pools << IPPool.default
+      ip_pools << IPPool.default
     end
   end
 
   def status
-    if self.suspended?
+    if suspended?
       "Suspended"
     else
       "Active"
@@ -81,7 +81,7 @@ class Organization < ApplicationRecord
 
   # This is an array of addresses that should receive notifications for this organization
   def notification_addresses
-    self.users.map(&:email_tag)
+    users.map(&:email_tag)
   end
 
   def self.find_unique_permalink(name)
@@ -89,7 +89,7 @@ class Organization < ApplicationRecord
       i = i + 1
       proposal = name.parameterize
       proposal += "-#{i}" if i > 1
-      unless self.where(permalink: proposal).exists?
+      unless where(permalink: proposal).exists?
         return proposal
       end
     end

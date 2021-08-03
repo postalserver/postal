@@ -35,8 +35,8 @@ class Credential < ApplicationRecord
 
 
   def generate_key
-    return if self.type == "SMTP-IP"
-    return if self.persisted?
+    return if type == "SMTP-IP"
+    return if persisted?
 
     self.key = SecureRandomString.new(24)
   end
@@ -64,13 +64,13 @@ class Credential < ApplicationRecord
   end
 
   def to_smtp_plain
-    Base64.encode64("\0XX\0#{self.key}").strip
+    Base64.encode64("\0XX\0#{key}").strip
   end
 
   def ipaddr
     return unless type == "SMTP-IP"
 
-    @ipaddr ||= IPAddr.new(self.key)
+    @ipaddr ||= IPAddr.new(key)
   rescue IPAddr::InvalidAddressError
     nil
   end
@@ -88,7 +88,7 @@ class Credential < ApplicationRecord
   def validate_key_for_smtp_ip
     return unless type == "SMTP-IP"
 
-    IPAddr.new(self.key.to_s)
+    IPAddr.new(key.to_s)
   rescue IPAddr::InvalidAddressError
     errors.add :key, "must be a valid IPv4 or IPv6 address"
   end

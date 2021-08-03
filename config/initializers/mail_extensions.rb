@@ -19,10 +19,10 @@ module Mail
 
     ## Extract plain text body of message
     def plain_body
-      if self.multipart? and self.text_part
-        self.text_part.decoded
-      elsif self.mime_type == "text/plain" || self.mime_type.nil?
-        self.decoded
+      if multipart? and text_part
+        text_part.decoded
+      elsif mime_type == "text/plain" || mime_type.nil?
+        decoded
       else
         nil
       end
@@ -30,10 +30,10 @@ module Mail
 
     ## Extract HTML text body of message
     def html_body
-      if self.multipart? and self.html_part
-        self.html_part.decoded
-      elsif self.mime_type == "text/html"
-        self.decoded
+      if multipart? and html_part
+        html_part.decoded
+      elsif mime_type == "text/html"
+        decoded
       else
         nil
       end
@@ -60,7 +60,7 @@ module Mail
         filename = content_disp_name
       elsif content_location && content_loc_name
         filename = content_loc_name
-      elsif self.mime_type == "message/rfc822"
+      elsif mime_type == "message/rfc822"
         filename = "#{rand(100000000)}.eml"
       else
         filename = nil
@@ -108,8 +108,8 @@ end
 class Array
 
   def decoded
-    return nil if self.empty?
-    return self.first.decoded
+    return nil if empty?
+    return first.decoded
   end
 
 end

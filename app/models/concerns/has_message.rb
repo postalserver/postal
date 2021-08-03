@@ -5,7 +5,7 @@ module HasMessage
   end
 
   def message
-    @message ||= self.server.message_db.message(self.message_id)
+    @message ||= server.message_db.message(message_id)
   end
 
   def message=(message)

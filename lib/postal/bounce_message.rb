@@ -23,7 +23,7 @@ module Postal
       message.rcpt_to = @message.mail_from
       message.mail_from = @message.route.description
       message.domain_id = @message.domain&.id
-      message.raw_message = self.raw_message
+      message.raw_message = raw_message
       message.bounce = 1
       message.bounce_for_id = @message.id
       message.save

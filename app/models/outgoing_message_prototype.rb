@@ -154,8 +154,8 @@ class OutgoingMessagePrototype
       if @custom_headers.is_a?(Hash)
         @custom_headers.each { |key, value| mail[key.to_s] = value.to_s }
       end
-      mail.to = self.to_addresses.join(", ") if self.to_addresses.present?
-      mail.cc = self.cc_addresses.join(", ") if self.cc_addresses.present?
+      mail.to = to_addresses.join(", ") if to_addresses.present?
+      mail.cc = cc_addresses.join(", ") if cc_addresses.present?
       mail.from = @from
       mail.sender = @sender
       mail.subject = @subject
@@ -179,7 +179,7 @@ class OutgoingMessagePrototype
           content: attachment[:data]
         }
       end
-      mail.header["Received"] = "from #{@source_type} (#{self.resolved_hostname} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822.to_s}"
+      mail.header["Received"] = "from #{@source_type} (#{resolved_hostname} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822.to_s}"
       mail.message_id = "<#{@message_id}>"
       mail.to_s
     end
@@ -189,11 +189,11 @@ class OutgoingMessagePrototype
     message = @server.message_db.new_message
     message.scope = "outgoing"
     message.rcpt_to = address
-    message.mail_from = self.from_address
-    message.domain_id = self.domain.id
-    message.raw_message = self.raw_message
-    message.tag = self.tag
-    message.credential_id = self.credential&.id
+    message.mail_from = from_address
+    message.domain_id = domain.id
+    message.raw_message = raw_message
+    message.tag = tag
+    message.credential_id = credential&.id
     message.received_with_ssl = true
     message.bounce = @bounce ? 1 : 0
     message.save

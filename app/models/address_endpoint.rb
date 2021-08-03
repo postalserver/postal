@@ -28,11 +28,11 @@ class AddressEndpoint < ApplicationRecord
   end
 
   def update_routes
-    self.routes.each { |r| r.update(endpoint: nil, mode: "Reject") }
+    routes.each { |r| r.update(endpoint: nil, mode: "Reject") }
   end
 
   def description
-    self.address
+    address
   end
 
   def domain

@@ -13,7 +13,7 @@ module Postal
       @free_clients = []
 
       def self.client(&block)
-        client = @free_clients.shift || self.new_client
+        client = @free_clients.shift || new_client
         return_value = nil
         tries = 2
         begin

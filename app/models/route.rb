@@ -36,7 +36,7 @@ class Route < ApplicationRecord
 
   validates :name, presence: true, format: /\A(([a-z0-9\-.]*)|(\*)|(__returnpath__))\z/
   validates :spam_mode, inclusion: { in: SPAM_MODES }
-  validates :endpoint, presence: { if: proc { self.mode == "Endpoint" } }
+  validates :endpoint, presence: { if: proc { mode == "Endpoint" } }
   validates :domain_id, presence: { unless: :return_path? }
   validate :validate_route_is_routed
   validate :validate_domain_belongs_to_server
@@ -63,10 +63,10 @@ class Route < ApplicationRecord
 
   def _endpoint
     @endpoint ||= begin
-      if self.mode == "Endpoint"
+      if mode == "Endpoint"
         endpoint ? "#{endpoint.class}##{endpoint.uuid}" : nil
       else
-        self.mode
+        mode
       end
     end
   end
@@ -95,7 +95,7 @@ class Route < ApplicationRecord
   end
 
   def wildcard?
-    self.name == "*"
+    name == "*"
   end
 
   def additional_route_endpoints_array
@@ -137,20 +137,20 @@ class Route < ApplicationRecord
   #
   def create_messages(&block)
     messages = []
-    message = self.build_message
-    if self.mode == "Endpoint" && self.server.message_db.schema_version >= 18
-      message.endpoint_type = self.endpoint_type
-      message.endpoint_id = self.endpoint_id
+    message = build_message
+    if mode == "Endpoint" && server.message_db.schema_version >= 18
+      message.endpoint_type = endpoint_type
+      message.endpoint_id = endpoint_id
     end
     block.call(message)
     message.save
     messages << message
 
     # Also create any messages for additional endpoints that might exist
-    if self.mode == "Endpoint" && self.server.message_db.schema_version >= 18
-      self.additional_route_endpoints.each do |endpoint|
+    if mode == "Endpoint" && server.message_db.schema_version >= 18
+      additional_route_endpoints.each do |endpoint|
         next unless endpoint.endpoint
-        message = self.build_message
+        message = build_message
         message.endpoint_id = endpoint.endpoint_id
         message.endpoint_type = endpoint.endpoint_type
         block.call(message)
@@ -163,46 +163,46 @@ class Route < ApplicationRecord
   end
 
   def build_message
-    message = self.server.message_db.new_message
+    message = server.message_db.new_message
     message.scope = "incoming"
-    message.rcpt_to = self.description
-    message.domain_id = self.domain&.id
-    message.route_id = self.id
+    message.rcpt_to = description
+    message.domain_id = domain&.id
+    message.route_id = id
     message
   end
 
   private
 
   def validate_route_is_routed
-    if self.mode.nil?
+    if mode.nil?
       errors.add :endpoint, "must be chosen"
     end
   end
 
   def validate_domain_belongs_to_server
-    if self.domain && ![self.server, self.server.organization].include?(self.domain.owner)
+    if domain && ![server, server.organization].include?(domain.owner)
       errors.add :domain, :invalid
     end
 
-    if self.domain && !self.domain.verified?
+    if domain && !domain.verified?
       errors.add :domain, "has not been verified yet"
     end
   end
 
   def validate_endpoint_belongs_to_server
-    if self.endpoint && self.endpoint&.server != self.server
+    if endpoint && endpoint&.server != server
       errors.add :endpoint, :invalid
     end
   end
 
   def validate_name_uniqueness
-    return if self.server.nil?
-    if self.domain
-      if route = Route.includes(:domain).where(domains: { name: self.domain.name }, name: self.name).where.not(id: self.id).first
+    return if server.nil?
+    if domain
+      if route = Route.includes(:domain).where(domains: { name: domain.name }, name: name).where.not(id: id).first
         errors.add :name, "is configured on the #{route.server.full_permalink} mail server"
       end
     else
-      if route = Route.where(name: "__returnpath__").where.not(id: self.id).exists?
+      if route = Route.where(name: "__returnpath__").where.not(id: id).exists?
         errors.add :base, "A return path route already exists for this server"
       end
     end
@@ -210,14 +210,14 @@ class Route < ApplicationRecord
 
   def validate_return_path_route_endpoints
     if return_path?
-      if self.mode != "Endpoint" || self.endpoint_type != "HTTPEndpoint"
+      if mode != "Endpoint" || endpoint_type != "HTTPEndpoint"
         errors.add :base, "Return path routes must point to an HTTP endpoint"
       end
     end
   end
 
   def validate_no_additional_routes_on_non_endpoint_route
-    if self.mode != "Endpoint" && !self.additional_route_endpoints_array.empty?
+    if mode != "Endpoint" && !additional_route_endpoints_array.empty?
       errors.add :base, "Additional routes are not permitted unless the primary route is an actual endpoint"
     end
   end

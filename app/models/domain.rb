@@ -63,9 +63,9 @@ class Domain < ApplicationRecord
 
   when_attribute :verification_method, changes_to: :anything do
     before_save do
-      if self.verification_method == "DNS"
+      if verification_method == "DNS"
         self.verification_token = Nifty::Utils::RandomString.generate(length: 32)
-      elsif self.verification_method == "Email"
+      elsif verification_method == "Email"
         self.verification_token = rand(999999).to_s.ljust(6, "0")
       else
         self.verification_token = nil
@@ -79,11 +79,11 @@ class Domain < ApplicationRecord
 
   def verify
     self.verified_at = Time.now
-    self.save!
+    save!
   end
 
   def parent_domains
-    parts = self.name.split(".")
+    parts = name.split(".")
     parts[0,parts.size-1].each_with_index.map do |p, i|
       parts[i..-1].join(".")
     end
@@ -94,7 +94,7 @@ class Domain < ApplicationRecord
   end
 
   def dkim_key
-    @dkim_key ||= OpenSSL::PKey::RSA.new(self.dkim_private_key)
+    @dkim_key ||= OpenSSL::PKey::RSA.new(dkim_private_key)
   end
 
   def to_param
@@ -119,7 +119,7 @@ class Domain < ApplicationRecord
   end
 
   def dkim_identifier
-    Postal.config.dns.dkim_identifier + "-#{self.dkim_identifier_string}"
+    Postal.config.dns.dkim_identifier + "-#{dkim_identifier_string}"
   end
 
   def dkim_record_name
@@ -127,7 +127,7 @@ class Domain < ApplicationRecord
   end
 
   def return_path_domain
-    "#{Postal.config.dns.custom_return_path_prefix}.#{self.name}"
+    "#{Postal.config.dns.custom_return_path_prefix}.#{name}"
   end
 
   def nameservers

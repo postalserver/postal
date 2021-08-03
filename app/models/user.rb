@@ -41,10 +41,10 @@ class User < ApplicationRecord
 
   def organizations_scope
     @organizations_scope ||= begin
-      if self.admin?
+      if admin?
         Organization.present
       else
-        self.organizations.present
+        organizations.present
       end
     end
   end

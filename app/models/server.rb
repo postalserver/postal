@@ -78,26 +78,26 @@ class Server < ApplicationRecord
   validate :validate_ip_pool_belongs_to_organization
 
   before_validation(on: :create) do
-    self.token = self.token.downcase if self.token
+    self.token = token.downcase if token
   end
 
   after_create do
-    unless self.provision_database == false
+    unless provision_database == false
       message_db.provisioner.provision
     end
   end
 
   after_commit(on: :destroy) do
-    unless self.provision_database == false
+    unless provision_database == false
       message_db.provisioner.drop
     end
   end
 
   def status
-    if self.suspended?
+    if suspended?
       "Suspended"
     else
-      self.mode
+      mode
     end
   end
 
@@ -114,7 +114,7 @@ class Server < ApplicationRecord
       if suspended_at.nil?
         organization.suspension_reason
       else
-        self.suspension_reason
+        suspension_reason
       end
     end
   end
@@ -124,7 +124,7 @@ class Server < ApplicationRecord
   end
 
   def message_db
-    @message_db ||= Postal::MessageDB::Database.new(self.organization_id, self.id)
+    @message_db ||= Postal::MessageDB::Database.new(organization_id, id)
   end
 
   def message(id)
@@ -166,7 +166,7 @@ class Server < ApplicationRecord
   end
 
   def domain_stats
-    domains = Domain.where(owner_id: self.id, owner_type: "Server").to_a
+    domains = Domain.where(owner_id: id, owner_type: "Server").to_a
     total, unverified, bad_dns = 0, 0, 0
     domains.each do |domain|
       total += 1
@@ -178,10 +178,10 @@ class Server < ApplicationRecord
 
   def webhook_hash
     {
-      uuid: self.uuid,
-      name: self.name,
-      permalink: self.permalink,
-      organization: self.organization&.permalink
+      uuid: uuid,
+      name: name,
+      permalink: permalink,
+      organization: organization&.permalink
     }
   end
 
@@ -190,17 +190,17 @@ class Server < ApplicationRecord
   end
 
   def send_limit_approaching?
-    self.send_limit && (send_volume >= self.send_limit * 0.90)
+    send_limit && (send_volume >= send_limit * 0.90)
   end
 
   def send_limit_exceeded?
-    self.send_limit && send_volume >= self.send_limit
+    send_limit && send_volume >= send_limit
   end
 
   def send_limit_warning(type)
     AppMailer.send("server_send_limit_#{type}", self).deliver
-    self.update_column("send_limit_#{type}_notified_at", Time.now)
-    WebhookRequest.trigger(self, "SendLimit#{type.to_s.capitalize}", server: webhook_hash, volume: self.send_volume, limit: self.send_limit)
+    update_column("send_limit_#{type}_notified_at", Time.now)
+    WebhookRequest.trigger(self, "SendLimit#{type.to_s.capitalize}", server: webhook_hash, volume: send_volume, limit: send_limit)
   end
 
   def queue_size
@@ -210,11 +210,11 @@ class Server < ApplicationRecord
   def stats
     {
       queue: queue_size,
-      held: self.held_messages,
-      bounce_rate: self.bounce_rate,
-      message_rate: self.message_rate,
-      throughput: self.throughput_stats,
-      size: self.message_db.total_size
+      held: held_messages,
+      bounce_rate: bounce_rate,
+      message_rate: message_rate,
+      throughput: throughput_stats,
+      size: message_db.total_size
     }
   end
 
@@ -227,18 +227,18 @@ class Server < ApplicationRecord
     uname, _ = uname.split("+", 2)
 
     # Check the server's domain
-    if domain = Domain.verified.order(owner_type: :desc).where("(owner_type = 'Organization' AND owner_id = ?) OR (owner_type = 'Server' AND owner_id = ?)", self.organization_id, self.id).where(name: domain_name).first
+    if domain = Domain.verified.order(owner_type: :desc).where("(owner_type = 'Organization' AND owner_id = ?) OR (owner_type = 'Server' AND owner_id = ?)", organization_id, id).where(name: domain_name).first
       return domain
     end
 
-    if any_domain = self.domains.verified.where(use_for_any: true).order(:name).first
+    if any_domain = domains.verified.where(use_for_any: true).order(:name).first
       return any_domain
     end
   end
 
   def find_authenticated_domain_from_headers(headers)
     header_to_check = ["from"]
-    header_to_check << "sender" if self.allow_sender?
+    header_to_check << "sender" if allow_sender?
     header_to_check.each do |header_name|
       if headers[header_name].is_a?(Array)
         values = headers[header_name]
@@ -257,25 +257,25 @@ class Server < ApplicationRecord
   def suspend(reason)
     self.suspended_at = Time.now
     self.suspension_reason = reason
-    self.save!
+    save!
     AppMailer.server_suspended(self).deliver
   end
 
   def unsuspend
     self.suspended_at = nil
     self.suspension_reason = nil
-    self.save!
+    save!
   end
 
   def validate_ip_pool_belongs_to_organization
-    if self.ip_pool && self.ip_pool_id_changed? && !self.organization.ip_pools.include?(self.ip_pool)
+    if ip_pool && ip_pool_id_changed? && !organization.ip_pools.include?(ip_pool)
       errors.add :ip_pool_id, "must belong to the organization"
     end
   end
 
   def ip_pool_for_message(message)
     if message.scope == "outgoing"
-      [self, self.organization].each do |scope|
+      [self, organization].each do |scope|
         rules = scope.ip_pool_rules.order(created_at: :desc)
         rules.each do |rule|
           if rule.apply_to_message?(message)
@@ -283,7 +283,7 @@ class Server < ApplicationRecord
           end
         end
       end
-      self.ip_pool
+      ip_pool
     else
       nil
     end
@@ -297,7 +297,7 @@ class Server < ApplicationRecord
   def self.send_send_limit_notifications
     [:approaching, :exceeded].each_with_object({}) do |type, hash|
       hash[type] = 0
-      servers = self.triggered_send_limit(type)
+      servers = triggered_send_limit(type)
       unless servers.empty?
         servers.each do |server|
           hash[type] += 1

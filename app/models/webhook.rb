@@ -36,7 +36,7 @@ class Webhook < ApplicationRecord
 
   when_attribute :all_events, changes_to: true do
     after_save do
-      self.webhook_events.destroy_all
+      webhook_events.destroy_all
     end
   end
 

@@ -54,20 +54,20 @@ class AdditionalRouteEndpoint < ApplicationRecord
   private
 
   def validate_endpoint_belongs_to_server
-    if self.endpoint && self.endpoint&.server != self.route.server
+    if endpoint && endpoint&.server != route.server
       errors.add :endpoint, :invalid
     end
   end
 
   def validate_uniqueness
-    if self.endpoint == self.route.endpoint
+    if endpoint == route.endpoint
       errors.add :base, "You can only add an endpoint to a route once"
     end
   end
 
   def validate_wildcard
-    if self.route.wildcard?
-      if self.endpoint_type == "SMTPEndpoint" || self.endpoint_type == "AddressEndpoint"
+    if route.wildcard?
+      if endpoint_type == "SMTPEndpoint" || endpoint_type == "AddressEndpoint"
         errors.add :base, "SMTP or address endpoints are not permitted on wildcard routes"
       end
     end

@@ -54,14 +54,14 @@ class IPPoolRule < ApplicationRecord
   private
 
   def validate_from_and_to_addresses
-    if self.from.empty? && self.to.empty?
+    if from.empty? && to.empty?
       errors.add :base, "At least one rule condition must be specified"
     end
   end
 
   def validate_ip_pool_belongs_to_organization
-    org = self.owner.is_a?(Organization) ? self.owner : self.owner.organization
-    if self.ip_pool && self.ip_pool_id_changed? && !org.ip_pools.include?(self.ip_pool)
+    org = owner.is_a?(Organization) ? owner : owner.organization
+    if ip_pool && ip_pool_id_changed? && !org.ip_pools.include?(ip_pool)
       errors.add :ip_pool_id, "must belong to the organization"
     end
   end

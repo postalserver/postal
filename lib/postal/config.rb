@@ -27,9 +27,9 @@ module Postal
   def self.config
     @config ||= begin
       require "hashie/mash"
-      config = Hashie::Mash.new(self.defaults)
-      config = config.deep_merge(self.yaml_config)
-      config.deep_merge(self.local_yaml_config)
+      config = Hashie::Mash.new(defaults)
+      config = config.deep_merge(yaml_config)
+      config.deep_merge(local_yaml_config)
     end
   end
 
@@ -74,7 +74,7 @@ module Postal
   end
 
   def self.defaults
-    @defaults ||= YAML.load_file(self.defaults_file_path)
+    @defaults ||= YAML.load_file(defaults_file_path)
   end
 
   def self.database_url
@@ -140,7 +140,7 @@ module Postal
 
   def self.smtp_certificates
     @smtp_certificates ||= begin
-      certs = self.smtp_certificate_data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
+      certs = smtp_certificate_data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
       certs.map do |c|
         OpenSSL::X509::Certificate.new(c)
       end.freeze
@@ -166,17 +166,17 @@ module Postal
   def self.check_config!
     return if ENV["POSTAL_SKIP_CONFIG_CHECK"].to_i == 1
 
-    unless File.exist?(self.config_file_path)
-      raise ConfigError, "No config found at #{self.config_file_path}"
+    unless File.exist?(config_file_path)
+      raise ConfigError, "No config found at #{config_file_path}"
     end
 
-    unless File.exists?(self.signing_key_path)
-      raise ConfigError, "No signing key found at #{self.signing_key_path}"
+    unless File.exists?(signing_key_path)
+      raise ConfigError, "No signing key found at #{signing_key_path}"
     end
   end
 
   def self.ip_pools?
-    self.config.general.use_ip_pools?
+    config.general.use_ip_pools?
   end
 
 end

@@ -29,7 +29,7 @@ class User
   def begin_password_reset(return_to = nil)
     self.password_reset_token = Nifty::Utils::RandomString.generate(length: 24)
     self.password_reset_token_valid_until = 1.day.from_now
-    self.save!
+    save!
     AppMailer.password_reset(self, return_to).deliver
   end
 

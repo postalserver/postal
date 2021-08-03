@@ -42,7 +42,7 @@ class SMTPEndpoint < ApplicationRecord
   end
 
   def update_routes
-    self.routes.each { |r| r.update(endpoint: nil, mode: "Reject") }
+    routes.each { |r| r.update(endpoint: nil, mode: "Reject") }
   end
 
 end

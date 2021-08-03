@@ -66,7 +66,7 @@ module Postal
 
         def pretty_payload
           @pretty_payload ||= begin
-            json = JSON.parse(self.payload)
+            json = JSON.parse(payload)
             JSON.pretty_unparse(json)
           end
         end

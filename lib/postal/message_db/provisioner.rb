@@ -146,7 +146,7 @@ module Postal
       # Remove raw message tables in order order until size is under the given size (given in MB)
       #
       def remove_raw_tables_until_less_than_size(size)
-        tables = self.raw_tables(nil)
+        tables = raw_tables(nil)
         tables_removed = []
         until @database.total_size <= size
           table = tables.shift

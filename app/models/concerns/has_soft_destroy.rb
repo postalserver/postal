@@ -11,8 +11,8 @@ module HasSoftDestroy
   def soft_destroy
     run_callbacks :soft_destroy do
       self.deleted_at = Time.now
-      self.save!
-      ActionDeletionJob.queue(:main, type: self.class.name, id: self.id)
+      save!
+      ActionDeletionJob.queue(:main, type: self.class.name, id: id)
     end
   end
 

@@ -30,35 +30,35 @@ module Postal
       end
 
       def update_statistics
-        if self.status == "Held"
-          @message.database.statistics.increment_all(self.timestamp, "held")
+        if status == "Held"
+          @message.database.statistics.increment_all(timestamp, "held")
         end
 
-        if self.status == "Bounced" || self.status == "HardFail"
-          @message.database.statistics.increment_all(self.timestamp, "bounces")
+        if status == "Bounced" || status == "HardFail"
+          @message.database.statistics.increment_all(timestamp, "bounces")
         end
       end
 
       def send_webhooks
-        if self.webhook_event
-          WebhookRequest.trigger(@message.database.server_id, self.webhook_event, self.webhook_hash)
+        if webhook_event
+          WebhookRequest.trigger(@message.database.server_id, webhook_event, webhook_hash)
         end
       end
 
       def webhook_hash
         {
           message: @message.webhook_hash,
-          status: self.status,
-          details: self.details,
-          output: self.output.to_s.force_encoding("UTF-8").scrub,
-          sent_with_ssl: self.sent_with_ssl,
+          status: status,
+          details: details,
+          output: output.to_s.force_encoding("UTF-8").scrub,
+          sent_with_ssl: sent_with_ssl,
           timestamp: @attributes["timestamp"],
-          time: self.time
+          time: time
         }
       end
 
       def webhook_event
-        @webhook_event ||= case self.status
+        @webhook_event ||= case status
         when "Sent" then "MessageSent"
         when "SoftFail" then "MessageDelayed"
         when "HardFail" then "MessageDeliveryFailed"

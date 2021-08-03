@@ -25,7 +25,7 @@ module Postal
     end
 
     def self.create_channel
-      conn = self.create_connection
+      conn = create_connection
       conn.create_channel(nil, Postal.config.workers.threads)
     end
 

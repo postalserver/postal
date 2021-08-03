@@ -41,16 +41,16 @@ class UserInvite < ApplicationRecord
 
   def accept(user)
     transaction do
-      self.organization_users.each do |ou|
+      organization_users.each do |ou|
         ou.update(user: user) || ou.destroy
       end
-      self.organization_users.reload
-      self.destroy
+      organization_users.reload
+      destroy
     end
   end
 
   def reject
-    self.destroy
+    destroy
   end
 
 end
