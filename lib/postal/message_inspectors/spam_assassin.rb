@@ -36,15 +36,12 @@ module Postal
         checks.each do |check|
           inspection.spam_checks << check
         end
-
       rescue Timeout::Error
         inspection.spam_checks << SpamCheck.new("TIMEOUT", 0, "Timed out when scanning for spam")
-
       rescue => e
         logger.error "Error talking to spamd: #{e.class} (#{e.message})"
         logger.error e.backtrace[0,5]
         inspection.spam_checks << SpamCheck.new("ERROR", 0, "Error when scanning for spam")
-
       ensure
         tcp_socket.close rescue nil
       end

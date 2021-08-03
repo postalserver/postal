@@ -426,7 +426,6 @@ class UnqueueMessageJob < Postal::Job
                 queued_message.destroy
               end
             end
-
           rescue => e
             log "#{log_prefix} Internal error: #{e.class}: #{e.message}"
             e.backtrace.each { |e| log("#{log_prefix} #{e}") }

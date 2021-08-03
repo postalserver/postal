@@ -153,7 +153,6 @@ module Postal
         end
         result.output = smtp_result.string
         log "Message sent ##{message.id} to #{destination_host_description} for #{rcpt_to}"
-
       rescue Net::SMTPServerBusy, Net::SMTPAuthenticationError, Net::SMTPSyntaxError, Net::SMTPUnknownError, Net::ReadTimeout => e
         log "#{e.class}: #{e.message}"
         result.type = "SoftFail"
