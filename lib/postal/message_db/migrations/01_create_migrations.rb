@@ -8,8 +8,7 @@ module Postal
                                              columns: {
                                                version: "int(11) NOT NULL"
                                              },
-                                             primary_key: "`version`"
-          )
+                                             primary_key: "`version`")
         end
 
       end

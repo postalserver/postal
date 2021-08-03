@@ -20,8 +20,7 @@ module Postal
                                                on_uuid: "`uuid`(8)",
                                                on_event: "`event`(8)",
                                                on_timestamp: "`timestamp`"
-                                             }
-          )
+                                             })
         end
 
       end

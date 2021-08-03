@@ -17,8 +17,7 @@ module Postal
                                                },
                                                unique_indexes: {
                                                  on_time: "`time`"
-                                               }
-            )
+                                               })
           end
         end
 

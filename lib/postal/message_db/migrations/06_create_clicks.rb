@@ -18,8 +18,7 @@ module Postal
                                              indexes: {
                                                on_message_id: "`message_id`",
                                                on_link_id: "`link_id`"
-                                             }
-          )
+                                             })
         end
 
       end

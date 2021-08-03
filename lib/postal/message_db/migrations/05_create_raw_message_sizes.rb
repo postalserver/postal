@@ -12,8 +12,7 @@ module Postal
                                              },
                                              indexes: {
                                                on_table_name: "`table_name`(14)"
-                                             }
-          )
+                                             })
         end
 
       end

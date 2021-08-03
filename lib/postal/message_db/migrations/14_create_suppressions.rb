@@ -16,8 +16,7 @@ module Postal
                                              indexes: {
                                                on_address: "`address`(6)",
                                                on_keep_until: "`keep_until`"
-                                             }
-          )
+                                             })
         end
 
       end

@@ -49,8 +49,7 @@ module Postal
                                                on_rcpt_to: "`rcpt_to`(12), `timestamp`",
                                                on_mail_from: "`mail_from`(12), `timestamp`",
                                                on_raw_table: "`raw_table`(14)"
-                                             }
-          )
+                                             })
         end
 
       end

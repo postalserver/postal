@@ -84,8 +84,7 @@ module Postal
               id: "int(11) NOT NULL AUTO_INCREMENT",
               data: "longblob DEFAULT NULL",
               next: "int(11) DEFAULT NULL"
-            }
-          ))
+            }))
           @database.query("INSERT INTO `#{@database.database_name}`.`raw_message_sizes` (table_name, size) VALUES ('#{table}', 0)")
         rescue Mysql2::Error => e
           # Don't worry if the table already exists, another thread has already run this code.

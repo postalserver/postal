@@ -11,8 +11,7 @@ module Postal
                                                count: "int(11) DEFAULT NULL",
                                                timestamp: "decimal(18,6) DEFAULT NULL"
                                              },
-                                             primary_key: "`minute`, `type`(8)"
-          )
+                                             primary_key: "`minute`, `type`(8)")
         end
 
       end

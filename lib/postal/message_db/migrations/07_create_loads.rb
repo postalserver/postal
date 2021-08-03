@@ -16,8 +16,7 @@ module Postal
                                              },
                                              indexes: {
                                                on_message_id: "`message_id`"
-                                             }
-          )
+                                             })
         end
 
       end
