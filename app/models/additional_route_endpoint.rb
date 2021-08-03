@@ -24,6 +24,7 @@ class AdditionalRouteEndpoint < ApplicationRecord
     unless Route::ENDPOINT_TYPES.include?(class_name)
       raise Postal::Error, "Invalid endpoint class name '#{class_name}'"
     end
+
     if uuid = class_name.constantize.find_by_uuid(id)
       where(endpoint_type: class_name, endpoint_id: uuid).first
     else
@@ -44,6 +45,7 @@ class AdditionalRouteEndpoint < ApplicationRecord
         unless Route::ENDPOINT_TYPES.include?(class_name)
           raise Postal::Error, "Invalid endpoint class name '#{class_name}'"
         end
+
         self.endpoint = class_name.constantize.find_by_uuid(id)
       else
         self.endpoint = nil

@@ -380,6 +380,7 @@ module Postal
       #
       def spam_status
         return "NotChecked" unless inspected == 1
+
         spam == 1 ? "Spam" : "NotSpam"
       end
 
@@ -479,6 +480,7 @@ module Postal
       #
       def original_messages
         return nil unless bounce == 1
+
         other_message_ids = raw_message.scan(/\X-Postal-MsgID:\s*([a-z0-9]+)/i).flatten
         if other_message_ids.empty?
           []

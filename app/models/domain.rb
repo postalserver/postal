@@ -150,8 +150,10 @@ class Domain < ApplicationRecord
       break unless ns_records.blank?
     end
     return [] if ns_records.blank?
+
     ns_records = ns_records.map{ |r| local_resolver.getresources(r, Resolv::DNS::Resource::IN::A).map { |s| s.address.to_s } }.flatten
     return [] if ns_records.blank?
+
     ns_records
   end
 

@@ -21,6 +21,7 @@ module Postal
         files.each do |version, file|
           klass_name = file.gsub(/\.rb\z/, "").camelize
           next if start_from >= version
+
           puts "\e[45m++ Migrating #{klass_name} (#{version})\e[0m"
           require "postal/message_db/migrations/#{version.to_s.rjust(2, '0')}_#{file}"
           klass = Postal::MessageDB::Migrations.const_get(klass_name)

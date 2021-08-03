@@ -105,6 +105,7 @@ class QueuedMessage < ApplicationRecord
     unless locked?
       raise Postal::Error, "Must lock current message before locking any friends"
     end
+
     if batch_key.nil?
       []
     else

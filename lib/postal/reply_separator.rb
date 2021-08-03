@@ -17,6 +17,7 @@ module Postal
 
     def self.separate(text)
       return "" unless text.is_a?(String)
+
       text = text.gsub("\r", "")
       stripped = ""
       RULES.each do |rule|

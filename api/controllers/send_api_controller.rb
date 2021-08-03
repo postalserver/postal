@@ -51,6 +51,7 @@ controller :send do
       attributes[:attachments] = []
       (params.attachments || []).each do |attachment|
         next unless attachment.is_a?(Hash)
+
         attributes[:attachments] << { name: attachment["name"], content_type: attachment["content_type"], data: attachment["data"], base64: true }
       end
       message = OutgoingMessagePrototype.new(identity.server, request.ip, "api", attributes)

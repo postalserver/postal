@@ -89,6 +89,7 @@ module ApplicationHelper
         s << "<optgroup label='Other Options'>"
         Route::MODES.each do |mode|
           next if mode == "Endpoint"
+
           selected = (selected_value == mode ? "selected='selected'" : "")
           text = t("route_modes.#{mode.underscore}")
           s << "<option value='#{mode}' #{selected}>#{text}</option>"

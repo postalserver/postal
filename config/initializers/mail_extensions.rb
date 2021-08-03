@@ -109,6 +109,7 @@ class Array
 
   def decoded
     return nil if empty?
+
     return first.decoded
   end
 

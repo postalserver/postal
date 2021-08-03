@@ -15,6 +15,7 @@ class User
     user = where(email_address: email_address).first
     raise Postal::Errors::AuthenticationError.new("InvalidEmailAddress") if user.nil?
     raise Postal::Errors::AuthenticationError.new("InvalidPassword") unless user.authenticate(password)
+
     user
   end
 

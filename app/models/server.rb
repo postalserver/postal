@@ -220,10 +220,12 @@ class Server < ApplicationRecord
 
   def authenticated_domain_for_address(address)
     return nil if address.blank?
+
     address = Postal::Helpers.strip_name_from_address(address)
     uname, domain_name = address.split("@", 2)
     return nil unless uname
     return nil unless domain_name
+
     uname, _ = uname.split("+", 2)
 
     # Check the server's domain

@@ -78,6 +78,7 @@ class DomainsController < ApplicationController
           end
         elsif params[:email_address].present?
           raise Postal::Error, "Invalid email address" unless @domain.verification_email_addresses.include?(params[:email_address])
+
           AppMailer.verify_domain(@domain, params[:email_address], current_user).deliver
           if @domain.owner.is_a?(Server)
             redirect_to_with_json verify_organization_server_domain_path(organization, @server, @domain, email_address: params[:email_address])

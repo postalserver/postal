@@ -81,6 +81,7 @@ class Route < ApplicationRecord
         unless ENDPOINT_TYPES.include?(class_name)
           raise Postal::Error, "Invalid endpoint class name '#{class_name}'"
         end
+
         self.endpoint = class_name.constantize.find_by_uuid(id)
         self.mode = "Endpoint"
       else
@@ -150,6 +151,7 @@ class Route < ApplicationRecord
     if mode == "Endpoint" && server.message_db.schema_version >= 18
       additional_route_endpoints.each do |endpoint|
         next unless endpoint.endpoint
+
         message = build_message
         message.endpoint_id = endpoint.endpoint_id
         message.endpoint_type = endpoint.endpoint_type
@@ -197,6 +199,7 @@ class Route < ApplicationRecord
 
   def validate_name_uniqueness
     return if server.nil?
+
     if domain
       if route = Route.includes(:domain).where(domains: { name: domain.name }, name: name).where.not(id: id).first
         errors.add :name, "is configured on the #{route.server.full_permalink} mail server"

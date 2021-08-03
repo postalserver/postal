@@ -99,6 +99,7 @@ module Postal
 
       def log(text)
         return false unless @logging_enabled
+
         Postal.logger_for(:smtp_server).debug "[#{id}] #{text}"
       end
 
@@ -171,6 +172,7 @@ module Postal
           unless username && password
             next "535 Authenticated failed - protocol error"
           end
+
           authenticate(password)
         end
 
@@ -226,6 +228,7 @@ module Postal
           org_permlink, server_permalink = username.split(/[\/_]/, 2)
           server = ::Server.includes(:organization).where(organizations: { permalink: org_permlink }, permalink: server_permalink).first
           next "535 Denied" if server.nil?
+
           grant = nil
           server.credentials.where(type: "SMTP").each do |credential|
             correct_response = OpenSSL::HMAC.hexdigest(CRAM_MD5_DIGEST, credential.key, challenge)
