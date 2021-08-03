@@ -56,7 +56,7 @@ class MessagesController < ApplicationController
     respond_to do |wants|
       wants.html
       wants.json { render json: {
-        flash: flash.each_with_object({}) { |(type, message), hash| hash[type] = message},
+        flash: flash.each_with_object({}) { |(type, message), hash| hash[type] = message },
         region_html: render_to_string(partial: "index", formats: [:html])
       }}
     end
@@ -68,7 +68,7 @@ class MessagesController < ApplicationController
     respond_to do |wants|
       wants.html
       wants.json { render json: {
-        flash: flash.each_with_object({}) { |(type, message), hash| hash[type] = message},
+        flash: flash.each_with_object({}) { |(type, message), hash| hash[type] = message },
         region_html: render_to_string(partial: "index", formats: [:html])
       }}
     end
@@ -87,7 +87,7 @@ class MessagesController < ApplicationController
   end
 
   def spam_checks
-    @spam_checks = @message.spam_checks.sort_by { |s| s["score"]}.reverse
+    @spam_checks = @message.spam_checks.sort_by { |s| s["score"] }.reverse
   end
 
   def attachment

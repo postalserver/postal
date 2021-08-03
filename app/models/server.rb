@@ -65,7 +65,7 @@ class Server < ApplicationRecord
   MODES = ["Live", "Development"]
 
   random_string :token, type: :chars, length: 6, unique: true, upper_letters_only: true
-  default_value :permalink, -> { name ? name.parameterize : nil}
+  default_value :permalink, -> { name ? name.parameterize : nil }
   default_value :raw_message_retention_days, -> { 30 }
   default_value :raw_message_retention_size, -> { 2048 }
   default_value :message_retention_days, -> { 60 }

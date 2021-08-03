@@ -31,7 +31,7 @@ class TrackDomain < ApplicationRecord
   validates :domain_id, uniqueness: { scope: :server_id, message: "already has a track domain for this server" }
   validate :validate_domain_belongs_to_server
 
-  scope :ok, -> { where(dns_status: "OK")}
+  scope :ok, -> { where(dns_status: "OK") }
 
   after_create :check_dns, unless: :dns_status
 

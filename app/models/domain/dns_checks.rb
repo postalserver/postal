@@ -42,12 +42,12 @@ class Domain
 
   def check_spf_record
     result = resolver.getresources(self.name, Resolv::DNS::Resource::IN::TXT)
-    spf_records = result.map(&:data).select { |d| d =~ /\Av=spf1/}
+    spf_records = result.map(&:data).select { |d| d =~ /\Av=spf1/ }
     if spf_records.empty?
       self.spf_status = "Missing"
       self.spf_error = "No SPF record exists for this domain"
     else
-      suitable_spf_records = spf_records.select { |d| d =~ /include\:\s*#{Regexp.escape(Postal.config.dns.spf_include)}/}
+      suitable_spf_records = spf_records.select { |d| d =~ /include\:\s*#{Regexp.escape(Postal.config.dns.spf_include)}/ }
       if suitable_spf_records.empty?
         self.spf_status = "Invalid"
         self.spf_error = "An SPF record exists but it doesn't include #{Postal.config.dns.spf_include}"
