@@ -26,7 +26,7 @@ class Organization < ApplicationRecord
   RESERVED_PERMALINKS = ["new", "edit", "remove", "delete", "destroy", "admin", "mail", "org", "server"]
 
   INITIAL_QUOTA = 10
-  INITIAL_SUPER_QUOTA = 10000
+  INITIAL_SUPER_QUOTA = 10_000
   include HasUUID
   include HasSoftDestroy
 

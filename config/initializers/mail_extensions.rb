@@ -61,7 +61,7 @@ module Mail
       elsif content_location && content_loc_name
         filename = content_loc_name
       elsif mime_type == "message/rfc822"
-        filename = "#{rand(100000000)}.eml"
+        filename = "#{rand(100_000_000)}.eml"
       else
         filename = nil
       end

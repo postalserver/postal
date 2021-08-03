@@ -136,12 +136,12 @@ module Postal
                   # There is an extra step for SSL sockets
                   case io
                   when OpenSSL::SSL::SSLSocket
-                    buffers[io] << io.readpartial(10240)
+                    buffers[io] << io.readpartial(10_240)
                     while(io.pending > 0)
-                      buffers[io] << io.readpartial(10240)
+                      buffers[io] << io.readpartial(10_240)
                     end
                   else
-                    buffers[io] << io.readpartial(10240)
+                    buffers[io] << io.readpartial(10_240)
                   end
                 rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
                   # Client went away
