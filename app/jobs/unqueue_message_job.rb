@@ -453,11 +453,11 @@ class UnqueueMessageJob < Postal::Job
   private
 
   def cached_sender(klass, *args)
-    @sender ||= begin
-      sender = klass.new(*args)
-      sender.start
-      sender
-    end
+    return @sender if @sender
+
+    sender = klass.new(*args)
+    sender.start
+    sender
   end
 
 end

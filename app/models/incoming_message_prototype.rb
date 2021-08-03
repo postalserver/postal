@@ -22,7 +22,7 @@ class IncomingMessagePrototype
   end
 
   def route
-    @routes ||= begin
+    @route ||= begin
       if @to.present?
         uname, domain = @to.split("@", 2)
         uname, tag = uname.split("+", 2)
