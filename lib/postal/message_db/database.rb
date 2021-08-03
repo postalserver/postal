@@ -273,6 +273,7 @@ module Postal
 
         attr_reader :columns
         attr_reader :rows
+
         def initialize(result)
           if result.first
             @columns = result.first.keys
