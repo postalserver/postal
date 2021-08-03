@@ -85,7 +85,7 @@ module Postal
       #
       def copy_attributes_from_raw_message
         if raw_message
-          self.subject = headers["subject"]&.last.to_s[0,200]
+          self.subject = headers["subject"]&.last.to_s[0, 200]
           self.message_id = headers["message-id"]&.last
           if message_id
             self.message_id = message_id.gsub(/.*</, "").gsub(/>.*/, "").strip
@@ -559,14 +559,14 @@ module Postal
       private
 
       def _update
-        @database.update("messages", @attributes.reject { |k,v| k == :id }, where: { id: @attributes["id"] })
+        @database.update("messages", @attributes.reject { |k, v| k == :id }, where: { id: @attributes["id"] })
       end
 
       def _create
         self.timestamp = Time.now.to_f if timestamp.blank?
         self.status = "Pending" if status.blank?
         self.token = Nifty::Utils::RandomString.generate(length: 12) if token.blank?
-        last_id = @database.insert("messages", @attributes.reject { |k,v| k == :id })
+        last_id = @database.insert("messages", @attributes.reject { |k, v| k == :id })
         @attributes["id"] = last_id
         @database.statistics.increment_all(timestamp, scope)
         Statistic.global.increment!(:total_messages)

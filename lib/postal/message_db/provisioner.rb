@@ -80,7 +80,7 @@ module Postal
       #
       def create_raw_table(table)
         begin
-          @database.query(create_table_query(table,columns: {
+          @database.query(create_table_query(table, columns: {
               id: "int(11) NOT NULL AUTO_INCREMENT",
               data: "longblob DEFAULT NULL",
               next: "int(11) DEFAULT NULL"

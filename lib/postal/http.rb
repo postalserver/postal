@@ -16,7 +16,7 @@ module Postal
       options[:headers] ||= {}
       uri = URI.parse(url)
       request = method.new((uri.path.length == 0 ? "/" : uri.path) + (uri.query ? "?" + uri.query : ""))
-      options[:headers].each { |k,v| request.add_field k, v }
+      options[:headers].each { |k, v| request.add_field k, v }
 
       if options[:username] || uri.user
         request.basic_auth(options[:username] || uri.user, options[:password] || uri.password)

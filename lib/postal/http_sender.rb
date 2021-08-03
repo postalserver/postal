@@ -28,7 +28,7 @@ module Postal
       result.details = "Received a #{response[:code]} from #{@endpoint.url}"
       log "  -> Received: #{response[:code]}"
       if response[:body]
-        log "  -> Body: #{response[:body][0,255]}"
+        log "  -> Body: #{response[:body][0, 255]}"
         result.output = response[:body].to_s[0, 500].strip
       end
       if response[:code] >= 200 && response[:code] < 300
