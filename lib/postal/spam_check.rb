@@ -1,5 +1,5 @@
 module Postal
-  class SPAMCheck
+  class SpamCheck
 
     attr_reader :code, :score, :description
 
