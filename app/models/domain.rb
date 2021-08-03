@@ -84,7 +84,7 @@ class Domain < ApplicationRecord
 
   def parent_domains
     parts = name.split(".")
-    parts[0, parts.size-1].each_with_index.map do |p, i|
+    parts[0, parts.size - 1].each_with_index.map do |p, i|
       parts[i..-1].join(".")
     end
   end

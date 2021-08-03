@@ -241,10 +241,10 @@ class UnqueueMessageJob < Postal::Job
 
                 # Log the result
                 log_details = result.details
-                if result.type =="HardFail" && result.suppress_bounce
+                if result.type == "HardFail" && result.suppress_bounce
                   # The delivery hard failed, but requested that no bounce be sent
                   log "#{log_prefix} Suppressing bounce message after hard fail"
-                elsif result.type =="HardFail" && queued_message.message.send_bounces?
+                elsif result.type == "HardFail" && queued_message.message.send_bounces?
                   # If the message is a hard fail, send a bounce message for this message.
                   log "#{log_prefix} Sending a bounce because message hard failed"
                   if bounce_id = queued_message.send_bounce

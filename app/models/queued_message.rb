@@ -94,7 +94,7 @@ class QueuedMessage < ApplicationRecord
   end
 
   def self.calculate_retry_time(attempts, initial_period)
-    (1.3 ** attempts) * initial_period
+    (1.3**attempts) * initial_period
   end
 
   def locked?
