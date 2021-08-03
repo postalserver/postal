@@ -11,11 +11,11 @@ module Postal
                                                address: "varchar(255) DEFAULT NULL",
                                                reason: "varchar(255) DEFAULT NULL",
                                                timestamp: "decimal(18,6) DEFAULT NULL",
-                                               keep_until: "decimal(18,6) DEFAULT NULL",
+                                               keep_until: "decimal(18,6) DEFAULT NULL"
                                              },
                                              indexes: {
                                                on_address: "`address`(6)",
-                                               on_keep_until: "`keep_until`",
+                                               on_keep_until: "`keep_until`"
                                              }
           )
         end

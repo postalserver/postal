@@ -13,7 +13,7 @@ module Postal
                                                  outgoing: "bigint DEFAULT NULL",
                                                  spam: "bigint DEFAULT NULL",
                                                  bounces: "bigint DEFAULT NULL",
-                                                 held: "bigint DEFAULT NULL",
+                                                 held: "bigint DEFAULT NULL"
                                                },
                                                unique_indexes: {
                                                  on_time: "`time`"

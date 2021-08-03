@@ -15,7 +15,7 @@ module Postal
                                              },
                                              indexes: {
                                                on_message_id: "`message_id`",
-                                               on_token: "`token`(8)",
+                                               on_token: "`token`(8)"
                                              }
           )
         end

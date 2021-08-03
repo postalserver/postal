@@ -34,7 +34,7 @@ module Postal
                                                tag: "varchar(255) DEFAULT NULL",
                                                loaded: "decimal(18,6) DEFAULT NULL",
                                                clicked: "decimal(18,6) DEFAULT NULL",
-                                               received_with_ssl: "tinyint(1) DEFAULT NULL",
+                                               received_with_ssl: "tinyint(1) DEFAULT NULL"
                                              },
                                              indexes: {
                                                on_message_id: "`message_id`(8)",
@@ -48,7 +48,7 @@ module Postal
                                                on_scope_and_threat: "`scope`(1), `threat`, `timestamp`",
                                                on_rcpt_to: "`rcpt_to`(12), `timestamp`",
                                                on_mail_from: "`mail_from`(12), `timestamp`",
-                                               on_raw_table: "`raw_table`(14)",
+                                               on_raw_table: "`raw_table`(14)"
                                              }
           )
         end
