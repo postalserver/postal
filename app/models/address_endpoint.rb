@@ -19,7 +19,7 @@ class AddressEndpoint < ApplicationRecord
   has_many :routes, as: :endpoint
   has_many :additional_route_endpoints, dependent: :destroy, as: :endpoint
 
-  validates :address, presence: true, format: {with: /@/}, uniqueness: {scope: [:server_id], message: "has already been added"}
+  validates :address, presence: true, format: { with: /@/ }, uniqueness: { scope: [:server_id], message: "has already been added" }
 
   before_destroy :update_routes
 

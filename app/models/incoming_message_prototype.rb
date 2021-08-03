@@ -26,7 +26,7 @@ class IncomingMessagePrototype
       if @to.present?
         uname, domain = @to.split("@", 2)
         uname, tag = uname.split("+", 2)
-        @server.routes.includes(:domain).where(domains: {name: domain}, name: uname).first
+        @server.routes.includes(:domain).where(domains: { name: domain }, name: uname).first
       else
         nil
       end
@@ -50,7 +50,7 @@ class IncomingMessagePrototype
         message.mail_from = self.from_address
         message.raw_message = self.raw_message
       end
-      {route.description => {id: messages.first.id, token: messages.first.token}}
+      { route.description => { id: messages.first.id, token: messages.first.token } }
     else
       false
     end

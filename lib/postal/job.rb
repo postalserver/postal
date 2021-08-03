@@ -35,7 +35,7 @@ module Postal
 
     def self.queue(queue, params = {})
       job_id = Nifty::Utils::RandomString.generate(length: 10).upcase
-      job_payload = {"params" => params, "class_name" => self.name, "id" => job_id, "queue" => queue}
+      job_payload = { "params" => params, "class_name" => self.name, "id" => job_id, "queue" => queue }
       Postal::Worker.job_queue(queue).publish(job_payload.to_json, persistent: false)
       job_id
     end

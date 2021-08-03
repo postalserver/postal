@@ -25,7 +25,7 @@
     if params[:direction] == "incoming"
       session[:test_in_from] = params[:message][:from] if params[:message]
       @message = IncomingMessagePrototype.new(@server, request.ip, "web-ui", params[:message])
-      @message.attachments = [{name: "test.txt", content_type: "text/plain", data: "Hello world!"}]
+      @message.attachments = [{ name: "test.txt", content_type: "text/plain", data: "Hello world!" }]
     else
       session[:test_out_to] = params[:message][:to] if params[:message]
       @message = OutgoingMessagePrototype.new(@server, request.ip, "web-ui", params[:message])
@@ -43,7 +43,7 @@
           render "new"
         end
         wants.json do
-          render json: {flash: {alert: "Your message could not be sent. Please check all field are completed fully."}}
+          render json: { flash: { alert: "Your message could not be sent. Please check all field are completed fully." } }
         end
       end
 
@@ -79,7 +79,7 @@
   end
 
   def deliveries
-    render json: {html: render_to_string(partial: "deliveries", locals: {message: @message})}
+    render json: { html: render_to_string(partial: "deliveries", locals: { message: @message }) }
   end
 
   def html_raw
@@ -149,9 +149,9 @@
 
   def get_messages(scope)
     if scope == "held"
-      options = {where: {held: 1}}
+      options = { where: { held: 1 } }
     else
-      options = {where: {scope: scope, spam: false}, order: :timestamp, direction: "desc"}
+      options = { where: { scope: scope, spam: false }, order: :timestamp, direction: "desc" }
 
       if @query = (params[:query] || session["msg_query_#{@server.id}_#{scope}"]).presence
         session["msg_query_#{@server.id}_#{scope}"] = @query

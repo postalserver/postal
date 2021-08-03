@@ -395,7 +395,7 @@ class UnqueueMessageJob < Postal::Job
               # and if there are more than 2, suppress the address for 30 days.
               #
               if result.type == "HardFail"
-                recent_hard_fails = queued_message.server.message_db.select(:messages, where: {rcpt_to: queued_message.message.rcpt_to, status: "HardFail", timestamp: {greater_than: 24.hours.ago.to_f}}, count: true)
+                recent_hard_fails = queued_message.server.message_db.select(:messages, where: { rcpt_to: queued_message.message.rcpt_to, status: "HardFail", timestamp: { greater_than: 24.hours.ago.to_f } }, count: true)
                 if recent_hard_fails >= 1
                   if queued_message.server.message_db.suppression_list.add(:recipient, queued_message.message.rcpt_to, reason: "too many hard fails")
                     log "#{log_prefix} Added #{queued_message.message.rcpt_to} to suppression list because #{recent_hard_fails} hard fails in 24 hours"
@@ -433,7 +433,7 @@ class UnqueueMessageJob < Postal::Job
             queued_message.retry_later
             log "#{log_prefix} Queued message was unlocked"
             if defined?(Raven)
-              Raven.capture_exception(e, extra: {job_id: self.id, server_id: queued_message.server_id, message_id: queued_message.message_id})
+              Raven.capture_exception(e, extra: { job_id: self.id, server_id: queued_message.server_id, message_id: queued_message.message_id })
             end
             if queued_message.message
               queued_message.message.create_delivery("Error", details: "An internal error occurred while sending this message. This message will be retried automatically. If this persists, contact support for assistance.", output: "#{e.class}: #{e.message}", log_id: "J-#{self.id}")

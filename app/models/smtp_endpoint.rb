@@ -30,8 +30,8 @@ class SMTPEndpoint < ApplicationRecord
 
   validates :name, presence: true
   validates :hostname, presence: true, format: /\A[a-z0-9\.\-]*\z/
-  validates :ssl_mode, inclusion: {in: SSL_MODES}
-  validates :port, numericality: {only_integer: true, allow_blank: true}
+  validates :ssl_mode, inclusion: { in: SSL_MODES }
+  validates :port, numericality: { only_integer: true, allow_blank: true }
 
   def description
     "#{name} (#{hostname})"

@@ -36,9 +36,9 @@ class HTTPEndpoint < ApplicationRecord
 
   validates :name, presence: true
   validates :url, presence: true
-  validates :encoding, inclusion: {in: ENCODINGS}
-  validates :format, inclusion: {in: FORMATS}
-  validates :timeout, numericality: {greater_than_or_equal_to: 5, less_than_or_equal_to: 60}
+  validates :encoding, inclusion: { in: ENCODINGS }
+  validates :format, inclusion: { in: FORMATS }
+  validates :timeout, numericality: { greater_than_or_equal_to: 5, less_than_or_equal_to: 60 }
 
   default_value :timeout, -> { DEFAULT_TIMEOUT }
 

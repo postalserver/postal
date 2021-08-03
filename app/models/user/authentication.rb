@@ -2,7 +2,7 @@ class User
 
   has_secure_password
 
-  validates :password, length: {minimum: 8, allow_blank: true}
+  validates :password, length: { minimum: 8, allow_blank: true }
 
   when_attribute :password_digest, changes_to: :anything do
     before_save do

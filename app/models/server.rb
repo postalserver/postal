@@ -72,9 +72,9 @@ class Server < ApplicationRecord
   default_value :spam_threshold, -> { Postal.config.general.default_spam_threshold }
   default_value :spam_failure_threshold, -> { Postal.config.general.default_spam_failure_threshold }
 
-  validates :name, presence: true, uniqueness: {scope: :organization_id}
-  validates :mode, inclusion: {in: MODES}
-  validates :permalink, presence: true, uniqueness: {scope: :organization_id}, format: {with: /\A[a-z0-9\-]*\z/}, exclusion: {in: RESERVED_PERMALINKS}
+  validates :name, presence: true, uniqueness: { scope: :organization_id }
+  validates :mode, inclusion: { in: MODES }
+  validates :permalink, presence: true, uniqueness: { scope: :organization_id }, format: { with: /\A[a-z0-9\-]*\z/ }, exclusion: { in: RESERVED_PERMALINKS }
   validate :validate_ip_pool_belongs_to_organization
 
   before_validation(on: :create) do
@@ -136,7 +136,7 @@ class Server < ApplicationRecord
   end
 
   def held_messages
-    @held_messages ||= message_db.messages(where: {held: 1}, count: true)
+    @held_messages ||= message_db.messages(where: { held: 1 }, count: true)
   end
 
   def throughput_stats
@@ -311,7 +311,7 @@ class Server < ApplicationRecord
     server = nil
     if id.is_a?(String)
       if id =~ /\A(\w+)\/(\w+)\z/
-        server = includes(:organization).where(organizations: {permalink: $1}, permalink: $2).first
+        server = includes(:organization).where(organizations: { permalink: $1 }, permalink: $2).first
       end
     else
       server = where(id: id).first

@@ -132,7 +132,7 @@ module Postal
       #
       def remove_messages(max_age = 60)
         time = (Date.today - max_age.days).to_time.end_of_day
-        if newest_message_to_remove = @database.select(:messages, where: {timestamp: {less_than_or_equal_to: time.to_f}}, limit: 1, order: :id, direction: "DESC", fields: [:id]).first
+        if newest_message_to_remove = @database.select(:messages, where: { timestamp: { less_than_or_equal_to: time.to_f } }, limit: 1, order: :id, direction: "DESC", fields: [:id]).first
           id = newest_message_to_remove["id"]
           @database.query("DELETE FROM `#{@database.database_name}`.`clicks` WHERE `message_id` <= #{id}")
           @database.query("DELETE FROM `#{@database.database_name}`.`loads` WHERE `message_id` <= #{id}")

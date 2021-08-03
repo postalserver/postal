@@ -12,7 +12,7 @@ module Postal
       mail.from = "Mail Delivery Service <#{@message.route.description}>"
       mail.subject = "Mail Delivery Failed (#{@message.subject})"
       mail.text_part = body
-      mail.attachments["Original Message.eml"] = {mime_type: "message/rfc822", encoding: "quoted-printable", content: @message.raw_message}
+      mail.attachments["Original Message.eml"] = { mime_type: "message/rfc822", encoding: "quoted-printable", content: @message.raw_message }
       mail.message_id = "<#{SecureRandom.uuid}@#{Postal.config.dns.return_path}>"
       mail.to_s
     end

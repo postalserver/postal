@@ -6,7 +6,7 @@ module Postal
       end
 
       def self.find_one(database, query)
-        query = {id: query.to_i} if query.is_a?(Integer)
+        query = { id: query.to_i } if query.is_a?(Integer)
         if message = database.select("messages", where: query, limit: 1).first
           Message.new(database, message)
         else
@@ -136,7 +136,7 @@ module Postal
       #
       def deliveries
         @deliveries ||= begin
-          @database.select("deliveries", where: {message_id: self.id}, order: :timestamp).map do |hash|
+          @database.select("deliveries", where: { message_id: self.id }, order: :timestamp).map do |hash|
             Delivery.new(self, hash)
           end
         end
@@ -147,11 +147,11 @@ module Postal
       #
       def clicks
         @clicks ||= begin
-          clicks = @database.select("clicks", where: {message_id: self.id}, order: :timestamp)
+          clicks = @database.select("clicks", where: { message_id: self.id }, order: :timestamp)
           if clicks.empty?
             []
           else
-            links = @database.select("links", where: {id: clicks.map { |c| c["link_id"].to_i }}).group_by { |l| l["id"] }
+            links = @database.select("links", where: { id: clicks.map { |c| c["link_id"].to_i } }).group_by { |l| l["id"] }
             clicks.map do |hash|
               Click.new(hash, links[hash["link_id"]].first)
             end
@@ -164,7 +164,7 @@ module Postal
       #
       def loads
         @loads ||= begin
-          loads = @database.select("loads", where: {message_id: self.id}, order: :timestamp)
+          loads = @database.select("loads", where: { message_id: self.id }, order: :timestamp)
           loads.map do |hash|
             Load.new(hash)
           end
@@ -213,7 +213,7 @@ module Postal
       def update(attributes_to_change)
         @attributes = @attributes.merge(database.stringify_keys(attributes_to_change))
         if persisted?
-          @database.update("messages", attributes_to_change, where: {id: self.id})
+          @database.update("messages", attributes_to_change, where: { id: self.id })
         else
           _create
         end
@@ -224,7 +224,7 @@ module Postal
       #
       def delete
         if persisted?
-          @database.delete("messages", where: {id: self.id})
+          @database.delete("messages", where: { id: self.id })
         end
       end
 
@@ -233,7 +233,7 @@ module Postal
       #
       def raw_headers
         if self.raw_table
-          @raw_headers ||= @database.select(self.raw_table, where: {id: self.raw_headers_id}).first&.send(:[], "data") || ""
+          @raw_headers ||= @database.select(self.raw_table, where: { id: self.raw_headers_id }).first&.send(:[], "data") || ""
         else
           ""
         end
@@ -244,7 +244,7 @@ module Postal
       #
       def raw_body
         if self.raw_table
-          @raw ||= @database.select(self.raw_table, where: {id: self.raw_body_id}).first&.send(:[], "data") || ""
+          @raw ||= @database.select(self.raw_table, where: { id: self.raw_body_id }).first&.send(:[], "data") || ""
         else
           ""
         end
@@ -416,7 +416,7 @@ module Postal
       def append_headers(*headers)
         new_headers = headers.join("\r\n")
         new_headers = "#{new_headers}\r\n#{self.raw_headers}"
-        @database.update(self.raw_table, {data: new_headers}, where: {id: self.raw_headers_id})
+        @database.update(self.raw_table, { data: new_headers }, where: { id: self.raw_headers_id })
         @raw_headers = new_headers
         @raw_message = nil
         @headers = nil
@@ -445,7 +445,7 @@ module Postal
       #
       def bounce!(bounce_message)
         create_delivery("Bounced", details: "We've received a bounce message for this e-mail. See <msg:#{bounce_message.id}> for details.")
-        SendWebhookJob.queue(:main, server_id: self.database.server_id, event: "MessageBounced", payload: {_original_message: self.id, _bounce: bounce_message.id})
+        SendWebhookJob.queue(:main, server_id: self.database.server_id, event: "MessageBounced", payload: { _original_message: self.id, _bounce: bounce_message.id })
       end
 
       #
@@ -460,8 +460,8 @@ module Postal
       #
       def create_load(request)
         update("loaded" => Time.now.to_f) if loaded.nil?
-        database.insert(:loads, {message_id: self.id, ip_address: request.ip, user_agent: request.user_agent, timestamp: Time.now.to_f})
-        SendWebhookJob.queue(:main, server_id: self.database.server_id, event: "MessageLoaded", payload: {_message: self.id, ip_address: request.ip, user_agent: request.user_agent})
+        database.insert(:loads, { message_id: self.id, ip_address: request.ip, user_agent: request.user_agent, timestamp: Time.now.to_f })
+        SendWebhookJob.queue(:main, server_id: self.database.server_id, event: "MessageLoaded", payload: { _message: self.id, ip_address: request.ip, user_agent: request.user_agent })
       end
 
       #
@@ -470,7 +470,7 @@ module Postal
       def create_link(url)
         hash = Digest::SHA1.hexdigest(url.to_s)
         token = Nifty::Utils::RandomString.generate(length: 8)
-        database.insert(:links, {message_id: self.id, hash: hash, url: url, timestamp: Time.now.to_f, token: token})
+        database.insert(:links, { message_id: self.id, hash: hash, url: url, timestamp: Time.now.to_f, token: token })
         token
       end
 
@@ -483,7 +483,7 @@ module Postal
         if other_message_ids.empty?
           []
         else
-          database.messages(where: {token: other_message_ids})
+          database.messages(where: { token: other_message_ids })
         end
       end
 
@@ -514,7 +514,7 @@ module Postal
       # Return all spam checks for this message
       #
       def spam_checks
-        @spam_checks ||= self.database.select(:spam_checks, where: {message_id: self.id})
+        @spam_checks ||= self.database.select(:spam_checks, where: { message_id: self.id })
       end
 
       #
@@ -533,7 +533,7 @@ module Postal
         parse_result = Postal::MessageParser.new(self)
         if parse_result.actioned?
           # Somethign was changed, update the raw message
-          @database.update(self.raw_table, {data: parse_result.new_body}, where: {id: self.raw_body_id})
+          @database.update(self.raw_table, { data: parse_result.new_body }, where: { id: self.raw_body_id })
           @raw = parse_result.new_body
           @raw_message = nil
         end
@@ -557,7 +557,7 @@ module Postal
       private
 
       def _update
-        @database.update("messages", @attributes.reject {|k,v| k == :id }, where: {id: @attributes["id"]})
+        @database.update("messages", @attributes.reject {|k,v| k == :id }, where: { id: @attributes["id"] })
       end
 
       def _create

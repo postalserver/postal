@@ -44,7 +44,7 @@ class OrganizationsController < ApplicationController
     unless current_user.authenticate(params[:password])
       respond_to do |wants|
         wants.html { redirect_to organization_delete_path(@organization), alert: "The password you entered was not valid. Please check and try again." }
-        wants.json { render json: {alert: "The password you entered was invalid. Please check and try again."} }
+        wants.json { render json: { alert: "The password you entered was invalid. Please check and try again." } }
       end
       return
     end

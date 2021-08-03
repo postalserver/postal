@@ -19,7 +19,7 @@ class WebhookRequest < ApplicationRecord
 
   include HasUUID
 
-  RETRIES = {1 => 2.minutes, 2 => 3.minutes, 3 => 6.minutes, 4 => 10.minutes, 5 => 15.minutes}
+  RETRIES = { 1 => 2.minutes, 2 => 3.minutes, 3 => 6.minutes, 4 => 10.minutes, 5 => 15.minutes }
 
   belongs_to :server
   belongs_to :webhook, optional: true
@@ -52,7 +52,7 @@ class WebhookRequest < ApplicationRecord
 
   def deliver
     logger = Postal.logger_for(:webhooks)
-    payload = {event: self.event, timestamp: self.created_at.to_f, payload: self.payload, uuid: self.uuid}.to_json
+    payload = { event: self.event, timestamp: self.created_at.to_f, payload: self.payload, uuid: self.uuid }.to_json
     logger.info "[#{id}] Sending webhook request to `#{self.url}`"
     result = Postal::HTTP.post(self.url, sign: true, json: payload, timeout: 5)
     self.attempts += 1

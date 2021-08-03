@@ -24,7 +24,7 @@ class Credential < ApplicationRecord
   TYPES = ["SMTP", "API", "SMTP-IP"]
 
   validates :key, presence: true, uniqueness: true
-  validates :type, inclusion: {in: TYPES}
+  validates :type, inclusion: { in: TYPES }
   validates :name, presence: true
   validate :validate_key_cannot_be_changed
   validate :validate_key_for_smtp_ip

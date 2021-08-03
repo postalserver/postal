@@ -83,14 +83,14 @@ class ApplicationController < ActionController::Base
     end
     respond_to do |wants|
       wants.html { redirect_to url }
-      wants.json { render json: {redirect_to: url} }
+      wants.json { render json: { redirect_to: url } }
     end
   end
 
   def render_form_errors(action_name, object)
     respond_to do |wants|
       wants.html { render action_name }
-      wants.json { render json: {form_errors: object.errors.full_messages}, status: 422 }
+      wants.json { render json: { form_errors: object.errors.full_messages }, status: 422 }
     end
   end
 
@@ -102,7 +102,7 @@ class ApplicationController < ActionController::Base
           render options[:render_action]
         end
       end
-      wants.json { render json: {flash: {type => message}} }
+      wants.json { render json: { flash: { type => message } } }
     end
   end
 

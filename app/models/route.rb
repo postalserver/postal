@@ -35,9 +35,9 @@ class Route < ApplicationRecord
   ENDPOINT_TYPES = ["SMTPEndpoint", "HTTPEndpoint", "AddressEndpoint"]
 
   validates :name, presence: true, format: /\A(([a-z0-9\-\.]*)|(\*)|(__returnpath__))\z/
-  validates :spam_mode, inclusion: {in: SPAM_MODES}
-  validates :endpoint, presence: {if: proc { self.mode == "Endpoint" }}
-  validates :domain_id, presence: {unless: :return_path?}
+  validates :spam_mode, inclusion: { in: SPAM_MODES }
+  validates :endpoint, presence: { if: proc { self.mode == "Endpoint" } }
+  validates :domain_id, presence: { unless: :return_path? }
   validate :validate_route_is_routed
   validate :validate_domain_belongs_to_server
   validate :validate_endpoint_belongs_to_server
@@ -198,7 +198,7 @@ class Route < ApplicationRecord
   def validate_name_uniqueness
     return if self.server.nil?
     if self.domain
-      if route = Route.includes(:domain).where(domains: {name: self.domain.name}, name: self.name).where.not(id: self.id).first
+      if route = Route.includes(:domain).where(domains: { name: self.domain.name }, name: self.name).where.not(id: self.id).first
         errors.add :name, "is configured on the #{route.server.full_permalink} mail server"
       end
     else
@@ -223,9 +223,9 @@ class Route < ApplicationRecord
   end
 
   def self.find_by_name_and_domain(name, domain)
-    route = Route.includes(:domain).where(name: name, domains: {name: domain}).first
+    route = Route.includes(:domain).where(name: name, domains: { name: domain }).first
     if route.nil?
-      route = Route.includes(:domain).where(name: "*", domains: {name: domain}).first
+      route = Route.includes(:domain).where(name: "*", domains: { name: domain }).first
     end
     route
   end

@@ -31,7 +31,7 @@ class Organization < ApplicationRecord
   include HasSoftDestroy
 
   validates :name, presence: true
-  validates :permalink, presence: true, format: {with: /\A[a-z0-9\-]*\z/}, uniqueness: true, exclusion: {in: RESERVED_PERMALINKS}
+  validates :permalink, presence: true, format: { with: /\A[a-z0-9\-]*\z/ }, uniqueness: true, exclusion: { in: RESERVED_PERMALINKS }
   validates :time_zone, presence: true
 
   default_value :time_zone, -> { "UTC" }

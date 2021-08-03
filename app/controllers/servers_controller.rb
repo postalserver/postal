@@ -56,7 +56,7 @@ class ServersController < ApplicationController
           redirect_to [:delete, organization, @server], alert: "The password you entered was not valid. Please check and try again."
         end
         wants.json do
-          render json: {alert: "The password you entere was invalid. Please check and try again"}
+          render json: { alert: "The password you entere was invalid. Please check and try again" }
         end
       end
       return

@@ -197,7 +197,7 @@ class OutgoingMessagePrototype
     message.received_with_ssl = true
     message.bounce = @bounce ? 1 : 0
     message.save
-    {id: message.id, token: message.token}
+    { id: message.id, token: message.token }
   end
 
   def resolved_hostname

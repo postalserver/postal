@@ -18,7 +18,7 @@ class UserInvite < ApplicationRecord
 
   include HasUUID
 
-  validates :email_address, presence: true, uniqueness: true, format: {with: /@/, allow_blank: true}
+  validates :email_address, presence: true, uniqueness: true, format: { with: /@/, allow_blank: true }
 
   has_many :organization_users, dependent: :destroy, as: :user
   has_many :organizations, through: :organization_users

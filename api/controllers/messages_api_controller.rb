@@ -7,8 +7,8 @@ controller :messages do
     title "Return message details"
     description "Returns all details about a message"
     param :id, "The ID of the message", type: Integer, required: true
-    returns Hash, structure: :message, structure_opts: {paramable: {expansions: false}}
-    error "MessageNotFound", "No message found matching provided ID", attributes: {id: "The ID of the message"}
+    returns Hash, structure: :message, structure_opts: { paramable: { expansions: false } }
+    error "MessageNotFound", "No message found matching provided ID", attributes: { id: "The ID of the message" }
     action do
       begin
         message = identity.server.message(params.id)
@@ -23,8 +23,8 @@ controller :messages do
     title "Return deliveries for a message"
     description "Returns an array of deliveries which have been attempted for this message"
     param :id, "The ID of the message", type: Integer, required: true
-    returns Array, structure: :delivery, structure_opts: {full: true}
-    error "MessageNotFound", "No message found matching provided ID", attributes: {id: "The ID of the message"}
+    returns Array, structure: :delivery, structure_opts: { full: true }
+    error "MessageNotFound", "No message found matching provided ID", attributes: { id: "The ID of the message" }
     action do
       begin
         message = identity.server.message(params.id)

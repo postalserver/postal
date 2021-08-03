@@ -62,7 +62,7 @@ class DomainsController < ApplicationController
         else
           respond_to do |wants|
             wants.html { flash.now[:alert] = "We couldn't verify your domain. Please double check you've added the TXT record correctly." }
-            wants.json { render json: {flash: {alert: "We couldn't verify your domain. Please double check you've added the TXT record correctly."}}}
+            wants.json { render json: { flash: { alert: "We couldn't verify your domain. Please double check you've added the TXT record correctly." } }}
           end
         end
       when "Email"
@@ -73,7 +73,7 @@ class DomainsController < ApplicationController
           else
             respond_to do |wants|
               wants.html { flash.now[:alert] = "Invalid verification code. Please check and try again." }
-              wants.json { render json: {flash: {alert: "Invalid verification code. Please check and try again."}}}
+              wants.json { render json: { flash: { alert: "Invalid verification code. Please check and try again." } }}
             end
           end
         elsif params[:email_address].present?

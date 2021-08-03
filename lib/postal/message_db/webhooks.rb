@@ -17,13 +17,13 @@ module Postal
       end
 
       def find(uuid)
-        request = @database.select(:webhook_requests, where: {uuid: uuid}).first || raise(RequestNotFound, "No request found with UUID '#{uuid}'")
+        request = @database.select(:webhook_requests, where: { uuid: uuid }).first || raise(RequestNotFound, "No request found with UUID '#{uuid}'")
         Request.new(request)
       end
 
       def prune
-        if last = @database.select(:webhook_requests, where: {timestamp: {less_than: 10.days.ago.to_f}}, order: "timestamp", direction: "desc", limit: 1, fields: ["id"]).first
-          @database.delete(:webhook_requests, where: {id: {less_than_or_equal_to: last["id"]}})
+        if last = @database.select(:webhook_requests, where: { timestamp: { less_than: 10.days.ago.to_f } }, order: "timestamp", direction: "desc", limit: 1, fields: ["id"]).first
+          @database.delete(:webhook_requests, where: { id: { less_than_or_equal_to: last["id"] } })
         end
       end
 

@@ -61,7 +61,7 @@ module Postal
               logger.warn "[#{message['id']}]    " + line
             end
             if defined?(Raven)
-              Raven.capture_exception(e, extra: {job_id: message["id"]})
+              Raven.capture_exception(e, extra: { job_id: message["id"] })
             end
           ensure
             logger.info "[#{message['id']}] Finished processing \e[34m#{message['class_name']}\e[0m job in #{Time.now - start_time}s"
@@ -198,7 +198,7 @@ module Postal
     def self.job_queue(name)
       @job_queues ||= {}
       @job_queues[name] ||= begin
-        job_channel.queue("deliver-jobs-#{name}", durable: true, arguments: {"x-message-ttl" => 60000})
+        job_channel.queue("deliver-jobs-#{name}", durable: true, arguments: { "x-message-ttl" => 60000 })
       end
     end
 

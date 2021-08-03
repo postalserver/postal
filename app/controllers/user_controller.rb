@@ -59,7 +59,7 @@ class UserController < ApplicationController
           render "edit"
         end
         wants.json do
-          render json: {alert: "The current password you've entered is incorrect. Please check and try again"}
+          render json: { alert: "The current password you've entered is incorrect. Please check and try again" }
         end
       end
       return

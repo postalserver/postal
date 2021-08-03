@@ -31,7 +31,7 @@ class User < ApplicationRecord
 
   validates :first_name, presence: true
   validates :last_name, presence: true
-  validates :email_address, presence: true, uniqueness: true, format: {with: /@/, allow_blank: true}
+  validates :email_address, presence: true, uniqueness: true, format: { with: /@/, allow_blank: true }
   validates :time_zone, presence: true
 
   default_value :time_zone, -> { "UTC" }

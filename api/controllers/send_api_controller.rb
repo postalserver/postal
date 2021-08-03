@@ -21,7 +21,7 @@ controller :send do
     param :headers, "A hash of additional headers", type: Hash
     param :bounce, "Is this message a bounce?", type: :boolean
     # Errors
-    error "ValidationError", "The provided data was not sufficient to send an email", attributes: {errors: "A hash of error details"}
+    error "ValidationError", "The provided data was not sufficient to send an email", attributes: { errors: "A hash of error details" }
     error "NoRecipients", "There are no recipients defined to receive this message"
     error "NoContent", "There is no content defined for this e-mail"
     error "TooManyToAddresses", "The maximum number of To addresses has been reached (maximum 50)"
@@ -51,13 +51,13 @@ controller :send do
       attributes[:attachments] = []
       (params.attachments || []).each do |attachment|
         next unless attachment.is_a?(Hash)
-        attributes[:attachments] << {name: attachment["name"], content_type: attachment["content_type"], data: attachment["data"], base64: true}
+        attributes[:attachments] << { name: attachment["name"], content_type: attachment["content_type"], data: attachment["data"], base64: true }
       end
       message = OutgoingMessagePrototype.new(identity.server, request.ip, "api", attributes)
       message.credential = identity
       if message.valid?
         result = message.create_messages
-        {message_id: message.message_id, messages: result}
+        { message_id: message.message_id, messages: result }
       else
         error message.errors.first
       end
@@ -79,7 +79,7 @@ controller :send do
 
       # Parse through mail to get the from/sender headers
       mail = Mail.new(raw_message.split("\r\n\r\n", 2).first)
-      from_headers = {"from" => mail.from, "sender" => mail.sender}
+      from_headers = { "from" => mail.from, "sender" => mail.sender }
       authenticated_domain = identity.server.find_authenticated_domain_from_headers(from_headers)
 
       # If we're not authenticated, don't continue
@@ -88,7 +88,7 @@ controller :send do
       end
 
       # Store the result ready to return
-      result = {message_id: nil, messages: {}}
+      result = { message_id: nil, messages: {} }
       params.rcpt_to.uniq.each do |rcpt_to|
         message = identity.server.message_db.new_message
         message.rcpt_to = rcpt_to
@@ -101,7 +101,7 @@ controller :send do
         message.bounce = params.bounce ? 1 : 0
         message.save
         result[:message_id] = message.message_id if result[:message_id].nil?
-        result[:messages][rcpt_to] = {id: message.id, token: message.token}
+        result[:messages][rcpt_to] = { id: message.id, token: message.token }
       end
       result
     end

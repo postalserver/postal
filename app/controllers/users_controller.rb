@@ -29,7 +29,7 @@ class UsersController < ApplicationController
     if @user == current_user && !@user.admin?
       respond_to do |wants|
         wants.html { redirect_to users_path, alert: "You cannot change your own admin status" }
-        wants.json { render json: {form_errors: ["You cannot change your own admin status"]}, status: 422 }
+        wants.json { render json: { form_errors: ["You cannot change your own admin status"] }, status: 422 }
       end
       return
     end
