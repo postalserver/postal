@@ -81,7 +81,7 @@ class UnqueueMessageJob < Postal::Job
             end
 
             #
-            # Handle Incoming Messages
+            #  Handle Incoming Messages
             #
             if queued_message.message.scope == "incoming"
               #
@@ -102,8 +102,8 @@ class UnqueueMessageJob < Postal::Job
                 end
 
                 # This message was sent to the return path but hasn't been matched
-                # to an original message. If we have a route for this, route it
-                # otherwise we'll drop at this point.
+                #  to an original message. If we have a route for this, route it
+                #  otherwise we'll drop at this point.
                 if queued_message.message.route_id.nil?
                   log "#{log_prefix} No source messages found. Hard failing."
                   queued_message.message.create_delivery("HardFail", details: "This message was a bounce but we couldn't link it with any outgoing message and there was no route for it.")

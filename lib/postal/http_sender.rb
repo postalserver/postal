@@ -32,7 +32,7 @@ module Postal
         result.output = response[:body].to_s[0, 500].strip
       end
       if response[:code] >= 200 && response[:code] < 300
-        # This is considered a success
+        #  This is considered a success
         result.type = "Sent"
       elsif response[:code] >= 500 && response[:code] < 600
         # This is temporary. They might fix their server so it should soft fail.

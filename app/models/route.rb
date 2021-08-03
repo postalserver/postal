@@ -130,7 +130,7 @@ class Route < ApplicationRecord
 
   #
   # This message will create a suitable number of message objects for messages that
-  # are destined for this route. It receives a block which can set the message content
+  #  are destined for this route. It receives a block which can set the message content
   # but most information is specified already.
   #
   # Returns an array of created messages.

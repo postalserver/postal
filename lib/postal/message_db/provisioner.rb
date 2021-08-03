@@ -127,7 +127,7 @@ module Postal
       end
 
       #
-      # Remove messages from the messages table that are too old to retain
+      #  Remove messages from the messages table that are too old to retain
       #
       def remove_messages(max_age = 60)
         time = (Date.today - max_age.days).to_time.end_of_day
