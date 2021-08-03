@@ -68,7 +68,7 @@ class Domain
   #
   # DKIM
   #
-  
+
   def check_dkim_record
     domain = "#{dkim_record_name}.#{name}"
     result = resolver.getresources(domain, Resolv::DNS::Resource::IN::TXT)

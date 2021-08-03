@@ -56,7 +56,7 @@ structure :message do
   expansion(:headers) { o.headers }
 
   expansion(:raw_message) { Base64.encode64(o.raw_message) }
-  
+
   expansion(:activity_entries) {
     {
       loads: o.loads,
