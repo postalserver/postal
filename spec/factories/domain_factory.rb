@@ -35,7 +35,6 @@
 #
 
 FactoryBot.define do
-
   factory :domain do
     association :owner, factory: :user
     sequence(:name) { |n| "example#{n}.com" }
@@ -46,5 +45,4 @@ FactoryBot.define do
   factory :organization_domain, parent: :domain do
     association :owner, factory: :organization
   end
-
 end

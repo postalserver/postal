@@ -1,7 +1,6 @@
 require "rails_helper"
 
 describe Postal::MessageParser do
-
   it "should not do anything when there are no tracking domains" do
     with_global_server do |server|
       expect(server.track_domains.size).to eq 0
@@ -23,5 +22,4 @@ describe Postal::MessageParser do
       expect(parser.tracked_links).to eq 1
     end
   end
-
 end

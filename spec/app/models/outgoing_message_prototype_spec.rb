@@ -1,7 +1,6 @@
 require "rails_helper"
 
 describe OutgoingMessagePrototype do
-
   it "should create a new message" do
     with_global_server do |server|
       domain = create(:domain, owner: server)
@@ -19,5 +18,4 @@ describe OutgoingMessagePrototype do
       expect(message[:token]).to be_a String
     end
   end
-
 end

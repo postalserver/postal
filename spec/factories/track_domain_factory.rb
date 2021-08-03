@@ -19,7 +19,6 @@
 #
 
 FactoryBot.define do
-
   factory :track_domain do
     name { "click" }
     dns_status { "OK" }
@@ -29,5 +28,4 @@ FactoryBot.define do
       track_domain.domain ||= create(:domain, owner: track_domain.server)
     end
   end
-
 end

@@ -1,7 +1,6 @@
 require "rails_helper"
 
 describe Postal::QueryString do
-
   it "should work with a single item" do
     qs = Postal::QueryString.new("to: test@example.com")
     expect(qs.to_hash["to"]).to eq "test@example.com"
@@ -41,5 +40,4 @@ describe Postal::QueryString do
     qs = Postal::QueryString.new("to: testaz@example.com")
     expect(qs.to_hash["to"]).to eq "testaz@example.com"
   end
-
 end

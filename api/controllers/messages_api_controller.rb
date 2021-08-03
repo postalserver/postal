@@ -36,5 +36,4 @@ controller :messages do
       end
     end
   end
-
 end

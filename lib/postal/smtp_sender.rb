@@ -31,7 +31,6 @@ module Postal
 
         @hostnames << hostname
         [:aaaa, :a].each do |ip_type|
-
           if @source_ip_address && @source_ip_address.ipv6.blank? && ip_type == :aaaa
             # Don't try to use IPv6 if the IP address we're sending from doesn't support it.
             next

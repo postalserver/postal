@@ -3,7 +3,6 @@
 require "rails_helper"
 
 describe Postal::DKIMHeader do
-
   examples = Rails.root.join("spec/examples/dkim_signing/*.msg")
   Dir[examples].each do |path|
     contents = File.read(path)
@@ -32,5 +31,4 @@ describe Postal::DKIMHeader do
       expect(header.dkim_header).to eq expectation
     end
   end
-
 end

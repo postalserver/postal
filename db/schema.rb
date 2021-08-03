@@ -11,7 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema.define(version: 2021_07_27_210551) do
-
   create_table "additional_route_endpoints", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
@@ -357,5 +356,4 @@ ActiveRecord::Schema.define(version: 2021_07_27_210551) do
     t.datetime "updated_at", precision: 6
     t.index ["server_id"], name: "index_webhooks_on_server_id"
   end
-
 end

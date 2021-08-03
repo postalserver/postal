@@ -1,5 +1,4 @@
 namespace :postal do
-
   desc "Start the cron worker"
   task cron: :environment do
     require "clockwork"
@@ -27,7 +26,6 @@ namespace :postal do
       server.message_db.provisioner.migrate
     end
   end
-
 end
 
 Rake::Task["db:migrate"].enhance do

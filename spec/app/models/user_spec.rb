@@ -1,7 +1,6 @@
 require "rails_helper"
 
 describe User do
-
   context "model" do
     subject(:user) { create(:user) }
 
@@ -32,5 +31,4 @@ describe User do
       expect(auth_user).to eq user
     end
   end
-
 end

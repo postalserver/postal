@@ -44,7 +44,6 @@ module ApplicationHelper
         end
         s << "</optgroup>"
       end
-
     end.html_safe
   end
 
@@ -96,7 +95,6 @@ module ApplicationHelper
         end
         s << "</optgroup>"
       end
-
     end.html_safe
   end
 
