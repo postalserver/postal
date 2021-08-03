@@ -142,7 +142,7 @@ module Postal
         @helo_name = data.strip.split(" ", 2)[1]
         transaction_reset
         @state = :welcomed
-        ["250-My capabilities are", Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil, "250 AUTH CRAM-MD5 PLAIN LOGIN", ]
+        ["250-My capabilities are", Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil, "250 AUTH CRAM-MD5 PLAIN LOGIN",]
       end
 
       def helo(data)

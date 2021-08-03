@@ -5,12 +5,12 @@ module Postal
   module RabbitMQ
 
     def self.create_connection
-      bunny_host = [ "localhost" ]
+      bunny_host = ["localhost"]
 
       if Postal.config.rabbitmq&.host.is_a?(Array)
         bunny_host = Postal.config.rabbitmq&.host
       elsif Postal.config.rabbitmq&.host.is_a?(String)
-        bunny_host = [ Postal.config.rabbitmq&.host ]
+        bunny_host = [Postal.config.rabbitmq&.host]
       end
 
       conn = Bunny.new(
