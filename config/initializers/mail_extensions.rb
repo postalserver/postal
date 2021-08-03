@@ -8,6 +8,7 @@ module Mail
       str = str.sub(/=\?windows-?1258\?/i, '\=?windows-1252?')
       RubyVer.q_value_decode(str)
     end
+
     def Encodings.b_value_decode(str)
       str = str.sub(/=\?windows-?1258\?/i, '\=?windows-1252?')
       RubyVer.b_value_decode(str)
