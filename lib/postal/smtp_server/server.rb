@@ -30,7 +30,6 @@ module Postal
           $stdout.puts "Received TERM signal, shutting down."
           unlisten
         end
-
       end
 
       def ssl_context

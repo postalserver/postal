@@ -28,7 +28,6 @@ module Postal
         end
         puts
       end
-
     end
 
   end

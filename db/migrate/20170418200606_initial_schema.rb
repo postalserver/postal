@@ -1,7 +1,6 @@
 class InitialSchema < ActiveRecord::Migration
 
   def up
-
     create_table "additional_route_endpoints", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
       t.integer  "route_id"
       t.string   "endpoint_type"
