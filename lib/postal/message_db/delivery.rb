@@ -59,10 +59,10 @@ module Postal
 
       def webhook_event
         @webhook_event ||= case status
-        when "Sent" then "MessageSent"
-        when "SoftFail" then "MessageDelayed"
-        when "HardFail" then "MessageDeliveryFailed"
-        when "Held" then "MessageHeld"
+                           when "Sent" then "MessageSent"
+                           when "SoftFail" then "MessageDelayed"
+                           when "HardFail" then "MessageDeliveryFailed"
+                           when "Held" then "MessageHeld"
         end
       end
 
