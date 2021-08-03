@@ -2,6 +2,7 @@ module Postal
   module MessageDB
     module Migrations
       class CreateSuppressions < Postal::MessageDB::Migration
+
         def up
           @database.provisioner.create_table(:suppressions,
             columns: {
@@ -18,6 +19,7 @@ module Postal
             }
           )
         end
+
       end
     end
   end

@@ -2,6 +2,7 @@ module Postal
   module MessageDB
     module Migrations
       class CreateMessages < Postal::MessageDB::Migration
+
         def up
           @database.provisioner.create_table(:messages,
             columns: {
@@ -51,6 +52,7 @@ module Postal
             }
           )
         end
+
       end
     end
   end

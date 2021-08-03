@@ -31,6 +31,7 @@ module Postal
       end
 
       class Request
+
         def initialize(attributes)
           @attributes = attributes
         end
@@ -81,6 +82,7 @@ module Postal
         def will_retry?
           @attributes["will_retry"] == 1
         end
+
       end
 
     end

@@ -2,6 +2,7 @@ module Postal
   module MessageDB
     module Migrations
       class CreateWebhookRequests < Postal::MessageDB::Migration
+
         def up
           @database.provisioner.create_table(:webhook_requests,
             columns: {
@@ -22,6 +23,7 @@ module Postal
             }
           )
         end
+
       end
     end
   end

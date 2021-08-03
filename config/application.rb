@@ -14,6 +14,7 @@ Bundler.require(*Rails.groups)
 
 module Postal
   class Application < Rails::Application
+
     # Disable most generators
     config.generators do |g|
       g.orm             :active_record
@@ -32,5 +33,6 @@ module Postal
     # Load the tracking server middleware
     require "postal/tracking_middleware"
     config.middleware.use Postal::TrackingMiddleware
+
   end
 end

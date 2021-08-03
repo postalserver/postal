@@ -2,6 +2,7 @@ module Postal
   module MessageDB
     module Migrations
       class CreateClicks < Postal::MessageDB::Migration
+
         def up
           @database.provisioner.create_table(:clicks,
             columns: {
@@ -20,6 +21,7 @@ module Postal
             }
           )
         end
+
       end
     end
   end

@@ -1,4 +1,5 @@
 class InitialSchema < ActiveRecord::Migration
+
   def up
 
     create_table "additional_route_endpoints", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4" do |t|
@@ -344,4 +345,5 @@ class InitialSchema < ActiveRecord::Migration
       t.index ["server_id"], name: "index_webhooks_on_server_id", using: :btree
     end
   end
+
 end

@@ -2,6 +2,7 @@ module Postal
   module MessageDB
     module Migrations
       class CreateRawMessageSizes < Postal::MessageDB::Migration
+
         def up
           @database.provisioner.create_table(:raw_message_sizes,
             columns: {
@@ -14,6 +15,7 @@ module Postal
             }
           )
         end
+
       end
     end
   end

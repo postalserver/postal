@@ -1,4 +1,5 @@
 class UnqueueMessageJob < Postal::Job
+
   def perform
     if original_message = QueuedMessage.find_by_id(params["id"])
       if original_message.acquire_lock
@@ -459,4 +460,5 @@ class UnqueueMessageJob < Postal::Job
       sender
     end
   end
+
 end

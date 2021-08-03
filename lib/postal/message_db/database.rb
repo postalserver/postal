@@ -269,6 +269,7 @@ module Postal
       # Run a query, log it and return the result
       #
       class ResultForExplainPrinter
+
         attr_reader :columns
         attr_reader :rows
         def initialize(result)
@@ -280,6 +281,7 @@ module Postal
             @rows = []
           end
         end
+
       end
 
       def stringify_keys(hash)

@@ -2,6 +2,7 @@ require "nifty/utils/random_string"
 
 module Postal
   class Job
+
     def initialize(id, params = {})
       @id = id
       @params = params.with_indifferent_access
@@ -42,5 +43,6 @@ module Postal
     def self.perform(params = {})
       new(nil, params).perform
     end
+
   end
 end

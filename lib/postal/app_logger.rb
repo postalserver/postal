@@ -33,9 +33,11 @@ module Postal
     def self.graylog_notifier
       @graylog_notifier ||= graylog? ? GELF::Notifier.new(Postal.config.logging.graylog.host, Postal.config.logging.graylog.port) : nil
     end
+
   end
 
   class LogFormatter
+
     TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%3N".freeze
     COLORS = [32,34,35,31,32,33]
 
@@ -49,5 +51,6 @@ module Postal
       end
       "#{proc_text} [#{time}] #{severity} -- : #{msg}\n"
     end
+
   end
 end

@@ -13,6 +13,7 @@ module Mail
   end
 
   class Message
+
     ## Extract plain text body of message
     def plain_body
       if self.multipart? and self.text_part
@@ -82,10 +83,12 @@ module Mail
       end
       decoded.valid_encoding? ? decoded : decoded.encode("utf-16le", invalid: :replace, undef: :replace).encode("utf-8")
     end
+
   end
 
   # Handle attached emails as attachments
   class AttachmentsList < Array
+
     def initialize(parts_list)
       @parts_list = parts_list
       @content_disposition_type = "attachment"
@@ -94,18 +97,23 @@ module Mail
       }.flatten.compact.each { |a| self << a }
       self
     end
+
   end
 end
 
 class Array
+
   def decoded
     return nil if self.empty?
     return self.first.decoded
   end
+
 end
 
 class NilClass
+
   def decoded
     nil
   end
+
 end

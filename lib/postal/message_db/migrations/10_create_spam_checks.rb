@@ -2,6 +2,7 @@ module Postal
   module MessageDB
     module Migrations
       class CreateSpamChecks < Postal::MessageDB::Migration
+
         def up
           @database.provisioner.create_table(:spam_checks,
             columns: {
@@ -17,6 +18,7 @@ module Postal
             }
           )
         end
+
       end
     end
   end

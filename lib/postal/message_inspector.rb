@@ -17,6 +17,7 @@ module Postal
     end
 
     class << self
+
       # Return an array of all inspectors that are available for this
       # installation.
       def inspectors
@@ -34,6 +35,7 @@ module Postal
 
         end
       end
+
     end
 
   end

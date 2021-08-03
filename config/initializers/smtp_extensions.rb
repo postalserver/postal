@@ -1,10 +1,13 @@
 class Net::SMTP::Response
+
   def message
     @string
   end
+
 end
 
 class Net::SMTP
+
   attr_accessor :source_address
 
   def secure_socket?
@@ -31,4 +34,5 @@ class Net::SMTP
   def tcp_socket(address, port)
     TCPSocket.open(address, port, self.source_address)
   end
+
 end

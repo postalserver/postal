@@ -2,6 +2,7 @@ module Postal
   module MessageDB
     module Migrations
       class CreateStats < Postal::MessageDB::Migration
+
         def up
           [:hourly, :daily, :monthly, :yearly].each do |table_name|
             @database.provisioner.create_table("stats_#{table_name}",
@@ -20,6 +21,7 @@ module Postal
             )
           end
         end
+
       end
     end
   end

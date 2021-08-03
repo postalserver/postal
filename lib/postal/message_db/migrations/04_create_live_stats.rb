@@ -2,6 +2,7 @@ module Postal
   module MessageDB
     module Migrations
       class CreateLiveStats < Postal::MessageDB::Migration
+
         def up
           @database.provisioner.create_table(:live_stats,
             columns: {
@@ -13,6 +14,7 @@ module Postal
             primary_key: "`minute`, `type`(8)"
           )
         end
+
       end
     end
   end

@@ -1,4 +1,5 @@
 class TrackDomainsController < ApplicationController
+
   include WithinOrganization
   before_action { @server = organization.servers.present.find_by_permalink!(params[:server_id]) }
   before_action { params[:id] && @track_domain = @server.track_domains.find_by_uuid!(params[:id]) }
