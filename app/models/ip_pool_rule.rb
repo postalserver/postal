@@ -66,17 +66,21 @@ class IPPoolRule < ApplicationRecord
     end
   end
 
-  def self.address_matches?(condition, address)
-    address = Postal::Helpers.strip_name_from_address(address)
-    if condition =~ /@/
-      parts = address.split("@")
-      domain, uname = parts.pop, parts.join("@")
-      uname, _ = uname.split("+", 2)
-      condition == "#{uname}@#{domain}"
-    else
-      # Match as a domain
-      condition == address.split("@").last
+  class << self
+
+    def address_matches?(condition, address)
+      address = Postal::Helpers.strip_name_from_address(address)
+      if condition =~ /@/
+        parts = address.split("@")
+        domain, uname = parts.pop, parts.join("@")
+        uname, _ = uname.split("+", 2)
+        condition == "#{uname}@#{domain}"
+      else
+        # Match as a domain
+        condition == address.split("@").last
+      end
     end
+
   end
 
 end
