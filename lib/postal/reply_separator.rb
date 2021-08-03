@@ -3,16 +3,16 @@ module Postal
 
     RULES = [
       /^-{2,10} $.*/m,
-      /^\>*\s*----- ?Original Message ?-----.*/m,
-      /^\>*\s*From\:[^\r\n]*[\r\n]+Sent\:.*/m,
-      /^\>*\s*From\:[^\r\n]*[\r\n]+Date\:.*/m,
-      /^\>*\s*-----Urspr.ngliche Nachricht----- .*/m,
-      /^\>*\s*Le[^\r\n]{10,200}a .crit ?\:\s*$.*/,
-      /^\>*\s*__________________.*/m,
-      /^\>*\s*On.{10,200}wrote:\s*$.*/m,
-      /^\>*\s*Sent from my.*/m,
-      /^\>*\s*=== Please reply above this line ===.*/m,
-      /(^\>.*\n?){10,}/,
+      /^>*\s*----- ?Original Message ?-----.*/m,
+      /^>*\s*From:[^\r\n]*[\r\n]+Sent:.*/m,
+      /^>*\s*From:[^\r\n]*[\r\n]+Date:.*/m,
+      /^>*\s*-----Urspr.ngliche Nachricht----- .*/m,
+      /^>*\s*Le[^\r\n]{10,200}a .crit ?:\s*$.*/,
+      /^>*\s*__________________.*/m,
+      /^>*\s*On.{10,200}wrote:\s*$.*/m,
+      /^>*\s*Sent from my.*/m,
+      /^>*\s*=== Please reply above this line ===.*/m,
+      /(^>.*\n?){10,}/,
     ]
 
     def self.separate(text)

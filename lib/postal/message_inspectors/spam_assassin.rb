@@ -3,7 +3,7 @@ module Postal
     class SpamAssassin < MessageInspector
 
       EXCLUSIONS = {
-        outgoing: ["NO_RECEIVED", "NO_RELAYS", "ALL_TRUSTED", "FREEMAIL_FORGED_REPLYTO", "RDNS_DYNAMIC", "CK_HELO_GENERIC", /^SPF\_/, /^HELO\_/, /DKIM_/, /^RCVD_IN_/],
+        outgoing: ["NO_RECEIVED", "NO_RELAYS", "ALL_TRUSTED", "FREEMAIL_FORGED_REPLYTO", "RDNS_DYNAMIC", "CK_HELO_GENERIC", /^SPF_/, /^HELO_/, /DKIM_/, /^RCVD_IN_/],
         incoming: []
       }
 
@@ -24,7 +24,7 @@ module Postal
         total = 0.0
         rules = data ? data.split(/^---(.*)\r?\n/).last.split(/\r?\n/) : []
         while line = rules.shift
-          if line =~ /\A([\- ]?[\d\.]+)\s+(\w+)\s+(.*)/
+          if line =~ /\A([\- ]?[\d.]+)\s+(\w+)\s+(.*)/
             total += $1.to_f
             spam_checks << SpamCheck.new($2, $1.to_f, $3)
           else

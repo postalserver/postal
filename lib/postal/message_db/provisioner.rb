@@ -46,7 +46,7 @@ module Postal
         @database.query("DROP DATABASE `#{@database.database_name}`;")
         true
       rescue Mysql2::Error => e
-        e.message =~ /doesn\'t exist/ ? false : raise
+        e.message =~ /doesn't exist/ ? false : raise
       end
 
       #
@@ -101,7 +101,7 @@ module Postal
         [].tap do |tables|
           @database.query("SHOW TABLES FROM `#{@database.database_name}` LIKE 'raw-%'").each do |tbl|
             tbl_name = tbl.to_a.first.last
-            date = Date.parse(tbl_name.gsub(/\Araw\-/, ""))
+            date = Date.parse(tbl_name.gsub(/\Araw-/, ""))
             if earliest_date.nil? || date < earliest_date
               tables << tbl_name
             end

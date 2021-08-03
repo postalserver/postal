@@ -184,7 +184,7 @@ module Postal
       def method_missing(name, value = nil, &block)
         if @attributes.has_key?(name.to_s)
           @attributes[name.to_s]
-        elsif name.to_s =~ /\=\z/
+        elsif name.to_s =~ /=\z/
           @attributes[name.to_s.gsub("=", "").to_s] = value
         else
           nil
@@ -310,7 +310,7 @@ module Postal
       # Return the HTML body with any tracking links
       #
       def html_body_without_tracking_image
-        html_body.gsub(/\<p class\=['"]ampimg['"].*?\<\/p\>/, "")
+        html_body.gsub(/<p class=['"]ampimg['"].*?<\/p>/, "")
       end
 
       #
@@ -394,7 +394,7 @@ module Postal
       # Does this message have our DKIM header yet?
       #
       def has_outgoing_headers?
-        !!(raw_headers =~ /^X\-Postal\-MsgID\:/i)
+        !!(raw_headers =~ /^X-Postal-MsgID:/i)
       end
 
       #
@@ -479,7 +479,7 @@ module Postal
       #
       def original_messages
         return nil unless self.bounce == 1
-        other_message_ids = raw_message.scan(/\X\-Postal\-MsgID\:\s*([a-z0-9]+)/i).flatten
+        other_message_ids = raw_message.scan(/\X-Postal-MsgID:\s*([a-z0-9]+)/i).flatten
         if other_message_ids.empty?
           []
         else
@@ -491,7 +491,7 @@ module Postal
       # Was thsi message sent to a return path?
       #
       def rcpt_to_return_path?
-        !!(rcpt_to =~ /\@#{Regexp.escape(Postal.config.dns.custom_return_path_prefix)}\./)
+        !!(rcpt_to =~ /@#{Regexp.escape(Postal.config.dns.custom_return_path_prefix)}\./)
       end
 
       #

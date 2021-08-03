@@ -54,7 +54,7 @@ module Postal
         headers["Content-Type"] = "image/png"
         headers["Content-Length"] = TRACKING_PIXEL.bytesize.to_s
         return [200, headers, [TRACKING_PIXEL]]
-      when /\Ahttps?\:\/\//
+      when /\Ahttps?:\/\//
         response = Postal::HTTP.get(source_image, timeout: 3)
         if response[:code] == 200
           headers = {}

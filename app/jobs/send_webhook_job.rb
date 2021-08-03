@@ -5,7 +5,7 @@ class SendWebhookJob < Postal::Job
       new_items = {}
       if params["payload"]
         for key, value in params["payload"]
-          if key.to_s =~ /\A\_(\w+)/
+          if key.to_s =~ /\A_(\w+)/
             begin
               new_items[$1] = server.message_db.message(value.to_i).webhook_hash
             rescue Postal::MessageDB::Message::NotFound

@@ -52,7 +52,7 @@ class Domain < ApplicationRecord
 
   VERIFICATION_METHODS = ["DNS", "Email"]
 
-  validates :name, presence: true, format: { with: /\A[a-z0-9\-\.]*\z/ }, uniqueness: { scope: [:owner_type, :owner_id], message: "is already added" }
+  validates :name, presence: true, format: { with: /\A[a-z0-9\-.]*\z/ }, uniqueness: { scope: [:owner_type, :owner_id], message: "is already added" }
   validates :verification_method, inclusion: { in: VERIFICATION_METHODS }
 
   random_string :dkim_identifier_string, type: :chars, length: 6, unique: true, upper_letters_only: true
@@ -114,7 +114,7 @@ class Domain < ApplicationRecord
   end
 
   def dkim_record
-    public_key = dkim_key.public_key.to_s.gsub(/\-+[A-Z ]+\-+\n/, "").gsub(/\n/, "")
+    public_key = dkim_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
     "v=DKIM1; t=s; h=sha256; p=#{public_key};"
   end
 

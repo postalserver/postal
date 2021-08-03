@@ -59,15 +59,15 @@ class OutgoingMessagePrototype
   end
 
   def to_addresses
-    @to.is_a?(String) ? @to.to_s.split(/\,\s*/) : @to.to_a
+    @to.is_a?(String) ? @to.to_s.split(/,\s*/) : @to.to_a
   end
 
   def cc_addresses
-    @cc.is_a?(String) ? @cc.to_s.split(/\,\s*/) : @cc.to_a
+    @cc.is_a?(String) ? @cc.to_s.split(/,\s*/) : @cc.to_a
   end
 
   def bcc_addresses
-    @bcc.is_a?(String) ? @bcc.to_s.split(/\,\s*/) : @bcc.to_a
+    @bcc.is_a?(String) ? @bcc.to_s.split(/,\s*/) : @bcc.to_a
   end
 
   def all_addresses

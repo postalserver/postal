@@ -47,7 +47,7 @@ class Domain
       self.spf_status = "Missing"
       self.spf_error = "No SPF record exists for this domain"
     else
-      suitable_spf_records = spf_records.select { |d| d =~ /include\:\s*#{Regexp.escape(Postal.config.dns.spf_include)}/ }
+      suitable_spf_records = spf_records.select { |d| d =~ /include:\s*#{Regexp.escape(Postal.config.dns.spf_include)}/ }
       if suitable_spf_records.empty?
         self.spf_status = "Invalid"
         self.spf_error = "An SPF record exists but it doesn't include #{Postal.config.dns.spf_include}"

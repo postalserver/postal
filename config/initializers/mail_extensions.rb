@@ -5,11 +5,11 @@ module Mail
 
     # Handle windows-1258 as windows-1252 when decoding
     def Encodings.q_value_decode(str)
-      str = str.sub(/\=\?windows-?1258\?/i, '\=?windows-1252?')
+      str = str.sub(/=\?windows-?1258\?/i, '\=?windows-1252?')
       RubyVer.q_value_decode(str)
     end
     def Encodings.b_value_decode(str)
-      str = str.sub(/\=\?windows-?1258\?/i, '\=?windows-1252?')
+      str = str.sub(/=\?windows-?1258\?/i, '\=?windows-1252?')
       RubyVer.b_value_decode(str)
     end
 
@@ -79,7 +79,7 @@ module Mail
       charset_tmp = "Windows-1252" if charset_tmp.to_s =~ /windows-?1258/i
       if charset_tmp == Encoding.find("UTF-7")
         body_text.force_encoding("UTF-8")
-        decoded = body_text.gsub(/\+.*?\-/m) { |n|Base64.decode64(n[1..-2]+"===").force_encoding("UTF-16BE").encode("UTF-8") }
+        decoded = body_text.gsub(/\+.*?-/m) { |n|Base64.decode64(n[1..-2]+"===").force_encoding("UTF-16BE").encode("UTF-8") }
       else
         body_text.force_encoding(charset_tmp)
         decoded = body_text.encode("utf-8", invalid: :replace, undef: :replace)

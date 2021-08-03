@@ -25,7 +25,7 @@ module Postal
           last_migration = select(:migrations, order: :version, direction: "DESC", limit: 1).first
           last_migration ? last_migration["version"] : 0
         rescue Mysql2::Error => e
-          e.message =~ /doesn\'t exist/ ? 0 : raise
+          e.message =~ /doesn't exist/ ? 0 : raise
         end
       end
 
@@ -114,7 +114,7 @@ module Postal
           headers_id = insert(table_name, data: headers)
           body_id = insert(table_name, data: body)
         rescue Mysql2::Error => e
-          if e.message =~ /doesn\'t exist/
+          if e.message =~ /doesn't exist/
             provisioner.create_raw_table(table_name)
             retry
           else

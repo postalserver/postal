@@ -34,7 +34,7 @@ class Route < ApplicationRecord
   SPAM_MODES = ["Mark", "Quarantine", "Fail"]
   ENDPOINT_TYPES = ["SMTPEndpoint", "HTTPEndpoint", "AddressEndpoint"]
 
-  validates :name, presence: true, format: /\A(([a-z0-9\-\.]*)|(\*)|(__returnpath__))\z/
+  validates :name, presence: true, format: /\A(([a-z0-9\-.]*)|(\*)|(__returnpath__))\z/
   validates :spam_mode, inclusion: { in: SPAM_MODES }
   validates :endpoint, presence: { if: proc { self.mode == "Endpoint" } }
   validates :domain_id, presence: { unless: :return_path? }

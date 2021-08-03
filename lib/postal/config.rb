@@ -156,7 +156,7 @@ module Postal
   end
 
   def self.rp_dkim_dns_record
-    public_key = signing_key.public_key.to_s.gsub(/\-+[A-Z ]+\-+\n/, "").gsub(/\n/, "")
+    public_key = signing_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
     "v=DKIM1; t=s; h=sha256; p=#{public_key};"
   end
 

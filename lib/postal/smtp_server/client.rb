@@ -56,7 +56,7 @@ module Postal
       def sanitize_input_for_log(data)
         if @password_expected_next
           @password_expected_next = false
-          if data =~ /\A[a-z0-9]{3,}\=*\z/i
+          if data =~ /\A[a-z0-9]{3,}=*\z/i
             return LOG_REDACTION_STRING
           end
         end
@@ -223,7 +223,7 @@ module Postal
         handler = Proc.new do |data|
           @proc = nil
           username, password = Base64.decode64(data).split(" ", 2).map{ |a| a.chomp }
-          org_permlink, server_permalink = username.split(/[\/\_]/, 2)
+          org_permlink, server_permalink = username.split(/[\/_]/, 2)
           server = ::Server.includes(:organization).where(organizations: { permalink: org_permlink }, permalink: server_permalink).first
           next "535 Denied" if server.nil?
           grant = nil
@@ -395,7 +395,7 @@ module Postal
                 # skip the append methods at the bottom of this loop.
                 next if Postal.config.smtp_server.strip_received_headers? && @header_key && @header_key.downcase == "received"
               else
-                @header_key, value = data.split(/\:\s*/, 2)
+                @header_key, value = data.split(/:\s*/, 2)
                 @headers[@header_key.downcase] ||= []
                 @headers[@header_key.downcase] << value
                 # As above

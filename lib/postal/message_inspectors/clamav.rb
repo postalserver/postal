@@ -16,7 +16,7 @@ module Postal
           data = tcp_socket.read
         end
 
-        if data && data =~ /\Astream\:\s+(.*?)[\s\0]+?/
+        if data && data =~ /\Astream:\s+(.*?)[\s\0]+?/
           if $1.upcase == "OK"
             inspection.threat = false
             inspection.threat_message = "No threats found"

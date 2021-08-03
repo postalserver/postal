@@ -1,7 +1,7 @@
 module Postal
   class MessageParser
 
-    URL_REGEX = /(?<url>(?<protocol>https?)\:\/\/(?<domain>[A-Za-z0-9\-\.\:]+)(?<path>\/[A-Za-z0-9\.\/\+\?\&\-\_\%\=\~\:\;\(\)\[\]#]*)?+)/
+    URL_REGEX = /(?<url>(?<protocol>https?):\/\/(?<domain>[A-Za-z0-9\-.:]+)(?<path>\/[A-Za-z0-9.\/+?&\-_%=~:;()\[\]#]*)?+)/
 
     def initialize(message)
       @message = message
@@ -110,7 +110,7 @@ module Postal
       end
 
       if type == :html
-        part.gsub!(/href=([\'\"])(#{URL_REGEX})[\'\"]/) do
+        part.gsub!(/href=(['"])(#{URL_REGEX})['"]/) do
           if track_domain?($~[:domain])
             @tracked_links += 1
             token = @message.create_link($~[:url])
@@ -121,7 +121,7 @@ module Postal
         end
       end
 
-      part.gsub!(/(https?)\+notrack\:\/\//) do
+      part.gsub!(/(https?)\+notrack:\/\//) do
         @actioned = true
         "#{$1}://"
       end
@@ -132,7 +132,7 @@ module Postal
     def insert_tracking_image(part)
       @tracked_images += 1
       container = "<p class='ampimg' style='display:none;visibility:none;margin:0;padding:0;line-height:0;'><img src='#{domain}/img/#{@message.server.token}/#{@message.token}' alt=''></p>"
-      if part =~ /\<\/body\>/
+      if part =~ /<\/body>/
         part.gsub("</body>", "#{container}</body>")
       else
         part + container
