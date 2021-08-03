@@ -181,7 +181,7 @@ module Postal
       #
       #  Provide access to set and get acceptable attributes
       #
-      def method_missing(name, value = nil, &block)
+      def method_missing(name, value = nil)
         if @attributes.has_key?(name.to_s)
           @attributes[name.to_s]
         elsif name.to_s =~ /=\z/

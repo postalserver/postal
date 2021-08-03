@@ -17,7 +17,7 @@ module Postal
         @attributes = attributes.stringify_keys
       end
 
-      def method_missing(name, value = nil, &block)
+      def method_missing(name, _value = nil)
         if @attributes.has_key?(name.to_s)
           @attributes[name.to_s]
         else

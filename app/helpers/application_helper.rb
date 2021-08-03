@@ -22,7 +22,7 @@ module ApplicationHelper
     style
   end
 
-  def domain_options_for_select(server, selected_domain = nil, options = {})
+  def domain_options_for_select(server, selected_domain = nil, _options = {})
     String.new.tap do |s|
       s << "<option></option>"
       server_domains = server.domains.verified.order(:name)

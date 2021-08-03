@@ -41,7 +41,7 @@ module Postal
 
     private
 
-    def receive_job(delivery_info, properties, body)
+    def receive_job(delivery_info, _properties, body)
       begin
         message = JSON.parse(body) rescue nil
         if message && message["class_name"]

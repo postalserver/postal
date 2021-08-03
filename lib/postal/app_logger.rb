@@ -42,7 +42,7 @@ module Postal
     TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%3N".freeze
     COLORS = [32, 34, 35, 31, 32, 33]
 
-    def call(severity, datetime, progname, msg)
+    def call(severity, datetime, _progname, msg)
       time = datetime.strftime(TIME_FORMAT)
       if number = ENV["PROC_NAME"]
         id = number.split(".").last.to_i

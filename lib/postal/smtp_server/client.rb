@@ -218,7 +218,7 @@ module Postal
         end
       end
 
-      def auth_cram_md5(data)
+      def auth_cram_md5(_data)
         challenge = Digest::SHA1.hexdigest(Time.now.to_i.to_s + rand(100_000).to_s)
         challenge = "<#{challenge[0, 20]}@#{Postal.config.dns.smtp_server_hostname}>"
 
@@ -356,7 +356,7 @@ module Postal
         end
       end
 
-      def data(data)
+      def data(_data)
         unless in_state(:rcpt_to_received)
           return "503 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
         end
