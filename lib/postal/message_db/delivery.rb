@@ -63,7 +63,7 @@ module Postal
                            when "SoftFail" then "MessageDelayed"
                            when "HardFail" then "MessageDeliveryFailed"
                            when "Held" then "MessageHeld"
-        end
+                           end
       end
 
     end
