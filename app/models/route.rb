@@ -118,7 +118,7 @@ class Route < ApplicationRecord
           if route.save
             seen << route.id
           else
-            route.errors.each do |field, message|
+            route.errors.each do |_, message|
               errors.add :base, message
             end
             raise ActiveRecord::RecordInvalid

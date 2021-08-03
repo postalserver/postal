@@ -137,7 +137,7 @@ class OutgoingMessagePrototype
     end
 
     if attachments && !attachments.empty?
-      attachments.each_with_index do |attachment, index|
+      attachments.each do |attachment|
         if attachment[:name].blank?
           @errors << "AttachmentMissingName" unless @errors.include?("AttachmentMissingName")
         elsif attachment[:data].blank?

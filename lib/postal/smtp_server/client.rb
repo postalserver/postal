@@ -193,7 +193,7 @@ module Postal
           authenticate(password)
         end
 
-        username_handler = Proc.new do |data|
+        username_handler = Proc.new do
           @proc = password_handler
           @password_expected_next = true
           "334 UGFzc3dvcmQ6" # "Password:"
