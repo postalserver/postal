@@ -13,4 +13,3 @@ ENV["RAILS_ENV"] = Postal.config.rails&.environment || "development"
 if ENV["PROC_NAME"]
   $0 = "[postal] #{ENV['PROC_NAME']}"
 end
-

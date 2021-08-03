@@ -20,4 +20,3 @@ unless File.exists?(Postal.signing_key_path)
   File.open(Postal.signing_key_path, "w") { |f| f.write(key) }
   puts "Created new signing key for DKIM & HTTP requests"
 end
-
