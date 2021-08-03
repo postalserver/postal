@@ -5,10 +5,10 @@ module Postal
 
         def up
           @database.provisioner.create_table(:migrations,
-            columns: {
-              version: "int(11) NOT NULL",
-            },
-            primary_key: "`version`"
+                                             columns: {
+                                               version: "int(11) NOT NULL",
+                                             },
+                                             primary_key: "`version`"
           )
         end
 
