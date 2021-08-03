@@ -1,4 +1,5 @@
 module Postal
+
   VERSION_PATH = File.expand_path("../../VERSION", __dir__)
   VERSION = if File.file?(VERSION_PATH)
               File.read(VERSION_PATH).strip.delete_prefix("v")
@@ -9,4 +10,5 @@ module Postal
   def self.version
     VERSION
   end
+
 end

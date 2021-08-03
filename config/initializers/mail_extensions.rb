@@ -1,6 +1,8 @@
 require "mail"
 module Mail
+
   module Encodings
+
     # Handle windows-1258 as windows-1252 when decoding
     def Encodings.q_value_decode(str)
       str = str.sub(/\=\?windows-?1258\?/i, '\=?windows-1252?')
@@ -10,6 +12,7 @@ module Mail
       str = str.sub(/\=\?windows-?1258\?/i, '\=?windows-1252?')
       RubyVer.b_value_decode(str)
     end
+
   end
 
   class Message
@@ -99,6 +102,7 @@ module Mail
     end
 
   end
+
 end
 
 class Array

@@ -1,6 +1,7 @@
 require "logger"
 
 module Postal
+
   class AppLogger < Logger
 
     def initialize(log_name, *args)
@@ -53,4 +54,5 @@ module Postal
     end
 
   end
+
 end

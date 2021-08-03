@@ -1,4 +1,5 @@
 module HasUUID
+
   def self.included(base)
     base.class_eval do
       random_string :uuid, type: :uuid, unique: true
@@ -8,4 +9,5 @@ module HasUUID
   def to_param
     uuid
   end
+
 end

@@ -14,6 +14,7 @@ module HasMessage
   end
 
   module ClassMethods
+
     def include_message
       queued_messages = all.to_a
       server_ids = queued_messages.map(&:server_id).uniq
@@ -33,6 +34,7 @@ module HasMessage
         end
       end
     end
+
   end
 
 end
