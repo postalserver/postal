@@ -15,7 +15,7 @@ module Postal
       Signal.trap("TERM") { @exit = true; set_process_name }
 
       self.class.job_channel.prefetch(Postal.config.workers.threads)
-      @initial_queues.each { |queue | join_queue(queue) }
+      @initial_queues.each { |queue| join_queue(queue) }
 
       exit_checks = 0
       loop do

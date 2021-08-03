@@ -80,7 +80,7 @@ module Mail
       charset_tmp = "Windows-1252" if charset_tmp.to_s =~ /windows-?1258/i
       if charset_tmp == Encoding.find("UTF-7")
         body_text.force_encoding("UTF-8")
-        decoded = body_text.gsub(/\+.*?-/m) { |n|Base64.decode64(n[1..-2]+"===").force_encoding("UTF-16BE").encode("UTF-8") }
+        decoded = body_text.gsub(/\+.*?-/m) { |n| Base64.decode64(n[1..-2]+"===").force_encoding("UTF-16BE").encode("UTF-8") }
       else
         body_text.force_encoding(charset_tmp)
         decoded = body_text.encode("utf-8", invalid: :replace, undef: :replace)
