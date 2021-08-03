@@ -69,8 +69,8 @@ module Postal
       #
       def clean
         ["clicks", "deliveries", "links", "live_stats", "loads", "messages",
-          "raw_message_sizes", "spam_checks", "stats_daily", "stats_hourly",
-          "stats_monthly", "stats_yearly", "suppressions", "webhook_requests"].each do |table|
+         "raw_message_sizes", "spam_checks", "stats_daily", "stats_hourly",
+         "stats_monthly", "stats_yearly", "suppressions", "webhook_requests"].each do |table|
           @database.query("TRUNCATE `#{@database.database_name}`.`#{table}`")
         end
       end
