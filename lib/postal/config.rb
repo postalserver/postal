@@ -170,7 +170,7 @@ module Postal
       raise ConfigError, "No config found at #{config_file_path}"
     end
 
-    unless File.exists?(signing_key_path)
+    unless File.exist?(signing_key_path)
       raise ConfigError, "No signing key found at #{signing_key_path}"
     end
   end
