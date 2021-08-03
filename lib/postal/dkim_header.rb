@@ -27,7 +27,7 @@ module Postal
     end
 
     def header_names
-      normalized_headers.map{ |h| h.split(":")[0].strip }
+      normalized_headers.map { |h| h.split(":")[0].strip }
     end
 
     def normalized_headers

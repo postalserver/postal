@@ -151,7 +151,7 @@ class Domain < ApplicationRecord
     end
     return [] if ns_records.blank?
 
-    ns_records = ns_records.map{ |r| local_resolver.getresources(r, Resolv::DNS::Resource::IN::A).map { |s| s.address.to_s } }.flatten
+    ns_records = ns_records.map { |r| local_resolver.getresources(r, Resolv::DNS::Resource::IN::A).map { |s| s.address.to_s } }.flatten
     return [] if ns_records.blank?
 
     ns_records

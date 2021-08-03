@@ -224,7 +224,7 @@ module Postal
 
         handler = Proc.new do |data|
           @proc = nil
-          username, password = Base64.decode64(data).split(" ", 2).map{ |a| a.chomp }
+          username, password = Base64.decode64(data).split(" ", 2).map { |a| a.chomp }
           org_permlink, server_permalink = username.split(/[\/_]/, 2)
           server = ::Server.includes(:organization).where(organizations: { permalink: org_permlink }, permalink: server_permalink).first
           next "535 Denied" if server.nil?
