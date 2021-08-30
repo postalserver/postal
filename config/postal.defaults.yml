@@ -17,6 +17,7 @@ general:
   use_local_ns_for_domains: false
   default_spam_threshold: 5.0
   default_spam_failure_threshold: 20.0
+  use_suppression_list: true
 
 web_server:
   bind_address: 127.0.0.1
@@ -60,7 +61,7 @@ workers:
 
 smtp_server:
   port: 25
-  bind_address: '::'
+  bind_address: "::"
   tls_enabled: false
   tls_certificate_path: # Defaults to config/smtp.cert
   tls_private_key_path: # Defaults to config/smtp.key
@@ -72,8 +73,7 @@ smtp_server:
   max_message_size: 14 # size in Megabytes
 
 smtp_relays:
-  -
-    hostname:
+  - hostname:
     port: 25
     ssl_mode: Auto
 
