@@ -61,7 +61,7 @@ workers:
 
 smtp_server:
   port: 25
-  bind_address: "::"
+  bind_address: '::'
   tls_enabled: false
   tls_certificate_path: # Defaults to config/smtp.cert
   tls_private_key_path: # Defaults to config/smtp.key
@@ -73,7 +73,8 @@ smtp_server:
   max_message_size: 14 # size in Megabytes
 
 smtp_relays:
-  - hostname:
+  - 
+    hostname:
     port: 25
     ssl_mode: Auto
 
