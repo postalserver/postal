@@ -73,7 +73,7 @@ smtp_server:
   max_message_size: 14 # size in Megabytes
 
 smtp_relays:
-  - 
+   - 
     hostname:
     port: 25
     ssl_mode: Auto
