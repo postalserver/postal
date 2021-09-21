@@ -366,7 +366,7 @@ module Postal
               when :greater_than_or_equal_to
                 sql << "`#{key}` >= #{escape(value)}"
               when :like
-                sql << "`#{key}` LIKE '#{escape(value)}'"
+                sql << "`#{key}` LIKE #{escape(value)}"
               end
             end
             sql.empty? ? "1=1" : sql.join(joiner)
