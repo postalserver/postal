@@ -168,6 +168,7 @@
           options[:where][:mail_from] = qs[:from] if qs[:from]
           options[:where][:status] = qs[:status] if qs[:status]
           options[:where][:token] = qs[:token] if qs[:token]
+          options[:where][:subject] = qs[:subject] if qs[:subject]
 
           if qs[:msgid]
             options[:where][:message_id] = qs[:msgid]

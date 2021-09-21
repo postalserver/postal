@@ -1,0 +1,26 @@
+diff --git a/app/controllers/messages_controller.rb b/app/controllers/messages_controller.rb
+index 62eecfd..4872f9a 100644
+--- a/app/controllers/messages_controller.rb
++++ b/app/controllers/messages_controller.rb
+@@ -168,6 +168,7 @@
+           options[:where][:mail_from] = qs[:from] if qs[:from]
+           options[:where][:status] = qs[:status] if qs[:status]
+           options[:where][:token] = qs[:token] if qs[:token]
++          options[:where][:subject] = qs[:subject] if qs[:subject]
+ 
+           if qs[:msgid]
+             options[:where][:message_id] = qs[:msgid]
+diff --git a/app/views/messages/_search.html.haml b/app/views/messages/_search.html.haml
+index 415612e..0adc781 100644
+--- a/app/views/messages/_search.html.haml
++++ b/app/views/messages/_search.html.haml
+@@ -18,6 +18,9 @@
+       %dl.messageSearch__definition
+         %dt from: tom@example.com
+         %dd Returns all mail sent from to the address provided.
++      %dl.messageSearch__definition
++        %dt subject: "any string"
++        %dd Returns all mail which subject contains the substring provided.
+       %dl.messageSearch__definition
+         %dt status: pending
+         %dd Returns all messages with the status provided. The suitable statuses are: <code>pending</code>, <code>sent</code>, <code>held</code>, <code>softfail</code>, <code>hardfail</code> and <code>bounced</code>.
