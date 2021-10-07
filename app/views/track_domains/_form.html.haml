@@ -17,8 +17,8 @@
       .fieldSet__input
         = f.select :ssl_enabled, [["Yes - use SSL for tracking whenever possible", true], ["No - never use SSL for tracking", false]], {}, :class => 'input input--select'
         %p.fieldSet__text
-          If enabled, we'll try to remove the replies/signatures from the plain body and send them separately to the rest of the body.
-          This is useful if you just want to see the latest message in a thread.
+          If enabled, we'll use https for the tracking domain when replacing links and images. Please note that a SSL certificate 
+          should be installed on the tracking domain if enabled. 
 
     .fieldSet__field
       = f.label :track_loads, :class => 'fieldSet__label'
