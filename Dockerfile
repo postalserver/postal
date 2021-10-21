@@ -1,11 +1,11 @@
-FROM ruby:2.6 AS base
+FROM ruby:2.6-buster AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-  software-properties-common \
-  && apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8 \
-  && add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://mirrors.coreix.net/mariadb/repo/10.1/ubuntu xenial main' \
+  software-properties-common dirmngr apt-transport-https \
+  && apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc' \
+  && add-apt-repository 'deb [arch=amd64,arm64,ppc64el] https://mirrors.xtom.nl/mariadb/repo/10.6/debian buster main' \
   && (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) \
   && (echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list) \
   && (curl -sL https://deb.nodesource.com/setup_12.x | bash -) \
