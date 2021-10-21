@@ -13,6 +13,7 @@ module Postal
       end
       @domain = domain
       @message = message
+      @time = Time.now
       @raw_headers, @raw_body = @message.gsub(/\r?\n/, "\r\n").split(/\r\n\r\n/, 2)
     end
 
@@ -99,7 +100,7 @@ module Postal
       Array.new.tap do |header|
         header << "a=rsa-sha256; c=relaxed/relaxed;"
         header << "d=#{@domain_name};"
-        header << "s=#{@dkim_identifier}; t=#{Time.now.utc.to_i};"
+        header << "s=#{@dkim_identifier}; t=#{@time.utc.to_i};"
         header << "bh=#{body_hash};"
         header << "h=#{header_names.join(':')};"
         header << "b="
