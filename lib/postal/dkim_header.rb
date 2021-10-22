@@ -96,7 +96,7 @@ module Postal
     end
 
     def dkim_properties
-      Array.new.tap do |header|
+      @dkim_properties ||= Array.new.tap do |header|
         header << "a=rsa-sha256; c=relaxed/relaxed;"
         header << "d=#{@domain_name};"
         header << "s=#{@dkim_identifier}; t=#{Time.now.utc.to_i};"
