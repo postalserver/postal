@@ -14,17 +14,17 @@
       %p.pageContent__subTitle Incoming Spam Threshold
       %p.pageContent__text.u-margin
         The main spam threshold is what determines whether a message is spam or not. How incoming
-        messages that are detected as spam is determined by the route which the incoming message was
-        sent to. You can choose between marking the message as spam and sending it on to your endpoint,
-        putting it into quarantine (holding it until manually released) or just failing it.
+        messages that are detected as spam are processed is determined by the route which the incoming
+        message was sent to. You can choose between marking the message as spam and sending it on to
+        your endpoint, putting it into quarantine (holding it until manually released) or just failing it.
       %p= f.text_field :spam_threshold, :type => :range, :class => 'spamRange', :min => -10, :max => 25, :step => 0.5, :data => {:update => "js-spam-threshold-text"}
       %p.spamRangeLabel Threshold is currently <b class='js-spam-threshold-text'>#{@server.spam_threshold}</b>
 
     .u-margin
       %p.pageContent__subTitle Incoming Spam Failure Threshold
       %p.pageContent__text.u-margin
-        Any messages which are over your spam failure threshold will failed immediately. This is used
-        to catch messages that we very sure at spam to avoid sending them needless around the place.
+        Any messages which are over your spam failure threshold will fail immediately. This is used
+        to catch messages that we are very sure are spam to avoid needlessly sending them around the place.
       %p= f.text_field :spam_failure_threshold, :type => :range, :class => 'spamRange spamRange--hot', :min => 10, :max => 50, :step => 0.5, :data => {:update => "js-spam-failure-threshold-text"}
       %p.spamRangeLabel Threshold is currently <b class='js-spam-failure-threshold-text'>#{@server.spam_failure_threshold}</b>
 
