@@ -31,6 +31,7 @@ module Postal
 
         @hostnames << hostname
         [:aaaa, :a].each do |ip_type|
+          try_again_unencrypted = false
 
           if @source_ip_address && @source_ip_address.ipv6.blank? && ip_type == :aaaa
             # Don't try to use IPv6 if the IP address we're sending from doesn't support it.
@@ -68,9 +69,29 @@ module Postal
           rescue => e
             log "Cannot connect to #{@remote_ip}:#{port} (#{hostname}) (#{e.class}: #{e.message})"
             @connection_errors << e.message unless @connection_errors.include?(e.message)
+            try_again_unencrypted = true if smtp_client.starttls_auto?
             smtp_client.disconnect rescue nil
             smtp_client = nil
           end
+
+          if try_again_unencrypted
+            begin
+              smtp_client = Net::SMTP.new(hostname, port)
+              smtp_client.open_timeout = Postal.config.smtp_client.open_timeout
+              smtp_client.read_timeout = Postal.config.smtp_client.read_timeout
+              if @source_ip_address
+                smtp_client.source_address = ip_type == :aaaa ? @source_ip_address.ipv6 : @source_ip_address.ipv4
+              end
+              smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
+              log "Connected to #{@remote_ip}:#{port} (#{hostname})"
+            rescue => e
+              log "Cannot connect to #{@remote_ip}:#{port} (#{hostname}) (#{e.class}: #{e.message})"
+              @connection_errors << e.message unless @connection_errors.include?(e.message)
+              smtp_client.disconnect rescue nil
+              smtp_client = nil
+            end
+          end
+
 
           if smtp_client
             @smtp_client = smtp_client
