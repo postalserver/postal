@@ -13,7 +13,7 @@ module Postal
       user.email_address = cli.ask("E-Mail Address".ljust(20, ' ') + ": ")
       user.first_name = cli.ask("First Name".ljust(20, ' ') + ": ")
       user.last_name = cli.ask("Last Name".ljust(20, ' ') + ": ")
-      user.password = cli.ask("Initial Password:".ljust(20, ' ') + ": ") { |value| value.echo = '*' }
+      user.password = cli.ask("Initial Password".ljust(20, ' ') + ": ") { |value| value.echo = '*' }
 
       block.call(user) if block_given?
       if user.save
