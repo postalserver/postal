@@ -8,4 +8,3 @@
 * [Installation Instructions](https://docs.postalserver.io/install/prerequisites)
 * [FAQs](https://docs.postalserver.io/welcome/faqs) & [Features](https://docs.postalserver.io/welcome/feature-list)
 * [Ask for help](https://github.com/postalserver/postal/discussions)
-* [Slack Channel](https://slack.k.io)
