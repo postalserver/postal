@@ -36,10 +36,10 @@ class QueuedMessage < ApplicationRecord
   after_commit :queue, :on => :create
 
   scope :unlocked, -> { where(:locked_at => nil) }
-  scope :retriable, -> { where("retry_after IS NULL OR retry_after <= ?", 30.seconds.from_now) }
+  scope :retriable, -> { where("retry_after IS NULL OR retry_after <= ?", Time.now) }
 
   def retriable?
-    self.retry_after.nil? || self.retry_after <= 30.seconds.from_now
+    self.retry_after.nil? || self.retry_after <= Time.now
   end
 
   def queue
