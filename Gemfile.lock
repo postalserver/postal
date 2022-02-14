@@ -61,7 +61,6 @@ GEM
       execjs
     basic_ssl (1.0.3)
     bcrypt (3.1.12)
-    bson (4.3.0)
     builder (3.2.4)
     bunny (2.14.4)
       amq-protocol (~> 2.3, >= 2.3.0)
@@ -134,8 +133,6 @@ GEM
     mini_mime (1.1.0)
     mini_portile2 (2.6.1)
     minitest (5.14.4)
-    mongo (2.6.2)
-      bson (>= 4.3.0, < 5.0.0)
     moonrope (2.0.2)
       deep_merge (~> 1.0)
       json
@@ -271,7 +268,6 @@ DEPENDENCIES
   jwt
   kaminari
   mail!
-  mongo
   moonrope
   mysql2
   nifty-utils
