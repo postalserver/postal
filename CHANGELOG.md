@@ -2,6 +2,17 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## 2.1.1
+
+### Features
+
+- allow @ and % in webhook urls ([c60c69](https://github.com/postalserver/postal/commit/c60c69db1800775776da4c28c68001f230fe5888))
+
+### Bug Fixes
+
+- fixes broken styling on errors ([a0c87e](https://github.com/postalserver/postal/commit/a0c87e7bf16a19f06c13797e3329a4fed91370a1))
+- use the Postal logger system for the rails log ([5b04fa](https://github.com/postalserver/postal/commit/5b04faca39c69757bd7d695b82984f8b4a41cac3))
+
 ## 2.1.0
 
 ### Features
