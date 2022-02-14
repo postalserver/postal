@@ -151,7 +151,7 @@ GEM
     nokogiri (1.13.1)
       mini_portile2 (~> 2.7.0)
       racc (~> 1.4)
-    puma (4.3.11)
+    puma (5.6.2)
       nio4r (~> 2.0)
     racc (1.6.0)
     rack (2.2.3)
@@ -278,7 +278,7 @@ DEPENDENCIES
   nifty-utils
   nilify_blanks
   nio4r
-  puma (~> 4)
+  puma
   rails (= 5.2.6.2)
   resolv (~> 0.2.1)
   rspec

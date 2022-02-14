@@ -7,7 +7,3 @@ bind            "tcp://#{bind_address}:#{bind_port}"
 environment     Postal.config.rails&.environment || 'development'
 prune_bundler
 quiet false
-
-if ENV['APP_ROOT']
-  directory ENV['APP_ROOT']
-end
