@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-gem 'rails', '= 5.2.6'
+gem 'rails', '= 5.2.6.2'
 gem 'mysql2'
 gem 'puma', '~> 4'
 gem 'turbolinks', '~> 5'
