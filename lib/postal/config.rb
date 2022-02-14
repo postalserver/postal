@@ -54,7 +54,17 @@ module Postal
   end
 
   def self.config_file_path
-    @config_file_path ||= File.join(config_root, 'postal.yml')
+    @config_file_path ||= begin
+      if env == 'default'
+        File.join(config_root, 'postal.yml')
+      else
+        File.join(config_root, "postal.#{env}.yml")
+      end
+    end
+  end
+
+  def self.env
+    @env ||= ENV.fetch('POSTAL_ENV', 'default')
   end
 
   def self.yaml_config
