@@ -120,7 +120,11 @@ module Postal
         else
           mail_from = "#{message.server.token}@#{Postal.config.dns.return_path}"
         end
-        raw_message = "Resent-Sender: #{mail_from}\r\n" + message.raw_message
+        if Postal.config.general.use_resent_sender_header
+            raw_message = "Resent-Sender: #{mail_from}\r\n" + message.raw_message
+        else
+            raw_message = message.raw_message
+        end
         tries = 0
         begin
           if @smtp_client.nil?
