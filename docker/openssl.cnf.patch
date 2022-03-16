@@ -1,22 +1,10 @@
---- /etc/ssl/openssl.cnf	2020-04-20 11:53:50.000000000 +0000
-+++ /etc/ssl/openssl.cnf	2022-03-16 09:28:41.000000000 +0000
-@@ -1,3 +1,5 @@
-+openssl_conf = default_conf
-+
- #
- # OpenSSL example configuration file.
- # This is mostly being used for generation of certificate requests.
-@@ -348,3 +350,13 @@
- 				# (optional, default: no)
- ess_cert_id_alg		= sha1	# algorithm to compute certificate
- 				# identifier (optional, default: sha1)
-+
-+[default_conf]
-+ssl_conf = ssl_sect
-+
-+[ssl_sect]
-+system_default = system_default_sect
-+
-+[system_default_sect]
+--- /etc/ssl/openssl.cnf	2022-03-16 10:01:00.000000000 +0000
++++ /etc/ssl/openssl.cnf	2022-03-16 10:02:00.000000000 +0000
+@@ -358,5 +358,5 @@
+ system_default = system_default_sect
+ 
+ [system_default_sect]
+-MinProtocol = TLSv1.2
+-CipherString = DEFAULT@SECLEVEL=2
 +MinProtocol = TLSv1.0
-+CipherString = DEFAULT:@SECLEVEL=1
++CipherString = DEFAULT@SECLEVEL=1
