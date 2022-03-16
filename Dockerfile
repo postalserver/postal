@@ -27,6 +27,10 @@ RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
 # later in this process)
 ENV PATH="/opt/postal/app/bin:${PATH}"
 
+# Copy and apply openssl.cnf.patch
+COPY ./docker/openssl.cnf.patch /etc/ssl/openssl.cnf.patch
+RUN patch /etc/ssl/openssl.cnf /etc/ssl/openssl.cnf.patch
+
 # Setup an application
 RUN useradd -r -d /opt/postal -m -s /bin/bash -u 999 postal
 USER postal
