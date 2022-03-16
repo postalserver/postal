@@ -16,6 +16,9 @@ module Postal
       conn = Bunny.new(
         :hosts => bunny_host,
         :port => Postal.config.rabbitmq&.port || 5672,
+        :tls => Postal.config.rabbitmq&.tls || false,
+        :verify_peer => Postal.config.rabbitmq&.verify_peer || true,
+        :tls_ca_certificates => Postal.config.rabbitmq&.tls_ca_certificates || [ "/etc/ssl/certs/ca-certificates.crt" ],
         :username => Postal.config.rabbitmq&.username || 'guest',
         :password => Postal.config.rabbitmq&.password || 'guest',
         :vhost => Postal.config.rabbitmq&.vhost || nil
