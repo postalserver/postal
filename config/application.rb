@@ -32,5 +32,7 @@ module Postal
     # Load the tracking server middleware
     require 'postal/tracking_middleware'
     config.middleware.use Postal::TrackingMiddleware
+
+    config.logger = Postal.logger_for(:rails)
   end
 end

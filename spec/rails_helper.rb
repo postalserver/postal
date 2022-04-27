@@ -1,4 +1,4 @@
-ENV['POSTAL_CONFIG_ROOT'] ||= File.expand_path('../config', __FILE__)
+ENV['POSTAL_ENV'] = 'test'
 
 require File.expand_path('../../config/environment', __FILE__)
 require 'rspec/rails'
