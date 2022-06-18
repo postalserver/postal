@@ -50,6 +50,7 @@ en:
     raw_message: Delivered as the raw message
   http_endpoint_encodings:
     body_as_json: Sent in the body as JSON
+    sendgrid_compatible_body_as_json: Sendgrid compatible Json
     form_data: Sent as form data
 
   webhook_events:
