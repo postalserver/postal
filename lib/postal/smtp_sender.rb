@@ -46,13 +46,16 @@ module Postal
               end
               next
             end
+
             smtp_client = Net::SMTP.new(hostname, port)
             smtp_client.open_timeout = Postal.config.smtp_client.open_timeout
             smtp_client.read_timeout = Postal.config.smtp_client.read_timeout
+
             if @source_ip_address
               # Set the source IP as appropriate
               smtp_client.source_address = ip_type == :aaaa ? @source_ip_address.ipv6 : @source_ip_address.ipv4
             end
+
             case ssl_mode
             when 'Auto'
               smtp_client.enable_starttls_auto(self.class.ssl_context_without_verify)
@@ -63,9 +66,17 @@ module Postal
             else
               # Nothing
             end
+
             smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
             log "Connected to #{@remote_ip}:#{port} (#{hostname})"
+
           rescue => e
+            if e.is_a?(OpenSSL::SSL::SSLError) && ssl_mode == 'Auto'
+              log "SSL error (#{e.message}), retrying without SSL"
+              ssl_mode = nil
+              retry
+            end
+
             log "Cannot connect to #{@remote_ip}:#{port} (#{hostname}) (#{e.class}: #{e.message})"
             @connection_errors << e.message unless @connection_errors.include?(e.message)
             smtp_client.disconnect rescue nil
