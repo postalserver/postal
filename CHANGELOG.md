@@ -2,6 +2,16 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## 2.1.2
+
+### Features
+
+- support for AMQPS for rabbitmq connections ([9f0697](https://github.com/postalserver/postal/commit/9f0697f194209f5fae5e451ba8fb888413fe37fa))
+
+### Bug Fixes
+
+- retry connections without SSL when SSL issue is encountered during smtp sending ([0dc682](https://github.com/postalserver/postal/commit/0dc6824a8f0315ea42b08f7e6812b821b62489c9))
+
 ## 2.1.1
 
 ### Features

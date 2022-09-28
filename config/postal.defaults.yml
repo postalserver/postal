@@ -51,6 +51,10 @@ message_db:
 rabbitmq:
   host: 127.0.0.1
   port: 5672
+  tls: false
+  verify_peer: true
+  tls_ca_certificates:
+    - /etc/ssl/certs/ca-certificates.crt
   username: postal
   password:
   vhost: /postal
