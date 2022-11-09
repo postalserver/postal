@@ -131,74 +131,82 @@ module Postal
                 client = monitor.value
                 # For now we assume the connection isn't closed
                 eof = false
-                begin
-                  # Read 10kiB of data at a time from the socket.
-                  # There is an extra step for SSL sockets
-                  case io
-                  when OpenSSL::SSL::SSLSocket
-                    buffers[io] << io.readpartial(10240)
-                    while(io.pending > 0)
-                      buffers[io] << io.readpartial(10240)
-                    end
-                  else
-                    buffers[io] << io.readpartial(10240)
-                  end
-                rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
-                  # Client went away
-                  eof = true
-                end
-
-                # Normalize all \r\n and \n to \r\n
-                buffers[io] = buffers[io].encode(buffers[io].encoding, universal_newline: true).encode(buffers[io].encoding, crlf_newline: true)
-
-                # We line buffer, so look to see if we have received a newline
-                # and keep doing so until all buffered lines have been processed.
-                while buffers[io].index("\r\n")
-                  # Extract the line
-                  line, buffers[io] = buffers[io].split("\r\n", 2)
-
-                  # Send the received line to the client object for processing
-                  result = client.handle(line)
-                  # If the client object returned some data, write it back to the client
-                  unless result.nil?
-                    result = [result] unless result.is_a?(Array)
-                    result.compact.each do |line|
-                      client.log "\e[34m=> #{line.strip}\e[0m"
-                      begin
-                        io.write(line.to_s + "\r\n")
-                        io.flush
-                      rescue Errno::ECONNRESET
-                        # Client disconnected before we could write response
-                        eof = true
-                      end
-                    end
-                  end
-                end
-                # If the client requested we start TLS, do it now
-                if !eof && client.start_tls?
-                  # Clear the request
-                  client.start_tls = false
-                  # Deregister the unencrypted IO
-                  @io_selector.deregister(io)
-                  buffers.delete(io)
-                  # Prepare TLS on the socket
-                  tcp_io = io
-                  io = OpenSSL::SSL::SSLSocket.new(io, ssl_context)
-                  # Register the new TLS socket with nio
-                  monitor = @io_selector.register(io, :r)
-                  monitor.value = client
-                  # Close the underlying IO when the TLS socket is closed
-                  io.sync_close = true
+                # Is the client negotiating a TLS handshake?
+                if client.start_tls?
                   begin
-                    # Start TLS negotiation
-                    io.accept
+                    # Can we accept the TLS connection at this time?
+                    io.accept_nonblock()
+                    # We were able to accept the connection, the client is no longer handshaking
+                    client.start_tls = false
+                  rescue IO::WaitReadable, IO::WaitWritable => e
+                    # Could not accept without blocking
+                    # We will try again later
+                    next
                   rescue OpenSSL::SSL::SSLError => e
                     client.log "SSL Negotiation Failed: #{e.message}"
                     eof = true
                   end
+                else
+                  # The client is not negotiating a TLS handshake at this time
+                  begin
+                    # Read 10kiB of data at a time from the socket.
+                    # There is an extra step for SSL sockets
+                    case io
+                    when OpenSSL::SSL::SSLSocket
+                      buffers[io] << io.readpartial(10240)
+                      while(io.pending > 0)
+                        buffers[io] << io.readpartial(10240)
+                      end
+                    else
+                      buffers[io] << io.readpartial(10240)
+                    end
+                  rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
+                    # Client went away
+                    eof = true
+                  end
+
+                  # Normalize all \r\n and \n to \r\n
+                  buffers[io] = buffers[io].encode(buffers[io].encoding, universal_newline: true).encode(buffers[io].encoding, crlf_newline: true)
+
+                  # We line buffer, so look to see if we have received a newline
+                  # and keep doing so until all buffered lines have been processed.
+                  while buffers[io].index("\r\n")
+                    # Extract the line
+                    line, buffers[io] = buffers[io].split("\r\n", 2)
+
+                    # Send the received line to the client object for processing
+                    result = client.handle(line)
+                    # If the client object returned some data, write it back to the client
+                    unless result.nil?
+                      result = [result] unless result.is_a?(Array)
+                      result.compact.each do |line|
+                        client.log "\e[34m=> #{line.strip}\e[0m"
+                        begin
+                          io.write(line.to_s + "\r\n")
+                          io.flush
+                        rescue Errno::ECONNRESET
+                          # Client disconnected before we could write response
+                          eof = true
+                        end
+                      end
+                    end
+                  end
+
+                  # Did the client request STARTTLS?
+                  if !eof && client.start_tls?
+                    # Deregister the unencrypted IO
+                    @io_selector.deregister(io)
+                    buffers.delete(io)
+                    io = OpenSSL::SSL::SSLSocket.new(io, ssl_context)
+                    # Close the underlying IO when the TLS socket is closed
+                    io.sync_close = true
+                    # Register the new TLS socket with nio
+                    monitor = @io_selector.register(io, :r)
+                    monitor.value = client
+                  end
                 end
 
-                # Has the clint requested we close the connection?
+                # Has the client requested we close the connection?
                 if client.finished? || eof
                   client.log "\e[35m   Connection closed\e[0m"
                   # Deregister the socket and close it
