@@ -29,10 +29,11 @@
   %ul
     %li.navBar__item= link_to "Properties", organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :properties ? 'is-active' : '']
     %li.navBar__item= link_to "Activity", activity_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :activity ? 'is-active' : '']
-    %li.navBar__item= link_to "Headers", headers_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :headers ? 'is-active' : '']
-    %li.navBar__item= link_to "Spam Checks", spam_checks_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :spam_checks ? 'is-active' : '']
-    %li.navBar__item= link_to "Plain Text", plain_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :plain ? 'is-active' : '']
-    %li.navBar__item= link_to "HTML", html_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :html ? 'is-active' : '']
-    %li.navBar__item= link_to "Attachments", attachments_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :attachments ? 'is-active' : '']
-    - if @message.raw_message?
-      %li.navBar__item= link_to "Download", download_organization_server_message_path(organization, @server, @message.id), :data => {:turbolinks => 'false'}, :class =>'navBar__link'
+    - if Postal.config.general.show_message_content
+      %li.navBar__item= link_to "Headers", headers_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :headers ? 'is-active' : '']
+      %li.navBar__item= link_to "Spam Checks", spam_checks_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :spam_checks ? 'is-active' : '']
+      %li.navBar__item= link_to "Plain Text", plain_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :plain ? 'is-active' : '']
+      %li.navBar__item= link_to "HTML", html_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :html ? 'is-active' : '']
+      %li.navBar__item= link_to "Attachments", attachments_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :attachments ? 'is-active' : '']
+      - if @message.raw_message?
+        %li.navBar__item= link_to "Download", download_organization_server_message_path(organization, @server, @message.id), :data => {:turbolinks => 'false'}, :class =>'navBar__link'

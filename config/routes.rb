@@ -27,13 +27,15 @@ Rails.application.routes.draw do
         get :outgoing, :on => :collection
         get :held, :on => :collection
         get :activity, :on => :member
-        get :plain, :on => :member
-        get :html, :on => :member
-        get :html_raw, :on => :member
-        get :attachments, :on => :member
-        get :headers, :on => :member
-        get :attachment, :on => :member
-        get :download, :on => :member
+        if Postal.config.general.show_message_content
+         get :plain, :on => :member
+         get :html, :on => :member
+         get :html_raw, :on => :member
+         get :attachments, :on => :member
+         get :headers, :on => :member
+         get :attachment, :on => :member
+         get :download, :on => :member
+        end
         get :spam_checks, :on => :member
         post :retry, :on => :member
         post :cancel_hold, :on => :member
