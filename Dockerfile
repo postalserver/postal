@@ -4,8 +4,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
   software-properties-common dirmngr apt-transport-https \
-  && apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc' \
-  && add-apt-repository 'deb [arch=amd64,arm64,ppc64el] https://mirrors.xtom.nl/mariadb/repo/10.6/debian buster main' \
   && (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) \
   && (echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list) \
   && (curl -sL https://deb.nodesource.com/setup_12.x | bash -) \
