@@ -165,8 +165,9 @@ module Postal
                     eof = true
                   end
 
-                  # Normalize all \r\n and \n to \r\n
-                  buffers[io] = buffers[io].encode(buffers[io].encoding, universal_newline: true).encode(buffers[io].encoding, crlf_newline: true)
+                  # Normalize all \r\n and \n to \r\n, but ignore only \r.
+                  # A \r\n may be split in 2 buffers (\n in one buffer and \r in the other)
+                  buffers[io] = buffers[io].gsub(/\r/,"").encode(buffers[io].encoding, crlf_newline: true)
 
                   # We line buffer, so look to see if we have received a newline
                   # and keep doing so until all buffered lines have been processed.
