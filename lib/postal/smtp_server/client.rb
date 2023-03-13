@@ -228,7 +228,10 @@ module Postal
           username, password = Base64.decode64(data).split(' ', 2).map{ |a| a.chomp }
           org_permlink, server_permalink = username.split(/[\/\_]/, 2)
           server = ::Server.includes(:organization).where(:organizations => {:permalink => org_permlink}, :permalink => server_permalink).first
-          next '535 Denied' if server.nil?
+          if server.nil?
+            log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
+            next '535 Denied'
+          end
           grant = nil
           server.credentials.where(:type => 'SMTP').each do |credential|
             correct_response = OpenSSL::HMAC.hexdigest(CRAM_MD5_DIGEST, credential.key, challenge)
@@ -239,7 +242,11 @@ module Postal
               break
             end
           end
-          grant || '535 Denied'
+          if grant.nil?
+            log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
+            next "535 Denied"
+          end
+          grant
         end
 
         @proc = handler
