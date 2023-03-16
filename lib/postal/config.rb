@@ -137,7 +137,7 @@ module Postal
   end
 
   def self.smtp_private_key
-    @smtp_private_key ||= OpenSSL::PKey::RSA.new(File.read(smtp_private_key_path))
+    @smtp_private_key ||= OpenSSL::PKey.read(File.read(smtp_private_key_path))
   end
 
   def self.smtp_certificate_path

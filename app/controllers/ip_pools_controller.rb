@@ -32,7 +32,7 @@ class IPPoolsController < ApplicationController
     @ip_pool.destroy
     redirect_to_with_json :ip_pools, :notice => "IP pool has been removed successfully."
   rescue ActiveRecord::DeleteRestrictionError => e
-    redirect_to_with_json [:edit, @ip_pool], :alert => "IP pool cannot be removed because it is still assigned to servers/rules."
+    redirect_to_with_json [:edit, @ip_pool], :alert => "IP pool cannot be removed because it still has associated addresses or servers."
   end
 
   private
