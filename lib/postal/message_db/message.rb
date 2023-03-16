@@ -373,7 +373,7 @@ module Postal
       def spam_status
         return "NotChecked" unless inspected
 
-        spam == 1 ? "Spam" : "NotSpam"
+        spam ? "Spam" : "NotSpam"
       end
 
       #

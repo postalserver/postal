@@ -30,7 +30,7 @@ structure :message do
   expansion(:inspection) do
     {
       inspected: o.inspected,
-      spam: o.spam == 1,
+      spam: o.spam,
       spam_score: o.spam_score.to_f,
       threat: o.threat == 1,
       threat_details: o.threat_details
