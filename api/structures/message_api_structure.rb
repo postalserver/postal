@@ -32,7 +32,7 @@ structure :message do
       inspected: o.inspected,
       spam: o.spam,
       spam_score: o.spam_score.to_f,
-      threat: o.threat == 1,
+      threat: o.threat,
       threat_details: o.threat_details
     }
   end

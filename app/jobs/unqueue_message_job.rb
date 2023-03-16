@@ -130,7 +130,7 @@ class UnqueueMessageJob < Postal::Job
                     "X-Postal-Spam: #{queued_message.message.spam ? 'yes' : 'no'}",
                     "X-Postal-Spam-Threshold: #{queued_message.server.spam_threshold}",
                     "X-Postal-Spam-Score: #{queued_message.message.spam_score}",
-                    "X-Postal-Threat: #{queued_message.message.threat == 1 ? 'yes' : 'no'}"
+                    "X-Postal-Threat: #{queued_message.message.threat ? 'yes' : 'no'}"
                   )
                   log "#{log_prefix} Message inspected successfully. Headers added."
                 end

@@ -20,10 +20,6 @@ module Postal
       @spam_checks.sum(&:score)
     end
 
-    def threat?
-      @threat == true
-    end
-
     def scan
       MessageInspector.inspectors.each do |inspector|
         inspector.inspect_message(self)

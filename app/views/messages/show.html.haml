@@ -56,7 +56,7 @@
                 = link_to @message.domain.name, [organization, @server, :domains], :class => "u-link"
               - else
                 Unknown Domain
-      - if @message.threat == 1
+      - if @message.threat
         %dl.messagePropertiesPage__property
           %dt Threat
           %dd= @message.threat_details
