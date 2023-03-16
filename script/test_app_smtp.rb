@@ -1,13 +1,15 @@
 #!/usr/bin/env ruby
-trap("INT") { puts ; exit }
-
+trap("INT") do
+  puts
+  exit
+end
 
 if ARGV[0].nil? || !(ARGV[0] =~ /@/)
   puts "usage: postal test-app-smtp [email address]"
   exit 1
 end
 
-require_relative '../config/environment'
+require_relative "../config/environment"
 
 begin
   Timeout.timeout(10) do
@@ -15,7 +17,7 @@ begin
   end
 
   puts "\e[32mMessage has been sent successfully.\e[0m"
-rescue => e
+rescue StandardError => e
   puts "\e[31mMessage was not delivered successfully to SMTP server.\e[0m"
   puts "Error: #{e.class} (#{e.message})"
   puts

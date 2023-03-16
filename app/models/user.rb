@@ -27,25 +27,23 @@ class User < ApplicationRecord
 
   include HasUUID
 
-  require_dependency 'user/authentication'
+  require_dependency "user/authentication"
 
-  validates :first_name, :presence => true
-  validates :last_name, :presence => true
-  validates :email_address, :presence => true, :uniqueness => true, :format => {:with => /@/, allow_blank: true}
-  validates :time_zone, :presence => true
+  validates :first_name, presence: true
+  validates :last_name, presence: true
+  validates :email_address, presence: true, uniqueness: true, format: { with: /@/, allow_blank: true }
+  validates :time_zone, presence: true
 
-  default_value :time_zone, -> { 'UTC' }
+  default_value :time_zone, -> { "UTC" }
 
-  has_many :organization_users, :dependent => :destroy, :as => :user
-  has_many :organizations, :through => :organization_users
+  has_many :organization_users, dependent: :destroy, as: :user
+  has_many :organizations, through: :organization_users
 
   def organizations_scope
-    @organizations_scope ||= begin
-      if self.admin?
-        Organization.present
-      else
-        self.organizations.present
-      end
+    if admin?
+      @organizations_scope ||= Organization.present
+    else
+      @organizations_scope ||= organizations.present
     end
   end
 
@@ -70,7 +68,7 @@ class User < ApplicationRecord
   end
 
   def self.[](email)
-    where(:email_address => email).first
+    where(email_address: email).first
   end
 
 end

@@ -1,10 +1,10 @@
-require 'yaml'
-require 'pathname'
-require 'cgi'
-require 'openssl'
-require 'fileutils'
-require_relative 'error'
-require_relative 'version'
+require "yaml"
+require "pathname"
+require "cgi"
+require "openssl"
+require "fileutils"
+require_relative "error"
+require_relative "version"
 
 module Postal
 
@@ -21,50 +21,44 @@ module Postal
   end
 
   def self.app_root
-    @app_root ||= Pathname.new(File.expand_path('../../../', __FILE__))
+    @app_root ||= Pathname.new(File.expand_path("../..", __dir__))
   end
 
   def self.config
     @config ||= begin
-      require 'hashie/mash'
-      config = Hashie::Mash.new(self.defaults)
-      config = config.deep_merge(self.yaml_config)
-      config.deep_merge(self.local_yaml_config)
+      require "hashie/mash"
+      config = Hashie::Mash.new(defaults)
+      config = config.deep_merge(yaml_config)
+      config.deep_merge(local_yaml_config)
     end
   end
 
   def self.config_root
-    @config_root ||= begin
-      if ENV['POSTAL_CONFIG_ROOT']
-        Pathname.new(ENV['POSTAL_CONFIG_ROOT'])
-      else
-        Pathname.new(File.expand_path("../../../config/postal", __FILE__))
-      end
+    if ENV["POSTAL_CONFIG_ROOT"]
+      @config_root ||= Pathname.new(ENV["POSTAL_CONFIG_ROOT"])
+    else
+      @config_root ||= Pathname.new(File.expand_path("../../config/postal", __dir__))
     end
   end
 
   def self.log_root
-    @log_root ||= begin
-      if config.logging.root
-        Pathname.new(config.logging.root)
-      else
-        app_root.join('log')
-      end
+    if config.logging.root
+      @log_root ||= Pathname.new(config.logging.root)
+    else
+      @log_root ||= app_root.join("log")
     end
   end
 
   def self.config_file_path
-    @config_file_path ||= begin
-      if env == 'default'
-        File.join(config_root, 'postal.yml')
-      else
-        File.join(config_root, "postal.#{env}.yml")
-      end
+    if env == "default"
+      @config_file_path ||= File.join(config_root, "postal.yml")
+    else
+      @config_file_path ||= File.join(config_root, "postal.#{env}.yml")
     end
   end
 
   def self.env
-    @env ||= ENV.fetch('POSTAL_ENV', 'default')
+    @env ||= ENV.fetch("POSTAL_ENV", "default")
   end
 
   def self.yaml_config
@@ -72,7 +66,7 @@ module Postal
   end
 
   def self.local_config_file_path
-    @local_config_file_path ||= File.join(config_root, 'postal.local.yml')
+    @local_config_file_path ||= File.join(config_root, "postal.local.yml")
   end
 
   def self.local_yaml_config
@@ -80,11 +74,11 @@ module Postal
   end
 
   def self.defaults_file_path
-    @defaults_file_path ||= app_root.join('config', 'postal.defaults.yml')
+    @defaults_file_path ||= app_root.join("config", "postal.defaults.yml")
   end
 
   def self.defaults
-    @defaults ||= YAML.load_file(self.defaults_file_path)
+    @defaults ||= YAML.load_file(defaults_file_path)
   end
 
   def self.database_url
@@ -98,8 +92,8 @@ module Postal
   def self.logger_for(name)
     @loggers ||= {}
     @loggers[name.to_sym] ||= begin
-      require 'postal/app_logger'
-      if config.logging.stdout || ENV['LOG_TO_STDOUT']
+      require "postal/app_logger"
+      if config.logging.stdout || ENV["LOG_TO_STDOUT"]
         Postal::AppLogger.new(name, STDOUT)
       else
         FileUtils.mkdir_p(log_root)
@@ -111,9 +105,9 @@ module Postal
   def self.process_name
     @process_name ||= begin
       string = "host:#{Socket.gethostname} pid:#{Process.pid}"
-      string += " procname:#{ENV['PROC_NAME']}" if ENV['PROC_NAME']
+      string += " procname:#{ENV['PROC_NAME']}" if ENV["PROC_NAME"]
       string
-    rescue
+    rescue StandardError
       "pid:#{Process.pid}"
     end
   end
@@ -133,7 +127,7 @@ module Postal
   end
 
   def self.smtp_private_key_path
-    config.smtp_server.tls_private_key_path || config_root.join('smtp.key')
+    config.smtp_server.tls_private_key_path || config_root.join("smtp.key")
   end
 
   def self.smtp_private_key
@@ -141,7 +135,7 @@ module Postal
   end
 
   def self.smtp_certificate_path
-    config.smtp_server.tls_certificate_path || config_root.join('smtp.cert')
+    config.smtp_server.tls_certificate_path || config_root.join("smtp.cert")
   end
 
   def self.smtp_certificate_data
@@ -150,7 +144,7 @@ module Postal
 
   def self.smtp_certificates
     @smtp_certificates ||= begin
-      certs = self.smtp_certificate_data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
+      certs = smtp_certificate_data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
       certs.map do |c|
         OpenSSL::X509::Certificate.new(c)
       end.freeze
@@ -158,7 +152,7 @@ module Postal
   end
 
   def self.signing_key_path
-    config_root.join('signing.key')
+    config_root.join("signing.key")
   end
 
   def self.signing_key
@@ -166,7 +160,7 @@ module Postal
   end
 
   def self.rp_dkim_dns_record
-    public_key = signing_key.public_key.to_s.gsub(/\-+[A-Z ]+\-+\n/, '').gsub(/\n/, '')
+    public_key = signing_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
     "v=DKIM1; t=s; h=sha256; p=#{public_key};"
   end
 
@@ -174,19 +168,19 @@ module Postal
   end
 
   def self.check_config!
-    return if ENV['POSTAL_SKIP_CONFIG_CHECK'].to_i == 1
+    return if ENV["POSTAL_SKIP_CONFIG_CHECK"].to_i == 1
 
-    unless File.exist?(self.config_file_path)
-      raise ConfigError, "No config found at #{self.config_file_path}"
+    unless File.exist?(config_file_path)
+      raise ConfigError, "No config found at #{config_file_path}"
     end
 
-    unless File.exists?(self.signing_key_path)
-      raise ConfigError, "No signing key found at #{self.signing_key_path}"
-    end
+    return if File.exist?(signing_key_path)
+
+    raise ConfigError, "No signing key found at #{signing_key_path}"
   end
 
   def self.ip_pools?
-    self.config.general.use_ip_pools?
+    config.general.use_ip_pools?
   end
 
 end
