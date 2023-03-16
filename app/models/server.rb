@@ -134,7 +134,7 @@ class Server < ApplicationRecord
   end
 
   def held_messages
-    @held_messages ||= message_db.messages(where: { held: 1 }, count: true)
+    @held_messages ||= message_db.messages(where: { held: true }, count: true)
   end
 
   def throughput_stats

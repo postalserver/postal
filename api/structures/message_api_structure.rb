@@ -6,7 +6,7 @@ structure :message do
     {
       status: o.status,
       last_delivery_attempt: o.last_delivery_attempt ? o.last_delivery_attempt.to_f : nil,
-      held: o.held == 1,
+      held: o.held,
       hold_expiry: o.hold_expiry ? o.hold_expiry.to_f : nil
     }
   end
