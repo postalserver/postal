@@ -120,10 +120,10 @@ class UnqueueMessageJob < Postal::Job
               #
               # Inspect incoming messages
               #
-              if queued_message.message.inspected == 0
+              unless queued_message.message.inspected
                 log "#{log_prefix} Inspecting message"
                 queued_message.message.inspect_message
-                if queued_message.message.inspected == 1
+                if queued_message.message.inspected
                   is_spam = queued_message.message.spam_score > queued_message.server.spam_threshold
                   queued_message.message.update(spam: 1) if is_spam
                   queued_message.message.append_headers(
@@ -325,10 +325,10 @@ class UnqueueMessageJob < Postal::Job
               end
 
               # Inspect outgoing messages when there's a threshold set for the server
-              if queued_message.message.inspected == 0 && queued_message.server.outbound_spam_threshold
+              if !queued_message.message.inspected && queued_message.server.outbound_spam_threshold
                 log "#{log_prefix} Inspecting message"
                 queued_message.message.inspect_message
-                if queued_message.message.inspected == 1
+                if queued_message.message.inspected
                   if queued_message.message.spam_score >= queued_message.server.outbound_spam_threshold
                     queued_message.message.update(spam: 1)
                   end
