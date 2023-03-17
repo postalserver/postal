@@ -74,7 +74,7 @@ module Postal
           timestamp: message.timestamp.to_f,
           size: message.size,
           spam_status: message.spam_status,
-          bounce: message.bounce == 1,
+          bounce: message.bounce,
           received_with_ssl: message.received_with_ssl == 1,
           to: message.headers["to"]&.last,
           cc: message.headers["cc"]&.last,

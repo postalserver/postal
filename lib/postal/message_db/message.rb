@@ -445,7 +445,7 @@ module Postal
       # Should bounces be sent for this message?
       #
       def send_bounces?
-        bounce != 1 && mail_from.present?
+        !bounce && mail_from.present?
       end
 
       #
@@ -471,7 +471,7 @@ module Postal
       #  Return a message object that this message is a reply to
       #
       def original_messages
-        return nil unless bounce == 1
+        return nil unless bounce
 
         other_message_ids = raw_message.scan(/\X-Postal-MsgID:\s*([a-z0-9]+)/i).flatten
         if other_message_ids.empty?
