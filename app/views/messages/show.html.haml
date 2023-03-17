@@ -66,8 +66,8 @@
       - unless @message.received_with_ssl.nil?
         %dl.messagePropertiesPage__property
           %dt Transport Security
-          - if @message.received_with_ssl == 1
-            %dd.messagePropertiesPage__property--locked Received over a SSL connection
+          - if @message.received_with_ssl
+            %dd.messagePropertiesPage__property--locked Received over an SSL connection
           - else
             %dd Not received with SSL
 

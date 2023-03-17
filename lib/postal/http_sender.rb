@@ -75,7 +75,7 @@ module Postal
           size: message.size,
           spam_status: message.spam_status,
           bounce: message.bounce,
-          received_with_ssl: message.received_with_ssl == 1,
+          received_with_ssl: message.received_with_ssl,
           to: message.headers["to"]&.last,
           cc: message.headers["cc"]&.last,
           from: message.headers["from"]&.last,
