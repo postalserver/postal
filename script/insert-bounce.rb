@@ -30,6 +30,6 @@ message.scope = "incoming"
 message.rcpt_to = "#{server.token}@#{Postal.config.dns.return_path}"
 message.mail_from = "MAILER-DAEMON@smtp.infra.atech.io"
 message.raw_message = template
-message.bounce = 1
+message.bounce = true
 message.save
 puts "Added message with id #{message.id}"

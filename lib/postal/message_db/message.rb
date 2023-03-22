@@ -123,7 +123,7 @@ module Postal
       def create_delivery(status, options = {})
         delivery = Delivery.create(self, options.merge(status: status))
         hold_expiry = status == "Held" ? Postal.config.general.maximum_hold_expiry_days.days.from_now.to_f : nil
-        update(status: status, last_delivery_attempt: delivery.timestamp.to_f, held: status == "Held" ? 1 : 0, hold_expiry: hold_expiry)
+        update(status: status, last_delivery_attempt: delivery.timestamp.to_f, held: status == "Held", hold_expiry: hold_expiry)
         delivery
       end
 
@@ -371,9 +371,9 @@ module Postal
       # Return the spam status
       #
       def spam_status
-        return "NotChecked" unless inspected == 1
+        return "NotChecked" unless inspected
 
-        spam == 1 ? "Spam" : "NotSpam"
+        spam ? "Spam" : "NotSpam"
       end
 
       #
@@ -445,7 +445,7 @@ module Postal
       # Should bounces be sent for this message?
       #
       def send_bounces?
-        bounce != 1 && mail_from.present?
+        !bounce && mail_from.present?
       end
 
       #
@@ -471,7 +471,7 @@ module Postal
       #  Return a message object that this message is a reply to
       #
       def original_messages
-        return nil unless bounce == 1
+        return nil unless bounce
 
         other_message_ids = raw_message.scan(/\X-Postal-MsgID:\s*([a-z0-9]+)/i).flatten
         if other_message_ids.empty?
@@ -495,7 +495,7 @@ module Postal
         result = MessageInspection.scan(self, scope&.to_sym)
 
         # Update the messages table with the results of our inspection
-        update(inspected: 1, spam_score: result.spam_score, threat: result.threat?, threat_details: result.threat_message)
+        update(inspected: true, spam_score: result.spam_score, threat: result.threat, threat_details: result.threat_message)
 
         # Add any spam details into the spam checks database
         database.insert_multi(:spam_checks, [:message_id, :code, :score, :description], result.spam_checks.map { |d| [id, d.code, d.score, d.description] })

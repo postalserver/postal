@@ -99,7 +99,7 @@ controller :send do
         message.scope = "outgoing"
         message.domain_id = authenticated_domain.id
         message.credential_id = identity.id
-        message.bounce = params.bounce ? 1 : 0
+        message.bounce = params.bounce
         message.save
         result[:message_id] = message.message_id if result[:message_id].nil?
         result[:messages][rcpt_to] = { id: message.id, token: message.token }

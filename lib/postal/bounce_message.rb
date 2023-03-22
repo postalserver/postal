@@ -24,7 +24,7 @@ module Postal
       message.mail_from = @message.route.description
       message.domain_id = @message.domain&.id
       message.raw_message = raw_message
-      message.bounce = 1
+      message.bounce = true
       message.bounce_for_id = @message.id
       message.save
       message.id

@@ -87,7 +87,7 @@ class UnqueueMessageJob < Postal::Job
               #
               # If this is a bounce, we need to handle it as such
               #
-              if queued_message.message.bounce == 1
+              if queued_message.message.bounce
                 log "#{log_prefix} Message is a bounce"
                 original_messages = queued_message.message.original_messages
                 unless original_messages.empty?
@@ -120,17 +120,17 @@ class UnqueueMessageJob < Postal::Job
               #
               # Inspect incoming messages
               #
-              if queued_message.message.inspected == 0
+              unless queued_message.message.inspected
                 log "#{log_prefix} Inspecting message"
                 queued_message.message.inspect_message
-                if queued_message.message.inspected == 1
+                if queued_message.message.inspected
                   is_spam = queued_message.message.spam_score > queued_message.server.spam_threshold
-                  queued_message.message.update(spam: 1) if is_spam
+                  queued_message.message.update(spam: true) if is_spam
                   queued_message.message.append_headers(
-                    "X-Postal-Spam: #{queued_message.message.spam == 1 ? 'yes' : 'no'}",
+                    "X-Postal-Spam: #{queued_message.message.spam ? 'yes' : 'no'}",
                     "X-Postal-Spam-Threshold: #{queued_message.server.spam_threshold}",
                     "X-Postal-Spam-Score: #{queued_message.message.spam_score}",
-                    "X-Postal-Threat: #{queued_message.message.threat == 1 ? 'yes' : 'no'}"
+                    "X-Postal-Threat: #{queued_message.message.threat ? 'yes' : 'no'}"
                   )
                   log "#{log_prefix} Message inspected successfully. Headers added."
                 end
@@ -162,7 +162,7 @@ class UnqueueMessageJob < Postal::Job
               if route = queued_message.message.route
 
                 # If the route says we're holding quananteed mail and this is spam, we'll hold this
-                if route.spam_mode == "Quarantine" && queued_message.message.spam == 1 && !queued_message.manual?
+                if route.spam_mode == "Quarantine" && queued_message.message.spam && !queued_message.manual?
                   queued_message.message.create_delivery("Held", details: "Message placed into quarantine.")
                   queued_message.destroy
                   log "#{log_prefix} Route says to quarantine spam message. Holding."
@@ -170,7 +170,7 @@ class UnqueueMessageJob < Postal::Job
                 end
 
                 # If the route says we're holding quananteed mail and this is spam, we'll hold this
-                if route.spam_mode == "Fail" && queued_message.message.spam == 1 && !queued_message.manual?
+                if route.spam_mode == "Fail" && queued_message.message.spam && !queued_message.manual?
                   queued_message.message.create_delivery("HardFail", details: "Message is spam and the route specifies it should be failed.")
                   queued_message.destroy
                   log "#{log_prefix} Route says to fail spam message. Hard failing."
@@ -325,18 +325,18 @@ class UnqueueMessageJob < Postal::Job
               end
 
               # Inspect outgoing messages when there's a threshold set for the server
-              if queued_message.message.inspected == 0 && queued_message.server.outbound_spam_threshold
+              if !queued_message.message.inspected && queued_message.server.outbound_spam_threshold
                 log "#{log_prefix} Inspecting message"
                 queued_message.message.inspect_message
-                if queued_message.message.inspected == 1
+                if queued_message.message.inspected
                   if queued_message.message.spam_score >= queued_message.server.outbound_spam_threshold
-                    queued_message.message.update(spam: 1)
+                    queued_message.message.update(spam: true)
                   end
                   log "#{log_prefix} Message inspected successfully"
                 end
               end
 
-              if queued_message.message.spam == 1
+              if queued_message.message.spam
                 queued_message.message.create_delivery("HardFail", details: "Message is likely spam. Threshold is #{queued_message.server.outbound_spam_threshold} and the message scored #{queued_message.message.spam_score}.")
                 queued_message.destroy
                 log "#{log_prefix} Message is spam (#{queued_message.message.spam_score}). Hard failing."

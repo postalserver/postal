@@ -191,7 +191,7 @@ class OutgoingMessagePrototype
     message.tag = tag
     message.credential_id = credential&.id
     message.received_with_ssl = true
-    message.bounce = @bounce ? 1 : 0
+    message.bounce = @bounce
     message.save
     { id: message.id, token: message.token }
   end

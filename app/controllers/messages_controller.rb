@@ -153,7 +153,7 @@ class MessagesController < ApplicationController
 
   def get_messages(scope)
     if scope == "held"
-      options = { where: { held: 1 } }
+      options = { where: { held: true } }
     else
       options = { where: { scope: scope, spam: false }, order: :timestamp, direction: "desc" }
 

@@ -133,7 +133,7 @@ module Postal
       end
 
       begin
-        if message.bounce == 1
+        if message.bounce
           mail_from = ""
         elsif message.domain.return_path_status == "OK"
           mail_from = "#{message.server.token}@#{message.domain.return_path_domain}"

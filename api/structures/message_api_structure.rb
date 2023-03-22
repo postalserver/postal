@@ -6,7 +6,7 @@ structure :message do
     {
       status: o.status,
       last_delivery_attempt: o.last_delivery_attempt ? o.last_delivery_attempt.to_f : nil,
-      held: o.held == 1,
+      held: o.held,
       hold_expiry: o.hold_expiry ? o.hold_expiry.to_f : nil
     }
   end
@@ -29,10 +29,10 @@ structure :message do
 
   expansion(:inspection) do
     {
-      inspected: o.inspected == 1,
-      spam: o.spam == 1,
+      inspected: o.inspected,
+      spam: o.spam,
       spam_score: o.spam_score.to_f,
-      threat: o.threat == 1,
+      threat: o.threat,
       threat_details: o.threat_details
     }
   end
