@@ -7,14 +7,14 @@ jobs:
   #   name: Lint
   #   runs-on: self-hosted
   #   steps:
-  #     - uses: actions/checkout@v2
+  #     - uses: actions/checkout@v3
   #     - run: make ci-lint
 
   test:
     name: Test
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Run tests
         run: make ci-test
 
@@ -23,7 +23,7 @@ jobs:
     needs: [test]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Parse git ref
@@ -45,7 +45,7 @@ jobs:
     needs: [test]
     if: contains(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Parse git ref
