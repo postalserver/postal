@@ -4,11 +4,6 @@
   flex: 0 0 auto;
   color:#fff;
   z-index:1000;
-  border-right:12px solid #efefef;
-
-  .browser-firefox & {
-    border-right: 15px solid #fafafa;
-  }
 }
 
 .siteHeader__inside {
