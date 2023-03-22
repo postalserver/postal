@@ -28,7 +28,8 @@ gem "puma"
 gem "rails", "= 6.1.7.3"
 gem "resolv", "~> 0.2.1"
 gem "secure_headers"
-gem "sentry-raven"
+gem 'sentry-rails'
+gem 'sentry-ruby'
 gem "turbolinks", "~> 5"
 
 group :development, :assets do

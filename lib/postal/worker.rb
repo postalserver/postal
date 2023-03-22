@@ -69,8 +69,8 @@ module Postal
           e.backtrace.each do |line|
             logger.warn "[#{message['id']}]    " + line
           end
-          if defined?(Raven)
-            Raven.capture_exception(e, extra: { job_id: message["id"] })
+          if defined?(Sentry)
+            Sentry.capture_exception(e, extra: { job_id: message["id"] })
           end
         ensure
           logger.info "[#{message['id']}] Finished processing \e[34m#{message['class_name']}\e[0m job in #{Time.now - start_time}s"
