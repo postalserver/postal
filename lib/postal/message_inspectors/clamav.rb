@@ -16,13 +16,13 @@ module Postal
           data = tcp_socket.read
         end
 
-        if data && data =~ /\Astream\:\s+(.*?)[\s\0]+?/
-          if $1.upcase == 'OK'
+        if data && data =~ /\Astream:\s+(.*?)[\s\0]+?/
+          if ::Regexp.last_match(1).upcase == "OK"
             inspection.threat = false
             inspection.threat_message = "No threats found"
           else
             inspection.threat = true
-            inspection.threat_message = $1
+            inspection.threat_message = ::Regexp.last_match(1)
           end
         else
           inspection.threat = false
@@ -31,13 +31,17 @@ module Postal
       rescue Timeout::Error
         inspection.threat = false
         inspection.threat_message = "Timed out scanning for threats"
-      rescue => e
+      rescue StandardError => e
         logger.error "Error talking to clamav: #{e.class} (#{e.message})"
-        logger.error e.backtrace[0,5]
+        logger.error e.backtrace[0, 5]
         inspection.threat = false
         inspection.threat_message = "Error when scanning for threats"
       ensure
-        tcp_socket.close rescue nil
+        begin
+          tcp_socket.close
+        rescue StandardError
+          nil
+        end
       end
 
     end

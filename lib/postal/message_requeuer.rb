@@ -22,10 +22,10 @@ module Postal
     end
 
     def check_exit
-      if @exit
-        log "Exiting"
-        Process.exit(0)
-      end
+      return unless @exit
+
+      log "Exiting"
+      Process.exit(0)
     end
 
   end

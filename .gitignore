@@ -30,3 +30,4 @@ vendor/bundle
 Procfile.local
 VERSION
 
+.rubocop-https*

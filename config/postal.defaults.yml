@@ -18,6 +18,7 @@ general:
   default_spam_threshold: 5.0
   default_spam_failure_threshold: 20.0
   use_suppression_list: true
+  use_resent_sender_header: true
 
 web_server:
   bind_address: 127.0.0.1
@@ -51,6 +52,10 @@ message_db:
 rabbitmq:
   host: 127.0.0.1
   port: 5672
+  tls: false
+  verify_peer: true
+  tls_ca_certificates:
+    - /etc/ssl/certs/ca-certificates.crt
   username: postal
   password:
   vhost: /postal

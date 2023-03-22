@@ -66,23 +66,23 @@ case "$1" in
         echo
         echo "Server components:"
         echo
-        echo -e " * \e[35mweb-server\e[0m - run the web server"
-        echo -e " * \e[35msmtp-server\e[0m - run the SMTP server"
-        echo -e " * \e[35mworker\e[0m - run a worker"
-        echo -e " * \e[35mcron\e[0m - run the cron process"
-        echo -e " * \e[35mrequeuer\e[0m - run the message requeuer"
+        echo -e " * \033[35mweb-server\033[0m - run the web server"
+        echo -e " * \033[35msmtp-server\033[0m - run the SMTP server"
+        echo -e " * \033[35mworker\033[0m - run a worker"
+        echo -e " * \033[35mcron\033[0m - run the cron process"
+        echo -e " * \033[35mrequeuer\033[0m - run the message requeuer"
         echo
         echo "Setup/upgrade tools:"
         echo
-        echo -e " * \e[32minitialize\e[0m - create and load the DB schema"
-        echo -e " * \e[32mupgrade\e[0m - upgrade the DB schema"
+        echo -e " * \033[32minitialize\033[0m - create and load the DB schema"
+        echo -e " * \033[32mupgrade\033[0m - upgrade the DB schema"
         echo
         echo "Other tools:"
         echo
-        echo -e " * \e[34mversion\e[0m - show the current Postal version"
-        echo -e " * \e[34mmake-user\e[0m - create a new global admin user"
-        echo -e " * \e[34mdefault-dkim-record\e[0m - display the default DKIM record"
-        echo -e " * \e[34mconsole\e[0m - open an interactive console"
-        echo -e " * \e[34mtest-app-smtp\e[0m - send a test message through Postal"
+        echo -e " * \033[34mversion\033[0m - show the current Postal version"
+        echo -e " * \033[34mmake-user\033[0m - create a new global admin user"
+        echo -e " * \033[34mdefault-dkim-record\033[0m - display the default DKIM record"
+        echo -e " * \033[34mconsole\033[0m - open an interactive console"
+        echo -e " * \033[34mtest-app-smtp\033[0m - send a test message through Postal"
         echo
 esac

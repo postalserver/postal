@@ -11,11 +11,17 @@ module Postal
     def work
       logger.info "Worker running with #{Postal.config.workers.threads} threads"
 
-      Signal.trap("INT")  { @exit = true; set_process_name }
-      Signal.trap("TERM") { @exit = true; set_process_name }
+      Signal.trap("INT")  do
+        @exit = true
+        set_process_name
+      end
+      Signal.trap("TERM") do
+        @exit = true
+        set_process_name
+      end
 
       self.class.job_channel.prefetch(Postal.config.workers.threads)
-      @initial_queues.each { |queue | join_queue(queue) }
+      @initial_queues.each { |queue| join_queue(queue) }
 
       exit_checks = 0
       loop do
@@ -42,41 +48,43 @@ module Postal
     private
 
     def receive_job(delivery_info, properties, body)
-      begin
-        message = JSON.parse(body) rescue nil
-        if message && message['class_name']
-          @running_jobs << message['id']
-          set_process_name
-          start_time = Time.now
-          Thread.current[:job_id] = message['id']
-          logger.info "[#{message['id']}] Started processing \e[34m#{message['class_name']}\e[0m job"
-          begin
-            klass = message['class_name'].constantize.new(message['id'], message['params'])
-            klass.perform
-            GC.start
-          rescue => e
-            klass.on_error(e) if defined?(klass)
-            logger.warn "[#{message['id']}] \e[31m#{e.class}: #{e.message}\e[0m"
-            e.backtrace.each do |line|
-              logger.warn "[#{message['id']}]    " + line
-            end
-            if defined?(Raven)
-              Raven.capture_exception(e, :extra => {:job_id => message['id']})
-            end
-          ensure
-            logger.info "[#{message['id']}] Finished processing \e[34m#{message['class_name']}\e[0m job in #{Time.now - start_time}s"
-          end
-        end
-      ensure
-        Thread.current[:job_id] = nil
-        self.class.job_channel.ack(delivery_info.delivery_tag)
-        @running_jobs.delete(message['id']) if message['id']
+      message = begin
+        JSON.parse(body)
+      rescue StandardError
+        nil
+      end
+      if message && message["class_name"]
+        @running_jobs << message["id"]
         set_process_name
-
-        if @exit && @running_jobs.empty?
-          logger.info "Exiting because all jobs have finished."
-          exit 0
+        start_time = Time.now
+        Thread.current[:job_id] = message["id"]
+        logger.info "[#{message['id']}] Started processing \e[34m#{message['class_name']}\e[0m job"
+        begin
+          klass = message["class_name"].constantize.new(message["id"], message["params"])
+          klass.perform
+          GC.start
+        rescue StandardError => e
+          klass.on_error(e) if defined?(klass)
+          logger.warn "[#{message['id']}] \e[31m#{e.class}: #{e.message}\e[0m"
+          e.backtrace.each do |line|
+            logger.warn "[#{message['id']}]    " + line
+          end
+          if defined?(Raven)
+            Raven.capture_exception(e, extra: { job_id: message["id"] })
+          end
+        ensure
+          logger.info "[#{message['id']}] Finished processing \e[34m#{message['class_name']}\e[0m job in #{Time.now - start_time}s"
         end
+      end
+    ensure
+      Thread.current[:job_id] = nil
+      self.class.job_channel.ack(delivery_info.delivery_tag)
+      @running_jobs.delete(message["id"]) if message["id"]
+      set_process_name
+
+      if @exit && @running_jobs.empty?
+        logger.info "Exiting because all jobs have finished."
+        exit 0
       end
     end
 
@@ -84,7 +92,7 @@ module Postal
       if @active_queues[queue]
         logger.info "Attempted to join queue #{queue} but already joined."
       else
-        consumer = self.class.job_queue(queue).subscribe(:manual_ack => true) do |delivery_info, properties, body|
+        consumer = self.class.job_queue(queue).subscribe(manual_ack: true) do |delivery_info, properties, body|
           receive_job(delivery_info, properties, body)
         end
         @active_queues[queue] = consumer
@@ -129,24 +137,22 @@ module Postal
           need = id
         elsif @unassigned_ips.include?(ip)
           # We know this IP isn't valid. We don't need to do anything
-        else
+        elsif !self.class.local_ip?(ip) && ip_address = IPAddress.where("ipv4 = ? OR ipv6 = ?", ip, ip).first
           # We need to look this up
-          if !self.class.local_ip?(ip) && ip_address = IPAddress.where("ipv4 = ? OR ipv6 = ?", ip, ip).first
-            @pairs[ip_address.ipv4] = ip_address.ipv6
-            @ip_to_id_mapping[ip] = ip_address.id
-            need = ip_address.id
-          else
-            @unassigned_ips << ip
-          end
+          @pairs[ip_address.ipv4] = ip_address.ipv6
+          @ip_to_id_mapping[ip] = ip_address.id
+          need = ip_address.id
+        else
+          @unassigned_ips << ip
         end
 
-        if need
-          pair = @pairs[ip] || @pairs.key(ip)
-          if pair.nil? || current_ip_addresses.include?(pair)
-            needed_ip_ids << @ip_to_id_mapping[ip]
-          else
-            logger.info "Host has '#{ip}' but its pair (#{pair}) isn't here. Cannot add now."
-          end
+        next unless need
+
+        pair = @pairs[ip] || @pairs.key(ip)
+        if pair.nil? || current_ip_addresses.include?(pair)
+          needed_ip_ids << @ip_to_id_mapping[ip]
+        else
+          logger.info "Host has '#{ip}' but its pair (#{pair}) isn't here. Cannot add now."
         end
       end
 
@@ -197,9 +203,7 @@ module Postal
 
     def self.job_queue(name)
       @job_queues ||= {}
-      @job_queues[name] ||= begin
-        job_channel.queue("deliver-jobs-#{name}", :durable => true, :arguments => {'x-message-ttl' => 60000})
-      end
+      @job_queues[name] ||= job_channel.queue("deliver-jobs-#{name}", durable: true, arguments: { "x-message-ttl" => 60_000 })
     end
 
     def self.local_ip?(ip)

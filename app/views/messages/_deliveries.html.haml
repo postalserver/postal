@@ -35,7 +35,7 @@
           .deliveryList__time
             = delivery.timestamp.to_s(:long)
           .deliveryList__status
-            - if delivery.sent_with_ssl == 1
+            - if delivery.sent_with_ssl
               = image_tag 'icons/lock.svg', :class => 'deliveryList__secure'
             %span.label.label--large{:class => "label--messageStatus-#{delivery.status.underscore}"}= delivery.status.underscore.humanize
         - if delivery.details

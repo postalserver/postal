@@ -9,12 +9,10 @@ module Postal
       to_hash[value.to_s]
     end
 
-    def empty?
-      to_hash.empty?
-    end
+    delegate :empty?, to: :to_hash
 
     def to_hash
-      @hash ||= @string.scan(/([a-z]+)\:\s*(?:(\d{2,4}\-\d{2}-\d{2}\s\d{2}\:\d{2})|\"(.*?)\"|(.*?))(\s|\z)/).each_with_object({}) do |(key, date, string_with_spaces, value), hash|
+      @hash ||= @string.scan(/([a-z]+):\s*(?:(\d{2,4}-\d{2}-\d{2}\s\d{2}:\d{2})|"(.*?)"|(.*?))(\s|\z)/).each_with_object({}) do |(key, date, string_with_spaces, value), hash|
         if date
           actual_value = date
         elsif string_with_spaces

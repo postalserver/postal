@@ -1,14 +1,10 @@
-FROM ruby:2.6 AS base
+FROM ruby:2.7.7-bullseye AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-  software-properties-common \
-  && apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8 \
-  && add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://mirrors.coreix.net/mariadb/repo/10.1/ubuntu xenial main' \
-  && (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) \
-  && (echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list) \
-  && (curl -sL https://deb.nodesource.com/setup_12.x | bash -) \
+  software-properties-common dirmngr apt-transport-https \
+  && (curl -sL https://deb.nodesource.com/setup_14.x | bash -) \
   && rm -rf /var/lib/apt/lists/*
 
 # Install main dependencies
@@ -17,7 +13,8 @@ RUN apt-get update && \
   build-essential  \
   netcat \
   curl \
-  libmariadbclient-dev \
+  libmariadb-dev \
+  libcap2-bin \
   nano \
   nodejs
 
@@ -34,12 +31,12 @@ RUN mkdir -p /opt/postal/app /opt/postal/config
 WORKDIR /opt/postal/app
 
 # Install bundler
-RUN gem install bundler -v 2.1.4 --no-doc
+RUN gem install bundler -v 2.4.7 --no-doc
 
 # Install the latest and active gem dependencies and re-run
 # the appropriate commands to handle installs.
 COPY Gemfile Gemfile.lock ./
-RUN bundle install -j 4
+RUN bundle config set force_ruby_platform true && bundle install -j 4
 
 # Copy the application (and set permissions)
 COPY ./docker/wait-for.sh /docker-entrypoint.sh

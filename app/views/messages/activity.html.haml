@@ -41,5 +41,5 @@
         %p.messageActivity__extra
           - if @message.credential
             Received using the #{@message.credential.name} #{@message.credential.type} credential.
-          - if @message.received_with_ssl == 1
+          - if @message.received_with_ssl
             Connection secured with SSL.
