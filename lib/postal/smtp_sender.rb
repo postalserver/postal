@@ -46,15 +46,15 @@ module Postal
               next
             end
 
-            smtp_client = Net::SMTP.new(hostname, port)
+            smtp_client = Net::SMTP.new(@remote_ip, port)
             smtp_client.open_timeout = Postal.config.smtp_client.open_timeout
             smtp_client.read_timeout = Postal.config.smtp_client.read_timeout
+            smtp_client.tls_hostname = hostname
 
             if @source_ip_address
               # Set the source IP as appropriate
               smtp_client.source_address = ip_type == :aaaa ? @source_ip_address.ipv6 : @source_ip_address.ipv4
             end
-
             case ssl_mode
             when "Auto"
               smtp_client.enable_starttls_auto(self.class.ssl_context_without_verify)
