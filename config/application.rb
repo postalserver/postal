@@ -15,6 +15,8 @@ Bundler.require(*Rails.groups)
 module Postal
   class Application < Rails::Application
 
+    config.load_defaults 6.0
+
     # Disable most generators
     config.generators do |g|
       g.orm             :active_record
@@ -35,6 +37,8 @@ module Postal
     config.middleware.use Postal::TrackingMiddleware
 
     config.logger = Postal.logger_for(:rails)
+
+    config.hosts << Postal.config.web.host
 
   end
 end

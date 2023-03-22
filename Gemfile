@@ -15,6 +15,7 @@ gem "gelf"
 gem "haml"
 gem "hashie"
 gem "highline", require: false
+gem "execjs", '~> 2.7', "< 2.8"
 gem "jwt"
 gem "kaminari"
 gem "mail", git: "https://github.com/mikel/mail.git", branch: "2-7-stable"
@@ -24,16 +25,16 @@ gem "nifty-utils"
 gem "nilify_blanks"
 gem "nio4r"
 gem "puma"
-gem "rails", "= 5.2.8.1"
+gem "rails", "= 6.0.6.1"
 gem "resolv", "~> 0.2.1"
 gem "secure_headers"
 gem "sentry-raven"
 gem "turbolinks", "~> 5"
 
 group :development, :assets do
-  gem "coffee-rails", "~> 4.2"
+  gem "coffee-rails", "~> 5.0"
   gem "jquery-rails"
-  gem "sass-rails", "~> 5.0"
+  gem "sass-rails"
   gem "uglifier", ">= 1.3.0"
 end
 
