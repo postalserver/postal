@@ -22,6 +22,12 @@ module Postal
         request_options[:params] = parameters(message, flat: true)
       end
 
+      if @endpoint.shared_secret
+        digest = OpenSSL::Digest.new('sha256')
+        hmac = OpenSSL::HMAC.hexdigest(digest, @endpoint.shared_secret, request_options[:json])
+        headers["X-Postal-Signature"] = hmac
+      end
+
       log "Sending request to #{@endpoint.url}"
       response = Postal::HTTP.post(@endpoint.url, request_options)
       result.secure = !!response[:secure]

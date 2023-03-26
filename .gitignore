@@ -31,3 +31,4 @@ Procfile.local
 VERSION
 
 .rubocop-https*
+.DS_Store
