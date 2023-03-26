@@ -7,6 +7,7 @@
 #  uuid                :string(255)
 #  name                :string(255)
 #  url                 :string(255)
+#  shared_secret       :string(255)
 #  encoding            :string(255)
 #  format              :string(255)
 #  strip_replies       :boolean          default(FALSE)
