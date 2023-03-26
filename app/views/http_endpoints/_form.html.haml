@@ -11,6 +11,7 @@
         %p.fieldSet__text
           Enter the full URL that we should POST your messages to. We recommend using https URLs here to
           ensure your data remains secure in transit.
+    .fieldSet__field
       = f.label :shared_secret => 'fieldSet__label'
       .fieldSet__input
         = f.text_field :shared_secret, :class => 'input input--text'
