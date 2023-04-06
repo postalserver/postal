@@ -197,8 +197,8 @@ module Postal
         safe_rset
       rescue StandardError => e
         log "#{e.class}: #{e.message}"
-        if defined?(Raven)
-          Raven.capture_exception(e, extra: { log_id: @log_id, server_id: message.server.id, message_id: message.id })
+        if defined?(Sentry)
+          Sentry.capture_exception(e, extra: { log_id: @log_id, server_id: message.server.id, message_id: message.id })
         end
         result.type = "SoftFail"
         result.retry = true

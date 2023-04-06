@@ -72,9 +72,9 @@ class Server < ApplicationRecord
   default_value :spam_threshold, -> { Postal.config.general.default_spam_threshold }
   default_value :spam_failure_threshold, -> { Postal.config.general.default_spam_failure_threshold }
 
-  validates :name, presence: true, uniqueness: { scope: :organization_id }
+  validates :name, presence: true, uniqueness: { scope: :organization_id, case_sensitive: false }
   validates :mode, inclusion: { in: MODES }
-  validates :permalink, presence: true, uniqueness: { scope: :organization_id }, format: { with: /\A[a-z0-9-]*\z/ }, exclusion: { in: RESERVED_PERMALINKS }
+  validates :permalink, presence: true, uniqueness: { scope: :organization_id, case_sensitive: false }, format: { with: /\A[a-z0-9-]*\z/ }, exclusion: { in: RESERVED_PERMALINKS }
   validate :validate_ip_pool_belongs_to_organization
 
   before_validation(on: :create) do

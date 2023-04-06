@@ -424,8 +424,8 @@ class UnqueueMessageJob < Postal::Job
             e.backtrace.each { |e| log("#{log_prefix} #{e}") }
             queued_message.retry_later
             log "#{log_prefix} Queued message was unlocked"
-            if defined?(Raven)
-              Raven.capture_exception(e, extra: { job_id: self.id, server_id: queued_message.server_id, message_id: queued_message.message_id })
+            if defined?(Sentry)
+              Sentry.capture_exception(e, extra: { job_id: self.id, server_id: queued_message.server_id, message_id: queued_message.message_id })
             end
             if queued_message.message
               queued_message.message.create_delivery("Error", details: "An internal error occurred while sending this message. This message will be retried automatically. If this persists, contact support for assistance.", output: "#{e.class}: #{e.message}", log_id: "J-#{self.id}")

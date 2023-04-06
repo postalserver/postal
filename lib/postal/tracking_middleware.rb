@@ -44,7 +44,7 @@ module Postal
       rescue StandardError => e
         # Somethign else went wrong. We don't want to stop the image loading though because
         # this is our problem. Log this exception though.
-        Raven.capture_exception(e) if defined?(Raven)
+        Sentry.capture_exception(e) if defined?(Sentry)
       end
 
       source_image = request.params["src"]

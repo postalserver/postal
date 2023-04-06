@@ -1,22 +1,28 @@
-class User
+module HasAuthentication
 
-  has_secure_password
+  extend ActiveSupport::Concern
 
-  validates :password, length: { minimum: 8, allow_blank: true }
+  included do
+    has_secure_password
 
-  when_attribute :password_digest, changes_to: :anything do
-    before_save do
-      self.password_reset_token = nil
-      self.password_reset_token_valid_until = nil
+    validates :password, length: { minimum: 8, allow_blank: true }
+
+    when_attribute :password_digest, changes_to: :anything do
+      before_save do
+        self.password_reset_token = nil
+        self.password_reset_token_valid_until = nil
+      end
     end
   end
 
-  def self.authenticate(email_address, password)
-    user = where(email_address: email_address).first
-    raise Postal::Errors::AuthenticationError, "InvalidEmailAddress" if user.nil?
-    raise Postal::Errors::AuthenticationError, "InvalidPassword" unless user.authenticate(password)
+  class_methods do
+    def authenticate(email_address, password)
+      user = where(email_address: email_address).first
+      raise Postal::Errors::AuthenticationError, "InvalidEmailAddress" if user.nil?
+      raise Postal::Errors::AuthenticationError, "InvalidPassword" unless user.authenticate(password)
 
-    user
+      user
+    end
   end
 
   def authenticate_with_previous_password_first(unencrypted_password)

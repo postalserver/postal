@@ -50,8 +50,8 @@ module Postal
     rescue StandardError => e
       raise if Rails.env.development?
 
-      if defined?(Raven)
-        Raven.capture_exception(e)
+      if defined?(Sentry)
+        Sentry.capture_exception(e)
       end
       @actioned = false
       @tracked_links = 0

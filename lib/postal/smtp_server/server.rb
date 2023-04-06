@@ -113,8 +113,8 @@ module Postal
                 monitor.value = client
               rescue StandardError => e
                 # If something goes wrong, log as appropriate and disconnect the client
-                if defined?(Raven)
-                  Raven.capture_exception(e, extra: { log_id: begin
+                if defined?(Sentry)
+                  Sentry.capture_exception(e, extra: { log_id: begin
                     client.id
                   rescue StandardError
                     nil
@@ -227,8 +227,8 @@ module Postal
               rescue StandardError => e
                 # Something went wrong, log as appropriate
                 client_id = client ? client.id : "------"
-                if defined?(Raven)
-                  Raven.capture_exception(e, extra: { log_id: begin
+                if defined?(Sentry)
+                  Sentry.capture_exception(e, extra: { log_id: begin
                     client.id
                   rescue StandardError
                     nil

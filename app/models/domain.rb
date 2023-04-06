@@ -40,8 +40,7 @@ class Domain < ApplicationRecord
 
   include HasUUID
 
-  require_dependency "domain/dns_checks"
-  require_dependency "domain/dns_verification"
+  include HasDNSChecks
 
   VERIFICATION_EMAIL_ALIASES = ["webmaster", "postmaster", "admin", "administrator", "hostmaster"]
 
@@ -52,7 +51,7 @@ class Domain < ApplicationRecord
 
   VERIFICATION_METHODS = ["DNS", "Email"]
 
-  validates :name, presence: true, format: { with: /\A[a-z0-9\-.]*\z/ }, uniqueness: { scope: [:owner_type, :owner_id], message: "is already added" }
+  validates :name, presence: true, format: { with: /\A[a-z0-9\-.]*\z/ }, uniqueness: { case_sensitive: false, scope: [:owner_type, :owner_id], message: "is already added" }
   validates :verification_method, inclusion: { in: VERIFICATION_METHODS }
 
   random_string :dkim_identifier_string, type: :chars, length: 6, unique: true, upper_letters_only: true
@@ -136,6 +135,22 @@ class Domain < ApplicationRecord
 
   def resolver
     @resolver ||= Postal.config.general.use_local_ns_for_domains? ? Resolv::DNS.new : Resolv::DNS.new(nameserver: nameservers)
+  end
+
+  def dns_verification_string
+    "#{Postal.config.dns.domain_verify_prefix} #{verification_token}"
+  end
+
+  def verify_with_dns
+    return false unless verification_method == "DNS"
+
+    result = resolver.getresources(name, Resolv::DNS::Resource::IN::TXT)
+    if result.map { |d| d.data.to_s.strip }.include?(dns_verification_string)
+      self.verified_at = Time.now
+      save
+    else
+      false
+    end
   end
 
   private
