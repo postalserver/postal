@@ -2,6 +2,12 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## 2.1.4
+
+### Bug Fixes
+
+- Move RubyVer functionality to Utilities module ([5998bf](https://github.com/postalserver/postal/commit/5998bf376a274df19f29877e7f68ea75f298c9f9))
+
 ## 2.1.3
 
 ### Features
