@@ -56,8 +56,8 @@ CMD ["postal"]
 # ci target - use --target=ci to skip asset compilation
 FROM base AS ci
 
-# prod target - default if no --target option is given
-FROM base AS prod
+# full target - default if no --target option is given
+FROM base AS full
 
 RUN POSTAL_SKIP_CONFIG_CHECK=1 RAILS_GROUPS=assets bundle exec rake assets:precompile
 RUN touch /opt/postal/app/public/assets/.prebuilt
