@@ -6,12 +6,12 @@ module Mail
     # Handle windows-1258 as windows-1252 when decoding
     def self.q_value_decode(str)
       str = str.sub(/=\?windows-?1258\?/i, '\=?windows-1252?')
-      RubyVer.q_value_decode(str)
+      Utilities.q_value_decode(str)
     end
 
     def self.b_value_decode(str)
       str = str.sub(/=\?windows-?1258\?/i, '\=?windows-1252?')
-      RubyVer.b_value_decode(str)
+      Utilities.b_value_decode(str)
     end
 
   end
