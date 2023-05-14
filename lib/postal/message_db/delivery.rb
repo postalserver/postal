@@ -48,7 +48,7 @@ module Postal
           message: @message.webhook_hash,
           status: status,
           details: details,
-          output: output.to_s.force_encoding("UTF-8").scrub.truncate(512),
+          output: output.to_s.dup.force_encoding("UTF-8").scrub.truncate(512),
           sent_with_ssl: sent_with_ssl,
           timestamp: @attributes["timestamp"],
           time: time
