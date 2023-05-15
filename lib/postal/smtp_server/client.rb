@@ -355,7 +355,7 @@ module Postal
         else
           # User is trying to relay but is not authenticated. Try to authenticate by IP address
           @credential = Credential.where(type: "SMTP-IP").all.sort_by { |c| c.ipaddr&.prefix || 0 }.reverse.find do |credential|
-            credential.ipaddr.include?(@ip_address)
+            credential.ipaddr.include?(@ip_address) || (credential.ipaddr.ipv4? && credential.ipaddr.ipv4_mapped.include?(@ip_address))
           end
 
           if @credential
