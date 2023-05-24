@@ -32,6 +32,9 @@ module Postal
     # Disable field_with_errors
     config.action_view.field_error_proc = proc { |t, i| t }
 
+    # Allow more types to be serialized
+    config.active_record.yaml_column_permitted_classes = [Symbol, Hash, Array, ActiveSupport::HashWithIndifferentAccess]
+
     # Load the tracking server middleware
     require "postal/tracking_middleware"
     config.middleware.use Postal::TrackingMiddleware
