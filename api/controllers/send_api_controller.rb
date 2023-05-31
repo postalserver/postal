@@ -66,7 +66,7 @@ controller :send do
   end
 
   action :raw do
-    title "Send a raw RFC2882 message"
+    title "Send a raw RFC2822 message"
     description "This action allows you to send us a raw RFC2822 formatted message along with the recipients that it should be sent to. This is similar to sending a message through our SMTP service."
     param :mail_from, "The address that should be logged as sending the message", type: String, required: true
     param :rcpt_to, "The addresses this message should be sent to", type: Array, required: true
