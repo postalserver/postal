@@ -8,6 +8,8 @@ services:
     entrypoint: ["/docker-entrypoint.sh"]
     volumes:
       - "./docker/ci-config:/config"
+    ports:
+      - 3000:3000
     environment:
       POSTAL_CONFIG_ROOT: /config
       KATAPULT_CONFIG_FILE: /ci-config.yml
@@ -23,7 +25,11 @@ services:
       MARIADB_DATABASE: postal
       MARIADB_ALLOW_EMPTY_PASSWORD: 'yes'
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+    ports:
+      - 3306:3306
 
   rabbitmq:
     image: rabbitmq:3
     restart: always
+    ports:
+      - 25672:25672
