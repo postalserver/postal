@@ -89,7 +89,15 @@ module Postal
         SendWebhookJob.queue(:main, server_id: message_db.server_id, event: "MessageLinkClicked", payload: { _message: link["message_id"], url: link["url"], token: link["token"], ip_address: request.ip, user_agent: request.user_agent })
       end
 
-      [307, { "Location" => link["url"] }, ["Redirected to: #{link['url']}"]]
+      link_url = link["url"]
+
+      if link_url.nil?
+        return [500, {}, ["Link URL is missing"]]
+      end
+
+      redirect_url = CGI.unescapeHTML(link_url)
+
+      [307, { "Location" => redirect_url }, ["Redirected to: #{redirect_url}"]]
     end
 
     def get_message_db_from_server_token(token)
