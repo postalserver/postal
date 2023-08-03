@@ -7,6 +7,8 @@
 web:
   host: postal.example.com
   protocol: https
+  tracking_domains:
+    - click-postal.example.com
 
 general:
   use_ip_pools: false

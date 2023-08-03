@@ -39,6 +39,10 @@ module Postal
     config.logger = Postal.logger_for(:rails)
 
     config.hosts << Postal.config.web.host
+    
+    Postal.config.web.tracking_domains&.each do | tracking_domain |
+        config.hosts << tracking_domain
+    end
 
   end
 end
