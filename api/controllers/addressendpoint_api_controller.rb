@@ -2,20 +2,20 @@ controller :addressendpoints do
     friendly_name "AddressEndpoint API"
     description "This API allows you to create and view address endpoints on server"
     authenticator :server
-
+  
     action :create do
       title "Create address endpoint"
       description "This action allows you to create address endpoints"
-
+  
       param :address, "Endpoint address", :required => true, :type => String
-
+  
       error 'ValidationError', "The provided data was not sufficient to create address endpoint", :attributes => {:errors => "A hash of error details"}
       error 'AddressEndPointNameMissing', "AddressEndPoint name is missing"
       error 'InvalidAddressEndPointName', "AddressEndPoint name is invalid"
       error 'AddressEndPointNameExists', "AddressEndPoint name already exists"
-
+  
       returns Hash, :structure => :addressendpoint
-
+  
       action do
         addressendpoint = identity.server.address_endpoints.find_by_address(params.address)
         if addressendpoint.nil?
@@ -39,21 +39,21 @@ controller :addressendpoints do
         end
       end
     end
-
+  
     action :query do
       title "Query address endpoint"
       description "This action allows you to query address endpoint"
-
-      param :id, "Id of address endpoint", :required => true, :type => Integer
-
+  
+      param :address, "Endpoint address", :required => true, :type => String
+  
       error 'ValidationError', "The provided data was not sufficient to query address endpoint", :attributes => {:errors => "A hash of error details"}
       error 'AddressEndpointIdMissing', "AddressEndpoint id is missing"
       error 'AddressEndpointNotFound', "The address endpoint not found"
-
+  
       returns Hash, :structure => :addressendpoint
-
+  
       action do
-        addressendpoint = identity.server.address_endpoints.find_by_id(params.id)
+        addressendpoint = identity.server.address_endpoints.find_by_address(params.address)
         if addressendpoint.nil?
           error 'AddressEndpointNotFound'
         else
@@ -61,18 +61,18 @@ controller :addressendpoints do
         end
       end
     end
-
+  
     action :update do
       title "Update address endpoint"
       description "This action allows you to update address endpoint"
-
+  
       param :address, "Endpoint address", :required => true, :type => String
       param :id, "Id of address endpoint", :required => true, :type => Integer
-
+  
       error 'ValidationError', "The provided data was not sufficient to query address endpoint", :attributes => {:errors => "A hash of error details"}
       error 'AddressEndpointIdMissing', "AddressEndpoint id is missing"
       error 'AddressEndpointNotFound', "The address endpoint not found"
-
+  
       action do
         addressendpoint = identity.server.address_endpoints.find_by_id(params.id)
         if addressendpoint.nil?
@@ -88,23 +88,23 @@ controller :addressendpoints do
         end
       end
     end
-
+  
     action :delete do
       title "Delete a address endpoint"
       description "This action allows you to delete address endpoint"
-
-      param :id, "Id of address endpoint", :required => true, :type => Integer
-
+  
+      param :address, "Endpoint address", :required => true, :type => String
+  
       error 'ValidationError', "The provided data was not sufficient to query address endpoint", :attributes => {:errors => "A hash of error details"}
       error 'AddressEndpointIdMissing', "AddressEndpoint id is missing"
       error 'AddressEndpointNotFound', "The address endpoint not found"
       error 'AddressEndpointNotDeleted', "AddressEndpoint could not be deleted"
-
-
+  
+  
       returns Hash, :structure => :addressendpoint
-
+      
       action do
-        addressendpoint = identity.server.address_endpoints.find_by_id(params.id)
+        addressendpoint = identity.server.address_endpoints.find_by_address(params.address)
         if addressendpoint.nil?
           error 'AddressEndpointNotFound'
         elsif addressendpoint.delete
@@ -114,3 +114,4 @@ controller :addressendpoints do
         end
       end
     end
+  end

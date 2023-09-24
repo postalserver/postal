@@ -2,26 +2,26 @@ controller :routes do
     friendly_name "Routes API"
     description "This API allows you to create and view routes on server"
     authenticator :server
-
+          
     action :create do
       title "Create a route"
       description "This action allows you to create routes"
-
+  
       param :domain, "Domain name", :required => true, :type => String
       param :endpoint_name, "Endpoint address (ex@mp.le)", :required => true, :type => String
       param :endpoint_type, "Endpoint type: SMTPEndpoint | HTTPEndpoint | AddressEndpoint", :required => true, :type => String, :default => "HTTPEndpoint"
       param :spam_mode, "Route spam mode: Mark | Quarantine | Fail", :required => true, :type => String, :default => "Mark"
       param :mode, "Route mode: Endpoint | Accept | Hold | Bounce | Reject", :required => true, :type => String, :default => "Endpoint"
       param :name, "Route name (max 50)", :required => true, :type => String
-
+  
       error 'ValidationError', "The provided data was not sufficient to create route", :attributes => {:errors => "A hash of error details"}
       error 'InvalidEndPoint', "The endpoint: {type} with name/address: {name} dose not exists", :attributes => {:type => "Endpoint type", :name => "Endpoint name"}
       error 'RouteNameMissing', "Route name is missing"
       error 'InvalidRouteName', "Route name is invalid"
       error 'RouteNameExists', "Route name already exists"
-
+  
       returns Hash, :structure => :route
-
+  
       action do
         route = identity.server.routes.find_by_name_and_domain(params.name, params.domain)
         if route.nil?
@@ -63,24 +63,25 @@ controller :routes do
         else
           error 'RouteNameExists'
         end
-
+  
       end
     end
-
+    
     action :query do
       title "Query route"
       description "This action allows you to query route"
-
-      param :id, "Id of route", :required => true, :type => Integer
-
+  
+      param :domain, "Domain name", :required => true, :type => String
+      param :name, "Route name (max 50)", :required => true, :type => String
+  
       error 'ValidationError', "The provided data was not sufficient to query route", :attributes => {:errors => "A hash of error details"}
       error 'RouteIdMissing', "Route Id is missing"
       error 'RouteNotFound', "The route not found"
-
+  
       returns Hash, :structure => :route
-
+  
       action do
-        route = identity.server.routes.find_by_id(params.id)
+        route = identity.server.routes.find_by_name_and_domain(params.name, params.domain)
         if route.nil?
           error 'RouteNotFound'
         else
@@ -88,11 +89,11 @@ controller :routes do
         end
       end
     end
-
+  
     action :update do
       title "Update route"
       description "This action allows you to update route"
-
+  
       param :domain, "Domain name", :required => false, :type => String
       param :endpoint_name, "Endpoint address (ex@mp.le)", :required => false, :type => String
       param :endpoint_type, "Endpoint type: SMTPEndpoint | HTTPEndpoint | AddressEndpoint", :required => false, :type => String
@@ -100,14 +101,13 @@ controller :routes do
       param :mode, "Route mode: Endpoint | Accept | Hold | Bounce | Reject", :required => false, :type => String
       param :name, "Name of name@example.com", :required => false, :type => String
       param :id, "Id of route", :required => true, :type => Integer
-
+      
       error 'ValidationError', "The provided data was not sufficient to query route", :attributes => {:errors => "A hash of error details"}
       error 'RouteIdMissing', "Route id is missing"
-      # error 'InvalidRouteId', "Route name is invalid" Q1
       error 'RouteNotFound', "The route not found"
-
+  
       returns Hash, :structure => :route
-
+  
       action do
         route = identity.server.routes.find_by_id(params.id)
         if route.nil?
@@ -123,35 +123,28 @@ controller :routes do
           if route.save
             structure :route, route, :return => true
           else
-            # error_message = route.errors.full_messages.first
-            # error "Unknown Error", error_message
             error "Unknown Error", route.errors.full_messages.first
-            # TODO we search by id, so what validation shoud we put here for id?? Q1
-            # if error_message == "Name is invalid"
-            #   error "InvalidRouteName"
-            # else
-            #   error "Unknown Error", error_message
-            # end
           end
         end
       end
     end
-
+  
     action :delete do
       title "Delete a route"
       description "This action allows you to delete route"
-
-      param :id, "Id of route", :required => true, :type => Integer
-
+  
+      param :domain, "Domain name", :required => true, :type => String
+      param :name, "Route name (max 50)", :required => true, :type => String
+  
       error 'ValidationError', "The provided data was not sufficient to query route", :attributes => {:errors => "A hash of error details"}
       error 'RouteIdMissing', "Route Id is missing"
       error 'RouteNotFound', "The route not found"
       error 'RouteNotDeleted', "Route could not be deleted"
-
+  
       returns Hash
-
+  
       action do
-        route = identity.server.routes.find_by_id(params.id)
+        route = identity.server.routes.find_by_name_and_domain(params.name, params.domain)
         if route.nil?
           error 'RouteNotFound'
         elsif route.delete
@@ -162,3 +155,5 @@ controller :routes do
       end
     end
   end
+  
+  

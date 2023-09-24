@@ -2,11 +2,11 @@ controller :httpendpoints do
     friendly_name "HttpEndpoint API"
     description "This API allows you to create and view http endpoints on server"
     authenticator :server
-
+          
     action :create do
       title "Create http endpoint"
       description "This action allows you to create http endpoints"
-
+  
       param :name, "Endpoint name", :required => true, :type => String
       param :url, "Endpoint url", :required => true, :type => String
       param :encoding, "Endpoint encoding: BodyAsJSON | FormData", :required => true, :type => String, :default => "BodyAsJSON"
@@ -14,14 +14,14 @@ controller :httpendpoints do
       param :strip_replies, "Endpoint strip replies", :required => true, :type => String, :default => "yes"
       param :include_attachments, "Endpoint include attachments", :required => true, :type => String, :default => "yes"
       param :timeout, "Endpoint timeout default: 5s", :required => false, :type => Integer, :default => 5
-
+  
       error 'ValidationError', "The provided data was not sufficient to create http endpoint", :attributes => {:errors => "A hash of error details"}
       error 'HttpEndPointNameMissing', "HttpEndPoint name is missing"
       error 'InvalidHttpEndPointName', "HttpEndPoint name is invalid"
       error 'HttpEndPointNameExists', "HttpEndPoint name already exists"
-
+  
       returns Hash, :structure => :httpendpoint
-
+  
       action do
         httpendpoint = identity.server.http_endpoints.find_by_name(params.name)
         if httpendpoint.nil?
@@ -51,21 +51,22 @@ controller :httpendpoints do
         end
       end
     end
-
+  
     action :query do
       title "Query http endpoint"
       description "This action allows you to query http endpoint"
-
-      param :id, "Id of http endpoint", :required => true, :type => Integer
-
+  
+      param :name, "Endpoint name", :required => true, :type => String
+      param :url, "Endpoint url", :required => true, :type => String
+  
       error 'ValidationError', "The provided data was not sufficient to query http endpoint", :attributes => {:errors => "A hash of error details"}
       error 'HttpEndpointIdMissing', "HttpEndpoint id is missing"
       error 'HttpEndpointNotFound', "The http endpoint not found"
-
+  
       returns Hash, :structure => :httpendpoint
-
+  
       action do
-        httpendpoint = identity.server.http_endpoints.find_by_id(params.id)
+        httpendpoint = identity.server.http_endpoints.find_by_name_and_url(params.name, params.url)
         if httpendpoint.nil?
           error 'HttpEndpointNotFound'
         else
@@ -73,11 +74,11 @@ controller :httpendpoints do
         end
       end
     end
-
+  
     action :update do
       title "Update http endpoint"
       description "This action allows you to update http endpoint"
-
+  
       param :name, "Endpoint name", :required => false, :type => String
       param :url, "Endpoint url", :required => false, :type => String
       param :encoding, "Endpoint encoding: BodyAsJSON | FormData", :required => false, :type => String
@@ -86,11 +87,11 @@ controller :httpendpoints do
       param :include_attachments, "Endpoint include attachments", :required => false, :type => String
       param :timeout, "Endpoint timeout default: 5s", :required => false, :type => Integer, :default => 5
       param :id, "Id of http endpoint", :required => true, :type => Integer
-
+  
       error 'ValidationError', "The provided data was not sufficient to query http endpoint", :attributes => {:errors => "A hash of error details"}
       error 'HttpEndpointIdMissing', "HttpEndpoint id is missing"
       error 'HttpEndpointNotFound', "The http endpoint not found"
-
+  
       action do
         httpendpoint = identity.server.http_endpoints.find_by_id(params.id)
         if httpendpoint.nil?
@@ -112,23 +113,24 @@ controller :httpendpoints do
         end
       end
     end
-
+  
     action :delete do
       title "Delete a http endpoint"
       description "This action allows you to delete http endpoint"
-
-      param :id, "Id of http endpoint", :required => true, :type => Integer
-
+  
+      param :name, "Endpoint name", :required => true, :type => String
+      param :url, "Endpoint url", :required => true, :type => String
+  
       error 'ValidationError', "The provided data was not sufficient to query http endpoint", :attributes => {:errors => "A hash of error details"}
       error 'HttpEndpointIdMissing', "HttpEndpoint id is missing"
       error 'HttpEndpointNotFound', "The http endpoint not found"
       error 'HttpEndpointNotDeleted', "HttpEndpoint could not be deleted"
-
-
+  
+  
       returns Hash, :structure => :httpendpoint
-
+      
       action do
-        httpendpoint = identity.server.http_endpoints.find_by_id(params.id)
+        httpendpoint = identity.server.http_endpoints.find_by_name_and_url(params.name, params.url)
         if httpendpoint.nil?
           error 'HttpEndpointNotFound'
         elsif httpendpoint.delete
