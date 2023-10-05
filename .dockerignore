@@ -17,3 +17,4 @@ storage/*
 tmp/*
 vendor/bundle
 vendor/bundle
+resource/virus-message.msg
