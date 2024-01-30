@@ -34,6 +34,7 @@ jobs:
         with:
           push: true
           tags: ghcr.io/postalserver/postal:ci-${{ github.sha }}
+          platforms: linux/arm64,linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: ci
@@ -83,6 +84,7 @@ jobs:
           tags: |
             ghcr.io/postalserver/postal:${{ steps.tag.outputs.tag }}
             ghcr.io/postalserver/postal:commit-${{ github.sha }}
+          platforms: linux/arm64,linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
@@ -106,6 +108,7 @@ jobs:
           tags: |
             ghcr.io/postalserver/postal:stable
             ghcr.io/postalserver/postal:${{ needs.release-please.outputs.version }}
+          platforms: linux/arm64,linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
