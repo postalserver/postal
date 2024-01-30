@@ -90,7 +90,7 @@ class ApplicationController < ActionController::Base
   def render_form_errors(action_name, object)
     respond_to do |wants|
       wants.html { render action_name }
-      wants.json { render json: { form_errors: object.errors.full_messages }, status: :unprocessable_entity }
+      wants.json { render json: { form_errors: object.errors.map(&:full_message) }, status: :unprocessable_entity }
     end
   end
 
