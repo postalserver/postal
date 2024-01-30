@@ -5,126 +5,122 @@
 # You can refer to this for a complete listing all available configuration options.
 
 web:
-  host: postal.example.com
-  protocol: https
+  host: <%= ENV.fetch('POSTAL_HOST', 'postal.example.com') %>
+  protocol: <%= ENV.fetch('POSTAL_PROTOCOL', 'https') %>
 
 general:
-  use_ip_pools: false
-  exception_url:
-  maximum_delivery_attempts: 18
-  maximum_hold_expiry_days: 7
-  suppression_list_removal_delay: 30
-  use_local_ns_for_domains: false
-  default_spam_threshold: 5.0
-  default_spam_failure_threshold: 20.0
-  use_resent_sender_header: true
+  use_ip_pools: <%= ENV.fetch('POSTAL_USE_IP_POOLS', 'false') %>
+  exception_url: <%= ENV.fetch('POSTAL_EXCEPTION_URL', '') %>
+  maximum_delivery_attempts: <%= ENV.fetch('POSTAL_MAXIMUM_DELIVERY_ATTEMPTS', '18') %>
+  maximum_hold_expiry_days: <%= ENV.fetch('POSTAL_MAXIMUM_HOLD_EXPIRY_DAYS', '7') %>
+  suppression_list_removal_delay: <%= ENV.fetch('POSTAL_SUPPRESSION_LIST_REMOVAL_DELAY', '30') %>
+  use_local_ns_for_domains: <%= ENV.fetch('POSTAL_USE_LOCAL_NS_FOR_DOMAINS', 'false') %>
+  default_spam_threshold: <%= ENV.fetch('POSTAL_DEFAULT_SPAM_THRESHOLD', '5.0') %>
+  default_spam_failure_threshold: <%= ENV.fetch('POSTAL_DEFAULT_SPAM_FAILURE_THRESHOLD', '20.0') %>
+  use_resent_sender_header: <%= ENV.fetch('POSTAL_USE_RESENT_SENDER_HEADER', 'true') %>
 
 web_server:
-  bind_address: 127.0.0.1
-  port: 5000
-  max_threads: 5
+  bind_address: <%= ENV.fetch('WEB_SERVER_BIND_ADDRESS', '0.0.0.0') %>
+  port: <%= ENV.fetch('WEB_SERVER_PORT', '5000') %>
+  max_threads: <%= ENV.fetch('WEB_SERVER_MAX_THREADS', '5') %>
 
 main_db:
-  host: 127.0.0.1
-  port: 3306
-  username: postal
-  password:
-  database: postal
-  pool_size: 5
-
-logging:
-  stdout: false
-  root: # Automatically determined based on config root
-  max_log_file_size: 20
-  max_log_files: 10
-  graylog:
-    host:
-    port: 12201
+  host: <%= ENV.fetch('MAIN_DB_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('MAIN_DB_PORT', '3306') %>
+  username: <%= ENV.fetch('MAIN_DB_USERNAME', 'postal') %>
+  password: <%= ENV.fetch('MAIN_DB_PASSWORD', '') %>
+  database: <%= ENV.fetch('MAIN_DB_DATABASE', 'postal') %>
+  pool_size: <%= ENV.fetch('MAIN_DB_POOL_SIZE', '5') %>
 
 message_db:
-  host: 127.0.0.1
-  port: 3306
-  username: postal
-  password:
-  prefix: postal
+  host: <%= ENV.fetch('MESSAGE_DB_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('MESSAGE_DB_PORT', '3306') %>
+  username: <%= ENV.fetch('MESSAGE_DB_USERNAME', 'postal') %>
+  password: <%= ENV.fetch('MESSAGE_DB_PASSWORD', '') %>
+  prefix: <%= ENV.fetch('MESSAGE_DB_PREFIX', 'postal') %>
 
 rabbitmq:
-  host: 127.0.0.1
-  port: 5672
-  tls: false
-  verify_peer: true
-  tls_ca_certificates:
-    - /etc/ssl/certs/ca-certificates.crt
-  username: postal
-  password:
-  vhost: /postal
+  host: <%= ENV.fetch('RABBITMQ_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('RABBITMQ_PORT', '5672') %>
+  username: <%= ENV.fetch('RABBITMQ_USERNAME', 'postal') %>
+  password: <%= ENV.fetch('RABBITMQ_PASSWORD', '') %>
+  vhost: <%= ENV.fetch('RABBITMQ_VHOST', '/postal') %>
+  tls: <%= ENV.fetch('RABBITMQ_TLS', 'false') %>
+  verify_peer: <%= ENV.fetch('RABBITMQ_VERIFY_PEER', 'true') %>
+  tls_ca_certificates: <%= ENV.fetch('RABBITMQ_TLS_CA_CERTIFICATES', '/etc/ssl/certs/ca-certificates.crt'.split(',').inspect) %>
+
+logging:
+  stdout: <%= ENV.fetch('LOGGING_STDOUT', 'false') %>
+  root: <%= ENV.fetch('LOGGING_ROOT', '') %>
+  max_log_file_size: <%= ENV.fetch('LOGGING_MAX_LOG_FILES', '20') %>
+  max_log_files: <%= ENV.fetch('LOGGING_MAX_LOG_FILES', '10') %>
+  graylog:
+    host: <%= ENV.fetch('GRAYLOG_HOST', '') %>
+    port: <%= ENV.fetch('GRAYLOG_PORT', '12201') %>
 
 workers:
-  quantity: 1
-  threads: 4
+  threads: <%= ENV.fetch('WORKER_THREADS', '4') %>
 
 smtp_server:
-  port: 25
-  bind_address: '::'
-  tls_enabled: false
-  tls_certificate_path: # Defaults to config/smtp.cert
-  tls_private_key_path: # Defaults to config/smtp.key
-  tls_ciphers:
-  ssl_version: SSLv23
-  proxy_protocol: false
-  log_connect: true
-  strip_received_headers: false
-  max_message_size: 14 # size in Megabytes
+  port: <%= ENV.fetch('SMTP_SERVER_PORT', '25') %>
+  bind_address: "<%= ENV.fetch('SMTP_SERVER_BIND_ADDRESS', '::') %>"
+  tls_enabled: <%= ENV.fetch('SMTP_SERVER_TLS_ENABLED', 'false') %>
+  tls_certificate_path: <%= ENV.fetch('SMTP_SERVER_TLS_CERTIFICATE_PATH', '') %> # Defaults to config/smtp.cert
+  tls_private_key_path: <%= ENV.fetch('SMTP_SERVER_TLS_PRIVATE_KEY_PATH', '') %> # Defaults to config/smtp.key
+  tls_ciphers: <%= ENV.fetch('SMTP_SERVER_TLS_CIPHERS', '') %>
+  ssl_version: <%= ENV.fetch('SMTP_SERVER_SSL_VERSION', 'SSLv23') %>
+  proxy_protocol: <%= ENV.fetch('SMTP_SERVER_PROXY_PROTOCOL', 'false') %>
+  log_connect: <%= ENV.fetch('SMTP_SERVER_LOG_CONNECT', 'false') %>
+  strip_received_headers: <%= ENV.fetch('SMTP_SERVER_STRIP_RECEIVED_HEADERS', 'false') %>
+  max_message_size: <%= ENV.fetch('SMTP_SERVER_MAX_MESSAGE_SIZE', '14') %> # size in Megabytes
 
 smtp_relays:
-  -
-    hostname:
+  - hostname:
     port: 25
     ssl_mode: Auto
 
 dns:
-  mx_records:
-    - mx.postal.example.com
-  smtp_server_hostname: postal.example.com
-  spf_include: spf.postal.example.com
-  return_path: rp.postal.example.com
-  route_domain: routes.postal.example.com
-  track_domain: track.postal.example.com
-  helo_hostname: # By default, this will be the same as the `smtp_server_hostname`
-  dkim_identifier: postal
-  domain_verify_prefix: postal-verification
-  custom_return_path_prefix: psrp
+  mx_records: <%= ENV.fetch('DNS_MX_RECORDS', 'mx.postal.example.com'.split(',').inspect) %>
+  smtp_server_hostname: <%= ENV.fetch('DNS_SMTP_SERVER_HOSTNAME', 'postal.example.com') %>
+  spf_include: <%= ENV.fetch('DNS_SPF_INCLUDE', 'spf.postal.example.com') %>
+  return_path: <%= ENV.fetch('DNS_RETURN_PATH', 'rp.postal.example.com') %>
+  route_domain: <%= ENV.fetch('DNS_ROUTE_DOMAIN', 'routes.postal.example.com') %>
+  track_domain: <%= ENV.fetch('DNS_TRACK_DOMAIN', 'track.postal.example.com') %>
+  helo_hostname: <%= ENV.fetch('DNS_HELO_HOSTNAME', '') %> # By default, this will be the same as the `smtp_server_hostname`
+  dkim_identifier: <%= ENV.fetch('DNS_DKIM_IDENTIFIER', 'postal') %>
+  domain_verify_prefix: <%= ENV.fetch('DNS_DOMAIN_VERIFY_PREFIX', 'postal-verification') %>
+  custom_return_path_prefix: <%= ENV.fetch('DNS_CUSTOM_RETURN_PATH_PREFIX', 'psrp') %>
 
 smtp:
-  host: 127.0.0.1
-  port: 25
-  username: # Complete when Postal is running and you can
-  password: # generate the credentials within the interface.
-  from_name: Postal
-  from_address: postal@yourdomain.com
+  host: <%= ENV.fetch('SMTP_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('SMTP_PORT', '25') %>
+  username: <%= ENV.fetch('SMTP_USERNAME', '') %> # Complete when Postal is running and you can
+  password: <%= ENV.fetch('SMTP_PASSWORD', '') %> # generate the credentials within the interface.
+  from_name: <%= ENV.fetch('SMTP_FROM_NAME', 'Postal') %>
+  from_address: <%= ENV.fetch('SMTP_FROM_ADDRESS', 'postal@example.com') %>
 
 rails:
-  environment: production
-  secret_key:
+  environment: <%= ENV.fetch('RAILS_ENV', 'production') %>
+  secret_key: <%= ENV.fetch('RAILS_SECRET_KEY_BASE', '') %>
 
 rspamd:
-  enabled: false
-  host: 127.0.0.1
-  port: 11334
-  ssl: false
-  password: null
-  flags: null
+  enabled: <%= ENV.fetch('RSPAMD_ENABLED', 'false') %>
+  host: <%= ENV.fetch('RSPAMD_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('RSPAMD_PORT', '11334') %>
+  ssl: <%= ENV.fetch('RSPAMD_SSL', 'false') %>
+  password: <%= ENV.fetch('RSPAMD_PASSWORD', '') %>
+  flags: <%= ENV.fetch('RSPAMD_FLAGS', '') %>
 
 spamd:
-  enabled: false
-  host: 127.0.0.1
-  port: 783
+  enabled: <%= ENV.fetch('SPAMD_ENABLED', 'false') %>
+  host: <%= ENV.fetch('SPAMD_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('SPAMD_PORT', '783') %>
 
 clamav:
-  enabled: false
-  host: 127.0.0.1
-  port: 2000
+  enabled: <%= ENV.fetch('CLAMAV_ENABLED', 'false') %>
+  host: <%= ENV.fetch('CLAMAV_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('CLAMAV_PORT', '2000') %>
 
 smtp_client:
-  open_timeout: 30
-  read_timeout: 60
+  open_timeout: <%= ENV.fetch('SMTP_CLIENT_OPEN_TIMEOUT', '30') %>
+  read_timeout: <%= ENV.fetch('SMTP_CLIENT_READ_TIMEOUT', '60') %>
