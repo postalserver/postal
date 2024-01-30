@@ -27,7 +27,7 @@ module Postal
     end
 
     # Include from lib
-    config.eager_load_namespaces << Postal
+    config.eager_load_paths << Rails.root.join("lib")
 
     # Disable field_with_errors
     config.action_view.field_error_proc = proc { |t, i| t }
