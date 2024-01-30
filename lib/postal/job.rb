@@ -38,9 +38,5 @@ module Postal
       job_id
     end
 
-    def self.perform(params = {})
-      new(nil, params).perform
-    end
-
   end
 end
