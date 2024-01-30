@@ -5,7 +5,7 @@ module Postal
 
     def initialize(id, params = {})
       @id = id
-      @params = params.with_indifferent_access
+      @params = params
       on_initialize
     end
 
