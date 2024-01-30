@@ -157,7 +157,7 @@ module Postal
   end
 
   def self.signing_key_path
-    config_root.join("signing.key")
+    ENV.fetch("POSTAL_SIGNING_KEY_PATH") { config_root.join("signing.key") }
   end
 
   def self.signing_key
