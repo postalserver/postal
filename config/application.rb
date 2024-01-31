@@ -27,14 +27,14 @@ module Postal
     end
 
     # Include from lib
-    config.eager_load_namespaces << Postal
+    config.eager_load_paths << Rails.root.join("lib")
 
     # Disable field_with_errors
     config.action_view.field_error_proc = proc { |t, i| t }
 
     # Load the tracking server middleware
     require "postal/tracking_middleware"
-    config.middleware.use Postal::TrackingMiddleware
+    config.middleware.insert_before ActionDispatch::HostAuthorization, Postal::TrackingMiddleware
 
     config.logger = Postal.logger_for(:rails)
 

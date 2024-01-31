@@ -1,3 +1,4 @@
+require "erb"
 require "yaml"
 require "pathname"
 require "cgi"
@@ -78,7 +79,11 @@ module Postal
   end
 
   def self.defaults
-    @defaults ||= YAML.load_file(defaults_file_path)
+    @defaults ||= begin
+      file = File.read(defaults_file_path)
+      yaml = ERB.new(file).result
+      YAML.safe_load(yaml)
+    end
   end
 
   def self.database_url
@@ -152,7 +157,7 @@ module Postal
   end
 
   def self.signing_key_path
-    config_root.join("signing.key")
+    ENV.fetch("POSTAL_SIGNING_KEY_PATH") { config_root.join("signing.key") }
   end
 
   def self.signing_key

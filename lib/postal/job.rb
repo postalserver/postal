@@ -5,7 +5,7 @@ module Postal
 
     def initialize(id, params = {})
       @id = id
-      @params = params.with_indifferent_access
+      @params = params
       on_initialize
     end
 
@@ -36,10 +36,6 @@ module Postal
       job_payload = { "params" => params, "class_name" => name, "id" => job_id, "queue" => queue }
       Postal::Worker.job_queue(queue).publish(job_payload.to_json, persistent: false)
       job_id
-    end
-
-    def self.perform(params = {})
-      new(nil, params).perform
     end
 
   end

@@ -89,7 +89,7 @@ module Mail
     def decode_body_as_text
       body_text = decode_body
       charset_tmp = begin
-        Encoding.find(Ruby19.pick_encoding(charset))
+        Encoding.find(Utilities.pick_encoding(charset))
       rescue StandardError
         "ASCII"
       end

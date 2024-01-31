@@ -25,7 +25,7 @@ gem "nifty-utils"
 gem "nilify_blanks"
 gem "nio4r"
 gem "puma"
-gem "rails", "= 6.1.7.3"
+gem "rails", "= 6.1.7.6"
 gem "resolv", "~> 0.2.1"
 gem "secure_headers"
 gem 'sentry-rails'
