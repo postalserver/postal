@@ -4,7 +4,7 @@ module Clockwork
 
   configure do |config|
     config[:tz] = "UTC"
-    config[:logger] = Postal.logger_for(:cron)
+    config[:logger] = Postal.logger
   end
 
   every 1.minute, "every-1-minutes" do

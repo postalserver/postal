@@ -51,13 +51,11 @@ rabbitmq:
   tls_ca_certificates: <%= ENV.fetch('RABBITMQ_TLS_CA_CERTIFICATES', '/etc/ssl/certs/ca-certificates.crt'.split(',').inspect) %>
 
 logging:
-  stdout: <%= ENV.fetch('LOGGING_STDOUT', 'false') %>
-  root: <%= ENV.fetch('LOGGING_ROOT', '') %>
-  max_log_file_size: <%= ENV.fetch('LOGGING_MAX_LOG_FILES', '20') %>
-  max_log_files: <%= ENV.fetch('LOGGING_MAX_LOG_FILES', '10') %>
+  rails_log: <%= ENV.fetch('LOGGING_RAILS_LOG', 'false') %>
   graylog:
     host: <%= ENV.fetch('GRAYLOG_HOST', '') %>
     port: <%= ENV.fetch('GRAYLOG_PORT', '12201') %>
+    facility: <%= ENV.fetch('GRAYLOG_FACILITY', 'postal') %>
 
 workers:
   threads: <%= ENV.fetch('WORKER_THREADS', '4') %>
