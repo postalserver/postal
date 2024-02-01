@@ -31,6 +31,7 @@ main_db:
   password: <%= ENV.fetch('MAIN_DB_PASSWORD', '') %>
   database: <%= ENV.fetch('MAIN_DB_DATABASE', 'postal') %>
   pool_size: <%= ENV.fetch('MAIN_DB_POOL_SIZE', '5') %>
+  encoding: <%= ENV.fetch('MAIN_DB_ENCODING', 'utf8mb4') %>
 
 message_db:
   host: <%= ENV.fetch('MESSAGE_DB_HOST', '127.0.0.1') %>
