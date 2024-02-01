@@ -20,7 +20,7 @@ module Postal
     private
 
     def log(text)
-      Postal.logger_for(:message_requeuer).info text
+      Postal.logger.info text, component: "message-requeuer"
     end
 
     def check_exit

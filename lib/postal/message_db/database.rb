@@ -325,12 +325,12 @@ module Postal
         result = connection.query(query, cast_booleans: true)
         time = Time.now.to_f - start_time
         logger.debug "  \e[4;34mMessageDB Query (#{time.round(2)}s) \e[0m  \e[33m#{query}\e[0m"
-        if time > 0.5 && query =~ /\A(SELECT|UPDATE|DELETE) /
+        if time.positive? && query =~ /\A(SELECT|UPDATE|DELETE) /
           id = Nifty::Utils::RandomString.generate(length: 6).upcase
           explain_result = ResultForExplainPrinter.new(connection.query("EXPLAIN #{query}"))
-          slow_query_logger.info "[#{id}] EXPLAIN #{query}"
+          logger.info "  [#{id}] EXPLAIN #{query}"
           ActiveRecord::ConnectionAdapters::MySQL::ExplainPrettyPrinter.new.pp(explain_result, time).split("\n").each do |line|
-            slow_query_logger.info "[#{id}] " + line
+            logger.info "  [#{id}] " + line
           end
         end
         result
@@ -338,10 +338,6 @@ module Postal
 
       def logger
         defined?(Rails) ? Rails.logger : Logger.new($stdout)
-      end
-
-      def slow_query_logger
-        Postal.logger_for(:slow_message_db_queries)
       end
 
       def with_mysql(&block)

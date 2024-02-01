@@ -15,7 +15,7 @@ module Postal
     private
 
     def logger
-      Postal.logger_for(:message_inspection)
+      Postal.logger
     end
 
     class << self
