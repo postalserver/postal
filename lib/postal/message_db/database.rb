@@ -107,7 +107,7 @@ module Postal
       #
       # Insert a new raw message into a table (creating it if needed)
       #
-      def insert_raw_message(data, date = Date.today)
+      def insert_raw_message(data, date = Time.now.utc.to_date)
         table_name = raw_table_name_for_date(date)
         begin
           headers, body = data.split(/\r?\n\r?\n/, 2)

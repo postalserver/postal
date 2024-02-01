@@ -94,7 +94,7 @@ module Postal
       # Return a list of raw message tables that are older than the given date
       #
       def raw_tables(max_age = 30)
-        earliest_date = max_age ? Date.today - max_age : nil
+        earliest_date = max_age ? Time.now.utc.to_date - max_age : nil
         [].tap do |tables|
           @database.query("SHOW TABLES FROM `#{@database.database_name}` LIKE 'raw-%'").each do |tbl|
             tbl_name = tbl.to_a.first.last
@@ -128,7 +128,7 @@ module Postal
       #  Remove messages from the messages table that are too old to retain
       #
       def remove_messages(max_age = 60)
-        time = (Date.today - max_age.days).to_time.end_of_day
+        time = (Time.now.utc.to_date - max_age.days).to_time.end_of_day
         return unless newest_message_to_remove = @database.select(:messages, where: { timestamp: { less_than_or_equal_to: time.to_f } }, limit: 1, order: :id, direction: "DESC", fields: [:id]).first
 
         id = newest_message_to_remove["id"]

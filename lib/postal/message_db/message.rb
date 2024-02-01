@@ -263,7 +263,7 @@ module Postal
         return unless @pending_raw_message
 
         self.size = @pending_raw_message.bytesize
-        date = Date.today
+        date = Time.now.utc.to_date
         table_name, headers_id, body_id = @database.insert_raw_message(@pending_raw_message, date)
         self.raw_table = table_name
         self.raw_headers_id = headers_id
