@@ -14,8 +14,10 @@ module Postal
       end
 
       def run
-        listen
-        run_event_loop
+        logger.tagged(component: "smtp-server") do
+          listen
+          run_event_loop
+        end
       end
 
       private
@@ -264,7 +266,7 @@ module Postal
       end
 
       def logger
-        Postal.logger_for(:smtp_server)
+        Postal.logger
       end
 
     end

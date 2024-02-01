@@ -49,14 +49,6 @@ module Postal
     end
   end
 
-  def self.log_root
-    if config.logging.root
-      @log_root ||= Pathname.new(config.logging.root)
-    else
-      @log_root ||= app_root.join("log")
-    end
-  end
-
   def self.config_file_path
     if env == "default"
       @config_file_path ||= File.join(config_root, "postal.yml")
@@ -93,16 +85,11 @@ module Postal
     end
   end
 
-  def self.logger_for(name)
-    @loggers ||= {}
-    @loggers[name.to_sym] ||= begin
-      require "postal/app_logger"
-      if config.logging.stdout || ENV["LOG_TO_STDOUT"]
-        Postal::AppLogger.new(name, $stdout)
-      else
-        FileUtils.mkdir_p(log_root)
-        Postal::AppLogger.new(name, log_root.join("#{name}.log"), config.logging.max_log_files, config.logging.max_log_file_size.megabytes)
-      end
+  def self.logger
+    @logger ||= begin
+      k = Klogger.new(nil, destination: Rails.env.test? ? "/dev/null" : $stdout, highlight: Rails.env.development?)
+      k.add_destination(graylog_logging_destination) if config.logging&.graylog&.host.present?
+      k
     end
   end
 
@@ -185,6 +172,21 @@ module Postal
 
   def self.ip_pools?
     config.general.use_ip_pools?
+  end
+
+  def self.graylog_logging_destination
+    @graylog_destination ||= begin
+      notifier = GELF::Notifier.new(config.logging.graylog.host, config.logging.graylog.port, "WAN")
+      proc do |_logger, payload, group_ids|
+        short_message = payload.delete(:message) || "[message missing]"
+        notifier.notify!(short_message: short_message, **{
+          facility: config.logging.graylog.facility,
+          _environment: Rails.env.to_s,
+          _version: Postal::VERSION.to_s,
+          _group_ids: group_ids.join(" ")
+        }.merge(payload.transform_keys { |k| "_#{k}".to_sym }.transform_values(&:to_s)))
+      end
+    end
   end
 
 end

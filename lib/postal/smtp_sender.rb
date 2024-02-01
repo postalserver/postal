@@ -234,7 +234,7 @@ module Postal
     end
 
     def log(text)
-      Postal.logger_for(:smtp_sender).info "[#{@log_id}] #{text}"
+      Postal.logger.info text, id: @log_id, component: "smtp-sender"
     end
 
     def destination_host_description

@@ -30,7 +30,7 @@ module Postal
     end
 
     def log(text)
-      Worker.logger.info "[#{@id}] #{text}"
+      Worker.logger.info(text)
     end
 
     def self.queue(queue, params = {})

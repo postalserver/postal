@@ -38,9 +38,11 @@ module Postal
     require "postal/tracking_middleware"
     config.middleware.insert_before ActionDispatch::HostAuthorization, Postal::TrackingMiddleware
 
-    config.logger = Postal.logger_for(:rails)
-
     config.hosts << Postal.config.web.host
+
+    if Postal.config.logging.rails_log == false
+      config.logger = Logger.new("/dev/null")
+    end
 
   end
 end

@@ -49,33 +49,25 @@ module Postal
 
     private
 
-    def receive_job(delivery_info, properties, body)
-      message = begin
-        JSON.parse(body)
-      rescue StandardError
-        nil
-      end
+    def receive_job(delivery_info, properties, message)
       if message && message["class_name"]
         @running_jobs << message["id"]
         set_process_name
         start_time = Time.now
         Thread.current[:job_id] = message["id"]
-        logger.info "[#{message['id']}] Started processing \e[34m#{message['class_name']}\e[0m job"
+        logger.info "Processing job"
         begin
           klass = message["class_name"].constantize.new(message["id"], message["params"])
           klass.perform
           GC.start
         rescue StandardError => e
           klass.on_error(e) if defined?(klass)
-          logger.warn "[#{message['id']}] \e[31m#{e.class}: #{e.message}\e[0m"
-          e.backtrace.each do |line|
-            logger.warn "[#{message['id']}]    " + line
-          end
+          logger.exception(e)
           if defined?(Sentry)
             Sentry.capture_exception(e, extra: { job_id: message["id"] })
           end
         ensure
-          logger.info "[#{message['id']}] Finished processing \e[34m#{message['class_name']}\e[0m job in #{Time.now - start_time}s"
+          logger.info "Finished job", time: (Time.now - start_time).to_i
         end
       end
     ensure
@@ -92,13 +84,21 @@ module Postal
 
     def join_queue(queue)
       if @active_queues[queue]
-        logger.info "Attempted to join queue #{queue} but already joined."
+        logger.error "attempted to join queue but already joined", queue: queue
       else
         consumer = self.class.job_queue(queue).subscribe(manual_ack: true) do |delivery_info, properties, body|
-          receive_job(delivery_info, properties, body)
+          message = begin
+            JSON.parse(body)
+          rescue StandardError
+            nil
+          end
+
+          logger.tagged(job_id: message["id"], queue: queue, job_class: message["class_name"]) do
+            receive_job(delivery_info, properties, message)
+          end
         end
         @active_queues[queue] = consumer
-        logger.info "Joined \e[32m#{queue}\e[0m queue"
+        logger.info "joined queue", queue: queue
       end
     end
 
@@ -106,9 +106,9 @@ module Postal
       if consumer = @active_queues[queue]
         consumer.cancel
         @active_queues.delete(queue)
-        logger.info "Left \e[32m#{queue}\e[0m queue"
+        logger.info "left queue", queue: queue
       else
-        logger.info "Not joined #{queue} so cannot leave"
+        logger.error "requested to leave queue, but not joined", queue: queue
       end
     end
 
@@ -198,7 +198,7 @@ module Postal
     class << self
 
       def logger
-        Postal.logger_for(:worker)
+        Postal.logger
       end
 
       def job_channel
