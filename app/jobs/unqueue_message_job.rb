@@ -292,6 +292,12 @@ class UnqueueMessageJob < Postal::Job
                 next
               end
 
+              # Extract a tag and add it to the message if one doesn't exist
+              if queued_message.message.tag.nil? && tag = queued_message.message.headers["x-postal-tag"]
+                log "#{log_prefix} Added tag #{tag.last}"
+                queued_message.message.update(tag: tag.last)
+              end
+
               #
               # If the credentials for this message is marked as holding and this isn't manual, hold it
               #
@@ -310,12 +316,6 @@ class UnqueueMessageJob < Postal::Job
                 queued_message.message.create_delivery("Held", details: "Recipient (#{queued_message.message.rcpt_to}) is on the suppression list (reason: #{sl['reason']})")
                 queued_message.destroy
                 next
-              end
-
-              # Extract a tag and add it to the message if one doesn't exist
-              if queued_message.message.tag.nil? && tag = queued_message.message.headers["x-postal-tag"]
-                log "#{log_prefix} Added tag #{tag.last}"
-                queued_message.message.update(tag: tag.last)
               end
 
               # Parse the content of the message as appropriate
