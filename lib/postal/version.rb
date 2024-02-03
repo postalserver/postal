@@ -11,4 +11,6 @@ module Postal
     VERSION
   end
 
+  Version = VERSION
+
 end

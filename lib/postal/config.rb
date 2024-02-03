@@ -9,6 +9,9 @@ require_relative "version"
 
 module Postal
 
+  class Config
+  end
+
   def self.host
     @host ||= config.web.host || "localhost:5000"
   end

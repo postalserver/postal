@@ -20,6 +20,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
 
   inflect.acronym "API"
   inflect.acronym "DNS"
+  inflect.acronym "MySQL"
 
   inflect.acronym "DB"
   inflect.acronym "IP"
