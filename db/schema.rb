@@ -2,16 +2,17 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20_210_727_210_551) do
-  create_table "additional_route_endpoints", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+ActiveRecord::Schema.define(version: 2024_02_06_173036) do
+
+  create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
     t.integer "endpoint_id"
@@ -19,7 +20,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "address_endpoints", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "address_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "server_id"
     t.string "uuid"
     t.string "address"
@@ -28,7 +29,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "authie_sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "authie_sessions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "token"
     t.string "browser_id"
     t.integer "user_id"
@@ -57,7 +58,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["user_id"], name: "index_authie_sessions_on_user_id"
   end
 
-  create_table "credentials", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "credentials", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "server_id"
     t.string "key"
     t.string "type"
@@ -70,7 +71,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.string "uuid"
   end
 
-  create_table "domains", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "domains", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "server_id"
     t.string "uuid"
     t.string "name"
@@ -99,7 +100,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["uuid"], name: "index_domains_on_uuid", length: 8
   end
 
-  create_table "http_endpoints", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "http_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "server_id"
     t.string "uuid"
     t.string "name"
@@ -116,7 +117,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.integer "timeout"
   end
 
-  create_table "ip_addresses", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "ip_addresses", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "ip_pool_id"
     t.string "ipv4"
     t.string "ipv6"
@@ -126,7 +127,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.integer "priority"
   end
 
-  create_table "ip_pool_rules", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "ip_pool_rules", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "uuid"
     t.string "owner_type"
     t.integer "owner_id"
@@ -137,7 +138,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "ip_pools", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "ip_pools", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "name"
     t.string "uuid"
     t.datetime "created_at", precision: 6
@@ -146,14 +147,14 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["uuid"], name: "index_ip_pools_on_uuid", length: 8
   end
 
-  create_table "organization_ip_pools", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "organization_ip_pools", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "organization_id"
     t.integer "ip_pool_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "organization_users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "organization_users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "organization_id"
     t.integer "user_id"
     t.datetime "created_at", precision: 6
@@ -162,7 +163,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.string "user_type"
   end
 
-  create_table "organizations", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "organizations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "uuid"
     t.string "name"
     t.string "permalink"
@@ -178,7 +179,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["uuid"], name: "index_organizations_on_uuid", length: 8
   end
 
-  create_table "queued_messages", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "queued_messages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "server_id"
     t.integer "message_id"
     t.string "domain"
@@ -197,7 +198,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["server_id"], name: "index_queued_messages_on_server_id"
   end
 
-  create_table "routes", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "routes", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "uuid"
     t.integer "server_id"
     t.integer "domain_id"
@@ -212,7 +213,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["token"], name: "index_routes_on_token", length: 6
   end
 
-  create_table "servers", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "servers", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "organization_id"
     t.string "uuid"
     t.string "name"
@@ -240,13 +241,14 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.text "domains_not_to_click_track"
     t.string "suspension_reason"
     t.boolean "log_smtp_data", default: false
+    t.boolean "privacy_mode", default: false
     t.index ["organization_id"], name: "index_servers_on_organization_id"
     t.index ["permalink"], name: "index_servers_on_permalink", length: 6
     t.index ["token"], name: "index_servers_on_token", length: 6
     t.index ["uuid"], name: "index_servers_on_uuid", length: 8
   end
 
-  create_table "smtp_endpoints", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "smtp_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "server_id"
     t.string "uuid"
     t.string "name"
@@ -260,13 +262,13 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.datetime "updated_at", precision: 6
   end
 
-  create_table "statistics", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "statistics", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.bigint "total_messages", default: 0
     t.bigint "total_outgoing", default: 0
     t.bigint "total_incoming", default: 0
   end
 
-  create_table "track_certificates", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "track_certificates", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "domain"
     t.text "certificate"
     t.text "intermediaries"
@@ -280,7 +282,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["domain"], name: "index_track_certificates_on_domain", length: 8
   end
 
-  create_table "track_domains", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "track_domains", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "uuid"
     t.integer "server_id"
     t.integer "domain_id"
@@ -296,7 +298,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.text "excluded_click_domains"
   end
 
-  create_table "user_invites", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "user_invites", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "uuid"
     t.string "email_address"
     t.datetime "expires_at", precision: 6
@@ -305,7 +307,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["uuid"], name: "index_user_invites_on_uuid", length: 12
   end
 
-  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "uuid"
     t.string "first_name"
     t.string "last_name"
@@ -323,14 +325,14 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.index ["uuid"], name: "index_users_on_uuid", length: 8
   end
 
-  create_table "webhook_events", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "webhook_events", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "webhook_id"
     t.string "event"
     t.datetime "created_at", precision: 6
     t.index ["webhook_id"], name: "index_webhook_events_on_webhook_id"
   end
 
-  create_table "webhook_requests", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "webhook_requests", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "server_id"
     t.integer "webhook_id"
     t.string "url"
@@ -343,7 +345,7 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.datetime "created_at", precision: 6
   end
 
-  create_table "webhooks", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+  create_table "webhooks", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "server_id"
     t.string "uuid"
     t.string "name"
@@ -356,4 +358,5 @@ ActiveRecord::Schema.define(version: 20_210_727_210_551) do
     t.datetime "updated_at", precision: 6
     t.index ["server_id"], name: "index_webhooks_on_server_id"
   end
+
 end
