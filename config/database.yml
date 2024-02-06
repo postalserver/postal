@@ -1,5 +1,6 @@
 default: &default
   adapter: mysql2
+  reconnect: true
   encoding: <%= Postal.config.main_db.encoding %>
   pool: <%= Postal.config.main_db.pool_size %>
   username: <%= Postal.config.main_db.username %>
