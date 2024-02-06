@@ -2,6 +2,14 @@ module Postal
   module MessageDB
     class Database
 
+      class << self
+
+        def connection_pool
+          @connection_pool ||= ConnectionPool.new
+        end
+
+      end
+
       def initialize(organization_id, server_id)
         @organization_id = organization_id
         @server_id = server_id
@@ -339,7 +347,7 @@ module Postal
       end
 
       def with_mysql(&block)
-        MessageDB::MySQL.client(&block)
+        self.class.connection_pool.use(&block)
       end
 
       def build_where_string(attributes, joiner = ", ")
