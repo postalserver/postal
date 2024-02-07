@@ -103,17 +103,6 @@ module Postal
 
       private
 
-      def resolve_hostname
-        Resolv::DNS.open do |dns|
-          dns.timeouts = [10, 5]
-          @hostname = begin
-            dns.getname(@ip_address)
-          rescue StandardError
-            @ip_address
-          end
-        end
-      end
-
       def proxy(data)
         if m = data.match(/\APROXY (.+) (.+) (.+) (.+) (.+)\z/)
           @ip_address = m[2]
@@ -143,7 +132,6 @@ module Postal
       end
 
       def ehlo(data)
-        resolve_hostname
         @helo_name = data.strip.split(" ", 2)[1]
         transaction_reset
         @state = :welcomed
@@ -151,7 +139,6 @@ module Postal
       end
 
       def helo(data)
-        resolve_hostname
         @helo_name = data.strip.split(" ", 2)[1]
         transaction_reset
         @state = :welcomed
@@ -377,10 +364,10 @@ module Postal
         @headers = {}
         @receiving_headers = true
 
-        received_header_content = "from #{@helo_name} (#{@hostname} [#{@ip_address}]) by #{Postal.config.dns.smtp_server_hostname} with SMTP; #{Time.now.utc.rfc2822}".force_encoding("BINARY")
-        unless Postal.config.smtp_server.strip_received_headers?
-          @data << "Received: #{received_header_content}\r\n"
-        end
+        received_header = Postal::ReceivedHeader.generate(@credential&.server, @helo_name, @ip_address, :smtp)
+                                                .force_encoding("BINARY")
+
+        @data << "Received: #{received_header_content}\r\n"
         @headers["received"] = [received_header_content]
 
         handler = proc do |data|
@@ -406,15 +393,10 @@ module Postal
                 if @header_key && @headers[@header_key.downcase] && @headers[@header_key.downcase].last
                   @headers[@header_key.downcase].last << data.to_s
                 end
-                # If received headers are configured to be stripped and we're currently receiving one
-                # skip the append methods at the bottom of this loop.
-                next if Postal.config.smtp_server.strip_received_headers? && @header_key && @header_key.downcase == "received"
               else
                 @header_key, value = data.split(/:\s*/, 2)
                 @headers[@header_key.downcase] ||= []
                 @headers[@header_key.downcase] << value
-                # As above
-                next if Postal.config.smtp_server.strip_received_headers? && @header_key && @header_key.downcase == "received"
               end
             end
             @data << data

@@ -19,7 +19,11 @@
           .fieldSet__input
             = f.select :allow_sender, [["No", false], ["Yes - can use Sender header", true]], {}, :class => 'input input--select'
             %p.fieldSet__text If enabled, outgoing messages can use any address in the From header as long as a Sender header is included with an authorized address.
-
+        .fieldSet__field
+          = f.label :privacy_mode, "Privacy mode", :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.select :privacy_mode, [["Disabled", false], ["Enabled", true]], {}, :class => 'input input--select'
+            %p.fieldSet__text If enabled, when Postal adds Received headers to e-mails it will not include IP or hostname information of the client submitting the message.
         .fieldSet__field
           = f.label :log_smtp_data, "Log SMTP data?", :class => 'fieldSet__label'
           .fieldSet__input

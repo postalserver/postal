@@ -175,7 +175,7 @@ class OutgoingMessagePrototype
           content: attachment[:data]
         }
       end
-      mail.header["Received"] = "from #{@source_type} (#{resolved_hostname} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822}"
+      mail.header["Received"] = Postal::ReceivedHeader.generate(@server, @source_type, @ip, :http)
       mail.message_id = "<#{@message_id}>"
       mail.to_s
     end
@@ -194,14 +194,6 @@ class OutgoingMessagePrototype
     message.bounce = @bounce
     message.save
     { id: message.id, token: message.token }
-  end
-
-  def resolved_hostname
-    @resolved_hostname ||= begin
-      Resolv.new.getname(@ip)
-    rescue StandardError
-      @ip
-    end
   end
 
 end

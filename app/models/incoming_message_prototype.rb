@@ -91,7 +91,7 @@ class IncomingMessagePrototype
           content: attachment[:data]
         }
       end
-      mail.header["Received"] = "from #{@source_type} (#{@ip} [#{@ip}]) by Postal with HTTP; #{Time.now.utc.rfc2822}"
+      mail.header["Received"] = Postal::ReceivedHeader.generate(@server, @source_type, @ip, :http)
       mail.to_s
     end
   end
