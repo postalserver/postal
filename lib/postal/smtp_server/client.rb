@@ -350,6 +350,7 @@ module Postal
             @credential.use
             rcpt_to(data)
           else
+            log "\e[33m   WARN: AUTH failure for #{@ip_address}\e[0m"
             "530 Authentication required"
           end
         end
