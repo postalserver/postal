@@ -17,7 +17,7 @@ gem "gelf"
 gem "haml"
 gem "hashie"
 gem "highline", require: false
-gem "execjs", '~> 2.7', "< 2.8"
+gem "execjs", "~> 2.7", "< 2.8"
 gem "jwt"
 gem "kaminari"
 gem "mail"
@@ -30,8 +30,8 @@ gem "puma"
 gem "rails", "= 6.1.7.6"
 gem "resolv", "~> 0.2.1"
 gem "secure_headers"
-gem 'sentry-rails'
-gem 'sentry-ruby'
+gem "sentry-rails"
+gem "sentry-ruby"
 gem "turbolinks", "~> 5"
 
 group :development, :assets do

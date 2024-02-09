@@ -3,8 +3,8 @@
 # This script will automatically send an HTML email to the
 # SMTP server given.
 
-require 'mail'
-require 'net/smtp'
+require "mail"
+require "net/smtp"
 
 from = ARGV[0]
 to = ARGV[1]
@@ -19,7 +19,7 @@ mail = Mail.new
 mail.to = to
 mail.from = from
 mail.subject = "A test email from #{Time.now.to_s}"
-mail['X-Postal-Tag'] = 'send-html-email-script'
+mail["X-Postal-Tag"] = "send-html-email-script"
 mail.text_part = Mail::Part.new do
   body <<~BODY
     Hello there.
@@ -32,7 +32,7 @@ mail.text_part = Mail::Part.new do
   BODY
 end
 mail.html_part = Mail::Part.new do
-  content_type 'text/html; charset=UTF-8'
+  content_type "text/html; charset=UTF-8"
   body <<~BODY
     <p>Hello there</p>
     <p>This is an example email. It doesn't do all that much.</p>
@@ -43,7 +43,7 @@ end
 
 #puts mail.to_s
 
-Net::SMTP.start('127.0.0.1', 2525) do |smtp|
+Net::SMTP.start("127.0.0.1", 2525) do |smtp|
   smtp.send_message mail.to_s, mail.from.first, mail.to.first
 end
 
