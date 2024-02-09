@@ -41,7 +41,7 @@ mail.html_part = Mail::Part.new do
   BODY
 end
 
-#puts mail.to_s
+# puts mail.to_s
 
 Net::SMTP.start("127.0.0.1", 2525) do |smtp|
   smtp.send_message mail.to_s, mail.from.first, mail.to.first
