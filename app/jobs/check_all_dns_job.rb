@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class CheckAllDNSJob < Postal::Job
 
   def perform

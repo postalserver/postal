@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class IncomingMessagePrototype
 
   attr_accessor :to

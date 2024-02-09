@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 controller :messages do
   friendly_name "Messages API"
   description "This API allows you to access message details"

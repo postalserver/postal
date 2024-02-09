@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 if Postal.config.rails&.secret_key
   Rails.application.secrets.secret_key_base = Postal.config.rails.secret_key
 else

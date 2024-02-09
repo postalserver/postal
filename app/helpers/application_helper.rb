@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module ApplicationHelper
 
   def format_delivery_details(server, text)

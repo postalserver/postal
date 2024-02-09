@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :postal do
   desc "Start the cron worker"
   task cron: :environment do

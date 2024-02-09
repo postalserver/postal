@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 structure :message do
   basic :id
   basic :token

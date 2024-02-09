@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class RemoveTypeFromIPPools < ActiveRecord::Migration[5.0]
 
   def change

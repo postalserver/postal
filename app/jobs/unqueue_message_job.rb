@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class UnqueueMessageJob < Postal::Job
 
   def perform

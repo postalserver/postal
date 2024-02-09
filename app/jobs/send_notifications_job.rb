@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class SendNotificationsJob < Postal::Job
 
   def perform

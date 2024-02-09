@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Net::SMTP::Response
 
   def message

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative "../lib/postal/config"
 threads_count = Postal.config.web_server&.max_threads&.to_i || 5
 threads         threads_count, threads_count

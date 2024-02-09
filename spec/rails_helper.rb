@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 ENV["POSTAL_ENV"] = "test"
 
 require File.expand_path("../config/environment", __dir__)

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class UserController < ApplicationController
 
   skip_before_action :login_required, only: [:new, :create, :join]

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "postal/config"
 
 if Postal.config.general&.exception_url

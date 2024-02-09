@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ActionDeletionsJob < Postal::Job
 
   def perform
