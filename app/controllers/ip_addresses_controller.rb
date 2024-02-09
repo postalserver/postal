@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class IPAddressesController < ApplicationController
 
   before_action :admin_required

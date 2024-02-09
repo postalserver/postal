@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Postal
   class ReplySeparator
 
@@ -19,7 +20,7 @@ module Postal
       return "" unless text.is_a?(String)
 
       text = text.gsub("\r", "")
-      stripped = ""
+      stripped = String.new
       RULES.each do |rule|
         text.gsub!(rule) do
           stripped = ::Regexp.last_match(0).to_s + "\n" + stripped

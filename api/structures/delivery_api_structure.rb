@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 structure :delivery do
   basic :id
   basic :status

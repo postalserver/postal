@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "resolv"
 require "nifty/utils/random_string"
 
@@ -360,7 +361,7 @@ module Postal
           return "503 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
         end
 
-        @data = "".force_encoding("BINARY")
+        @data = String.new.force_encoding("BINARY")
         @headers = {}
         @receiving_headers = true
 

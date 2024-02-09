@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 SecureHeaders::Configuration.default do |config|
   config.hsts = SecureHeaders::OPT_OUT
 

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "authie/session"
 
 class ApplicationController < ActionController::Base

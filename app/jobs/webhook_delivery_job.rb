@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class WebhookDeliveryJob < Postal::Job
 
   def perform

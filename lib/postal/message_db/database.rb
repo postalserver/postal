@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Postal
   module MessageDB
     class Database
@@ -144,7 +145,7 @@ module Postal
       #   :count     => Return a count of the results instead of the actual data
       #
       def select(table, options = {})
-        sql_query = "SELECT"
+        sql_query = String.new("SELECT")
         if options[:count]
           sql_query << " COUNT(id) AS count"
         elsif options[:fields]

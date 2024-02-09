@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ApplicationMailer < ActionMailer::Base
 
   default from: "#{Postal.smtp_from_name} <#{Postal.smtp_from_address}>"

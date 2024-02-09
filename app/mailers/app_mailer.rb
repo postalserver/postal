@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class AppMailer < ApplicationMailer
 
   def verify_email_address(user)

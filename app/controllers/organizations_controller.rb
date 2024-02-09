@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class OrganizationsController < ApplicationController
 
   before_action :admin_required, only: [:new, :create, :delete, :destroy]

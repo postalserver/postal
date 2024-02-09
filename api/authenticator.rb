@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 authenticator :server do
   friendly_name "Server Authenticator"
   header "X-Server-API-Key", "The API token for a server that you wish to authenticate with.", example: "f29a45f0d4e1744ebaee"
