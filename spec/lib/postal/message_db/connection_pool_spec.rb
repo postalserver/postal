@@ -3,7 +3,6 @@
 require "rails_helper"
 
 describe Postal::MessageDB::ConnectionPool do
-
   subject(:pool) { described_class.new }
 
   describe "#use" do
@@ -43,5 +42,4 @@ describe Postal::MessageDB::ConnectionPool do
       expect(pool.connections).to eq []
     end
   end
-
 end
