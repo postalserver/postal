@@ -19,6 +19,8 @@ begin
   end
 
   puts "\e[32mMessage has been sent successfully.\e[0m"
+rescue Timeout::Error
+  puts "Sending timed out"
 rescue StandardError => e
   puts "\e[31mMessage was not delivered successfully to SMTP server.\e[0m"
   puts "Error: #{e.class} (#{e.message})"
@@ -28,6 +30,4 @@ rescue StandardError => e
   puts "  SMTP Username: #{Postal.config.smtp.username}"
   puts "  SMTP Password: #{Postal.config.smtp.password}"
   puts
-rescue Timeout::Error
-  puts "Sending timed out"
 end
