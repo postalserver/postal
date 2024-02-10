@@ -185,3 +185,6 @@ Metrics/MethodLength:
 Metrics/BlockNesting:
   # As above.
   Enabled: false
+
+Style/StringConcatenation:
+  Enabled: false
