@@ -14,7 +14,6 @@ if from.nil? || to.nil?
   exit 1
 end
 
-
 mail = Mail.new
 mail.to = to
 mail.from = from
