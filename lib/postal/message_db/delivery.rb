@@ -20,13 +20,13 @@ module Postal
       end
 
       def method_missing(name, value = nil, &block)
-        return unless @attributes.has_key?(name.to_s)
+        return unless @attributes.key?(name.to_s)
 
         @attributes[name.to_s]
       end
 
       def respond_to_missing?(name)
-        @attributes.has_key?(name.to_s)
+        @attributes.key?(name.to_s)
       end
 
       def timestamp

@@ -178,7 +178,7 @@ module Postal
       #  Provide access to set and get acceptable attributes
       #
       def method_missing(name, value = nil, &block)
-        if @attributes.has_key?(name.to_s)
+        if @attributes.key?(name.to_s)
           @attributes[name.to_s]
         elsif name.to_s =~ /=\z/
           @attributes[name.to_s.gsub("=", "").to_s] = value
@@ -187,7 +187,7 @@ module Postal
 
       def respond_to_missing?(name)
         name = name.to_s.sub(/=\z/, "")
-        @attributes.has_key?(name.to_s)
+        @attributes.key?(name.to_s)
       end
 
       #
