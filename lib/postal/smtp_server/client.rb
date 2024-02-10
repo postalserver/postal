@@ -367,8 +367,8 @@ module Postal
         received_header = Postal::ReceivedHeader.generate(@credential&.server, @helo_name, @ip_address, :smtp)
                                                 .force_encoding("BINARY")
 
-        @data << "Received: #{received_header_content}\r\n"
-        @headers["received"] = [received_header_content]
+        @data << "Received: #{received_header}\r\n"
+        @headers["received"] = [received_header]
 
         handler = proc do |data|
           if data == "."
