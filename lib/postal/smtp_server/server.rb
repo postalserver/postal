@@ -3,6 +3,7 @@
 require "ipaddr"
 require "nio"
 
+# rubocop:disable Style/GlobalVars
 module Postal
   module SMTPServer
     class Server
@@ -298,3 +299,4 @@ module Postal
     end
   end
 end
+# rubocop:enable Style/GlobalVars
