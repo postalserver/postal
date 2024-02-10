@@ -25,6 +25,10 @@ module Postal
         @attributes[name.to_s]
       end
 
+      def respond_to_missing?(name)
+        @attributes.has_key?(name.to_s)
+      end
+
       def timestamp
         @timestamp ||= @attributes["timestamp"] ? Time.zone.at(@attributes["timestamp"]) : nil
       end

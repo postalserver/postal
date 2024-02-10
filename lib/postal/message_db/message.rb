@@ -185,6 +185,11 @@ module Postal
         end
       end
 
+      def respond_to_missing?(name)
+        name = name.to_s.sub(/=\z/, "")
+        @attributes.has_key?(name.to_s)
+      end
+
       #
       # Has this message been persisted to the database yet?
       #
