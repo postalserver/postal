@@ -18,7 +18,7 @@ end
 mail = Mail.new
 mail.to = to
 mail.from = from
-mail.subject = "A test email from #{Time.now.to_s}"
+mail.subject = "A test email from #{Time.now}"
 mail["X-Postal-Tag"] = "send-html-email-script"
 mail.text_part = Mail::Part.new do
   body <<~BODY
