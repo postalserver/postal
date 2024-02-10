@@ -5,14 +5,12 @@ class SendWebhookJob < Postal::Job
   def perform
     if server = Server.find(params["server_id"])
       new_items = {}
-      if params["payload"]
-        params["payload"].each do |key, value|
-          next unless key.to_s =~ /\A_(\w+)/
+      params["payload"]&.each do |key, value|
+        next unless key.to_s =~ /\A_(\w+)/
 
-          begin
-            new_items[::Regexp.last_match(1)] = server.message_db.message(value.to_i).webhook_hash
-          rescue Postal::MessageDB::Message::NotFound
-          end
+        begin
+          new_items[::Regexp.last_match(1)] = server.message_db.message(value.to_i).webhook_hash
+        rescue Postal::MessageDB::Message::NotFound
         end
       end
 

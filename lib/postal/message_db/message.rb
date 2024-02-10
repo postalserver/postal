@@ -335,7 +335,7 @@ module Postal
       # Return the recipient domain for this message
       #
       def recipient_domain
-        rcpt_to ? rcpt_to.split("@").last : nil
+        rcpt_to&.split("@")&.last
       end
 
       #

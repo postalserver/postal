@@ -380,7 +380,7 @@ module Postal
           else
             idata = idata.to_s.sub(/\A\.\./, ".")
 
-            if @credential && @credential.server.log_smtp_data?
+            if @credential&.server&.log_smtp_data?
               # We want to log if enabled
             else
               log "Not logging further message data."

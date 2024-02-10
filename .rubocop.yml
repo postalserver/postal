@@ -84,11 +84,6 @@ Style/ConditionalAssignment:
 Style/EmptyMethod:
   EnforcedStyle: expanded
 
-# We do not wish to auto correct unused method arguments because that can be a
-# pain.  These should just be flagged for manual intervention.
-Lint/UnusedMethodArgument:
-  AutoCorrect: false
-
 # As above, just flag them.
 Lint/UnusedBlockArgument:
   AutoCorrect: false
@@ -178,4 +173,7 @@ Metrics/BlockLength:
   Enabled: false
 
 Metrics/ClassLength:
+  Enabled: false
+
+Lint/UnusedMethodArgument:
   Enabled: false
