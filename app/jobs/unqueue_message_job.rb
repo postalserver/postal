@@ -455,6 +455,7 @@ class UnqueueMessageJob < Postal::Job
 
   private
 
+  # rubocop:disable Naming/MemoizedInstanceVariableName
   def cached_sender(klass, *args)
     @sender ||= begin
       sender = klass.new(*args)
@@ -462,5 +463,6 @@ class UnqueueMessageJob < Postal::Job
       sender
     end
   end
+  # rubocop:enable Naming/MemoizedInstanceVariableName
 
 end

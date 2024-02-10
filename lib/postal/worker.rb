@@ -202,7 +202,7 @@ module Postal
       end
 
       def job_channel
-        @channel ||= Postal::RabbitMQ.create_channel
+        @job_channel ||= Postal::RabbitMQ.create_channel
       end
 
       def job_queue(name)

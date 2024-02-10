@@ -24,11 +24,11 @@ class IncomingMessagePrototype
   end
 
   def route
-    @routes ||= if @to.present?
-                  uname, domain = @to.split("@", 2)
-                  uname, _tag = uname.split("+", 2)
-                  @server.routes.includes(:domain).where(domains: { name: domain }, name: uname).first
-                end
+    @route ||= if @to.present?
+                 uname, domain = @to.split("@", 2)
+                 uname, _tag = uname.split("+", 2)
+                 @server.routes.includes(:domain).where(domains: { name: domain }, name: uname).first
+               end
   end
 
   def attachments
