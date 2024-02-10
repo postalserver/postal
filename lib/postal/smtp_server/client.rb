@@ -8,7 +8,7 @@ module Postal
     class Client
 
       CRAM_MD5_DIGEST = OpenSSL::Digest.new("md5")
-      LOG_REDACTION_STRING = "[redacted]".freeze
+      LOG_REDACTION_STRING = "[redacted]"
 
       attr_reader :logging_enabled
 
@@ -158,10 +158,10 @@ module Postal
       end
 
       def auth_plain(data)
-        handler = proc do |data|
+        handler = proc do |idata|
           @proc = nil
-          data = Base64.decode64(data)
-          parts = data.split("\0")
+          idata = Base64.decode64(idata)
+          parts = idata.split("\0")
           username = parts[-2]
           password = parts[-1]
           unless username && password
@@ -182,9 +182,9 @@ module Postal
       end
 
       def auth_login(data)
-        password_handler = proc do |data|
+        password_handler = proc do |idata|
           @proc = nil
-          password = Base64.decode64(data)
+          password = Base64.decode64(idata)
           authenticate(password)
         end
 
@@ -217,9 +217,9 @@ module Postal
         challenge = Digest::SHA1.hexdigest(Time.now.to_i.to_s + rand(100_000).to_s)
         challenge = "<#{challenge[0, 20]}@#{Postal.config.dns.smtp_server_hostname}>"
 
-        handler = proc do |data|
+        handler = proc do |idata|
           @proc = nil
-          username, password = Base64.decode64(data).split(" ", 2).map { |a| a.chomp }
+          username, password = Base64.decode64(idata).split(" ", 2).map { |a| a.chomp }
           org_permlink, server_permalink = username.split(/[\/_]/, 2)
           server = ::Server.includes(:organization).where(organizations: { permalink: org_permlink }, permalink: server_permalink).first
           if server.nil?
@@ -357,7 +357,7 @@ module Postal
         end
       end
 
-      def data(data)
+      def data(_data)
         unless in_state(:rcpt_to_received)
           return "503 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
         end
@@ -372,13 +372,13 @@ module Postal
         @data << "Received: #{received_header}\r\n"
         @headers["received"] = [received_header]
 
-        handler = proc do |data|
-          if data == "."
+        handler = proc do |idata|
+          if idata == "."
             @logging_enabled = true
             @proc = nil
             finished
           else
-            data = data.to_s.sub(/\A\.\./, ".")
+            idata = idata.to_s.sub(/\A\.\./, ".")
 
             if @credential && @credential.server.log_smtp_data?
               # We want to log if enabled
@@ -388,20 +388,20 @@ module Postal
             end
 
             if @receiving_headers
-              if data.blank?
+              if idata.blank?
                 @receiving_headers = false
-              elsif data.to_s =~ /^\s/
+              elsif idata.to_s =~ /^\s/
                 # This is a continuation of a header
                 if @header_key && @headers[@header_key.downcase] && @headers[@header_key.downcase].last
-                  @headers[@header_key.downcase].last << data.to_s
+                  @headers[@header_key.downcase].last << idata.to_s
                 end
               else
-                @header_key, value = data.split(/:\s*/, 2)
+                @header_key, value = idata.split(/:\s*/, 2)
                 @headers[@header_key.downcase] ||= []
                 @headers[@header_key.downcase] << value
               end
             end
-            @data << data
+            @data << idata
             @data << "\r\n"
             nil
           end
@@ -453,11 +453,11 @@ module Postal
           when :bounce
             if rp_route = server.routes.where(name: "__returnpath__").first
               # If there's a return path route, we can use this to create the message
-              rp_route.create_messages do |message|
-                message.rcpt_to = rcpt_to
-                message.mail_from = @mail_from
-                message.raw_message = @data
-                message.received_with_ssl = @tls
+              rp_route.create_messages do |msg|
+                msg.rcpt_to = rcpt_to
+                msg.mail_from = @mail_from
+                msg.raw_message = @data
+                msg.received_with_ssl = @tls
               end
             else
               # There's no return path route, we just need to insert the mesage

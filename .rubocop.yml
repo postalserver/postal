@@ -118,17 +118,6 @@ Lint/BooleanSymbol:
 Style/SymbolProc:
   Enabled: false
 
-# Excluding specs from block lengths
-Metrics/BlockLength:
-  Exclude:
-    - "spec/**/*.rb"
-    - "db/schema.rb"
-    - "db/migrate/**/*.rb"
-    - "lib/tasks/auto_annotate_models.rake"
-    - "config/routes.rb"
-    - "lib/tasks/*.rake"
-    - "app/apis/core_api/base.rb"
-
 Metrics/ModuleLength:
   Exclude:
     - "spec/factories/**/*.rb"
@@ -149,10 +138,6 @@ Metrics/ParameterLists:
 Style/MultilineBlockChain:
   Exclude:
     - "spec/**/*.rb"
-
-# Increase class lengths to a more reasonable place
-Metrics/ClassLength:
-  Max: 250
 
 Metrics/AbcSize:
   Enabled: false
@@ -187,4 +172,10 @@ Metrics/BlockNesting:
   Enabled: false
 
 Style/StringConcatenation:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
   Enabled: false

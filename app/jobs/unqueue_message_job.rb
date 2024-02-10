@@ -424,7 +424,7 @@ class UnqueueMessageJob < Postal::Job
             end
           rescue StandardError => e
             log "#{log_prefix} Internal error: #{e.class}: #{e.message}"
-            e.backtrace.each { |e| log("#{log_prefix} #{e}") }
+            e.backtrace.each { |line| log("#{log_prefix} #{line}") }
             queued_message.retry_later
             log "#{log_prefix} Queued message was unlocked"
             if defined?(Sentry)

@@ -245,7 +245,7 @@ module Postal
           sql_query = "INSERT INTO `#{database_name}`.`#{table}`"
           sql_query << (" (" + keys.map { |k| "`#{k}`" }.join(", ") + ")")
           sql_query << " VALUES "
-          sql_query << values.map { |v| "(" + v.map { |v| escape(v) }.join(", ") + ")" }.join(", ")
+          sql_query << values.map { |v| "(" + v.map { |r| escape(r) }.join(", ") + ")" }.join(", ")
           query(sql_query)
         end
       end
@@ -295,8 +295,8 @@ module Postal
       end
 
       def stringify_keys(hash)
-        hash.each_with_object({}) do |(key, value), hash|
-          hash[key.to_s] = value
+        hash.each_with_object({}) do |(key, value), h|
+          h[key.to_s] = value
         end
       end
 
@@ -365,16 +365,16 @@ module Postal
             "`#{key}` IN (#{escaped_values})"
           elsif value.is_a?(Hash)
             sql = []
-            value.each do |operator, value|
+            value.each do |operator, inner_value|
               case operator
               when :less_than
-                sql << "`#{key}` < #{escape(value)}"
+                sql << "`#{key}` < #{escape(inner_value)}"
               when :greater_than
-                sql << "`#{key}` > #{escape(value)}"
+                sql << "`#{key}` > #{escape(inner_value)}"
               when :less_than_or_equal_to
-                sql << "`#{key}` <= #{escape(value)}"
+                sql << "`#{key}` <= #{escape(inner_value)}"
               when :greater_than_or_equal_to
-                sql << "`#{key}` >= #{escape(value)}"
+                sql << "`#{key}` >= #{escape(inner_value)}"
               end
             end
             sql.empty? ? "1=1" : sql.join(joiner)

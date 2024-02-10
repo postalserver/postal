@@ -6,7 +6,7 @@ class SendWebhookJob < Postal::Job
     if server = Server.find(params["server_id"])
       new_items = {}
       if params["payload"]
-        for key, value in params["payload"]
+        params["payload"].each do |key, value|
           next unless key.to_s =~ /\A_(\w+)/
 
           begin

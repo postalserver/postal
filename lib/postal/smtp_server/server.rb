@@ -188,10 +188,10 @@ module Postal
                     next if result.nil?
 
                     result = [result] unless result.is_a?(Array)
-                    result.compact.each do |line|
-                      client.log "\e[34m=> #{line.strip}\e[0m"
+                    result.compact.each do |iline|
+                      client.log "\e[34m=> #{iline.strip}\e[0m"
                       begin
-                        io.write(line.to_s + "\r\n")
+                        io.write(iline.to_s + "\r\n")
                         io.flush
                       rescue Errno::ECONNRESET
                         # Client disconnected before we could write response
@@ -238,8 +238,8 @@ module Postal
                 end
                 logger.error "[#{client_id}] An error occurred while processing data from a client."
                 logger.error "[#{client_id}] #{e.class}: #{e.message}"
-                e.backtrace.each do |line|
-                  logger.error "[#{client_id}] #{line}"
+                e.backtrace.each do |iline|
+                  logger.error "[#{client_id}] #{iline}"
                 end
                 # Close all IO and forget this client
                 begin
