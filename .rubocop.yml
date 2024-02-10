@@ -177,3 +177,6 @@ Metrics/ClassLength:
 
 Lint/UnusedMethodArgument:
   Enabled: false
+
+Style/SpecialGlobalVars:
+  Enabled: false
