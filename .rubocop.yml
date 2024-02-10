@@ -140,10 +140,6 @@ Metrics/ModuleLength:
     - "lib/tasks/auto_annotate_models.rake"
     - "config/routes.rb"
 
-# Slightly increase tyhe default method length to be a bit more forgiving
-Metrics/MethodLength:
-  Max: 30
-
 # Allow a maxmium of 5 arguments and don't include keyword arguments
 Metrics/ParameterLists:
   Max: 5
@@ -179,5 +175,13 @@ Metrics/PerceivedComplexity:
   Enabled: false
 
 Metrics/CyclomaticComplexity:
+  # As above.
+  Enabled: false
+
+Metrics/MethodLength:
+  # As above.
+  Enabled: false
+
+Metrics/BlockNesting:
   # As above.
   Enabled: false
