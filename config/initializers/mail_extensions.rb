@@ -115,10 +115,10 @@ module Mail
     def initialize(parts_list)
       @parts_list = parts_list
       @content_disposition_type = "attachment"
-      parts_list.map do |p|
+      parts = parts_list.map do |p|
         p.parts.empty? && p.attachment? ? p : p.attachments
-      end.flatten.compact.each { |a| self << a }
-      self
+      end.flatten.compact
+      parts.each { |a| self << a }
     end
     # rubocop:enable Lint/MissingSuper
 
