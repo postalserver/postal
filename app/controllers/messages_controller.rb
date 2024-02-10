@@ -222,6 +222,7 @@ class MessagesController < ApplicationController
         time = Chronic.parse(string, context: :past)
       end
     rescue StandardError
+      time = nil
     end
 
     raise TimeUndetermined, "Couldn't determine a suitable time from '#{string}'" if time.nil?
