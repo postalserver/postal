@@ -8,7 +8,9 @@ Style/WordArray:
   EnforcedStyle: brackets
 
 Layout/LineLength:
-  Enabled: false
+  # We want to reduce this back down to 120 but there are a fair number of offences
+  # of this which need addressing individually and carefully. 
+  Max: 200
 
 Metrics/AbcSize:
   Enabled: false

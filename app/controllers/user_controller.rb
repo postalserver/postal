@@ -71,7 +71,9 @@ class UserController < ApplicationController
 
     if @user.save
       if email_changed
-        redirect_to_with_json verify_path(return_to: settings_path), notice: "Your settings have been updated successfully. As you've changed, your e-mail address you'll need to verify it before you can continue."
+        redirect_to_with_json verify_path(return_to: settings_path),
+                              notice: "Your settings have been updated successfully. As you've changed, your e-mail " \
+                                      "address you'll need to verify it before you can continue."
       else
         redirect_to_with_json settings_path, notice: "Your settings have been updated successfully."
       end

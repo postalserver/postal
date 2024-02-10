@@ -220,6 +220,10 @@ class Server < ApplicationRecord
     }
   end
 
+  # Return the domain which can be used to authenticate emails sent from the given e-mail address.
+  #
+  # @param address [String] an e-mail address
+  # @return [Domain, nil] the domain to use for authentication
   def authenticated_domain_for_address(address)
     return nil if address.blank?
 
@@ -230,14 +234,24 @@ class Server < ApplicationRecord
 
     uname, = uname.split("+", 2)
 
-    # Check the server's domain
-    if domain = Domain.verified.order(owner_type: :desc).where("(owner_type = 'Organization' AND owner_id = ?) OR (owner_type = 'Server' AND owner_id = ?)", organization_id, id).where(name: domain_name).first
-      return domain
-    end
+    # Find a verified domain which directly matches the domain name for the given address.
+    domain = Domain.verified
+                   .order(owner_type: :desc)
+                   .where("(owner_type = 'Organization' AND owner_id = ?) OR " \
+                          "(owner_type = 'Server' AND owner_id = ?)", organization_id, id)
+                   .where(name: domain_name)
+                   .first
 
-    return unless any_domain = domains.verified.where(use_for_any: true).order(:name).first
+    # If there is a matching domain, return it
+    return domain if domain
 
-    any_domain
+    # Otherwise, we need to look to see if there is a domain configured which can be used as the authenticated
+    # domain for any domain. This will look for domains directly within the server and return that.
+    any_domain = domains.verified.where(use_for_any: true).order(:name).first
+    return any_domain if any_domain
+
+    # Return nil if we can't find anything suitable
+    nil
   end
 
   def find_authenticated_domain_from_headers(headers)
