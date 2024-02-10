@@ -219,12 +219,16 @@ class Route < ApplicationRecord
     errors.add :base, "Additional routes are not permitted unless the primary route is an actual endpoint"
   end
 
-  def self.find_by_name_and_domain(name, domain)
-    route = Route.includes(:domain).where(name: name, domains: { name: domain }).first
-    if route.nil?
-      route = Route.includes(:domain).where(name: "*", domains: { name: domain }).first
+  class << self
+
+    def find_by_name_and_domain(name, domain)
+      route = Route.includes(:domain).where(name: name, domains: { name: domain }).first
+      if route.nil?
+        route = Route.includes(:domain).where(name: "*", domains: { name: domain }).first
+      end
+      route
     end
-    route
+
   end
 
 end

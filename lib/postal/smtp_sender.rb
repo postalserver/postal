@@ -252,39 +252,43 @@ module Postal
       records.first&.address&.to_s&.downcase
     end
 
-    def self.ssl_context_with_verify
-      @ssl_context_with_verify ||= begin
-        c = OpenSSL::SSL::SSLContext.new
-        c.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        c.cert_store = OpenSSL::X509::Store.new
-        c.cert_store.set_default_paths
-        c
+    class << self
+
+      def ssl_context_with_verify
+        @ssl_context_with_verify ||= begin
+          c = OpenSSL::SSL::SSLContext.new
+          c.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          c.cert_store = OpenSSL::X509::Store.new
+          c.cert_store.set_default_paths
+          c
+        end
       end
-    end
 
-    def self.ssl_context_without_verify
-      @ssl_context_without_verify ||= begin
-        c = OpenSSL::SSL::SSLContext.new
-        c.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        c
+      def ssl_context_without_verify
+        @ssl_context_without_verify ||= begin
+          c = OpenSSL::SSL::SSLContext.new
+          c.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          c
+        end
       end
-    end
 
-    def self.default_helo_hostname
-      Postal.config.dns.helo_hostname || Postal.config.dns.smtp_server_hostname || "localhost"
-    end
+      def default_helo_hostname
+        Postal.config.dns.helo_hostname || Postal.config.dns.smtp_server_hostname || "localhost"
+      end
 
-    def self.relay_hosts
-      hosts = Postal.config.smtp_relays.map do |relay|
-        next unless relay.hostname.present?
+      def relay_hosts
+        hosts = Postal.config.smtp_relays.map do |relay|
+          next unless relay.hostname.present?
 
-        {
-          hostname: relay.hostname,
-          port: relay.port,
-          ssl_mode: relay.ssl_mode
-        }
-      end.compact
-      hosts.empty? ? nil : hosts
+          {
+            hostname: relay.hostname,
+            port: relay.port,
+            ssl_mode: relay.ssl_mode
+          }
+        end.compact
+        hosts.empty? ? nil : hosts
+      end
+
     end
 
   end

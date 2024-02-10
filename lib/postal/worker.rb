@@ -195,21 +195,25 @@ module Postal
       self.class.logger
     end
 
-    def self.logger
-      Postal.logger_for(:worker)
-    end
+    class << self
 
-    def self.job_channel
-      @channel ||= Postal::RabbitMQ.create_channel
-    end
+      def logger
+        Postal.logger_for(:worker)
+      end
 
-    def self.job_queue(name)
-      @job_queues ||= {}
-      @job_queues[name] ||= job_channel.queue("deliver-jobs-#{name}", durable: true, arguments: { "x-message-ttl" => 60_000 })
-    end
+      def job_channel
+        @channel ||= Postal::RabbitMQ.create_channel
+      end
 
-    def self.local_ip?(ip)
-      !!(ip =~ /\A(127\.|fe80:|::)/)
+      def job_queue(name)
+        @job_queues ||= {}
+        @job_queues[name] ||= job_channel.queue("deliver-jobs-#{name}", durable: true, arguments: { "x-message-ttl" => 60_000 })
+      end
+
+      def local_ip?(ip)
+        !!(ip =~ /\A(127\.|fe80:|::)/)
+      end
+
     end
 
   end
