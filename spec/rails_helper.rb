@@ -25,7 +25,7 @@ RSpec.configure do |config|
     # the rest of the suite.
     begin
       DatabaseCleaner.start
-      FactoryBot.lint#(FactoryBot.factories.select { |f| !FACTORIES_EXCLUDED_FROM_LINT.include?(f.name.to_sym) })
+      FactoryBot.lint
     ensure
       DatabaseCleaner.clean
     end
