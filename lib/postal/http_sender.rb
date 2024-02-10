@@ -27,7 +27,7 @@ module Postal
 
       log "Sending request to #{@endpoint.url}"
       response = Postal::HTTP.post(@endpoint.url, request_options)
-      result.secure = !!response[:secure]
+      result.secure = !!response[:secure] # rubocop:disable Style/DoubleNegation
       result.details = "Received a #{response[:code]} from #{@endpoint.url}"
       log "  -> Received: #{response[:code]}"
       if response[:body]

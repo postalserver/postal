@@ -65,8 +65,6 @@ module Postal
               smtp_client.enable_starttls(self.class.ssl_context_with_verify)
             when "TLS"
               smtp_client.enable_tls(self.class.ssl_context_with_verify)
-            else
-              # Nothing
             end
 
             smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)

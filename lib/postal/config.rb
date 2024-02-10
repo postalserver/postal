@@ -11,8 +11,10 @@ require_relative "version"
 
 module Postal
 
+  # rubocop:disable Lint/EmptyClass
   class Config
   end
+  # rubocop:enable Lint/EmptyClass
 
   def self.host
     @host ||= config.web.host || "localhost:5000"

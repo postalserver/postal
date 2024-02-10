@@ -295,9 +295,7 @@ module Postal
       end
 
       def stringify_keys(hash)
-        hash.each_with_object({}) do |(key, value), h|
-          h[key.to_s] = value
-        end
+        hash.transform_keys(&:to_s)
       end
 
       def escape(value)

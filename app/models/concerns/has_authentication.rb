@@ -44,19 +44,4 @@ module HasAuthentication
 
 end
 
-class Postal::Errors::AuthenticationError < Postal::Error
-
-  attr_reader :error
-
-  def initialize(error)
-    super()
-    @error = error
-  end
-
-  def to_s
-    "Authentication Failed: #{@error}"
-  end
-
-end
-
 # -*- SkipSchemaAnnotations

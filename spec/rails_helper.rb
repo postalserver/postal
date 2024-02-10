@@ -34,7 +34,10 @@ RSpec.configure do |config|
     # Because the mail databases don't use any transactions, all data left in the
     # database will be left there unless removed.
     DatabaseCleaner.start
+
+    # rubocop:disable Lint/ConstantDefinitionInBlock
     GLOBAL_SERVER = FactoryBot.create(:server, provision_database: true)
+    # rubocop:enable Lint/ConstantDefinitionInBlock
   end
 
   config.after(:suite) do

@@ -6,7 +6,7 @@ trap("INT") do
   exit
 end
 
-if ARGV[0].nil? || !(ARGV[0] =~ /@/)
+if ARGV[0].nil? || ARGV[0] !~ /@/
   puts "usage: postal test-app-smtp [email address]"
   exit 1
 end

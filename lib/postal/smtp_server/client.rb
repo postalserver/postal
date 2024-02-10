@@ -309,7 +309,7 @@ module Postal
               "550 Route does not accept incoming messages"
             else
               log "Added route #{route.id} to recipients (tag: #{tag.inspect})"
-              actual_rcpt_to = "#{route.name}" + (tag ? "+#{tag}" : "") + "@#{route.domain.name}"
+              actual_rcpt_to = "#{route.name}#{tag ? "+#{tag}" : ''}@#{route.domain.name}"
               @recipients << [:route, actual_rcpt_to, route.server, { route: route }]
               "250 OK"
             end
@@ -415,7 +415,7 @@ module Postal
         if @data.bytesize > Postal.config.smtp_server.max_message_size.megabytes.to_i
           transaction_reset
           @state = :welcomed
-          return "552 Message too large (maximum size %dMB)" % Postal.config.smtp_server.max_message_size
+          return format("552 Message too large (maximum size %dMB)", Postal.config.smtp_server.max_message_size)
         end
 
         if @headers["received"].grep(/by #{Postal.config.dns.smtp_server_hostname}/).count > 4

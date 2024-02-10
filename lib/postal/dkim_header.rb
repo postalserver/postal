@@ -34,14 +34,14 @@ module Postal
 
     def normalized_headers
       [].tap do |new_headers|
-        dkim_headers = headers.select { |h|
-          h.match(%r{
+        dkim_headers = headers.select do |h|
+          h.match(/
             ^(
               from|sender|reply-to|subject|date|message-id|to|cc|mime-version|content-type|content-transfer-encoding|
               resent-to|resent-cc|resent-from|resent-sender|resent-message-id|in-reply-to|references|list-id|list-help|
               list-owner|list-unsubscribe|list-subscribe|list-post
-            ):}ix)
-        }
+            ):/ix)
+        end
         dkim_headers.each do |h|
           new_headers << normalize_header(h)
         end

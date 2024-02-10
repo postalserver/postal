@@ -56,7 +56,7 @@ module Postal
         response = nil
         begin
           response = http.request(request)
-        rescue Exception => e
+        rescue StandardError => e
           logger.error "Error talking to rspamd: #{e.class} (#{e.message})"
           logger.error e.backtrace[0, 5]
 

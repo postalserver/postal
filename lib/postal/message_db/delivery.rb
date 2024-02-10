@@ -61,6 +61,7 @@ module Postal
         }
       end
 
+      # rubocop:disable Style/HashLikeCase
       def webhook_event
         @webhook_event ||= case status
                            when "Sent" then "MessageSent"
@@ -69,6 +70,7 @@ module Postal
                            when "Held" then "MessageHeld"
                            end
       end
+      # rubocop:enable Style/HashLikeCase
 
     end
   end
