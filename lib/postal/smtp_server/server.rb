@@ -18,7 +18,7 @@ module Postal
         BasicSocket.do_not_reverse_lookup = true
 
         trap("USR1") do
-          STDOUT.puts "Received USR1 signal, respawning."
+          $stdout.puts "Received USR1 signal, respawning."
           fork do
             if ENV["APP_ROOT"]
               Dir.chdir(ENV["APP_ROOT"])
@@ -29,7 +29,7 @@ module Postal
         end
 
         trap("TERM") do
-          STDOUT.puts "Received TERM signal, shutting down."
+          $stdout.puts "Received TERM signal, shutting down."
           unlisten
         end
       end

@@ -341,7 +341,7 @@ module Postal
       end
 
       def logger
-        defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
+        defined?(Rails) ? Rails.logger : Logger.new($stdout)
       end
 
       def slow_query_logger
