@@ -26,7 +26,7 @@ describe Postal::MessageDB::ConnectionPool do
 
     it "checks in a connection if theres an error in the block" do
       expect do
-        pool.use do |c|
+        pool.use do
           raise StandardError
         end
       end.to raise_error StandardError

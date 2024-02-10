@@ -32,7 +32,7 @@ module Postal
     config.eager_load_paths << Rails.root.join("lib")
 
     # Disable field_with_errors
-    config.action_view.field_error_proc = proc { |t, i| t }
+    config.action_view.field_error_proc = proc { |t, _| t }
 
     # Load the tracking server middleware
     require "postal/tracking_middleware"

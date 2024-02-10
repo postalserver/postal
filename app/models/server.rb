@@ -157,7 +157,7 @@ class Server < ApplicationRecord
       time = Time.now.utc
       total_outgoing = 0.0
       total_bounces = 0.0
-      message_db.statistics.get(:daily, [:outgoing, :bounces], time, 30).each do |date, stat|
+      message_db.statistics.get(:daily, [:outgoing, :bounces], time, 30).each do |_, stat|
         total_outgoing += stat[:outgoing]
         total_bounces += stat[:bounces]
       end
