@@ -28,7 +28,7 @@ module Postal
       end
 
       def remove(type, address)
-        @database.delete("suppressions", where: { type: type, address: address }) > 0
+        @database.delete("suppressions", where: { type: type, address: address }).positive?
       end
 
       def prune

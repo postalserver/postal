@@ -17,7 +17,7 @@ module Postal
     def self.request(method, url, options = {})
       options[:headers] ||= {}
       uri = URI.parse(url)
-      request = method.new((uri.path.length == 0 ? "/" : uri.path) + (uri.query ? "?" + uri.query : ""))
+      request = method.new((uri.path.empty? ? "/" : uri.path) + (uri.query ? "?" + uri.query : ""))
       options[:headers].each { |k, v| request.add_field k, v }
 
       if options[:username] || uri.user

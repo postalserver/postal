@@ -163,7 +163,7 @@ module Postal
                     case io
                     when OpenSSL::SSL::SSLSocket
                       buffers[io] << io.readpartial(10_240)
-                      buffers[io] << io.readpartial(10_240) while io.pending > 0
+                      buffers[io] << io.readpartial(10_240) while io.pending.positive?
                     else
                       buffers[io] << io.readpartial(10_240)
                     end

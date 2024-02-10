@@ -21,7 +21,7 @@ module Postal
     attr_reader :tracked_images
 
     def actioned?
-      @actioned || @tracked_links > 0 || @tracked_images > 0
+      @actioned || @tracked_links.positive? || @tracked_images.positive?
     end
 
     def new_body

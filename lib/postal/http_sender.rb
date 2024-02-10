@@ -40,7 +40,7 @@ module Postal
         # This is temporary. They might fix their server so it should soft fail.
         result.type = "SoftFail"
         result.retry = true
-      elsif response[:code] < 0
+      elsif response[:code].negative?
         # Connection/SSL etc... errors
         result.type = "SoftFail"
         result.retry = true

@@ -35,7 +35,7 @@ module Postal
             logger.info "Job did not finish in a timely manner. Exiting"
             exit 0
           end
-          if exit_checks == 0
+          if exit_checks.zero?
             logger.info "Exit requested but job is running. Waiting for job to finish."
           end
           sleep 60

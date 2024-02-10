@@ -20,7 +20,7 @@ module HasMessage
     def include_message
       queued_messages = all.to_a
       server_ids = queued_messages.map(&:server_id).uniq
-      if server_ids.size == 0
+      if server_ids.empty?
         return []
       elsif server_ids.size > 1
         raise Postal::Error, "'include_message' can only be used on collections of messages from the same server"

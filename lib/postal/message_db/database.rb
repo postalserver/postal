@@ -196,7 +196,7 @@ module Postal
         result[:records] = select(table, options.merge(limit: per_page, offset: offset))
         result[:per_page] = per_page
         result[:total_pages], remainder = result[:total].divmod(per_page)
-        result[:total_pages] += 1 if remainder > 0
+        result[:total_pages] += 1 if remainder.positive?
         result[:page] = page
         result
       end
@@ -308,7 +308,7 @@ module Postal
             "0"
           elsif value.nil?
             "NULL"
-          elsif value.to_s.length == 0
+          elsif value.to_s.empty?
             "NULL"
           else
             "'" + mysql.escape(value.to_s) + "'"

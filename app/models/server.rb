@@ -160,7 +160,7 @@ class Server < ApplicationRecord
         total_outgoing += stat[:outgoing]
         total_bounces += stat[:bounces]
       end
-      total_outgoing == 0 ? 0 : (total_bounces / total_outgoing) * 100
+      total_outgoing.zero? ? 0 : (total_bounces / total_outgoing) * 100
     end
   end
 
@@ -221,7 +221,7 @@ class Server < ApplicationRecord
 
   # Return the domain which can be used to authenticate emails sent from the given e-mail address.
   #
-  # @param address [String] an e-mail address
+  #  @param address [String] an e-mail address
   # @return [Domain, nil] the domain to use for authentication
   def authenticated_domain_for_address(address)
     return nil if address.blank?
