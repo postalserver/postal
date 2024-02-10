@@ -37,9 +37,7 @@ class AdditionalRouteEndpoint < ApplicationRecord
   end
 
   def _endpoint=(value)
-    if value.blank?
-      self.endpoint = nil
-    elsif value =~ /\#/
+    if value && value =~ /\#/
       class_name, id = value.split("#", 2)
       unless Route::ENDPOINT_TYPES.include?(class_name)
         raise Postal::Error, "Invalid endpoint class name '#{class_name}'"

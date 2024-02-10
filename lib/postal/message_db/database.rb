@@ -306,9 +306,7 @@ module Postal
             "1"
           elsif value == false
             "0"
-          elsif value.nil?
-            "NULL"
-          elsif value.to_s.empty?
+          elsif value.nil? || value.to_s.empty?
             "NULL"
           else
             "'" + mysql.escape(value.to_s) + "'"
