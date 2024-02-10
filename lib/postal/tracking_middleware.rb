@@ -92,7 +92,8 @@ module Postal
           link_id: link["id"],
           ip_address: request.ip,
           user_agent: request.user_agent,
-          timestamp: time })
+          timestamp: time
+        })
         SendWebhookJob.queue(:main,
                              server_id: message_db.server_id,
                              event: "MessageLinkClicked",
