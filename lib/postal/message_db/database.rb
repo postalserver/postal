@@ -333,7 +333,7 @@ module Postal
           id = Nifty::Utils::RandomString.generate(length: 6).upcase
           explain_result = ResultForExplainPrinter.new(connection.query("EXPLAIN #{query}"))
           slow_query_logger.info "[#{id}] EXPLAIN #{query}"
-          for line in ActiveRecord::ConnectionAdapters::MySQL::ExplainPrettyPrinter.new.pp(explain_result, time).split("\n")
+          ActiveRecord::ConnectionAdapters::MySQL::ExplainPrettyPrinter.new.pp(explain_result, time).split("\n").each do |line|
             slow_query_logger.info "[#{id}] " + line
           end
         end

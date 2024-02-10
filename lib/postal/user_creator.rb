@@ -23,7 +23,7 @@ module Postal
         puts "User has been created with e-mail address \e[32m#{user.email_address}\e[0m"
       else
         puts "\e[31mFailed to create user\e[0m"
-        for error in user.errors.full_messages
+        user.errors.full_messages.each do |error|
           puts " * #{error}"
         end
       end

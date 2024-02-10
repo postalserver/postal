@@ -94,7 +94,7 @@ class UnqueueMessageJob < Postal::Job
                 log "#{log_prefix} Message is a bounce"
                 original_messages = queued_message.message.original_messages
                 unless original_messages.empty?
-                  for original_message in queued_message.message.original_messages
+                  queued_message.message.original_messages.each do |original_message|
                     queued_message.message.update(bounce_for_id: original_message.id, domain_id: original_message.domain_id)
                     queued_message.message.create_delivery("Processed", details: "This has been detected as a bounce message for <msg:#{original_message.id}>.")
                     original_message.bounce!(queued_message.message)
