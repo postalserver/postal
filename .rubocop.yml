@@ -172,3 +172,12 @@ Layout/LineLength:
   # We want to reduce this back down to 120 but there are a fair number of offences
   # of this which need addressing individually and carefully. 
   Max: 200
+
+Metrics/PerceivedComplexity:
+  # As above, we want to enable this again in the future, but for now we'll just 
+  # disable it entirely.
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  # As above.
+  Enabled: false
