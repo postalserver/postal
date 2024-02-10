@@ -111,6 +111,7 @@ module Mail
   # Handle attached emails as attachments
   class AttachmentsList < Array
 
+    # rubocop:disable Lint/MissingSuper
     def initialize(parts_list)
       @parts_list = parts_list
       @content_disposition_type = "attachment"
@@ -119,6 +120,7 @@ module Mail
       end.flatten.compact.each { |a| self << a }
       self
     end
+    # rubocop:enable Lint/MissingSuper
 
   end
 

@@ -6,6 +6,7 @@ module Postal
   class SMTPSender < Sender
 
     def initialize(domain, source_ip_address, options = {})
+      super()
       @domain = domain
       @source_ip_address = source_ip_address
       @options = options
@@ -143,9 +144,9 @@ module Postal
           mail_from = "#{message.server.token}@#{Postal.config.dns.return_path}"
         end
         if Postal.config.general.use_resent_sender_header
-            raw_message = "Resent-Sender: #{mail_from}\r\n" + message.raw_message
+          raw_message = "Resent-Sender: #{mail_from}\r\n" + message.raw_message
         else
-            raw_message = message.raw_message
+          raw_message = message.raw_message
         end
         tries = 0
         begin

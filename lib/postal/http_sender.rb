@@ -4,6 +4,7 @@ module Postal
   class HTTPSender < Sender
 
     def initialize(endpoint, options = {})
+      super()
       @endpoint = endpoint
       @options = options
       @log_id = Nifty::Utils::RandomString.generate(length: 8).upcase

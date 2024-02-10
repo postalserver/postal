@@ -49,6 +49,7 @@ class Postal::Errors::AuthenticationError < Postal::Error
   attr_reader :error
 
   def initialize(error)
+    super()
     @error = error
   end
 
