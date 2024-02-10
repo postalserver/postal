@@ -16,15 +16,15 @@
 
 class WebhookEvent < ApplicationRecord
 
-  EVENTS = [
-    "MessageSent",
-    "MessageDelayed",
-    "MessageDeliveryFailed",
-    "MessageHeld",
-    "MessageBounced",
-    "MessageLinkClicked",
-    "MessageLoaded",
-    "DomainDNSError"
+  EVENTS = %w[
+    MessageSent
+    MessageDelayed
+    MessageDeliveryFailed
+    MessageHeld
+    MessageBounced
+    MessageLinkClicked
+    MessageLoaded
+    DomainDNSError
   ].freeze
 
   belongs_to :webhook

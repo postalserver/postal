@@ -24,9 +24,9 @@
 
 class Route < ApplicationRecord
 
-  MODES = ["Endpoint", "Accept", "Hold", "Bounce", "Reject"].freeze
-  SPAM_MODES = ["Mark", "Quarantine", "Fail"].freeze
-  ENDPOINT_TYPES = ["SMTPEndpoint", "HTTPEndpoint", "AddressEndpoint"].freeze
+  MODES = %w[Endpoint Accept Hold Bounce Reject].freeze
+  SPAM_MODES = %w[Mark Quarantine Fail].freeze
+  ENDPOINT_TYPES = %w[SMTPEndpoint HTTPEndpoint AddressEndpoint].freeze
 
   include HasUUID
 

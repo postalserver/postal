@@ -44,8 +44,8 @@ class Domain < ApplicationRecord
 
   include HasDNSChecks
 
-  VERIFICATION_EMAIL_ALIASES = ["webmaster", "postmaster", "admin", "administrator", "hostmaster"].freeze
-  VERIFICATION_METHODS = ["DNS", "Email"].freeze
+  VERIFICATION_EMAIL_ALIASES = %w[webmaster postmaster admin administrator hostmaster].freeze
+  VERIFICATION_METHODS = %w[DNS Email].freeze
 
   belongs_to :server, optional: true
   belongs_to :owner, optional: true, polymorphic: true

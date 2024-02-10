@@ -43,8 +43,8 @@
 
 class Server < ApplicationRecord
 
-  RESERVED_PERMALINKS = ["new", "all", "search", "stats", "edit", "manage", "delete", "destroy", "remove"].freeze
-  MODES = ["Live", "Development"].freeze
+  RESERVED_PERMALINKS = %w[new all search stats edit manage delete destroy remove].freeze
+  MODES = %w[Live Development].freeze
 
   include HasUUID
   include HasSoftDestroy

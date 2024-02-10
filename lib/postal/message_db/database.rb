@@ -160,7 +160,7 @@ module Postal
         end
         if options[:order]
           direction = (options[:direction] || "ASC").upcase
-          raise Postal::Error, "Invalid direction #{options[:direction]}" unless ["ASC", "DESC"].include?(direction)
+          raise Postal::Error, "Invalid direction #{options[:direction]}" unless %w[ASC DESC].include?(direction)
 
           sql_query << " ORDER BY `#{options[:order]}` #{direction}"
         end

@@ -5,7 +5,7 @@ require "resolv"
 module HasDNSChecks
 
   def dns_ok?
-    spf_status == "OK" && dkim_status == "OK" && ["OK", "Missing"].include?(mx_status) && ["OK", "Missing"].include?(return_path_status)
+    spf_status == "OK" && dkim_status == "OK" && %w[OK Missing].include?(mx_status) && %w[OK Missing].include?(return_path_status)
   end
 
   def dns_checked?

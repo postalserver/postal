@@ -25,7 +25,7 @@
 
 class Organization < ApplicationRecord
 
-  RESERVED_PERMALINKS = ["new", "edit", "remove", "delete", "destroy", "admin", "mail", "org", "server"].freeze
+  RESERVED_PERMALINKS = %w[new edit remove delete destroy admin mail org server].freeze
 
   INITIAL_QUOTA = 10
   INITIAL_SUPER_QUOTA = 10_000
