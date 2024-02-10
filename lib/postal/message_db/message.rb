@@ -553,14 +553,14 @@ module Postal
       private
 
       def _update
-        @database.update("messages", @attributes.reject { |k, _| k == :id }, where: { id: @attributes["id"] })
+        @database.update("messages", @attributes.except(:id), where: { id: @attributes["id"] })
       end
 
       def _create
         self.timestamp = Time.now.to_f if timestamp.blank?
         self.status = "Pending" if status.blank?
         self.token = Nifty::Utils::RandomString.generate(length: 12) if token.blank?
-        last_id = @database.insert("messages", @attributes.reject { |k, _| k == :id })
+        last_id = @database.insert("messages", @attributes.except(:id))
         @attributes["id"] = last_id
         @database.statistics.increment_all(timestamp, scope)
         Statistic.global.increment!(:total_messages)
