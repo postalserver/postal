@@ -113,17 +113,6 @@ Lint/BooleanSymbol:
 Style/SymbolProc:
   Enabled: false
 
-Metrics/ModuleLength:
-  Exclude:
-    - "spec/factories/**/*.rb"
-    - "spec/**/*_spec.rb"
-    - "spec/support/**/*.rb"
-    - "spec/specs/support/**/*.rb"
-    - "db/schema.rb"
-    - "db/migrate/**/*.rb"
-    - "lib/tasks/auto_annotate_models.rake"
-    - "config/routes.rb"
-
 # Allow a maxmium of 5 arguments and don't include keyword arguments
 Metrics/ParameterLists:
   Max: 5
@@ -173,6 +162,9 @@ Metrics/BlockLength:
   Enabled: false
 
 Metrics/ClassLength:
+  Enabled: false
+
+Metrics/ModuleLength:
   Enabled: false
 
 Lint/UnusedMethodArgument:

@@ -418,7 +418,7 @@ module Postal
           return "552 Message too large (maximum size %dMB)" % Postal.config.smtp_server.max_message_size
         end
 
-        if @headers["received"].select { |r| r =~ /by #{Postal.config.dns.smtp_server_hostname}/ }.count > 4
+        if @headers["received"].grep(/by #{Postal.config.dns.smtp_server_hostname}/).count > 4
           transaction_reset
           @state = :welcomed
           return "550 Loop detected"
