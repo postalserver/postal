@@ -11,7 +11,6 @@ require "database_cleaner"
 DatabaseCleaner.allow_remote_database_url = true
 ActiveRecord::Base.logger = Logger.new("/dev/null")
 
-FACTORIES_EXCLUDED_FROM_LINT = []
 Dir[File.expand_path("factories/*.rb", __dir__)].each { |f| require f }
 
 ActiveRecord::Migration.maintain_test_schema!
@@ -26,7 +25,7 @@ RSpec.configure do |config|
     # the rest of the suite.
     begin
       DatabaseCleaner.start
-      FactoryBot.lint(FactoryBot.factories.select { |f| !FACTORIES_EXCLUDED_FROM_LINT.include?(f.name.to_sym) })
+      FactoryBot.lint#(FactoryBot.factories.select { |f| !FACTORIES_EXCLUDED_FROM_LINT.include?(f.name.to_sym) })
     ensure
       DatabaseCleaner.clean
     end
