@@ -44,14 +44,13 @@ class Domain < ApplicationRecord
 
   include HasDNSChecks
 
-  VERIFICATION_EMAIL_ALIASES = ["webmaster", "postmaster", "admin", "administrator", "hostmaster"]
+  VERIFICATION_EMAIL_ALIASES = ["webmaster", "postmaster", "admin", "administrator", "hostmaster"].freeze
+  VERIFICATION_METHODS = ["DNS", "Email"].freeze
 
   belongs_to :server, optional: true
   belongs_to :owner, optional: true, polymorphic: true
   has_many :routes, dependent: :destroy
   has_many :track_domains, dependent: :destroy
-
-  VERIFICATION_METHODS = ["DNS", "Email"]
 
   validates :name, presence: true, format: { with: /\A[a-z0-9\-.]*\z/ }, uniqueness: { case_sensitive: false, scope: [:owner_type, :owner_id], message: "is already added" }
   validates :verification_method, inclusion: { in: VERIFICATION_METHODS }

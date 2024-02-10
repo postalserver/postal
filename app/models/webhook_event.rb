@@ -25,7 +25,7 @@ class WebhookEvent < ApplicationRecord
     "MessageLinkClicked",
     "MessageLoaded",
     "DomainDNSError"
-  ]
+  ].freeze
 
   belongs_to :webhook
 

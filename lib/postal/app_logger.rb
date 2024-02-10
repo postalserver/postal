@@ -45,8 +45,8 @@ module Postal
 
   class LogFormatter
 
-    TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%3N".freeze
-    COLORS = [32, 34, 35, 31, 32, 33]
+    TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%3N"
+    COLORS = [32, 34, 35, 31, 32, 33].freeze
 
     def call(severity, datetime, progname, msg)
       time = datetime.strftime(TIME_FORMAT)

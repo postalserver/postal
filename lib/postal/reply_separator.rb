@@ -15,7 +15,7 @@ module Postal
       /^>*\s*Sent from my.*/m,
       /^>*\s*=== Please reply above this line ===.*/m,
       /(^>.*\n?){10,}/
-    ]
+    ].freeze
 
     def self.separate(text)
       return "" unless text.is_a?(String)

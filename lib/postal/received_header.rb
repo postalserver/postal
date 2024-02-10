@@ -6,7 +6,7 @@ module Postal
     OUR_HOSTNAMES = {
       smtp: Postal.config.dns.smtp_server_hostname,
       http: Postal.config.web.host
-    }
+    }.freeze
 
     class << self
 

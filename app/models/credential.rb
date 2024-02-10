@@ -23,7 +23,7 @@ class Credential < ApplicationRecord
 
   belongs_to :server
 
-  TYPES = ["SMTP", "API", "SMTP-IP"]
+  TYPES = ["SMTP", "API", "SMTP-IP"].freeze
 
   validates :key, presence: true, uniqueness: { case_sensitive: false }
   validates :type, inclusion: { in: TYPES }

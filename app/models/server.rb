@@ -43,7 +43,8 @@
 
 class Server < ApplicationRecord
 
-  RESERVED_PERMALINKS = ["new", "all", "search", "stats", "edit", "manage", "delete", "destroy", "remove"]
+  RESERVED_PERMALINKS = ["new", "all", "search", "stats", "edit", "manage", "delete", "destroy", "remove"].freeze
+  MODES = ["Live", "Development"].freeze
 
   include HasUUID
   include HasSoftDestroy
@@ -63,8 +64,6 @@ class Server < ApplicationRecord
   has_many :webhook_requests, dependent: :destroy
   has_many :track_domains, dependent: :destroy
   has_many :ip_pool_rules, dependent: :destroy, as: :owner
-
-  MODES = ["Live", "Development"]
 
   random_string :token, type: :chars, length: 6, unique: true, upper_letters_only: true
   default_value :permalink, -> { name ? name.parameterize : nil }

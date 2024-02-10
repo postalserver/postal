@@ -24,7 +24,9 @@
 
 class Route < ApplicationRecord
 
-  MODES = ["Endpoint", "Accept", "Hold", "Bounce", "Reject"]
+  MODES = ["Endpoint", "Accept", "Hold", "Bounce", "Reject"].freeze
+  SPAM_MODES = ["Mark", "Quarantine", "Fail"].freeze
+  ENDPOINT_TYPES = ["SMTPEndpoint", "HTTPEndpoint", "AddressEndpoint"].freeze
 
   include HasUUID
 
@@ -32,9 +34,6 @@ class Route < ApplicationRecord
   belongs_to :domain, optional: true
   belongs_to :endpoint, polymorphic: true, optional: true
   has_many :additional_route_endpoints, dependent: :destroy
-
-  SPAM_MODES = ["Mark", "Quarantine", "Fail"]
-  ENDPOINT_TYPES = ["SMTPEndpoint", "HTTPEndpoint", "AddressEndpoint"]
 
   validates :name, presence: true, format: /\A(([a-z0-9\-.]*)|(\*)|(__returnpath__))\z/
   validates :spam_mode, inclusion: { in: SPAM_MODES }

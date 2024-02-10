@@ -31,8 +31,8 @@ class HTTPEndpoint < ApplicationRecord
   has_many :routes, as: :endpoint
   has_many :additional_route_endpoints, dependent: :destroy, as: :endpoint
 
-  ENCODINGS = ["BodyAsJSON", "FormData"]
-  FORMATS = ["Hash", "RawMessage"]
+  ENCODINGS = ["BodyAsJSON", "FormData"].freeze
+  FORMATS = ["Hash", "RawMessage"].freeze
 
   before_destroy :update_routes
 

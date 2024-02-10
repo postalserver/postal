@@ -8,8 +8,8 @@ module Postal
         @database = database
       end
 
-      STATS_GAPS = { hourly: :hour, daily: :day, monthly: :month, yearly: :year }
-      COUNTERS = [:incoming, :outgoing, :spam, :bounces, :held]
+      STATS_GAPS = { hourly: :hour, daily: :day, monthly: :month, yearly: :year }.freeze
+      COUNTERS = [:incoming, :outgoing, :spam, :bounces, :held].freeze
 
       #
       # Increment an appropriate counter
