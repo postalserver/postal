@@ -159,13 +159,11 @@ module Postal
                   # The client is not negotiating a TLS handshake at this time
                   begin
                     # Read 10kiB of data at a time from the socket.
+                    buffers[io] << io.readpartial(10_240)
+
                     # There is an extra step for SSL sockets
-                    case io
-                    when OpenSSL::SSL::SSLSocket
-                      buffers[io] << io.readpartial(10_240)
+                    if io.is_a?(OpenSSL::SSL::SSLSocket)
                       buffers[io] << io.readpartial(10_240) while io.pending.positive?
-                    else
-                      buffers[io] << io.readpartial(10_240)
                     end
                   rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
                     # Client went away
@@ -280,12 +278,14 @@ module Postal
         end
         # If we have been spawned to replace an existing processm shut down the
         # parent after listening.
+        # rubocop:disable Style/IdenticalConditionalBranches
         if ENV["SERVER_FD"]
           listen
-          kill_parent
+          kill_parent if ENV["SERVER_FD"]
         else
           listen
         end
+        # rubocop:enable Style/IdenticalConditionalBranches
         run_event_loop
       end
 
