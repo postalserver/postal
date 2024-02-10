@@ -31,6 +31,7 @@ class IncomingMessagePrototype
                end
   end
 
+  # rubocop:disable Lint/DuplicateMethods
   def attachments
     (@attachments || []).map do |attachment|
       {
@@ -40,6 +41,7 @@ class IncomingMessagePrototype
       }
     end
   end
+  # rubocop:enable Lint/DuplicateMethods
 
   def create_messages
     if valid?

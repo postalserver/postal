@@ -93,6 +93,7 @@ class OutgoingMessagePrototype
     @errors || {}
   end
 
+  # rubocop:disable Lint/DuplicateMethods
   def attachments
     (@attachments || []).map do |attachment|
       {
@@ -102,6 +103,7 @@ class OutgoingMessagePrototype
       }
     end
   end
+  # rubocop:enable Lint/DuplicateMethods
 
   def validate
     @errors = []
