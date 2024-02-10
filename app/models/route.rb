@@ -202,7 +202,7 @@ class Route < ApplicationRecord
       if route = Route.includes(:domain).where(domains: { name: domain.name }, name: name).where.not(id: id).first
         errors.add :name, "is configured on the #{route.server.full_permalink} mail server"
       end
-    elsif route = Route.where(name: "__returnpath__").where.not(id: id).exists?
+    elsif Route.where(name: "__returnpath__").where.not(id: id).exists?
       errors.add :base, "A return path route already exists for this server"
     end
   end

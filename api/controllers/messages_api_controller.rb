@@ -14,7 +14,7 @@ controller :messages do
     action do
       begin
         message = identity.server.message(params.id)
-      rescue Postal::MessageDB::Message::NotFound => e
+      rescue Postal::MessageDB::Message::NotFound
         error "MessageNotFound", id: params.id
       end
       structure :message, message, return: true
@@ -30,7 +30,7 @@ controller :messages do
     action do
       begin
         message = identity.server.message(params.id)
-      rescue Postal::MessageDB::Message::NotFound => e
+      rescue Postal::MessageDB::Message::NotFound
         error "MessageNotFound", id: params.id
       end
       message.deliveries.map do |d|

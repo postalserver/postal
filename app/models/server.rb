@@ -232,8 +232,6 @@ class Server < ApplicationRecord
     return nil unless uname
     return nil unless domain_name
 
-    uname, = uname.split("+", 2)
-
     # Find a verified domain which directly matches the domain name for the given address.
     domain = Domain.verified
                    .order(owner_type: :desc)

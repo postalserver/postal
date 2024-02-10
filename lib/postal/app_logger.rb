@@ -26,7 +26,7 @@ module Postal
             message
           end
           n.notify!(short_message: message_without_ansi, log_name: @log_name, facility: "postal", application_name: "postal", process_name: ENV.fetch("PROC_NAME", nil), pid: Process.pid)
-        rescue StandardError => e
+        rescue StandardError
           # Can't log this to GELF. Soz.
         end
       end

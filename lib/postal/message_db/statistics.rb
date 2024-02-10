@@ -40,7 +40,7 @@ module Postal
       # Get a statistic (or statistics)
       #
       def get(type, counters, start_date = Time.now, quantity = 10)
-        date = start_date.utc
+        start_date = start_date.utc
         items = quantity.times.each_with_object({}) do |i, hash|
           hash[(start_date - i.send(STATS_GAPS[type])).send("beginning_of_#{STATS_GAPS[type]}").utc] = counters.each_with_object({}) do |c, h|
             h[c] = 0

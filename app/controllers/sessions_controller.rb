@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
     login(User.authenticate(params[:email_address], params[:password]))
     flash[:remember_login] = true
     redirect_to_with_return_to root_path
-  rescue Postal::Errors::AuthenticationError => e
+  rescue Postal::Errors::AuthenticationError
     flash.now[:alert] = "The credentials you've provided are incorrect. Please check and try again."
     render "new"
   end

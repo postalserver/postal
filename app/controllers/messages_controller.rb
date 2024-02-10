@@ -188,7 +188,7 @@ class MessagesController < ApplicationController
             if qs[:before]
               begin
                 options[:where][:timestamp][:less_than] = get_time_from_string(qs[:before]).to_f
-              rescue TimeUndetermined => e
+              rescue TimeUndetermined
                 flash.now[:alert] = "Couldn't determine time for before from '#{qs[:before]}'"
               end
             end
@@ -196,7 +196,7 @@ class MessagesController < ApplicationController
             if qs[:after]
               begin
                 options[:where][:timestamp][:greater_than] = get_time_from_string(qs[:after]).to_f
-              rescue TimeUndetermined => e
+              rescue TimeUndetermined
                 flash.now[:alert] = "Couldn't determine time for after from '#{qs[:after]}'"
               end
             end
