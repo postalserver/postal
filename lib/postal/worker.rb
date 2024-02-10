@@ -167,9 +167,9 @@ module Postal
         leave_queue("outgoing-#{id}")
         @ip_queues.delete(id)
         ip_addresses_to_clear = []
-        @ip_to_id_mapping.each do |_ip, _id|
-          if id == _id
-            ip_addresses_to_clear << _ip
+        @ip_to_id_mapping.each do |iip, iid|
+          if id == iid
+            ip_addresses_to_clear << iip
           end
         end
         ip_addresses_to_clear.each { |ip| @ip_to_id_mapping.delete(ip) }
