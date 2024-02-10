@@ -435,8 +435,7 @@ class UnqueueMessageJob < Postal::Job
                                                      details: "An internal error occurred while sending " \
                                                               "this message. This message will be retried " \
                                                               "automatically.",
-                                                     output: "#{e.class}: #{e.message}", log_id: "J-#{self.id}"
-                                                    )
+                                                     output: "#{e.class}: #{e.message}", log_id: "J-#{self.id}")
             end
           end
         end
