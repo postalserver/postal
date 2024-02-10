@@ -31,7 +31,7 @@ module Postal
       # Increment all stats counters
       #
       def increment_all(time, field)
-        STATS_GAPS.keys.each do |type|
+        STATS_GAPS.each_key do |type|
           increment_one(type, field, time)
         end
       end

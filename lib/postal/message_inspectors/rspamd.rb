@@ -14,7 +14,7 @@ module Postal
         response = JSON.parse(response.body)
         return unless response["symbols"].is_a?(Hash)
 
-        response["symbols"].values.each do |symbol|
+        response["symbols"].each_value do |symbol|
           next if symbol["description"].blank?
 
           inspection.spam_checks << SpamCheck.new(symbol["name"], symbol["score"], symbol["description"])
