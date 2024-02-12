@@ -11,6 +11,12 @@ module Postal
       LOG_REDACTION_STRING = "[redacted]"
 
       attr_reader :logging_enabled
+      attr_reader :credential
+      attr_reader :ip_address
+      attr_reader :recipients
+      attr_reader :headers
+      attr_reader :state
+      attr_reader :helo_name
 
       def initialize(ip_address)
         @logging_enabled = true
@@ -53,19 +59,6 @@ module Postal
         else
           handle_command(data)
         end
-      end
-
-      def sanitize_input_for_log(data)
-        if @password_expected_next
-          @password_expected_next = false
-          if data =~ /\A[a-z0-9]{3,}=*\z/i
-            return LOG_REDACTION_STRING
-          end
-        end
-
-        data = data.dup
-        data.gsub!(/(.*AUTH \w+) (.*)\z/i) { "#{::Regexp.last_match(1)} #{LOG_REDACTION_STRING}" }
-        data
       end
 
       def finished?
@@ -137,7 +130,11 @@ module Postal
         @helo_name = data.strip.split(" ", 2)[1]
         transaction_reset
         @state = :welcomed
-        ["250-My capabilities are", Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil, "250 AUTH CRAM-MD5 PLAIN LOGIN"]
+        [
+          "250-My capabilities are",
+          Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil,
+          "250 AUTH CRAM-MD5 PLAIN LOGIN"
+        ].compact
       end
 
       def helo(data)
@@ -194,7 +191,7 @@ module Postal
           "334 UGFzc3dvcmQ6" # "Password:"
         end
 
-        data = data.gsub!(/AUTH LOGIN ?/i, "")
+        data = data.gsub(/AUTH LOGIN ?/i, "")
         if data.strip == ""
           @proc = username_handler
           "334 VXNlcm5hbWU6" # "Username:"
@@ -226,6 +223,7 @@ module Postal
             log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
             next "535 Denied"
           end
+
           grant = nil
           server.credentials.where(type: "SMTP").each do |credential|
             correct_response = OpenSSL::HMAC.hexdigest(CRAM_MD5_DIGEST, credential.key, challenge)
@@ -236,10 +234,12 @@ module Postal
             grant = "235 Granted for #{credential.server.organization.permalink}/#{credential.server.permalink}"
             break
           end
+
           if grant.nil?
             log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
             next "535 Denied"
           end
+
           grant
         end
 
@@ -458,6 +458,7 @@ module Postal
                 msg.mail_from = @mail_from
                 msg.raw_message = @data
                 msg.received_with_ssl = @tls
+                msg.bounce = 1
               end
             else
               # There's no return path route, we just need to insert the mesage
@@ -487,6 +488,19 @@ module Postal
 
       def in_state(*states)
         states.include?(@state)
+      end
+
+      def sanitize_input_for_log(data)
+        if @password_expected_next
+          @password_expected_next = false
+          if data =~ /\A[a-z0-9]{3,}=*\z/i
+            return LOG_REDACTION_STRING
+          end
+        end
+
+        data = data.dup
+        data.gsub!(/(.*AUTH \w+) (.*)\z/i) { "#{::Regexp.last_match(1)} #{LOG_REDACTION_STRING}" }
+        data
       end
 
     end

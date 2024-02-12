@@ -25,7 +25,7 @@ module Postal
         @attributes[name.to_s]
       end
 
-      def respond_to_missing?(name)
+      def respond_to_missing?(name, include_private = false)
         @attributes.key?(name.to_s)
       end
 

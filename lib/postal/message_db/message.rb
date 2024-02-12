@@ -185,7 +185,7 @@ module Postal
         end
       end
 
-      def respond_to_missing?(name)
+      def respond_to_missing?(name, include_private = false)
         name = name.to_s.sub(/=\z/, "")
         @attributes.key?(name.to_s)
       end

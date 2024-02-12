@@ -48,5 +48,9 @@ FactoryBot.define do
     mode { "Live" }
     provision_database { false }
     sequence(:permalink) { |n| "server#{n}" }
+
+    trait :suspended do
+      suspended_at { Time.current }
+    end
   end
 end

@@ -6,6 +6,7 @@ require File.expand_path("../config/environment", __dir__)
 require "rspec/rails"
 require "spec_helper"
 require "factory_bot"
+require "timecop"
 require "database_cleaner"
 
 DatabaseCleaner.allow_remote_database_url = true
