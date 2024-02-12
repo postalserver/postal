@@ -3,7 +3,6 @@
 require "ipaddr"
 require "nio"
 
-# rubocop:disable Style/GlobalVars
 module Postal
   module SMTPServer
     class Server
@@ -14,23 +13,24 @@ module Postal
         prepare_environment
       end
 
+      def run
+        listen
+        run_event_loop
+      end
+
+      private
+
       def prepare_environment
         $\ = "\r\n"
         BasicSocket.do_not_reverse_lookup = true
 
-        trap("USR1") do
-          $stdout.puts "Received USR1 signal, respawning."
-          fork do
-            if ENV["APP_ROOT"]
-              Dir.chdir(ENV["APP_ROOT"])
-            end
-            ENV.delete("BUNDLE_GEMFILE")
-            exec("bundle exec --keep-file-descriptors rake postal:smtp_server", close_others: false)
-          end
-        end
-
         trap("TERM") do
           $stdout.puts "Received TERM signal, shutting down."
+          unlisten
+        end
+
+        trap("INT") do
+          $stdout.puts "Received INT signal, shutting down."
           unlisten
         end
       end
@@ -48,11 +48,7 @@ module Postal
       end
 
       def listen
-        if ENV["SERVER_FD"]
-          @server = TCPServer.for_fd(ENV["SERVER_FD"].to_i)
-        else
-          @server = TCPServer.open(Postal.config.smtp_server.bind_address, Postal.config.smtp_server.port)
-        end
+        @server = TCPServer.open(Postal.config.smtp_server.bind_address, Postal.config.smtp_server.port)
         @server.autoclose = false
         @server.close_on_exec = false
         if defined?(Socket::SOL_SOCKET) && defined?(Socket::SO_KEEPALIVE)
@@ -63,18 +59,13 @@ module Postal
           @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPINTVL, 10)
           @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPCNT, 5)
         end
-        ENV["SERVER_FD"] = @server.to_i.to_s
         logger.info "Listening on  #{Postal.config.smtp_server.bind_address}:#{Postal.config.smtp_server.port}"
       end
 
       def unlisten
         # Instruct the nio loop to unlisten and wake it
-        $unlisten = true
+        @unlisten = true
         @io_selector.wakeup
-      end
-
-      def kill_parent
-        Process.kill("TERM", Process.ppid)
       end
 
       def run_event_loop
@@ -259,7 +250,7 @@ module Postal
             end
           end
           # If unlisten has been called, stop listening
-          next unless $unlisten
+          next unless @unlisten
 
           @io_selector.deregister(@server)
           @server.close
@@ -268,29 +259,9 @@ module Postal
             Process.exit(0)
           end
           # Clear the request
-          $unlisten = false
+          @unlisten = false
         end
       end
-
-      def run
-        # Write PID to file if path specified
-        if ENV["PID_FILE"]
-          File.write(ENV["PID_FILE"], Process.pid.to_s + "\n")
-        end
-        # If we have been spawned to replace an existing processm shut down the
-        # parent after listening.
-        # rubocop:disable Style/IdenticalConditionalBranches
-        if ENV["SERVER_FD"]
-          listen
-          kill_parent if ENV["SERVER_FD"]
-        else
-          listen
-        end
-        # rubocop:enable Style/IdenticalConditionalBranches
-        run_event_loop
-      end
-
-      private
 
       def logger
         Postal.logger_for(:smtp_server)
@@ -299,4 +270,3 @@ module Postal
     end
   end
 end
-# rubocop:enable Style/GlobalVars
