@@ -158,6 +158,7 @@ GEM
     marcel (1.0.2)
     method_source (1.0.0)
     mini_mime (1.1.2)
+    mini_portile2 (2.8.5)
     minitest (5.22.2)
     moonrope (2.0.2)
       deep_merge (~> 1.0)
@@ -178,6 +179,9 @@ GEM
       activerecord (>= 4.0.0)
       activesupport (>= 4.0.0)
     nio4r (2.7.0)
+    nokogiri (1.16.2)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.16.2-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.16.2-x86_64-linux)
@@ -312,6 +316,7 @@ GEM
 PLATFORMS
   arm64-darwin-22
   arm64-darwin-23
+  ruby
   x86_64-linux
 
 DEPENDENCIES
