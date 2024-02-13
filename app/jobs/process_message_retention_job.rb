@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProcessMessageRetentionJob < Postal::Job
 
   def perform

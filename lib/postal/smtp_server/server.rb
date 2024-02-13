@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require "ipaddr"
 require "nio"
 
+# rubocop:disable Style/GlobalVars
 module Postal
   module SMTPServer
     class Server
@@ -16,7 +19,7 @@ module Postal
         BasicSocket.do_not_reverse_lookup = true
 
         trap("USR1") do
-          STDOUT.puts "Received USR1 signal, respawning."
+          $stdout.puts "Received USR1 signal, respawning."
           fork do
             if ENV["APP_ROOT"]
               Dir.chdir(ENV["APP_ROOT"])
@@ -27,7 +30,7 @@ module Postal
         end
 
         trap("TERM") do
-          STDOUT.puts "Received TERM signal, shutting down."
+          $stdout.puts "Received TERM signal, shutting down."
           unlisten
         end
       end
@@ -36,7 +39,7 @@ module Postal
         @ssl_context ||= begin
           ssl_context      = OpenSSL::SSL::SSLContext.new
           ssl_context.cert = Postal.smtp_certificates[0]
-          ssl_context.extra_chain_cert = Postal.smtp_certificates[1..-1]
+          ssl_context.extra_chain_cert = Postal.smtp_certificates[1..]
           ssl_context.key = Postal.smtp_private_key
           ssl_context.ssl_version = Postal.config.smtp_server.ssl_version if Postal.config.smtp_server.ssl_version
           ssl_context.ciphers = Postal.config.smtp_server.tls_ciphers if Postal.config.smtp_server.tls_ciphers
@@ -157,13 +160,11 @@ module Postal
                   # The client is not negotiating a TLS handshake at this time
                   begin
                     # Read 10kiB of data at a time from the socket.
+                    buffers[io] << io.readpartial(10_240)
+
                     # There is an extra step for SSL sockets
-                    case io
-                    when OpenSSL::SSL::SSLSocket
-                      buffers[io] << io.readpartial(10_240)
-                      buffers[io] << io.readpartial(10_240) while io.pending > 0
-                    else
-                      buffers[io] << io.readpartial(10_240)
+                    if io.is_a?(OpenSSL::SSL::SSLSocket)
+                      buffers[io] << io.readpartial(10_240) while io.pending.positive?
                     end
                   rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
                     # Client went away
@@ -186,10 +187,10 @@ module Postal
                     next if result.nil?
 
                     result = [result] unless result.is_a?(Array)
-                    result.compact.each do |line|
-                      client.log "\e[34m=> #{line.strip}\e[0m"
+                    result.compact.each do |iline|
+                      client.log "\e[34m=> #{iline.strip}\e[0m"
                       begin
-                        io.write(line.to_s + "\r\n")
+                        io.write(iline.to_s + "\r\n")
                         io.flush
                       rescue Errno::ECONNRESET
                         # Client disconnected before we could write response
@@ -236,8 +237,8 @@ module Postal
                 end
                 logger.error "[#{client_id}] An error occurred while processing data from a client."
                 logger.error "[#{client_id}] #{e.class}: #{e.message}"
-                e.backtrace.each do |line|
-                  logger.error "[#{client_id}] #{line}"
+                e.backtrace.each do |iline|
+                  logger.error "[#{client_id}] #{iline}"
                 end
                 # Close all IO and forget this client
                 begin
@@ -278,12 +279,14 @@ module Postal
         end
         # If we have been spawned to replace an existing processm shut down the
         # parent after listening.
+        # rubocop:disable Style/IdenticalConditionalBranches
         if ENV["SERVER_FD"]
           listen
-          kill_parent
+          kill_parent if ENV["SERVER_FD"]
         else
           listen
         end
+        # rubocop:enable Style/IdenticalConditionalBranches
         run_event_loop
       end
 
@@ -296,3 +299,4 @@ module Postal
     end
   end
 end
+# rubocop:enable Style/GlobalVars

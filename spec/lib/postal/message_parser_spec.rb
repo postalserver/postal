@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 describe Postal::MessageParser do
@@ -15,7 +17,7 @@ describe Postal::MessageParser do
   it "should replace links in messages" do
     with_global_server do |server|
       message = create_plain_text_message(server, "Hello world! http://github.com/atech/postal", "test@example.com")
-      track_domain = create(:track_domain, server: server, domain: message.domain)
+      create(:track_domain, server: server, domain: message.domain)
       parser = Postal::MessageParser.new(message)
       expect(parser.actioned?).to be true
       expect(parser.new_body).to match(/^Hello world! https:\/\/click\.#{message.domain.name}/)

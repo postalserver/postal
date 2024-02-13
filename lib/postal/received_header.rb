@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module Postal
   class ReceivedHeader
 
     OUR_HOSTNAMES = {
       smtp: Postal.config.dns.smtp_server_hostname,
       http: Postal.config.web.host
-    }
+    }.freeze
 
     class << self
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "nifty/utils/random_string"
 
 module Postal

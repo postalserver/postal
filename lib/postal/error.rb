@@ -1,9 +1,25 @@
+# frozen_string_literal: true
+
 module Postal
 
-  module Errors
+  class Error < StandardError
   end
 
-  class Error < StandardError
+  module Errors
+    class AuthenticationError < Error
+
+      attr_reader :error
+
+      def initialize(error)
+        super()
+        @error = error
+      end
+
+      def to_s
+        "Authentication Failed: #{@error}"
+      end
+
+    end
   end
 
 end

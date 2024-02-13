@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ServersController < ApplicationController
 
   include WithinOrganization
@@ -41,7 +43,12 @@ class ServersController < ApplicationController
 
   def update
     extra_params = [:spam_threshold, :spam_failure_threshold, :postmaster_address]
-    extra_params += [:send_limit, :allow_sender, :privacy_mode, :log_smtp_data, :outbound_spam_threshold, :message_retention_days, :raw_message_retention_days, :raw_message_retention_size] if current_user.admin?
+
+    if current_user.admin?
+      extra_params += [:send_limit, :allow_sender, :privacy_mode, :log_smtp_data, :outbound_spam_threshold,
+                       :message_retention_days, :raw_message_retention_days, :raw_message_retention_size]
+    end
+
     if @server.update(safe_params(*extra_params))
       redirect_to_with_json organization_server_path(organization, @server), notice: "Server settings have been updated"
     else

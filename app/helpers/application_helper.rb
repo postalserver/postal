@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ApplicationHelper
 
   def format_delivery_details(server, text)
@@ -28,7 +30,7 @@ module ApplicationHelper
       server_domains = server.domains.verified.order(:name)
       unless server_domains.empty?
         s << "<optgroup label='Server Domains'>"
-        for domain in server_domains
+        server_domains.each do |domain|
           selected = domain == selected_domain ? "selected='selected'" : ""
           s << "<option value='#{domain.id}' #{selected}>#{domain.name}</option>"
         end
@@ -38,7 +40,7 @@ module ApplicationHelper
       organization_domains = server.organization.domains.verified.order(:name)
       unless organization_domains.empty?
         s << "<optgroup label='Organization Domains'>"
-        for domain in organization_domains
+        organization_domains.each do |domain|
           selected = domain == selected_domain ? "selected='selected'" : ""
           s << "<option value='#{domain.id}' #{selected}>#{domain.name}</option>"
         end
@@ -54,7 +56,7 @@ module ApplicationHelper
       http_endpoints = server.http_endpoints.order(:name).to_a
       if http_endpoints.present?
         s << "<optgroup label='HTTP Endpoints'>"
-        for endpoint in http_endpoints
+        http_endpoints.each do |endpoint|
           value = "#{endpoint.class}##{endpoint.uuid}"
           selected = value == selected_value ? "selected='selected'" : ""
           s << "<option value='#{value}' #{selected}>#{endpoint.description}</option>"
@@ -65,7 +67,7 @@ module ApplicationHelper
       smtp_endpoints = server.smtp_endpoints.order(:name).to_a
       if smtp_endpoints.present?
         s << "<optgroup label='SMTP Endpoints'>"
-        for endpoint in smtp_endpoints
+        smtp_endpoints.each do |endpoint|
           value = "#{endpoint.class}##{endpoint.uuid}"
           selected = value == selected_value ? "selected='selected'" : ""
           s << "<option value='#{value}' #{selected}>#{endpoint.description}</option>"
@@ -76,7 +78,7 @@ module ApplicationHelper
       address_endpoints = server.address_endpoints.order(:address).to_a
       if address_endpoints.present?
         s << "<optgroup label='Address Endpoints'>"
-        for endpoint in address_endpoints
+        address_endpoints.each do |endpoint|
           value = "#{endpoint.class}##{endpoint.uuid}"
           selected = value == selected_value ? "selected='selected'" : ""
           s << "<option value='#{value}' #{selected}>#{endpoint.address}</option>"

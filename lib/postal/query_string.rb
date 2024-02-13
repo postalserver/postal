@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   class QueryString
 
@@ -6,12 +8,12 @@ module Postal
     end
 
     def [](value)
-      to_hash[value.to_s]
+      hash[value.to_s]
     end
 
-    delegate :empty?, to: :to_hash
+    delegate :empty?, to: :hash
 
-    def to_hash
+    def hash
       @hash ||= @string.scan(/([a-z]+):\s*(?:(\d{2,4}-\d{2}-\d{2}\s\d{2}:\d{2})|"(.*?)"|(.*?))(\s|\z)/).each_with_object({}) do |(key, date, string_with_spaces, value), hash|
         if date
           actual_value = date

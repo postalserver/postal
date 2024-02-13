@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 structure :message do
   basic :id
   basic :token
@@ -5,9 +7,9 @@ structure :message do
   expansion(:status) do
     {
       status: o.status,
-      last_delivery_attempt: o.last_delivery_attempt ? o.last_delivery_attempt.to_f : nil,
+      last_delivery_attempt: o.last_delivery_attempt&.to_f,
       held: o.held,
-      hold_expiry: o.hold_expiry ? o.hold_expiry.to_f : nil
+      hold_expiry: o.hold_expiry&.to_f
     }
   end
 

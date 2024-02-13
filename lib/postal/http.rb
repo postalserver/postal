@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "net/https"
 require "uri"
 
@@ -15,7 +17,7 @@ module Postal
     def self.request(method, url, options = {})
       options[:headers] ||= {}
       uri = URI.parse(url)
-      request = method.new((uri.path.length == 0 ? "/" : uri.path) + (uri.query ? "?" + uri.query : ""))
+      request = method.new((uri.path.empty? ? "/" : uri.path) + (uri.query ? "?" + uri.query : ""))
       options[:headers].each { |k, v| request.add_field k, v }
 
       if options[:username] || uri.user
@@ -62,29 +64,29 @@ module Postal
             code: result.code.to_i,
             body: result.body,
             headers: result.to_hash,
-            secure: @ssl
+            secure: ssl
           }
         end
-      rescue OpenSSL::SSL::SSLError => e
+      rescue OpenSSL::SSL::SSLError
         {
           code: -3,
           body: "Invalid SSL certificate",
           headers: {},
-          secure: @ssl
+          secure: ssl
         }
       rescue SocketError, Errno::ECONNRESET, EOFError, Errno::EINVAL, Errno::ENETUNREACH, Errno::EHOSTUNREACH, Errno::ECONNREFUSED => e
         {
           code: -2,
           body: e.message,
           headers: {},
-          secure: @ssl
+          secure: ssl
         }
-      rescue Timeout::Error => e
+      rescue Timeout::Error
         {
           code: -1,
           body: "Timed out after #{timeout}s",
           headers: {},
-          secure: @ssl
+          secure: ssl
         }
       end
     end

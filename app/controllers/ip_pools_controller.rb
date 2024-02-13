@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class IPPoolsController < ApplicationController
 
   before_action :admin_required
@@ -31,7 +33,7 @@ class IPPoolsController < ApplicationController
   def destroy
     @ip_pool.destroy
     redirect_to_with_json :ip_pools, notice: "IP pool has been removed successfully."
-  rescue ActiveRecord::DeleteRestrictionError => e
+  rescue ActiveRecord::DeleteRestrictionError
     redirect_to_with_json [:edit, @ip_pool], alert: "IP pool cannot be removed because it still has associated addresses or servers."
   end
 

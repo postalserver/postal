@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "authie/session"
 
 class CleanupAuthieSessionsJob < Postal::Job
