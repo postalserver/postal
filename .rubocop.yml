@@ -10,6 +10,7 @@ AllCops:
 # Always use double quotes
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+  AutoCorrect: true
 
 # We prefer arrays of symbols to look like an array of symbols.
 # For example: [:one, :two, :three] as opposed to %i[one two three]

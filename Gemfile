@@ -48,9 +48,10 @@ end
 group :development do
   gem "annotate"
   gem "database_cleaner", require: false
-  gem "factory_bot_rails", "~> 4.0", require: false
+  gem "factory_bot_rails", require: false
   gem "rspec", require: false
   gem "rspec-rails", require: false
   gem "rubocop"
   gem "rubocop-rails"
+  gem "timecop"
 end
