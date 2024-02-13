@@ -61,7 +61,7 @@ module Postal
     private
 
     def log(text)
-      Postal.logger_for(:http_sender).info("[#{@log_id}] #{text}")
+      Postal.logger.info text, id: @log_id, component: "http-sender"
     end
 
     def parameters(message, options = {})

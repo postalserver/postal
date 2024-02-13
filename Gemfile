@@ -20,6 +20,7 @@ gem "hashie"
 gem "highline", require: false
 gem "jwt"
 gem "kaminari"
+gem "klogger-logger"
 gem "mail"
 gem "moonrope"
 gem "mysql2"
