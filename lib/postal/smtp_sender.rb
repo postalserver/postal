@@ -83,7 +83,7 @@ module Postal
             log "Cannot connect to #{@remote_ip}:#{port} (#{hostname}) (#{e.class}: #{e.message})"
             @connection_errors << e.message unless @connection_errors.include?(e.message)
             begin
-              smtp_client.disconnect
+              smtp_client.finish
             rescue StandardError
               nil
             end
