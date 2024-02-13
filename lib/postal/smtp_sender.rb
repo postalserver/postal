@@ -58,6 +58,7 @@ module Postal
               # Set the source IP as appropriate
               smtp_client.source_address = ip_type == :aaaa ? @source_ip_address.ipv6 : @source_ip_address.ipv4
             end
+
             case ssl_mode
             when "Auto"
               smtp_client.enable_starttls_auto(self.class.ssl_context_without_verify)
@@ -65,6 +66,9 @@ module Postal
               smtp_client.enable_starttls(self.class.ssl_context_with_verify)
             when "TLS"
               smtp_client.enable_tls(self.class.ssl_context_with_verify)
+            else
+              smtp_client.disable_starttls
+              smtp_client.disable_tls
             end
 
             smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)

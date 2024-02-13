@@ -40,10 +40,24 @@ mail.html_part = Mail::Part.new do
   BODY
 end
 
-# puts mail.to_s
+c = OpenSSL::SSL::SSLContext.new
+c.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
+<<<<<<< Updated upstream
 Net::SMTP.start("127.0.0.1", 2525) do |smtp|
   smtp.send_message mail.to_s, mail.from.first, mail.to.first
 end
+=======
+1000.times.map do
+  Thread.new do
+    smtp = Net::SMTP.new("77.72.7.155", 25)
+    # smtp.enable_starttls(c)
+    smtp.disable_starttls
+    smtp.start("localhost")
+    smtp.send_message mail.to_s, mail.from.first, mail.to.first
+    smtp.finish
+  end
+end.each(&:join)
+>>>>>>> Stashed changes
 
 puts "Sent"
