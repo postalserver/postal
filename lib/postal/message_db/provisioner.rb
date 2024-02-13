@@ -14,14 +14,14 @@ module Postal
       def provision
         drop
         create
-        migrate
+        migrate(silent: true)
       end
 
       #
       # Migrate this database
       #
-      def migrate(start_from = @database.schema_version)
-        Postal::MessageDB::Migration.run(@database, start_from)
+      def migrate(start_from: @database.schema_version, silent: false)
+        Postal::MessageDB::Migration.run(@database, start_from: start_from, silent: silent)
       end
 
       #
