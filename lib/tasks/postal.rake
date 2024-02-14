@@ -1,27 +1,6 @@
 # frozen_string_literal: true
 
 namespace :postal do
-  desc "Start the cron worker"
-  task cron: :environment do
-    require "clockwork"
-    require Rails.root.join("config", "cron")
-    trap("TERM") do
-      puts "Exiting..."
-      Process.exit(0)
-    end
-    Clockwork.run
-  end
-
-  desc "Start SMTP Server"
-  task smtp_server: :environment do
-    Postal::SMTPServer::Server.new(debug: true).run
-  end
-
-  desc "Start the message requeuer"
-  task requeuer: :environment do
-    Postal::MessageRequeuer.new.run
-  end
-
   desc "Run all migrations on message databases"
   task migrate_message_databases: :environment do
     Server.all.each do |server|

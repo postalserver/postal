@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-class ExpireHeldMessagesJob < Postal::Job
+class ExpireHeldMessagesScheduledTask < ApplicationScheduledTask
 
-  def perform
+  def call
     Server.all.each do |server|
       messages = server.message_db.messages(where: {
         status: "Held",

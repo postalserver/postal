@@ -94,16 +94,20 @@ module Postal
           user_agent: request.user_agent,
           timestamp: time
         })
-        SendWebhookJob.queue(:main,
-                             server_id: message_db.server_id,
-                             event: "MessageLinkClicked",
-                             payload: {
-                               _message: link["message_id"],
-                               url: link["url"],
-                               token: link["token"],
-                               ip_address: request.ip,
-                               user_agent: request.user_agent
-                             })
+
+        begin
+          message_webhook_hash = message_db.message(link["message_id"]).webhook_hash
+          WebhookRequest.trigger(message_db.server, "MessageLinkClicked", {
+            message: message_webhook_hash,
+            url: link["url"],
+            token: link["token"],
+            ip_address: request.ip,
+            user_agent: request.user_agent
+          })
+        rescue Postal::MessageDB::Message::NotFound
+          # If we can't find the message that this link is associated with, we'll just ignore it
+          # and not trigger any webhooks.
+        end
       end
 
       [307, { "Location" => link["url"] }, ["Redirected to: #{link['url']}"]]

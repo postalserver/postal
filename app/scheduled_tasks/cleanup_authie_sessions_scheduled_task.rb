@@ -2,9 +2,9 @@
 
 require "authie/session"
 
-class CleanupAuthieSessionsJob < Postal::Job
+class CleanupAuthieSessionsScheduledTask < ApplicationScheduledTask
 
-  def perform
+  def call
     Authie::Session.cleanup
   end
 

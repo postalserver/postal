@@ -8,6 +8,7 @@ require "spec_helper"
 require "factory_bot"
 require "timecop"
 require "database_cleaner"
+require "webmock/rspec"
 
 DatabaseCleaner.allow_remote_database_url = true
 ActiveRecord::Base.logger = Logger.new("/dev/null")

@@ -40,25 +40,12 @@ message_db:
   password: <%= ENV.fetch('MESSAGE_DB_PASSWORD', '') %>
   prefix: <%= ENV.fetch('MESSAGE_DB_PREFIX', 'postal') %>
 
-rabbitmq:
-  host: <%= ENV.fetch('RABBITMQ_HOST', '127.0.0.1') %>
-  port: <%= ENV.fetch('RABBITMQ_PORT', '5672') %>
-  username: <%= ENV.fetch('RABBITMQ_USERNAME', 'postal') %>
-  password: <%= ENV.fetch('RABBITMQ_PASSWORD', '') %>
-  vhost: <%= ENV.fetch('RABBITMQ_VHOST', '/postal') %>
-  tls: <%= ENV.fetch('RABBITMQ_TLS', 'false') %>
-  verify_peer: <%= ENV.fetch('RABBITMQ_VERIFY_PEER', 'true') %>
-  tls_ca_certificates: <%= ENV.fetch('RABBITMQ_TLS_CA_CERTIFICATES', '/etc/ssl/certs/ca-certificates.crt'.split(',').inspect) %>
-
 logging:
   rails_log: <%= ENV.fetch('LOGGING_RAILS_LOG', 'false') %>
   graylog:
     host: <%= ENV.fetch('GRAYLOG_HOST', '') %>
     port: <%= ENV.fetch('GRAYLOG_PORT', '12201') %>
     facility: <%= ENV.fetch('GRAYLOG_FACILITY', 'postal') %>
-
-workers:
-  threads: <%= ENV.fetch('WORKER_THREADS', '4') %>
 
 smtp_server:
   port: <%= ENV.fetch('SMTP_SERVER_PORT', '25') %>

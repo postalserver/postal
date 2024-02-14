@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_06_173036) do
+ActiveRecord::Schema.define(version: 2024_02_14_132253) do
 
   create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
@@ -213,6 +213,12 @@ ActiveRecord::Schema.define(version: 2024_02_06_173036) do
     t.index ["token"], name: "index_routes_on_token", length: 6
   end
 
+  create_table "scheduled_tasks", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "name"
+    t.datetime "next_run_after"
+    t.index ["name"], name: "index_scheduled_tasks_on_name", unique: true
+  end
+
   create_table "servers", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "organization_id"
     t.string "uuid"
@@ -343,6 +349,9 @@ ActiveRecord::Schema.define(version: 2024_02_06_173036) do
     t.datetime "retry_after", precision: 6
     t.text "error"
     t.datetime "created_at", precision: 6
+    t.string "locked_by"
+    t.datetime "locked_at"
+    t.index ["locked_by"], name: "index_webhook_requests_on_locked_by"
   end
 
   create_table "webhooks", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -357,6 +366,13 @@ ActiveRecord::Schema.define(version: 2024_02_06_173036) do
     t.datetime "created_at", precision: 6
     t.datetime "updated_at", precision: 6
     t.index ["server_id"], name: "index_webhooks_on_server_id"
+  end
+
+  create_table "worker_roles", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "role"
+    t.string "worker"
+    t.datetime "acquired_at"
+    t.index ["role"], name: "index_worker_roles_on_role", unique: true
   end
 
 end
