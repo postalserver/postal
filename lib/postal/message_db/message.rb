@@ -445,7 +445,11 @@ module Postal
       #
       def bounce!(bounce_message)
         create_delivery("Bounced", details: "We've received a bounce message for this e-mail. See <msg:#{bounce_message.id}> for details.")
-        SendWebhookJob.queue(:main, server_id: database.server_id, event: "MessageBounced", payload: { _original_message: id, _bounce: bounce_message.id })
+
+        WebhookRequest.trigger(server, "MessageBounced", {
+          original_message: webhook_hash,
+          bounce: bounce_message.webhook_hash
+        })
       end
 
       #
@@ -461,7 +465,12 @@ module Postal
       def create_load(request)
         update("loaded" => Time.now.to_f) if loaded.nil?
         database.insert(:loads, { message_id: id, ip_address: request.ip, user_agent: request.user_agent, timestamp: Time.now.to_f })
-        SendWebhookJob.queue(:main, server_id: database.server_id, event: "MessageLoaded", payload: { _message: id, ip_address: request.ip, user_agent: request.user_agent })
+
+        WebhookRequest.trigger(server, "MessageLoaded", {
+          message: webhook_hash,
+          ip_address: request.ip,
+          user_agent: request.user_agent
+        })
       end
 
       #

@@ -4,7 +4,6 @@ services:
     image: ${POSTAL_IMAGE}
     depends_on:
       - mariadb
-      - rabbitmq
     entrypoint: ["/docker-entrypoint.sh"]
     volumes:
       - "./docker/ci-config:/config"
@@ -14,7 +13,6 @@ services:
       WAIT_FOR_TIMEOUT: 90
       WAIT_FOR_TARGETS: |-
         mariadb:3306
-        rabbitmq:5672
 
   mariadb:
     image: mariadb
@@ -23,7 +21,3 @@ services:
       MARIADB_DATABASE: postal
       MARIADB_ALLOW_EMPTY_PASSWORD: 'yes'
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
-
-  rabbitmq:
-    image: rabbitmq:3
-    restart: always

@@ -1,5 +1,4 @@
-#!/usr/bin/env ruby
 # frozen_string_literal: true
 
 require_relative "../config/environment"
-Worker::Process.new.run
+Postal::SMTPServer::Server.new(debug: true).run

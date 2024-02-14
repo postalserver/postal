@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 begin
   def add_exception_to_payload(payload, event)
     return unless exception = event.payload[:exception_object]
