@@ -20,12 +20,6 @@ message_db:
   password:
   prefix: postal
 
-rabbitmq:
-  host: rabbitmq
-  username: guest
-  password: guest
-  vhost: null
-
 dns:
   mx_records:
     - mx.postal.example.com

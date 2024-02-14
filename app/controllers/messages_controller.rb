@@ -116,7 +116,7 @@ class MessagesController < ApplicationController
   def retry
     if @message.raw_message?
       if @message.queued_message
-        @message.queued_message.queue!
+        @message.queued_message.retry_now
         flash[:notice] = "This message will be retried shortly."
       elsif @message.held?
         @message.add_to_message_queue(manual: true)

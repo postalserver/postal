@@ -85,6 +85,9 @@ module Postal
     end
   end
 
+  # Return a generic logger for use generally throughout Postal.
+  #
+  # @return [Klogger::Logger] A logger instance
   def self.logger
     @logger ||= begin
       k = Klogger.new(nil, destination: Rails.env.test? ? "/dev/null" : $stdout, highlight: Rails.env.development?)
@@ -106,7 +109,12 @@ module Postal
   def self.locker_name
     string = process_name.dup
     string += " job:#{Thread.current[:job_id]}" if Thread.current[:job_id]
+    string += " thread:#{Thread.current.native_thread_id}"
     string
+  end
+
+  def self.locker_name_with_suffix(suffix)
+    "#{locker_name} #{suffix}"
   end
 
   def self.smtp_from_name
@@ -175,7 +183,7 @@ module Postal
   end
 
   def self.graylog_logging_destination
-    @graylog_destination ||= begin
+    @graylog_logging_destination ||= begin
       notifier = GELF::Notifier.new(config.logging.graylog.host, config.logging.graylog.port, "WAN")
       proc do |_logger, payload, group_ids|
         short_message = payload.delete(:message) || "[message missing]"

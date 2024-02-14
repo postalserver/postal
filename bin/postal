@@ -16,19 +16,11 @@ case "$1" in
         ;;
 
     smtp-server)
-        run "bundle exec rake postal:smtp_server"
+        run "bundle exec ruby script/smtp_server.rb"
         ;;
 
     worker)
         run "bundle exec ruby script/worker.rb"
-        ;;
-
-    cron)
-        run "bundle exec rake postal:cron"
-        ;;
-
-    requeuer)
-        run "bundle exec rake postal:requeuer"
         ;;
 
     initialize)
@@ -69,8 +61,6 @@ case "$1" in
         echo -e " * \033[35mweb-server\033[0m - run the web server"
         echo -e " * \033[35msmtp-server\033[0m - run the SMTP server"
         echo -e " * \033[35mworker\033[0m - run a worker"
-        echo -e " * \033[35mcron\033[0m - run the cron process"
-        echo -e " * \033[35mrequeuer\033[0m - run the message requeuer"
         echo
         echo "Setup/upgrade tools:"
         echo
