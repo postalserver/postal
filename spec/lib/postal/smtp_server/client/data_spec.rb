@@ -50,10 +50,10 @@ module Postal
             client.handle("HELO test.example.com")
             client.handle("MAIL FROM: test@test.com")
             client.handle("RCPT TO: #{route.name}@#{route.domain.name}")
-            client.handle("DATA")
           end
 
           it "logs headers" do
+            client.handle("DATA")
             client.handle("Subject: Test")
             client.handle("From: test@test.com")
             client.handle("To: test1@example.com")
@@ -66,17 +66,20 @@ module Postal
           end
 
           it "logs content" do
-            client.handle("Subject: Test")
-            client.handle("")
-            client.handle("This is some content for the message.")
-            client.handle("It will keep going.")
-            expect(client.instance_variable_get("@data")).to eq <<~DATA
-              Received: from test.example.com (1.2.3.4 [1.2.3.4]) by #{Postal.config.dns.smtp_server_hostname} with SMTP; #{Time.now.utc.rfc2822}\r
-              Subject: Test\r
-              \r
-              This is some content for the message.\r
-              It will keep going.\r
-            DATA
+            Timecop.freeze do
+              client.handle("DATA")
+              client.handle("Subject: Test")
+              client.handle("")
+              client.handle("This is some content for the message.")
+              client.handle("It will keep going.")
+              expect(client.instance_variable_get("@data")).to eq <<~DATA
+                Received: from test.example.com (1.2.3.4 [1.2.3.4]) by #{Postal.config.dns.smtp_server_hostname} with SMTP; #{Time.now.utc.rfc2822}\r
+                Subject: Test\r
+                \r
+                This is some content for the message.\r
+                It will keep going.\r
+              DATA
+            end
           end
         end
       end
