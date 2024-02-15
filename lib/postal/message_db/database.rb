@@ -325,7 +325,7 @@ module Postal
         result = connection.query(query, cast_booleans: true)
         time = Time.now.to_f - start_time
         logger.debug "  \e[4;34mMessageDB Query (#{time.round(2)}s) \e[0m  \e[33m#{query}\e[0m"
-        if time.positive? && query =~ /\A(SELECT|UPDATE|DELETE) /
+        if time > 0.05 && query =~ /\A(SELECT|UPDATE|DELETE) /
           id = Nifty::Utils::RandomString.generate(length: 6).upcase
           explain_result = ResultForExplainPrinter.new(connection.query("EXPLAIN #{query}"))
           logger.info "  [#{id}] EXPLAIN #{query}"
