@@ -39,7 +39,8 @@ module Worker
       def process_requests
         @requests_to_process.each do |request|
           work_completed!
-          request.deliver
+
+          WebhookDeliveryService.new(webhook_request: request).call
         end
       end
 

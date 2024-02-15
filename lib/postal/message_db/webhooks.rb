@@ -12,7 +12,7 @@ module Postal
         @database.insert(:webhook_requests, attributes)
       end
 
-      def list(page)
+      def list(page = 1)
         result = @database.select_with_pagination(:webhook_requests, page, order: :timestamp, direction: "desc")
         result[:records] = result[:records].map { |i| Request.new(i) }
         result
