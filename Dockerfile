@@ -1,10 +1,10 @@
-FROM ruby:3.2.1-bullseye AS base
+FROM ruby:3.2.2-bullseye AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
   software-properties-common dirmngr apt-transport-https \
-  && (curl -sL https://deb.nodesource.com/setup_14.x | bash -) \
+  && (curl -sL https://deb.nodesource.com/setup_20.x | bash -) \
   && rm -rf /var/lib/apt/lists/*
 
 # Install main dependencies
