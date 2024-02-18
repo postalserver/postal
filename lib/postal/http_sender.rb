@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 module Postal
   class HTTPSender < Sender
 
     def initialize(endpoint, options = {})
+      super()
       @endpoint = endpoint
       @options = options
       @log_id = Nifty::Utils::RandomString.generate(length: 8).upcase
@@ -24,7 +27,7 @@ module Postal
 
       log "Sending request to #{@endpoint.url}"
       response = Postal::HTTP.post(@endpoint.url, request_options)
-      result.secure = !!response[:secure]
+      result.secure = !!response[:secure] # rubocop:disable Style/DoubleNegation
       result.details = "Received a #{response[:code]} from #{@endpoint.url}"
       log "  -> Received: #{response[:code]}"
       if response[:body]
@@ -38,7 +41,7 @@ module Postal
         # This is temporary. They might fix their server so it should soft fail.
         result.type = "SoftFail"
         result.retry = true
-      elsif response[:code] < 0
+      elsif response[:code].negative?
         # Connection/SSL etc... errors
         result.type = "SoftFail"
         result.retry = true

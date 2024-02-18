@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "authie/session"
 
 class ApplicationController < ActionController::Base
@@ -46,11 +48,7 @@ class ApplicationController < ActionController::Base
   helper_method :page_title
 
   def redirect_to_with_return_to(url, *args)
-    if params[:return_to].blank? || !params[:return_to].starts_with?("/")
-      redirect_to url_with_return_to(url), *args
-    else
-      redirect_to url_with_return_to(url), *args
-    end
+    redirect_to url_with_return_to(url), *args
   end
 
   def set_timezone

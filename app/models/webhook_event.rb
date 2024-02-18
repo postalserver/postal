@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: webhook_events
@@ -14,16 +16,16 @@
 
 class WebhookEvent < ApplicationRecord
 
-  EVENTS = [
-    "MessageSent",
-    "MessageDelayed",
-    "MessageDeliveryFailed",
-    "MessageHeld",
-    "MessageBounced",
-    "MessageLinkClicked",
-    "MessageLoaded",
-    "DomainDNSError"
-  ]
+  EVENTS = %w[
+    MessageSent
+    MessageDelayed
+    MessageDeliveryFailed
+    MessageHeld
+    MessageBounced
+    MessageLinkClicked
+    MessageLoaded
+    DomainDNSError
+  ].freeze
 
   belongs_to :webhook
 

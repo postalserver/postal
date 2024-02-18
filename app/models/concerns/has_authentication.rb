@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module HasAuthentication
 
   extend ActiveSupport::Concern
@@ -38,20 +40,6 @@ module HasAuthentication
     self.password_reset_token_valid_until = 1.day.from_now
     save!
     AppMailer.password_reset(self, return_to).deliver
-  end
-
-end
-
-class Postal::Errors::AuthenticationError < Postal::Error
-
-  attr_reader :error
-
-  def initialize(error)
-    @error = error
-  end
-
-  def to_s
-    "Authentication Failed: #{@error}"
   end
 
 end

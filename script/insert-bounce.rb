@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # This script will insert a message into your database that looks like a bounce
 # for a message that you specify.

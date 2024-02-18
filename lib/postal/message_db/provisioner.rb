@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   module MessageDB
     class Provisioner
@@ -12,14 +14,14 @@ module Postal
       def provision
         drop
         create
-        migrate
+        migrate(silent: true)
       end
 
       #
       # Migrate this database
       #
-      def migrate(start_from = @database.schema_version)
-        Postal::MessageDB::Migration.run(@database, start_from)
+      def migrate(start_from: @database.schema_version, silent: false)
+        Postal::MessageDB::Migration.run(@database, start_from: start_from, silent: silent)
       end
 
       #
@@ -68,9 +70,9 @@ module Postal
       # environment and can be quite dangerous in production.
       #
       def clean
-        ["clicks", "deliveries", "links", "live_stats", "loads", "messages",
-         "raw_message_sizes", "spam_checks", "stats_daily", "stats_hourly",
-         "stats_monthly", "stats_yearly", "suppressions", "webhook_requests"].each do |table|
+        %w[clicks deliveries links live_stats loads messages
+           raw_message_sizes spam_checks stats_daily stats_hourly
+           stats_monthly stats_yearly suppressions webhook_requests].each do |table|
           @database.query("TRUNCATE `#{@database.database_name}`.`#{table}`")
         end
       end

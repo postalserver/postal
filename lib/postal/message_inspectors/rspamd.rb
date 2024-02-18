@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "net/http"
 
 module Postal
@@ -12,7 +14,7 @@ module Postal
         response = JSON.parse(response.body)
         return unless response["symbols"].is_a?(Hash)
 
-        response["symbols"].values.each do |symbol|
+        response["symbols"].each_value do |symbol|
           next if symbol["description"].blank?
 
           inspection.spam_checks << SpamCheck.new(symbol["name"], symbol["score"], symbol["description"])
@@ -54,7 +56,7 @@ module Postal
         response = nil
         begin
           response = http.request(request)
-        rescue Exception => e
+        rescue StandardError => e
           logger.error "Error talking to rspamd: #{e.class} (#{e.message})"
           logger.error e.backtrace[0, 5]
 

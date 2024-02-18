@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   module MessageDB
     class LiveStats
@@ -30,7 +32,7 @@ module Postal
         raise Postal::Error, "You must provide at least one type to return" if options[:types].empty?
 
         time = minutes.minutes.ago.beginning_of_minute.utc.to_f
-        types = options[:types].map { |t| "#{@database.escape(t.to_s)}" }.join(", ")
+        types = options[:types].map { |t| @database.escape(t.to_s) }.join(", ")
         result = @database.query("SELECT SUM(count) as count FROM `#{@database.database_name}`.`live_stats` WHERE `type` IN (#{types}) AND timestamp > #{time}").first
         result["count"] || 0
       end

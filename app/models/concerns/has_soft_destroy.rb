@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module HasSoftDestroy
 
   def self.included(base)

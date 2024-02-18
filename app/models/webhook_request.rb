@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: webhook_requests
@@ -19,7 +21,7 @@ class WebhookRequest < ApplicationRecord
 
   include HasUUID
 
-  RETRIES = { 1 => 2.minutes, 2 => 3.minutes, 3 => 6.minutes, 4 => 10.minutes, 5 => 15.minutes }
+  RETRIES = { 1 => 2.minutes, 2 => 3.minutes, 3 => 6.minutes, 4 => 10.minutes, 5 => 15.minutes }.freeze
 
   belongs_to :server
   belongs_to :webhook, optional: true

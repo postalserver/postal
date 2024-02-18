@@ -2,6 +2,90 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [2.3.0](https://github.com/postalserver/postal/compare/2.2.2...2.3.0) (2024-02-13)
+
+
+### Features
+
+* privacy mode ([15f9671](https://github.com/postalserver/postal/commit/15f9671b667cf369255aaa27ee4257267990095c))
+* remove strip_received_headers config option ([ed2e62b](https://github.com/postalserver/postal/commit/ed2e62b94fe76d7aeca0ede98f11a1c4f94c5996))
+
+
+### Bug Fixes
+
+* add ruby platform to gemfile ([1fceef7](https://github.com/postalserver/postal/commit/1fceef7cea76352fd6166fb3f1e8d0ff8591078e))
+* explicitly disable TLS & starttls for unknown SSL modes ([42ab5b3](https://github.com/postalserver/postal/commit/42ab5b3a6b21992c89f8479137699dc9090f0ccc)), closes [#2564](https://github.com/postalserver/postal/issues/2564)
+* fix bug with received header in SMTP server ([ba5bfbd](https://github.com/postalserver/postal/commit/ba5bfbd6a0af9ea33bedb2948822417bd1a3fbc5))
+* retry mysql connections on message DB pool ([f9f7fb3](https://github.com/postalserver/postal/commit/f9f7fb30fee46b661b6dccde4362383ea591532b))
+* use correct method for disconnecting smtp connections ([7c23994](https://github.com/postalserver/postal/commit/7c23994d243ec7d9a17ee053f8c3fa8de0a33097))
+
+
+### Styles
+
+* **rubocop:** disable complexity cops for now ([930cf39](https://github.com/postalserver/postal/commit/930cf39dba37401f90e293c938dee07daf3d9a31))
+* **rubocop:** disable Style/SpecialGlobalVars ([be97f43](https://github.com/postalserver/postal/commit/be97f4330897f96085eb29ed7019b1a3e50af88e))
+* **rubocop:** disable Style/StringConcatenation cop ([d508772](https://github.com/postalserver/postal/commit/d508772a40ef26e5c3a8304aa1f2b8c7985081bd))
+* **rubocop:** Layout/* ([0e0aca0](https://github.com/postalserver/postal/commit/0e0aca06c90f6d2f4db1c4090a35c4537c76e13a))
+* **rubocop:** Layout/EmptyLineAfterMagicComment ([0e4ed5c](https://github.com/postalserver/postal/commit/0e4ed5ca0393f9a56e1efa7ae377d2e4b876bfe1))
+* **rubocop:** Layout/EmptyLines ([0cf35a8](https://github.com/postalserver/postal/commit/0cf35a83926d499a279775bcc32dd4ea79b7a8c9))
+* **rubocop:** Layout/EmptyLinesAroundBlockBody ([cfd8d63](https://github.com/postalserver/postal/commit/cfd8d63321d1821aad7fa9d6b8462c3d551aca61))
+* **rubocop:** Layout/LeadingCommentSpace ([59f299b](https://github.com/postalserver/postal/commit/59f299b704533488b74075beb8692397eb434aab))
+* **rubocop:** Layout/LineLength ([e142d0d](https://github.com/postalserver/postal/commit/e142d0da5fbee19e6f9f1741ff9dee0a2d7dd169))
+* **rubocop:** Layout/MultilineMethodCallBraceLayout ([a5d5ba5](https://github.com/postalserver/postal/commit/a5d5ba5326728413bb95456e92c854977d225a7f))
+* **rubocop:** Lint/DuplicateBranch ([a1dc0f7](https://github.com/postalserver/postal/commit/a1dc0f77ac69937d7f30c9401608dfbe66987d45))
+* **rubocop:** Lint/DuplicateMethods ([bab6346](https://github.com/postalserver/postal/commit/bab6346239e4f50bdd51101c45f3a0cd66f47096))
+* **rubocop:** Lint/IneffectiveAccessModifier ([6ad56ee](https://github.com/postalserver/postal/commit/6ad56ee9c9e5bad19b065fcec3ada3280adbb1f4))
+* **rubocop:** Lint/MissingSuper ([4674e63](https://github.com/postalserver/postal/commit/4674e63b5ff84307f5b772e870e88109af2daf52))
+* **rubocop:** Lint/RedundantStringCoercion ([12a5ef3](https://github.com/postalserver/postal/commit/12a5ef3279bf6c1e5c38bf7e846de1d17bf98c09))
+* **rubocop:** Lint/ShadowedException ([0966b44](https://github.com/postalserver/postal/commit/0966b44018bc1e2f131358635776fcc3b75ee8eb))
+* **rubocop:** Lint/ShadowingOuterLocalVariable ([7119e86](https://github.com/postalserver/postal/commit/7119e8642dffeee7a27f90145073e45664ea58d3))
+* **rubocop:** Lint/SuppressedException ([278ef08](https://github.com/postalserver/postal/commit/278ef0886ac53e6bed15793301dc69c95a37dbde))
+* **rubocop:** Lint/UnderscorePrefixedVariableName ([ec7dcf4](https://github.com/postalserver/postal/commit/ec7dcf4f9a0bdb367a90f1a3b35336909ebc60d7))
+* **rubocop:** Lint/UnusedBlockArgument ([ee94e4e](https://github.com/postalserver/postal/commit/ee94e4e1a013bbe8fbdd8ef94f15ed0fa20709ac))
+* **rubocop:** Lint/UselessAssignment ([7590a46](https://github.com/postalserver/postal/commit/7590a462341bddd412e660db9546ba1909aea9d7))
+* **rubocop:** Naming/FileName ([919a601](https://github.com/postalserver/postal/commit/919a60116c5d81ed787061ff4614da4f1e067d4e))
+* **rubocop:** Naming/MemoizedInstanceVariableName ([9563f30](https://github.com/postalserver/postal/commit/9563f30c96fba12073e845319b8d79a542d88109))
+* **rubocop:** relax method length and block nexting for now ([b0ac9ef](https://github.com/postalserver/postal/commit/b0ac9ef0b96ab78c2961f45b6e9f20f87a6f1d07))
+* **rubocop:** remaining offences ([ec63666](https://github.com/postalserver/postal/commit/ec636661d5c4b9e8f48e6f263ffef834acb68b39))
+* **rubocop:** Security/YAMLLoad ([389ea77](https://github.com/postalserver/postal/commit/389ea7705047bf8700836137514b2497af3c6c01))
+* **rubocop:** Style/AndOr ([b9f3f31](https://github.com/postalserver/postal/commit/b9f3f313f8ec992917bad3a51f0481f89675e935))
+* **rubocop:** Style/ClassAndModuleChildren ([e896f46](https://github.com/postalserver/postal/commit/e896f4689a8fc54979f0a6c2b7ce14746856bad6))
+* **rubocop:** Style/For ([04a3483](https://github.com/postalserver/postal/commit/04a34831c74a3a44547f93100c35db650bc4eef6))
+* **rubocop:** Style/FrozenStringLiteralComment ([6ab36c0](https://github.com/postalserver/postal/commit/6ab36c09c966eb9a8b8ada52155f74d2537977f2))
+* **rubocop:** Style/GlobalStdStream ([75be690](https://github.com/postalserver/postal/commit/75be6907483ea25f828461eb790d3f6f46ca683b))
+* **rubocop:** Style/GlobalVars ([157d114](https://github.com/postalserver/postal/commit/157d11457c520147807901b75b3ba22d29172f24))
+* **rubocop:** Style/HashEachMethods ([c995027](https://github.com/postalserver/postal/commit/c995027ff53962ae49341372f75e2bf43ecde0d2))
+* **rubocop:** Style/HashExcept ([83ac764](https://github.com/postalserver/postal/commit/83ac76451071f097e7197f77fc5ad16e9cf58593))
+* **rubocop:** Style/IdenticalConditionalBranches ([6a58ecf](https://github.com/postalserver/postal/commit/6a58ecf605250b8fa891cb14fca0c0e0ce0d7eb9))
+* **rubocop:** Style/MissingRespondToMissing ([ffcb707](https://github.com/postalserver/postal/commit/ffcb707247fe2a69905aa6e4dc668abeb9924611))
+* **rubocop:** Style/MultilineBlockChain ([c6326a6](https://github.com/postalserver/postal/commit/c6326a6524e6d71d23bc2c256f3f9416c38b0846))
+* **rubocop:** Style/MutableConstant ([129dffa](https://github.com/postalserver/postal/commit/129dffab9ed8726ca4066e7052adc699129de2d2))
+* **rubocop:** Style/NumericPredicate ([c558f1c](https://github.com/postalserver/postal/commit/c558f1c69ce9498564161d8cef3fcb8213103498))
+* **rubocop:** Style/PreferredHashMethods ([013b3ea](https://github.com/postalserver/postal/commit/013b3ea9315c14f24b08574d68e1688f33d78b8d))
+* **rubocop:** Style/SafeNavigation ([00a02f2](https://github.com/postalserver/postal/commit/00a02f2655b6e3296ad0e7ea9b9872da936b56ed))
+* **rubocop:** Style/SelectByRegexp ([9ce28a4](https://github.com/postalserver/postal/commit/9ce28a427fadf6fafd942e009792be4b5539d40d))
+* **rubocop:** Style/StringLiterals ([b4cc812](https://github.com/postalserver/postal/commit/b4cc81264c85d5f0061e5b5121a30d7bdcabc189))
+* **rubocop:** Style/WordArray ([bd85920](https://github.com/postalserver/postal/commit/bd8592056573d1c6933d753ed50bdf9a7466e761))
+* **rubocop:** update rubocop rules ([6d4dea7](https://github.com/postalserver/postal/commit/6d4dea7f7f0145ff2b99cf2505bc70a3e5925256))
+
+
+### Miscellaneous Chores
+
+* annotate models ([6214892](https://github.com/postalserver/postal/commit/6214892710e21c2aa29a319d5809f7bdf0d50529))
+* silence message DB migrations during provisioning ([c83601a](https://github.com/postalserver/postal/commit/c83601af69f35e338b1f7c10ef7994f74b96f8bf))
+
+
+### Code Refactoring
+
+* remove reloading on the smtp server ([c3c304e](https://github.com/postalserver/postal/commit/c3c304e98b3274433248792b6403acf63d7a513b))
+
+
+### Tests
+
+* add initial tests for Postal::SMTPServer::Client ([dece1d4](https://github.com/postalserver/postal/commit/dece1d487ac2fdce104700939a79a5579b60a0cb))
+* FactoryBot.lint will lint all registered factories ([25d7d66](https://github.com/postalserver/postal/commit/25d7d66b4709fe5442d554097a6ef074aeb15f72))
+* remove FACTORIES_EXCLUDED_FROM_LINT ([1cf665a](https://github.com/postalserver/postal/commit/1cf665a0cf61d1eae3d08bdadf6fccaab6413023))
+
 ## [2.2.2](https://github.com/postalserver/postal/compare/2.2.1...2.2.2) (2024-02-06)
 
 

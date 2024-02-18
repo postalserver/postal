@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ipaddr"
 require "nio"
 
@@ -11,23 +13,24 @@ module Postal
         prepare_environment
       end
 
+      def run
+        listen
+        run_event_loop
+      end
+
+      private
+
       def prepare_environment
         $\ = "\r\n"
         BasicSocket.do_not_reverse_lookup = true
 
-        trap("USR1") do
-          STDOUT.puts "Received USR1 signal, respawning."
-          fork do
-            if ENV["APP_ROOT"]
-              Dir.chdir(ENV["APP_ROOT"])
-            end
-            ENV.delete("BUNDLE_GEMFILE")
-            exec("bundle exec --keep-file-descriptors rake postal:smtp_server", close_others: false)
-          end
+        trap("TERM") do
+          $stdout.puts "Received TERM signal, shutting down."
+          unlisten
         end
 
-        trap("TERM") do
-          STDOUT.puts "Received TERM signal, shutting down."
+        trap("INT") do
+          $stdout.puts "Received INT signal, shutting down."
           unlisten
         end
       end
@@ -36,7 +39,7 @@ module Postal
         @ssl_context ||= begin
           ssl_context      = OpenSSL::SSL::SSLContext.new
           ssl_context.cert = Postal.smtp_certificates[0]
-          ssl_context.extra_chain_cert = Postal.smtp_certificates[1..-1]
+          ssl_context.extra_chain_cert = Postal.smtp_certificates[1..]
           ssl_context.key = Postal.smtp_private_key
           ssl_context.ssl_version = Postal.config.smtp_server.ssl_version if Postal.config.smtp_server.ssl_version
           ssl_context.ciphers = Postal.config.smtp_server.tls_ciphers if Postal.config.smtp_server.tls_ciphers
@@ -45,11 +48,7 @@ module Postal
       end
 
       def listen
-        if ENV["SERVER_FD"]
-          @server = TCPServer.for_fd(ENV["SERVER_FD"].to_i)
-        else
-          @server = TCPServer.open(Postal.config.smtp_server.bind_address, Postal.config.smtp_server.port)
-        end
+        @server = TCPServer.open(Postal.config.smtp_server.bind_address, Postal.config.smtp_server.port)
         @server.autoclose = false
         @server.close_on_exec = false
         if defined?(Socket::SOL_SOCKET) && defined?(Socket::SO_KEEPALIVE)
@@ -60,18 +59,13 @@ module Postal
           @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPINTVL, 10)
           @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPCNT, 5)
         end
-        ENV["SERVER_FD"] = @server.to_i.to_s
         logger.info "Listening on  #{Postal.config.smtp_server.bind_address}:#{Postal.config.smtp_server.port}"
       end
 
       def unlisten
         # Instruct the nio loop to unlisten and wake it
-        $unlisten = true
+        @unlisten = true
         @io_selector.wakeup
-      end
-
-      def kill_parent
-        Process.kill("TERM", Process.ppid)
       end
 
       def run_event_loop
@@ -157,13 +151,11 @@ module Postal
                   # The client is not negotiating a TLS handshake at this time
                   begin
                     # Read 10kiB of data at a time from the socket.
+                    buffers[io] << io.readpartial(10_240)
+
                     # There is an extra step for SSL sockets
-                    case io
-                    when OpenSSL::SSL::SSLSocket
-                      buffers[io] << io.readpartial(10_240)
-                      buffers[io] << io.readpartial(10_240) while io.pending > 0
-                    else
-                      buffers[io] << io.readpartial(10_240)
+                    if io.is_a?(OpenSSL::SSL::SSLSocket)
+                      buffers[io] << io.readpartial(10_240) while io.pending.positive?
                     end
                   rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
                     # Client went away
@@ -186,10 +178,10 @@ module Postal
                     next if result.nil?
 
                     result = [result] unless result.is_a?(Array)
-                    result.compact.each do |line|
-                      client.log "\e[34m=> #{line.strip}\e[0m"
+                    result.compact.each do |iline|
+                      client.log "\e[34m=> #{iline.strip}\e[0m"
                       begin
-                        io.write(line.to_s + "\r\n")
+                        io.write(iline.to_s + "\r\n")
                         io.flush
                       rescue Errno::ECONNRESET
                         # Client disconnected before we could write response
@@ -236,8 +228,8 @@ module Postal
                 end
                 logger.error "[#{client_id}] An error occurred while processing data from a client."
                 logger.error "[#{client_id}] #{e.class}: #{e.message}"
-                e.backtrace.each do |line|
-                  logger.error "[#{client_id}] #{line}"
+                e.backtrace.each do |iline|
+                  logger.error "[#{client_id}] #{iline}"
                 end
                 # Close all IO and forget this client
                 begin
@@ -258,7 +250,7 @@ module Postal
             end
           end
           # If unlisten has been called, stop listening
-          next unless $unlisten
+          next unless @unlisten
 
           @io_selector.deregister(@server)
           @server.close
@@ -267,27 +259,9 @@ module Postal
             Process.exit(0)
           end
           # Clear the request
-          $unlisten = false
+          @unlisten = false
         end
       end
-
-      def run
-        # Write PID to file if path specified
-        if ENV["PID_FILE"]
-          File.write(ENV["PID_FILE"], Process.pid.to_s + "\n")
-        end
-        # If we have been spawned to replace an existing processm shut down the
-        # parent after listening.
-        if ENV["SERVER_FD"]
-          listen
-          kill_parent
-        else
-          listen
-        end
-        run_event_loop
-      end
-
-      private
 
       def logger
         Postal.logger_for(:smtp_server)

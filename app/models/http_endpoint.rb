@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: http_endpoints
@@ -29,8 +31,8 @@ class HTTPEndpoint < ApplicationRecord
   has_many :routes, as: :endpoint
   has_many :additional_route_endpoints, dependent: :destroy, as: :endpoint
 
-  ENCODINGS = ["BodyAsJSON", "FormData"]
-  FORMATS = ["Hash", "RawMessage"]
+  ENCODINGS = %w[BodyAsJSON FormData].freeze
+  FORMATS = %w[Hash RawMessage].freeze
 
   before_destroy :update_routes
 

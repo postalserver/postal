@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 controller :messages do
   friendly_name "Messages API"
   description "This API allows you to access message details"
@@ -12,7 +14,7 @@ controller :messages do
     action do
       begin
         message = identity.server.message(params.id)
-      rescue Postal::MessageDB::Message::NotFound => e
+      rescue Postal::MessageDB::Message::NotFound
         error "MessageNotFound", id: params.id
       end
       structure :message, message, return: true
@@ -28,7 +30,7 @@ controller :messages do
     action do
       begin
         message = identity.server.message(params.id)
-      rescue Postal::MessageDB::Message::NotFound => e
+      rescue Postal::MessageDB::Message::NotFound
         error "MessageNotFound", id: params.id
       end
       message.deliveries.map do |d|

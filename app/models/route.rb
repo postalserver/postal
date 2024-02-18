@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: routes
@@ -22,7 +24,9 @@
 
 class Route < ApplicationRecord
 
-  MODES = ["Endpoint", "Accept", "Hold", "Bounce", "Reject"]
+  MODES = %w[Endpoint Accept Hold Bounce Reject].freeze
+  SPAM_MODES = %w[Mark Quarantine Fail].freeze
+  ENDPOINT_TYPES = %w[SMTPEndpoint HTTPEndpoint AddressEndpoint].freeze
 
   include HasUUID
 
@@ -30,9 +34,6 @@ class Route < ApplicationRecord
   belongs_to :domain, optional: true
   belongs_to :endpoint, polymorphic: true, optional: true
   has_many :additional_route_endpoints, dependent: :destroy
-
-  SPAM_MODES = ["Mark", "Quarantine", "Fail"]
-  ENDPOINT_TYPES = ["SMTPEndpoint", "HTTPEndpoint", "AddressEndpoint"]
 
   validates :name, presence: true, format: /\A(([a-z0-9\-.]*)|(\*)|(__returnpath__))\z/
   validates :spam_mode, inclusion: { in: SPAM_MODES }
@@ -115,7 +116,7 @@ class Route < ApplicationRecord
         if route.save
           seen << route.id
         else
-          route.errors.each do |field, message|
+          route.errors.each do |_, message|
             errors.add :base, message
           end
           raise ActiveRecord::RecordInvalid
@@ -200,7 +201,7 @@ class Route < ApplicationRecord
       if route = Route.includes(:domain).where(domains: { name: domain.name }, name: name).where.not(id: id).first
         errors.add :name, "is configured on the #{route.server.full_permalink} mail server"
       end
-    elsif route = Route.where(name: "__returnpath__").where.not(id: id).exists?
+    elsif Route.where(name: "__returnpath__").where.not(id: id).exists?
       errors.add :base, "A return path route already exists for this server"
     end
   end
@@ -218,12 +219,16 @@ class Route < ApplicationRecord
     errors.add :base, "Additional routes are not permitted unless the primary route is an actual endpoint"
   end
 
-  def self.find_by_name_and_domain(name, domain)
-    route = Route.includes(:domain).where(name: name, domains: { name: domain }).first
-    if route.nil?
-      route = Route.includes(:domain).where(name: "*", domains: { name: domain }).first
+  class << self
+
+    def find_by_name_and_domain(name, domain)
+      route = Route.includes(:domain).where(name: name, domains: { name: domain }).first
+      if route.nil?
+        route = Route.includes(:domain).where(name: "*", domains: { name: domain }).first
+      end
+      route
     end
-    route
+
   end
 
 end

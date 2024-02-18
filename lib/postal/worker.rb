@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   class Worker
 
@@ -33,7 +35,7 @@ module Postal
             logger.info "Job did not finish in a timely manner. Exiting"
             exit 0
           end
-          if exit_checks == 0
+          if exit_checks.zero?
             logger.info "Exit requested but job is running. Waiting for job to finish."
           end
           sleep 60
@@ -165,9 +167,9 @@ module Postal
         leave_queue("outgoing-#{id}")
         @ip_queues.delete(id)
         ip_addresses_to_clear = []
-        @ip_to_id_mapping.each do |_ip, _id|
-          if id == _id
-            ip_addresses_to_clear << _ip
+        @ip_to_id_mapping.each do |iip, iid|
+          if id == iid
+            ip_addresses_to_clear << iip
           end
         end
         ip_addresses_to_clear.each { |ip| @ip_to_id_mapping.delete(ip) }
@@ -193,21 +195,25 @@ module Postal
       self.class.logger
     end
 
-    def self.logger
-      Postal.logger_for(:worker)
-    end
+    class << self
 
-    def self.job_channel
-      @channel ||= Postal::RabbitMQ.create_channel
-    end
+      def logger
+        Postal.logger_for(:worker)
+      end
 
-    def self.job_queue(name)
-      @job_queues ||= {}
-      @job_queues[name] ||= job_channel.queue("deliver-jobs-#{name}", durable: true, arguments: { "x-message-ttl" => 60_000 })
-    end
+      def job_channel
+        @job_channel ||= Postal::RabbitMQ.create_channel
+      end
 
-    def self.local_ip?(ip)
-      !!(ip =~ /\A(127\.|fe80:|::)/)
+      def job_queue(name)
+        @job_queues ||= {}
+        @job_queues[name] ||= job_channel.queue("deliver-jobs-#{name}", durable: true, arguments: { "x-message-ttl" => 60_000 })
+      end
+
+      def local_ip?(ip)
+        !!(ip =~ /\A(127\.|fe80:|::)/)
+      end
+
     end
 
   end

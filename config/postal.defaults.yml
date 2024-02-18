@@ -72,7 +72,6 @@ smtp_server:
   ssl_version: <%= ENV.fetch('SMTP_SERVER_SSL_VERSION', 'SSLv23') %>
   proxy_protocol: <%= ENV.fetch('SMTP_SERVER_PROXY_PROTOCOL', 'false') %>
   log_connect: <%= ENV.fetch('SMTP_SERVER_LOG_CONNECT', 'false') %>
-  strip_received_headers: <%= ENV.fetch('SMTP_SERVER_STRIP_RECEIVED_HEADERS', 'false') %>
   max_message_size: <%= ENV.fetch('SMTP_SERVER_MAX_MESSAGE_SIZE', '14') %> # size in Megabytes
 
 smtp_relays:

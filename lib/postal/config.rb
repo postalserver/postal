@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "erb"
 require "yaml"
 require "pathname"
@@ -9,8 +11,10 @@ require_relative "version"
 
 module Postal
 
+  # rubocop:disable Lint/EmptyClass
   class Config
   end
+  # rubocop:enable Lint/EmptyClass
 
   def self.host
     @host ||= config.web.host || "localhost:5000"
@@ -94,7 +98,7 @@ module Postal
     @loggers[name.to_sym] ||= begin
       require "postal/app_logger"
       if config.logging.stdout || ENV["LOG_TO_STDOUT"]
-        Postal::AppLogger.new(name, STDOUT)
+        Postal::AppLogger.new(name, $stdout)
       else
         FileUtils.mkdir_p(log_root)
         Postal::AppLogger.new(name, log_root.join("#{name}.log"), config.logging.max_log_files, config.logging.max_log_file_size.megabytes)

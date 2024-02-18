@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   module MessageDB
     class ConnectionPool
@@ -10,9 +12,11 @@ module Postal
       end
 
       def use
-        connection = checkout
+        retried = false
         do_not_checkin = false
         begin
+          connection = checkout
+
           yield connection
         rescue Mysql2::Error => e
           if e.message =~ /(lost connection|gone away|not connected)/i
@@ -20,6 +24,12 @@ module Postal
             # we won't add it back in to the pool so that it'll reconnect
             # next time.
             do_not_checkin = true
+
+            # If we haven't retried yet, we'll retry the block once more.
+            if retried == false
+              retried = true
+              retry
+            end
           end
 
           raise

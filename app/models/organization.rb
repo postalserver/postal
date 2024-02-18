@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: organizations
@@ -23,7 +25,7 @@
 
 class Organization < ApplicationRecord
 
-  RESERVED_PERMALINKS = ["new", "edit", "remove", "delete", "destroy", "admin", "mail", "org", "server"]
+  RESERVED_PERMALINKS = %w[new edit remove delete destroy admin mail org server].freeze
 
   INITIAL_QUOTA = 10
   INITIAL_SUPER_QUOTA = 10_000
@@ -48,7 +50,7 @@ class Organization < ApplicationRecord
   has_many :ip_pool_rules, dependent: :destroy, as: :owner
 
   after_create do
-    if pool = IPPool.default
+    if IPPool.default
       ip_pools << IPPool.default
     end
   end

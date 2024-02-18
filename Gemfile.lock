@@ -89,7 +89,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.12.2)
-    concurrent-ruby (1.2.2)
+    concurrent-ruby (1.2.3)
     crass (1.0.6)
     database_cleaner (2.0.2)
       database_cleaner-active_record (>= 2, < 3)
@@ -104,15 +104,17 @@ GEM
     dotenv-rails (2.8.1)
       dotenv (= 2.8.1)
       railties (>= 3.2)
-    dynamic_form (1.1.4)
+    dynamic_form (1.3.1)
+      actionview (> 5.2.0)
+      activemodel (> 5.2.0)
     encrypto_signo (1.0.0)
     erubi (1.12.0)
     execjs (2.7.0)
-    factory_bot (4.11.1)
-      activesupport (>= 3.0.0)
-    factory_bot_rails (4.11.1)
-      factory_bot (~> 4.11.1)
-      railties (>= 3.0.0)
+    factory_bot (6.4.6)
+      activesupport (>= 5.0.0)
+    factory_bot_rails (6.4.3)
+      factory_bot (~> 6.4)
+      railties (>= 5.0.0)
     ffi (1.15.5)
     foreman (0.87.2)
     gelf (3.1.0)
@@ -125,7 +127,7 @@ GEM
       tilt
     hashie (5.0.0)
     highline (2.1.0)
-    i18n (1.12.0)
+    i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     jquery-rails (4.5.1)
       rails-dom-testing (>= 1, < 3)
@@ -145,9 +147,9 @@ GEM
       activerecord
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
-    loofah (2.19.1)
+    loofah (2.22.0)
       crass (~> 1.0.2)
-      nokogiri (>= 1.5.9)
+      nokogiri (>= 1.12.0)
     mail (2.8.1)
       mini_mime (>= 0.1.1)
       net-imap
@@ -157,7 +159,7 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     mini_portile2 (2.8.5)
-    minitest (5.18.0)
+    minitest (5.22.2)
     moonrope (2.0.2)
       deep_merge (~> 1.0)
       json
@@ -190,7 +192,7 @@ GEM
     puma (6.4.2)
       nio4r (~> 2.0)
     racc (1.7.3)
-    rack (2.2.6.4)
+    rack (2.2.8)
     rack-test (2.1.0)
       rack (>= 1.3)
     rails (6.1.7.6)
@@ -208,11 +210,13 @@ GEM
       bundler (>= 1.15.0)
       railties (= 6.1.7.6)
       sprockets-rails (>= 2.0.0)
-    rails-dom-testing (2.0.3)
-      activesupport (>= 4.2.0)
+    rails-dom-testing (2.2.0)
+      activesupport (>= 5.0.0)
+      minitest
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.5.0)
-      loofah (~> 2.19, >= 2.19.1)
+    rails-html-sanitizer (1.6.0)
+      loofah (~> 2.21)
+      nokogiri (~> 1.14)
     railties (6.1.7.6)
       actionpack (= 6.1.7.6)
       activesupport (= 6.1.7.6)
@@ -220,7 +224,7 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0)
     rainbow (3.1.1)
-    rake (13.0.6)
+    rake (13.1.0)
     rbtree (0.4.6)
     regexp_parser (2.7.0)
     resolv (0.2.2)
@@ -292,8 +296,9 @@ GEM
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
     temple (0.10.0)
-    thor (1.2.1)
+    thor (1.3.0)
     tilt (2.1.0)
+    timecop (0.9.8)
     timeout (0.3.2)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
@@ -306,10 +311,11 @@ GEM
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.6.7)
+    zeitwerk (2.6.13)
 
 PLATFORMS
   arm64-darwin-22
+  arm64-darwin-23
   ruby
   x86_64-linux
 
@@ -330,7 +336,7 @@ DEPENDENCIES
   dynamic_form
   encrypto_signo
   execjs (~> 2.7, < 2.8)
-  factory_bot_rails (~> 4.0)
+  factory_bot_rails
   foreman
   gelf
   haml
@@ -356,6 +362,7 @@ DEPENDENCIES
   secure_headers
   sentry-rails
   sentry-ruby
+  timecop
   turbolinks (~> 5)
   uglifier (>= 1.3.0)
 

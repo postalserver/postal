@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "resolv"
 require "nifty/utils/random_string"
 
@@ -6,9 +8,15 @@ module Postal
     class Client
 
       CRAM_MD5_DIGEST = OpenSSL::Digest.new("md5")
-      LOG_REDACTION_STRING = "[redacted]".freeze
+      LOG_REDACTION_STRING = "[redacted]"
 
       attr_reader :logging_enabled
+      attr_reader :credential
+      attr_reader :ip_address
+      attr_reader :recipients
+      attr_reader :headers
+      attr_reader :state
+      attr_reader :helo_name
 
       def initialize(ip_address)
         @logging_enabled = true
@@ -53,19 +61,6 @@ module Postal
         end
       end
 
-      def sanitize_input_for_log(data)
-        if @password_expected_next
-          @password_expected_next = false
-          if data =~ /\A[a-z0-9]{3,}=*\z/i
-            return LOG_REDACTION_STRING
-          end
-        end
-
-        data = data.dup
-        data.gsub!(/(.*AUTH \w+) (.*)\z/i) { "#{::Regexp.last_match(1)} #{LOG_REDACTION_STRING}" }
-        data
-      end
-
       def finished?
         @finished || false
       end
@@ -103,17 +98,6 @@ module Postal
 
       private
 
-      def resolve_hostname
-        Resolv::DNS.open do |dns|
-          dns.timeouts = [10, 5]
-          @hostname = begin
-            dns.getname(@ip_address)
-          rescue StandardError
-            @ip_address
-          end
-        end
-      end
-
       def proxy(data)
         if m = data.match(/\APROXY (.+) (.+) (.+) (.+) (.+)\z/)
           @ip_address = m[2]
@@ -143,15 +127,17 @@ module Postal
       end
 
       def ehlo(data)
-        resolve_hostname
         @helo_name = data.strip.split(" ", 2)[1]
         transaction_reset
         @state = :welcomed
-        ["250-My capabilities are", Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil, "250 AUTH CRAM-MD5 PLAIN LOGIN"]
+        [
+          "250-My capabilities are",
+          Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil,
+          "250 AUTH CRAM-MD5 PLAIN LOGIN"
+        ].compact
       end
 
       def helo(data)
-        resolve_hostname
         @helo_name = data.strip.split(" ", 2)[1]
         transaction_reset
         @state = :welcomed
@@ -169,10 +155,10 @@ module Postal
       end
 
       def auth_plain(data)
-        handler = proc do |data|
+        handler = proc do |idata|
           @proc = nil
-          data = Base64.decode64(data)
-          parts = data.split("\0")
+          idata = Base64.decode64(idata)
+          parts = idata.split("\0")
           username = parts[-2]
           password = parts[-1]
           unless username && password
@@ -193,19 +179,19 @@ module Postal
       end
 
       def auth_login(data)
-        password_handler = proc do |data|
+        password_handler = proc do |idata|
           @proc = nil
-          password = Base64.decode64(data)
+          password = Base64.decode64(idata)
           authenticate(password)
         end
 
-        username_handler = proc do |data|
+        username_handler = proc do
           @proc = password_handler
           @password_expected_next = true
           "334 UGFzc3dvcmQ6" # "Password:"
         end
 
-        data = data.gsub!(/AUTH LOGIN ?/i, "")
+        data = data.gsub(/AUTH LOGIN ?/i, "")
         if data.strip == ""
           @proc = username_handler
           "334 VXNlcm5hbWU6" # "Username:"
@@ -228,15 +214,16 @@ module Postal
         challenge = Digest::SHA1.hexdigest(Time.now.to_i.to_s + rand(100_000).to_s)
         challenge = "<#{challenge[0, 20]}@#{Postal.config.dns.smtp_server_hostname}>"
 
-        handler = proc do |data|
+        handler = proc do |idata|
           @proc = nil
-          username, password = Base64.decode64(data).split(" ", 2).map { |a| a.chomp }
+          username, password = Base64.decode64(idata).split(" ", 2).map { |a| a.chomp }
           org_permlink, server_permalink = username.split(/[\/_]/, 2)
           server = ::Server.includes(:organization).where(organizations: { permalink: org_permlink }, permalink: server_permalink).first
           if server.nil?
             log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
             next "535 Denied"
           end
+
           grant = nil
           server.credentials.where(type: "SMTP").each do |credential|
             correct_response = OpenSSL::HMAC.hexdigest(CRAM_MD5_DIGEST, credential.key, challenge)
@@ -247,10 +234,12 @@ module Postal
             grant = "235 Granted for #{credential.server.organization.permalink}/#{credential.server.permalink}"
             break
           end
+
           if grant.nil?
             log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
             next "535 Denied"
           end
+
           grant
         end
 
@@ -320,7 +309,7 @@ module Postal
               "550 Route does not accept incoming messages"
             else
               log "Added route #{route.id} to recipients (tag: #{tag.inspect})"
-              actual_rcpt_to = "#{route.name}" + (tag ? "+#{tag}" : "") + "@#{route.domain.name}"
+              actual_rcpt_to = "#{route.name}#{tag ? "+#{tag}" : ''}@#{route.domain.name}"
               @recipients << [:route, actual_rcpt_to, route.server, { route: route }]
               "250 OK"
             end
@@ -368,30 +357,30 @@ module Postal
         end
       end
 
-      def data(data)
+      def data(_data)
         unless in_state(:rcpt_to_received)
           return "503 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
         end
 
-        @data = "".force_encoding("BINARY")
+        @data = String.new.force_encoding("BINARY")
         @headers = {}
         @receiving_headers = true
 
-        received_header_content = "from #{@helo_name} (#{@hostname} [#{@ip_address}]) by #{Postal.config.dns.smtp_server_hostname} with SMTP; #{Time.now.utc.rfc2822}".force_encoding("BINARY")
-        unless Postal.config.smtp_server.strip_received_headers?
-          @data << "Received: #{received_header_content}\r\n"
-        end
-        @headers["received"] = [received_header_content]
+        received_header = Postal::ReceivedHeader.generate(@credential&.server, @helo_name, @ip_address, :smtp)
+                                                .force_encoding("BINARY")
 
-        handler = proc do |data|
-          if data == "."
+        @data << "Received: #{received_header}\r\n"
+        @headers["received"] = [received_header]
+
+        handler = proc do |idata|
+          if idata == "."
             @logging_enabled = true
             @proc = nil
             finished
           else
-            data = data.to_s.sub(/\A\.\./, ".")
+            idata = idata.to_s.sub(/\A\.\./, ".")
 
-            if @credential && @credential.server.log_smtp_data?
+            if @credential&.server&.log_smtp_data?
               # We want to log if enabled
             else
               log "Not logging further message data."
@@ -399,25 +388,20 @@ module Postal
             end
 
             if @receiving_headers
-              if data.blank?
+              if idata.blank?
                 @receiving_headers = false
-              elsif data.to_s =~ /^\s/
+              elsif idata.to_s =~ /^\s/
                 # This is a continuation of a header
                 if @header_key && @headers[@header_key.downcase] && @headers[@header_key.downcase].last
-                  @headers[@header_key.downcase].last << data.to_s
+                  @headers[@header_key.downcase].last << idata.to_s
                 end
-                # If received headers are configured to be stripped and we're currently receiving one
-                # skip the append methods at the bottom of this loop.
-                next if Postal.config.smtp_server.strip_received_headers? && @header_key && @header_key.downcase == "received"
               else
-                @header_key, value = data.split(/:\s*/, 2)
+                @header_key, value = idata.split(/:\s*/, 2)
                 @headers[@header_key.downcase] ||= []
                 @headers[@header_key.downcase] << value
-                # As above
-                next if Postal.config.smtp_server.strip_received_headers? && @header_key && @header_key.downcase == "received"
               end
             end
-            @data << data
+            @data << idata
             @data << "\r\n"
             nil
           end
@@ -431,10 +415,10 @@ module Postal
         if @data.bytesize > Postal.config.smtp_server.max_message_size.megabytes.to_i
           transaction_reset
           @state = :welcomed
-          return "552 Message too large (maximum size %dMB)" % Postal.config.smtp_server.max_message_size
+          return format("552 Message too large (maximum size %dMB)", Postal.config.smtp_server.max_message_size)
         end
 
-        if @headers["received"].select { |r| r =~ /by #{Postal.config.dns.smtp_server_hostname}/ }.count > 4
+        if @headers["received"].grep(/by #{Postal.config.dns.smtp_server_hostname}/).count > 4
           transaction_reset
           @state = :welcomed
           return "550 Loop detected"
@@ -469,11 +453,12 @@ module Postal
           when :bounce
             if rp_route = server.routes.where(name: "__returnpath__").first
               # If there's a return path route, we can use this to create the message
-              rp_route.create_messages do |message|
-                message.rcpt_to = rcpt_to
-                message.mail_from = @mail_from
-                message.raw_message = @data
-                message.received_with_ssl = @tls
+              rp_route.create_messages do |msg|
+                msg.rcpt_to = rcpt_to
+                msg.mail_from = @mail_from
+                msg.raw_message = @data
+                msg.received_with_ssl = @tls
+                msg.bounce = 1
               end
             else
               # There's no return path route, we just need to insert the mesage
@@ -503,6 +488,19 @@ module Postal
 
       def in_state(*states)
         states.include?(@state)
+      end
+
+      def sanitize_input_for_log(data)
+        if @password_expected_next
+          @password_expected_next = false
+          if data =~ /\A[a-z0-9]{3,}=*\z/i
+            return LOG_REDACTION_STRING
+          end
+        end
+
+        data = data.dup
+        data.gsub!(/(.*AUTH \w+) (.*)\z/i) { "#{::Regexp.last_match(1)} #{LOG_REDACTION_STRING}" }
+        data
       end
 
     end
