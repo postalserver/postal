@@ -7,7 +7,7 @@ module Postal
 
     describe Client do
       let(:ip_address) { "1.2.3.4" }
-      let(:server) { GLOBAL_SERVER } # We'll use the global server instance for this
+      let(:server) { create(:server) }
       subject(:client) { described_class.new(ip_address) }
 
       let(:credential) { create(:credential, server: server, type: "SMTP") }
@@ -20,10 +20,6 @@ module Postal
         client.handle("AUTH PLAIN #{auth_plain}") if auth_plain
         client.handle("MAIL FROM: #{mail_from}")
         client.handle("RCPT TO: #{rcpt_to}")
-      end
-
-      after do
-        server.message_db.provisioner.clean
       end
 
       describe "when finished sending data" do

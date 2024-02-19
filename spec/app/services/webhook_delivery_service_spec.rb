@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe WebhookDeliveryService do
-  let(:server) { GLOBAL_SERVER }
+  let(:server) { create(:server) }
   let(:webhook) { create(:webhook, server: server) }
   let(:webhook_request) { create(:webhook_request, :locked, webhook: webhook) }
 
@@ -14,10 +14,6 @@ RSpec.describe WebhookDeliveryService do
 
   before do
     stub_request(:post, webhook.url).to_return(status: response_status, body: response_body)
-  end
-
-  after do
-    server.message_db.provisioner.clean
   end
 
   describe "#call" do

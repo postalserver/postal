@@ -27,14 +27,33 @@
 #
 FactoryBot.define do
   factory :queued_message do
-    server
-    message_id { 1234 }
     domain { "example.com" }
-    batch_key { nil }
+
+    transient do
+      message { nil }
+    end
+
+    after(:build) do |message, evaluator|
+      if evaluator.message
+        message.server = evaluator.message.server
+        message.message_id = evaluator.message.id
+        message.batch_key = evaluator.message.batch_key
+        message.domain = evaluator.message.recipient_domain
+        message.route_id = evaluator.message.route_id
+      else
+        message.server ||= create(:server)
+        message.message_id ||= 0
+      end
+    end
 
     trait :locked do
       locked_by { "worker1" }
       locked_at { 5.minutes.ago }
+    end
+
+    trait :retry_in_future do
+      attempts { 2 }
+      retry_after { 1.hour.from_now }
     end
   end
 end

@@ -13,5 +13,10 @@ module Postal
     attr_accessor :time
     attr_accessor :suppress_bounce
 
+    def initialize
+      @details = ""
+      yield self if block_given?
+    end
+
   end
 end

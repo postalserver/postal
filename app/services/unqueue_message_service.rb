@@ -163,7 +163,10 @@ class UnqueueMessageService
         queued_message.message.inspect_message
         if queued_message.message.inspected
           is_spam = queued_message.message.spam_score > queued_message.server.spam_threshold
-          queued_message.message.update(spam: true) if is_spam
+          if is_spam
+            queued_message.message.update(spam: true)
+            log "message is spam (scored #{queued_message.message.spam_score}, threshold is #{queued_message.server.spam_threshold})"
+          end
           queued_message.message.append_headers(
             "X-Postal-Spam: #{queued_message.message.spam ? 'yes' : 'no'}",
             "X-Postal-Spam-Threshold: #{queued_message.server.spam_threshold}",
@@ -285,7 +288,7 @@ class UnqueueMessageService
           # If the message is a hard fail, send a bounce message for this message.
           log "sending a bounce because message hard failed"
           if bounce_id = queued_message.send_bounce
-            log_details += ". " unless log_details =~ /\.\z/
+            log_details += "." unless log_details =~ /\.\z/
             log_details += " Sent bounce message to sender (see message <msg:#{bounce_id}>)"
           end
         end
@@ -445,7 +448,8 @@ class UnqueueMessageService
       if recent_hard_fails >= 1 && queued_message.server.message_db.suppression_list.add(:recipient, queued_message.message.rcpt_to, reason: "too many hard fails")
         log "Added #{queued_message.message.rcpt_to} to suppression list because #{recent_hard_fails} hard fails in 24 hours"
         result.details += "." if result.details =~ /\.\z/
-        result.details += " Recipient added to suppression list (too many hard fails)."
+        result.details += " " if result.details.present?
+        result.details += "Recipient added to suppression list (too many hard fails)."
       end
     end
 
@@ -477,6 +481,7 @@ class UnqueueMessageService
     if defined?(Sentry)
       Sentry.capture_exception(e, extra: { server_id: queued_message.server_id, queued_message_id: queued_message.message_id })
     end
+
     queued_message.message&.create_delivery("Error",
                                             details: "An internal error occurred while sending " \
                                                      "this message. This message will be retried " \
