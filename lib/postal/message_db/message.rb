@@ -103,7 +103,7 @@ module Postal
       end
 
       #
-      #  Return the time that the last delivery was attempted
+      # Return the time that the last delivery was attempted
       #
       def last_delivery_attempt
         @last_delivery_attempt ||= @attributes["last_delivery_attempt"] ? Time.zone.at(@attributes["last_delivery_attempt"]) : nil
@@ -172,14 +172,14 @@ module Postal
       end
 
       #
-      #  Return all activity entries
+      # Return all activity entries
       #
       def activity_entries
         @activity_entries ||= (deliveries + clicks + loads).sort_by(&:timestamp)
       end
 
       #
-      #  Provide access to set and get acceptable attributes
+      # Provide access to set and get acceptable attributes
       #
       def method_missing(name, value = nil, &block)
         if @attributes.key?(name.to_s)
@@ -202,7 +202,7 @@ module Postal
       end
 
       #
-      #  Save this message
+      # Save this message
       #
       def save(queue_on_create: true)
         save_raw_message
@@ -223,7 +223,7 @@ module Postal
       end
 
       #
-      #  Delete the message from the database
+      # Delete the message from the database
       #
       def delete
         return unless persisted?
@@ -232,7 +232,7 @@ module Postal
       end
 
       #
-      #  Return the headers
+      # Return the headers
       #
       def raw_headers
         if raw_table
@@ -243,7 +243,7 @@ module Postal
       end
 
       #
-      #  Return the full raw message body for this message.
+      # Return the full raw message body for this message.
       #
       def raw_body
         if raw_table
@@ -303,7 +303,7 @@ module Postal
       end
 
       #
-      #  Return the HTML body for this message
+      # Return the HTML body for this message
       #
       def html_body
         mail&.html_body
@@ -484,7 +484,7 @@ module Postal
       end
 
       #
-      #  Create a new link
+      # Create a new link
       #
       def create_link(url)
         hash = Digest::SHA1.hexdigest(url.to_s)
@@ -494,7 +494,7 @@ module Postal
       end
 
       #
-      #  Return a message object that this message is a reply to
+      # Return a message object that this message is a reply to
       #
       def original_messages
         return nil unless bounce
@@ -531,7 +531,7 @@ module Postal
       end
 
       #
-      #  Return all spam checks for this message
+      # Return all spam checks for this message
       #
       def spam_checks
         @spam_checks ||= database.select(:spam_checks, where: { message_id: id })
@@ -552,7 +552,7 @@ module Postal
       def parse_content
         parse_result = Postal::MessageParser.new(self)
         if parse_result.actioned?
-          #  Somethign was changed, update the raw message
+          # Somethign was changed, update the raw message
           @database.update(raw_table, { data: parse_result.new_body }, where: { id: raw_body_id })
           @raw = parse_result.new_body
           @raw_message = nil
