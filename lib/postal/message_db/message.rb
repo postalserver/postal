@@ -39,6 +39,10 @@ module Postal
         @attributes = attributes
       end
 
+      def reload
+        self.class.find_one(@database, @attributes["id"])
+      end
+
       #
       # Return the server for this message
       #
@@ -200,9 +204,9 @@ module Postal
       #
       #  Save this message
       #
-      def save
+      def save(queue_on_create: true)
         save_raw_message
-        persisted? ? _update : _create
+        persisted? ? _update : _create(queue: queue_on_create)
         self
       end
 
@@ -346,8 +350,14 @@ module Postal
       #
       # Create a new item in the message queue for this message
       #
-      def add_to_message_queue(options = {})
-        QueuedMessage.create!(message: self, server_id: @database.server_id, batch_key: batch_key, domain: recipient_domain, route_id: route_id, manual: options[:manual]).id
+      def add_to_message_queue(**options)
+        QueuedMessage.create!({
+          message: self,
+          server_id: @database.server_id,
+          batch_key: batch_key,
+          domain: recipient_domain,
+          route_id: route_id
+        }.merge(options))
       end
 
       #
@@ -570,7 +580,7 @@ module Postal
         @database.update("messages", @attributes.except(:id), where: { id: @attributes["id"] })
       end
 
-      def _create
+      def _create(queue: true)
         self.timestamp = Time.now.to_f if timestamp.blank?
         self.status = "Pending" if status.blank?
         self.token = Nifty::Utils::RandomString.generate(length: 12) if token.blank?
@@ -579,7 +589,7 @@ module Postal
         @database.statistics.increment_all(timestamp, scope)
         Statistic.global.increment!(:total_messages)
         Statistic.global.increment!("total_#{scope}".to_sym)
-        add_to_message_queue
+        add_to_message_queue if queue
       end
 
       def mail

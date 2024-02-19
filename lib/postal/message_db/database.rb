@@ -12,9 +12,10 @@ module Postal
 
       end
 
-      def initialize(organization_id, server_id)
+      def initialize(organization_id, server_id, database_name: nil)
         @organization_id = organization_id
         @server_id = server_id
+        @database_name = database_name
       end
 
       attr_reader :organization_id
