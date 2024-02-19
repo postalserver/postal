@@ -59,8 +59,8 @@ module Postal
       end
 
       #
-      #  Create a new message with the given attributes. This won't be saved to the database
-      #  until it has been 'save'd.
+      # Create a new message with the given attributes. This won't be saved to the database
+      # until it has been 'save'd.
       #
       def new_message(attributes = {})
         Message.new(self, attributes)
@@ -74,35 +74,35 @@ module Postal
       end
 
       #
-      #  Return the live stats instance
+      # Return the live stats instance
       #
       def live_stats
         @live_stats ||= LiveStats.new(self)
       end
 
       #
-      #  Return the statistics instance
+      # Return the statistics instance
       #
       def statistics
         @statistics ||= Statistics.new(self)
       end
 
       #
-      #  Return the provisioner instance
+      # Return the provisioner instance
       #
       def provisioner
         @provisioner ||= Provisioner.new(self)
       end
 
       #
-      #  Return the provisioner instance
+      # Return the provisioner instance
       #
       def suppression_list
         @suppression_list ||= SuppressionList.new(self)
       end
 
       #
-      #  Return the provisioner instance
+      # Return the provisioner instance
       #
       def webhooks
         @webhooks ||= Webhooks.new(self)
@@ -183,7 +183,7 @@ module Postal
       end
 
       #
-      #  A paginated version of select
+      # A paginated version of select
       #
       def select_with_pagination(table, page, options = {})
         page = page.to_i
@@ -253,7 +253,7 @@ module Postal
 
       #
       # Deletes a in the database. Accepts a table name, and some options which
-      #  are shown below:
+      # are shown below:
       #
       #   :where     => The condition to apply to the query
       #
@@ -269,7 +269,7 @@ module Postal
       end
 
       #
-      #  Return the correct database name
+      # Return the correct database name
       #
       def database_name
         @database_name ||= "#{Postal.config.message_db.prefix}-server-#{@server_id}"
