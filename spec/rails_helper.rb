@@ -32,7 +32,7 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!
   config.include FactoryBot::Syntax::Methods
-  config.include Postal::RspecHelpers
+  config.include GeneralHelpers
 
   config.before(:suite) do
     # Test that the factories are working as they should and then clean up before getting started on
