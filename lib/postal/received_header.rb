@@ -19,24 +19,11 @@ module Postal
         header = "by #{our_hostname} with #{method.to_s.upcase}; #{Time.now.utc.rfc2822}"
 
         if server.nil? || server.privacy_mode == false
-          hostname = resolve_hostname(ip_address)
+          hostname = DNSResolver.local.ip_to_hostname(ip_address)
           header = "from #{helo} (#{hostname} [#{ip_address}]) #{header}"
         end
 
         header
-      end
-
-      private
-
-      def resolve_hostname(ip_address)
-        Resolv::DNS.open do |dns|
-          dns.timeouts = [10, 5]
-          begin
-            dns.getname(ip_address)
-          rescue StandardError
-            ip_address
-          end
-        end
       end
 
     end

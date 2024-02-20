@@ -225,7 +225,7 @@ module Postal
 
     def servers
       @options[:servers] || self.class.relay_hosts || @servers ||= begin
-        mx_servers = MXLookup.lookup(@domain)
+        mx_servers = DNSResolver.local.mx(@domain).map(&:last)
         if mx_servers.empty?
           mx_servers = [@domain] # This will be resolved to an A or AAAA record later
         end
@@ -243,16 +243,13 @@ module Postal
 
     def lookup_ip_address(type, hostname)
       records = []
-      Resolv::DNS.open do |dns|
-        dns.timeouts = [10, 5]
-        case type
-        when :a
-          records = dns.getresources(hostname, Resolv::DNS::Resource::IN::A)
-        when :aaaa
-          records = dns.getresources(hostname, Resolv::DNS::Resource::IN::AAAA)
-        end
+      case type
+      when :a
+        records = DNSResolver.local.a(hostname)
+      when :aaaa
+        records = DNSResolver.local.aaaa(hostname)
       end
-      records.first&.address&.to_s&.downcase
+      records.first&.to_s&.downcase
     end
 
     class << self

@@ -43,8 +43,8 @@ module HasDNSChecks
   #
 
   def check_spf_record
-    result = resolver.getresources(name, Resolv::DNS::Resource::IN::TXT)
-    spf_records = result.map(&:data).grep(/\Av=spf1/)
+    result = resolver.txt(name)
+    spf_records = result.grep(/\Av=spf1/)
     if spf_records.empty?
       self.spf_status = "Missing"
       self.spf_error = "No SPF record exists for this domain"
@@ -73,8 +73,7 @@ module HasDNSChecks
 
   def check_dkim_record
     domain = "#{dkim_record_name}.#{name}"
-    result = resolver.getresources(domain, Resolv::DNS::Resource::IN::TXT)
-    records = result.map(&:data)
+    records = resolver.txt(domain)
     if records.empty?
       self.dkim_status = "Missing"
       self.dkim_error = "No TXT records were returned for #{domain}"
@@ -104,8 +103,7 @@ module HasDNSChecks
   #
 
   def check_mx_records
-    result = resolver.getresources(name, Resolv::DNS::Resource::IN::MX)
-    records = result.map(&:exchange)
+    records = resolver.mx(name).map(&:last)
     if records.empty?
       self.mx_status = "Missing"
       self.mx_error = "There are no MX records for #{name}"
@@ -134,8 +132,7 @@ module HasDNSChecks
   #
 
   def check_return_path_record
-    result = resolver.getresources(return_path_domain, Resolv::DNS::Resource::IN::CNAME)
-    records = result.map { |r| r.name.to_s.downcase }
+    records = resolver.cname(return_path_domain)
     if records.empty?
       self.return_path_status = "Missing"
       self.return_path_error = "There is no return path record at #{return_path_domain}"
