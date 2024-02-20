@@ -464,6 +464,7 @@ class UnqueueMessageService
 
     # Log the result
     queued_message.message.create_delivery(result.type, details: result.details, output: result.output, sent_with_ssl: result.secure, log_id: result.log_id, time: result.time)
+
     if result.retry
       queued_message.retry_later(result.retry.is_a?(Integer) ? result.retry : nil)
       log "message requeued for trying later", retry_after: queued_message.retry_after
