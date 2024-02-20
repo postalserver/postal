@@ -52,6 +52,7 @@ group :development do
   gem "rspec-rails", require: false
   gem "rubocop"
   gem "rubocop-rails"
+  gem "shoulda-matchers"
   gem "timecop"
   gem "webmock"
 end
