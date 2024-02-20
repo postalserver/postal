@@ -17,16 +17,15 @@
         %p.fieldSet__text
           This priority will determine the likelihood of this IP address being selected
           for use when sending a message. The higher the number the more likely the IP
-          is to be chosen. By defalt, the priority is set to the maximum value of 100.
+          is to be chosen. By default, the priority is set to the maximum value of 100.
           This can be used to warm up new IP addresses by adding them with a low priority.
           To give an indication of how this works, if you have three IPs with 1, 50 and 100
           as their priorities, and you send 100,000 emails, the priority 1 address will receive
-          a tiny percentage, the priority 50 will receive roughly 25% and the priority 100 will
-          receive roughly 75%.
+          a tiny percentage, the priority 50 will receive roughly one third of e-mails and the
+          priority 100 will receive roughly two thirds.
 
   .fieldSetSubmit.buttonSet
     = f.submit :class => 'button button--positive js-form-submit'
     .fieldSetSubmit__delete
       - if @ip_address.persisted?
         = link_to "Delete IP address", [@ip_pool, @ip_address], :class => 'button button--danger', :method => :delete, :remote => true, :data => {:confirm => "Are you sure you wish to remove this IP from the pool?"}
-
