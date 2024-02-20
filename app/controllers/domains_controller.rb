@@ -71,7 +71,7 @@ class DomainsController < ApplicationController
     when "Email"
       if params[:code]
         if @domain.verification_token == params[:code].to_s.strip
-          @domain.verify
+          @domain.mark_as_verified
           redirect_to_with_json [:setup, organization, @server, @domain], notice: "#{@domain.name} has been verified successfully. You now need to configure your DNS records."
         else
           respond_to do |wants|

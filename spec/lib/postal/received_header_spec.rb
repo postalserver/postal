@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe Postal::ReceivedHeader do
   before do
-    allow(Resolv::DNS).to receive(:open).and_return("hostname.com")
+    allow(DNSResolver.local).to receive(:ip_to_hostname).and_return("hostname.com")
   end
 
   describe ".generate" do

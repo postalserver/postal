@@ -54,8 +54,7 @@ class TrackDomain < ApplicationRecord
   end
 
   def check_dns
-    result = domain.resolver.getresources(full_name, Resolv::DNS::Resource::IN::CNAME)
-    records = result.map { |r| r.name.to_s.downcase }
+    records = domain.resolver.cname(full_name)
     if records.empty?
       self.dns_status = "Missing"
       self.dns_error = "There is no record at #{full_name}"
