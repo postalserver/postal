@@ -115,7 +115,8 @@ class DNSResolver
   private
 
   def dns
-    Resolv::DNS.open(nameserver: @nameservers || []) do |dns|
+    kwargs = @nameservers ? { nameserver: @nameservers } : {}
+    Resolv::DNS.open(**kwargs) do |dns|
       dns.timeouts = [@timeout, @timeout / 2]
       yield dns
     end
