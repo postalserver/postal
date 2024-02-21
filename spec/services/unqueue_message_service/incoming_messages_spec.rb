@@ -62,7 +62,7 @@ RSpec.describe UnqueueMessageService do
         end
 
         it "sends a bounce to the sender" do
-          expect(Postal::BounceMessage).to receive(:new).with(server, queued_message.message)
+          expect(BounceMessage).to receive(:new).with(server, queued_message.message)
           service.call
         end
 
@@ -449,7 +449,7 @@ RSpec.describe UnqueueMessageService do
         end
 
         it "sends a bounce" do
-          expect(Postal::BounceMessage).to receive(:new).with(server, queued_message.message)
+          expect(BounceMessage).to receive(:new).with(server, queued_message.message)
           service.call
         end
 
@@ -479,7 +479,7 @@ RSpec.describe UnqueueMessageService do
         end
 
         it "sends a bounce" do
-          expect(Postal::BounceMessage).to receive(:new).with(server, queued_message.message)
+          expect(BounceMessage).to receive(:new).with(server, queued_message.message)
           service.call
         end
 
@@ -598,9 +598,9 @@ RSpec.describe UnqueueMessageService do
           end
 
           it "does not send a bounce" do
-            allow(Postal::BounceMessage).to receive(:new)
+            allow(BounceMessage).to receive(:new)
             service.call
-            expect(Postal::BounceMessage).to_not have_received(:new)
+            expect(BounceMessage).to_not have_received(:new)
           end
         end
 
@@ -616,7 +616,7 @@ RSpec.describe UnqueueMessageService do
           end
 
           it "sends a bounce" do
-            expect(Postal::BounceMessage).to receive(:new).with(server, queued_message.message)
+            expect(BounceMessage).to receive(:new).with(server, queued_message.message)
             service.call
           end
 
