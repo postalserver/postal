@@ -1,5 +1,18 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: worker_roles
+#
+#  id          :bigint           not null, primary key
+#  acquired_at :datetime
+#  role        :string(255)
+#  worker      :string(255)
+#
+# Indexes
+#
+#  index_worker_roles_on_role  (role) UNIQUE
+#
 require "rails_helper"
 
 RSpec.describe WorkerRole do
