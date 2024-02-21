@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-describe Postal::DKIMHeader do
+describe DKIMHeader do
   examples = Rails.root.join("spec/examples/dkim_signing/*.msg")
   Dir[examples].each do |path|
     contents = File.read(path)

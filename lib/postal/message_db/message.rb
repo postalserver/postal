@@ -413,7 +413,7 @@ module Postal
       def add_outgoing_headers
         headers = []
         if domain
-          dkim = Postal::DKIMHeader.new(domain, raw_message)
+          dkim = DKIMHeader.new(domain, raw_message)
           headers << dkim.dkim_header
         end
         headers << "X-Postal-MsgID: #{token}"
