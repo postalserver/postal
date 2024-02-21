@@ -46,7 +46,7 @@ class QueuedMessage < ApplicationRecord
   def send_bounce
     return unless message.send_bounces?
 
-    Postal::BounceMessage.new(server, message).queue
+    BounceMessage.new(server, message).queue
   end
 
   def allocate_ip_address
