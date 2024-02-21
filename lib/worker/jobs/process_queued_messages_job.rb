@@ -64,7 +64,7 @@ module Worker
       def process_messages
         @messages_to_process.each do |message|
           work_completed!
-          UnqueueMessageService.new(queued_message: message, logger: logger).call
+          MessageDequeuer.process(message, logger: logger)
         end
       end
 

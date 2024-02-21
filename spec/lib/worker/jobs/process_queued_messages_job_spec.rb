@@ -7,18 +7,16 @@ module Worker
 
     RSpec.describe ProcessQueuedMessagesJob do
       subject(:job) { described_class.new(logger: Postal.logger) }
-      let(:mocked_service) { instance_double(UnqueueMessageService) }
 
       before do
-        allow(UnqueueMessageService).to receive(:new).and_return(mocked_service)
-        allow(mocked_service).to receive(:call).with(any_args)
+        allow(MessageDequeuer).to receive(:process)
       end
 
       describe "#call" do
         context "when there are no queued messages" do
           it "does nothing" do
             job.call
-            expect(UnqueueMessageService).to_not have_received(:new)
+            expect(MessageDequeuer).to_not have_received(:process)
           end
         end
 
@@ -27,7 +25,7 @@ module Worker
             ip_address = create(:ip_address)
             queued_message = create(:queued_message, ip_address: ip_address)
             job.call
-            expect(UnqueueMessageService).to_not have_received(:new)
+            expect(MessageDequeuer).to_not have_received(:process)
             expect(queued_message.reload.locked?).to be false
           end
         end
@@ -36,10 +34,9 @@ module Worker
           it "locks the message and calls the service" do
             queued_message = create(:queued_message, ip_address: nil, retry_after: nil)
             job.call
-            expect(UnqueueMessageService).to have_received(:new).with(logger: kind_of(Klogger::Logger), queued_message: queued_message)
-            expect(mocked_service).to have_received(:call)
+            expect(MessageDequeuer).to have_received(:process).with(queued_message, logger: kind_of(Klogger::Logger))
             expect(queued_message.reload.locked?).to be true
-            expect(queued_message.locked_by).to eq Postal.locker_name
+            expect(queued_message.locked_by).to match(/\A#{Postal.locker_name} [a-f0-9]{16}\z/)
             expect(queued_message.locked_at).to be_within(1.second).of(Time.current)
           end
         end
@@ -48,10 +45,9 @@ module Worker
           it "locks the message and calls the service" do
             queued_message = create(:queued_message, ip_address: nil, retry_after: 10.minutes.ago)
             job.call
-            expect(UnqueueMessageService).to have_received(:new).with(logger: kind_of(Klogger::Logger), queued_message: queued_message)
-            expect(mocked_service).to have_received(:call)
+            expect(MessageDequeuer).to have_received(:process).with(queued_message, logger: kind_of(Klogger::Logger))
             expect(queued_message.reload.locked?).to be true
-            expect(queued_message.locked_by).to eq Postal.locker_name
+            expect(queued_message.locked_by).to match(/\A#{Postal.locker_name} [a-f0-9]{16}\z/)
             expect(queued_message.locked_at).to be_within(1.second).of(Time.current)
           end
         end
@@ -60,7 +56,7 @@ module Worker
           it "does nothing" do
             queued_message = create(:queued_message, ip_address: nil, retry_after: 10.minutes.from_now)
             job.call
-            expect(UnqueueMessageService).to_not have_received(:new)
+            expect(MessageDequeuer).to_not have_received(:process)
             expect(queued_message.reload.locked?).to be false
           end
         end
@@ -69,7 +65,7 @@ module Worker
           it "does nothing" do
             queued_message = create(:queued_message, :locked, ip_address: nil, retry_after: nil)
             job.call
-            expect(UnqueueMessageService).to_not have_received(:new)
+            expect(MessageDequeuer).to_not have_received(:process)
             expect(queued_message.reload.locked?).to be true
           end
         end
@@ -78,7 +74,7 @@ module Worker
           it "does nothing" do
             queued_message = create(:queued_message, :locked, ip_address: nil, retry_after: 1.month.ago)
             job.call
-            expect(UnqueueMessageService).to_not have_received(:new)
+            expect(MessageDequeuer).to_not have_received(:process)
             expect(queued_message.reload.locked?).to be true
           end
         end
@@ -89,10 +85,9 @@ module Worker
             allow(Socket).to receive(:ip_address_list).and_return([Addrinfo.new(["AF_INET", 1, "localhost.localdomain", "10.20.30.40"])])
             queued_message = create(:queued_message, ip_address: ip_address)
             job.call
-            expect(UnqueueMessageService).to have_received(:new).with(logger: kind_of(Klogger::Logger), queued_message: queued_message)
-            expect(mocked_service).to have_received(:call)
+            expect(MessageDequeuer).to have_received(:process).with(queued_message, logger: kind_of(Klogger::Logger))
             expect(queued_message.reload.locked?).to be true
-            expect(queued_message.locked_by).to eq Postal.locker_name
+            expect(queued_message.locked_by).to match(/\A#{Postal.locker_name} [a-f0-9]{16}\z/)
             expect(queued_message.locked_at).to be_within(1.second).of(Time.current)
           end
         end
@@ -103,7 +98,7 @@ module Worker
             allow(Socket).to receive(:ip_address_list).and_return([Addrinfo.new(["AF_INET", 1, "localhost.localdomain", "10.20.30.40"])])
             queued_message = create(:queued_message, ip_address: ip_address, retry_after: 1.month.from_now)
             job.call
-            expect(UnqueueMessageService).to_not have_received(:new)
+            expect(MessageDequeuer).to_not have_received(:process)
             expect(queued_message.reload.locked?).to be false
           end
         end
