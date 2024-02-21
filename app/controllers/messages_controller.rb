@@ -161,7 +161,7 @@ class MessagesController < ApplicationController
 
       if @query = (params[:query] || session["msg_query_#{@server.id}_#{scope}"]).presence
         session["msg_query_#{@server.id}_#{scope}"] = @query
-        qs = Postal::QueryString.new(@query)
+        qs = QueryString.new(@query)
         if qs.empty?
           flash.now[:alert] = "It doesn't appear you entered anything to filter on. Please double check your query."
         else
