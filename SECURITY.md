@@ -2,12 +2,12 @@
 
 ## Supported Versions
 
-We only support updates to the 2.x versions of Postal.
+We only support updates to the 3.x versions of Postal.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.x.x   | :white_check_mark: |
-| < 2.0   | :x:                |
+| 3.x.x   | :white_check_mark: |
+| < 3.0   | :x:                |
 
 ## Reporting a Vulnerability
 
