@@ -2,10 +2,11 @@
 
 require "highline"
 
-module Postal
-  module UserCreator
+module UserCreator
 
-    def self.start(&block)
+  class << self
+
+    def start(&block)
       cli = HighLine.new
       puts "\e[32mPostal User Creator\e[0m"
       puts "Enter the information required to create a new Postal user."
@@ -31,4 +32,5 @@ module Postal
     end
 
   end
+
 end
