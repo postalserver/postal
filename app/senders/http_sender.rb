@@ -91,7 +91,7 @@ class HTTPSender < BaseSender
       }
 
       if @endpoint.strip_replies
-        hash[:plain_body], hash[:replies_from_plain_body] = Postal::ReplySeparator.separate(message.plain_body)
+        hash[:plain_body], hash[:replies_from_plain_body] = ReplySeparator.separate(message.plain_body)
       else
         hash[:plain_body] = message.plain_body
       end
