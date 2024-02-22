@@ -26,4 +26,4 @@ jobs:
 
           exempt-all-assignees: true
           exempt-all-milestones: true
-          exempt-issue-labels: bug,enhancement,bug,install,feature
+          exempt-issue-labels: bug,enhancement,docs,install,feature
