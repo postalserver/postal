@@ -361,7 +361,7 @@ module MessageDequeuer
 
     context "when there are no other impediments" do
       let(:send_result) do
-        Postal::SendResult.new do |r|
+        SendResult.new do |r|
           r.type = "Sent"
         end
       end
@@ -383,7 +383,7 @@ module MessageDequeuer
         it "gets a sender from the state and sends the message to it" do
           mocked_sender = double("SMTPSender")
           expect(mocked_sender).to receive(:send_message).with(queued_message.message).and_return(send_result)
-          expect(state).to receive(:sender_for).with(Postal::SMTPSender, message.recipient_domain, ip).and_return(mocked_sender)
+          expect(state).to receive(:sender_for).with(SMTPSender, message.recipient_domain, ip).and_return(mocked_sender)
 
           processor.process
         end
@@ -393,7 +393,7 @@ module MessageDequeuer
         it "gets a sender from the state and sends the message to it" do
           mocked_sender = double("SMTPSender")
           expect(mocked_sender).to receive(:send_message).with(queued_message.message).and_return(send_result)
-          expect(state).to receive(:sender_for).with(Postal::SMTPSender, message.recipient_domain, nil).and_return(mocked_sender)
+          expect(state).to receive(:sender_for).with(SMTPSender, message.recipient_domain, nil).and_return(mocked_sender)
 
           processor.process
         end
@@ -514,7 +514,7 @@ module MessageDequeuer
     context "when an exception occurrs during processing" do
       before do
         smtp_sender_mock = double("SMTPSender")
-        allow(Postal::SMTPSender).to receive(:new).and_return(smtp_sender_mock)
+        allow(SMTPSender).to receive(:new).and_return(smtp_sender_mock)
         allow(smtp_sender_mock).to receive(:start)
         allow(smtp_sender_mock).to receive(:send_message) do
           1 / 0

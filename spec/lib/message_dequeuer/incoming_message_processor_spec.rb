@@ -409,8 +409,8 @@ module MessageDequeuer
 
       it "gets a sender from the state and sends the message to it" do
         http_sender_double = double("HTTPSender")
-        expect(http_sender_double).to receive(:send_message).with(queued_message.message).and_return(Postal::SendResult.new)
-        expect(state).to receive(:sender_for).with(Postal::HTTPSender, endpoint).and_return(http_sender_double)
+        expect(http_sender_double).to receive(:send_message).with(queued_message.message).and_return(SendResult.new)
+        expect(state).to receive(:sender_for).with(HTTPSender, endpoint).and_return(http_sender_double)
         processor.process
       end
     end
@@ -421,8 +421,8 @@ module MessageDequeuer
 
       it "gets a sender from the state and sends the message to it" do
         smtp_sender_double = double("SMTPSender")
-        expect(smtp_sender_double).to receive(:send_message).with(queued_message.message).and_return(Postal::SendResult.new)
-        expect(state).to receive(:sender_for).with(Postal::SMTPSender, message.recipient_domain, nil, { servers: [endpoint] }).and_return(smtp_sender_double)
+        expect(smtp_sender_double).to receive(:send_message).with(queued_message.message).and_return(SendResult.new)
+        expect(state).to receive(:sender_for).with(SMTPSender, message.recipient_domain, nil, { servers: [endpoint] }).and_return(smtp_sender_double)
         processor.process
       end
     end
@@ -433,8 +433,8 @@ module MessageDequeuer
 
       it "gets a sender from the state and sends the message to it" do
         smtp_sender_double = double("SMTPSender")
-        expect(smtp_sender_double).to receive(:send_message).with(queued_message.message).and_return(Postal::SendResult.new)
-        expect(state).to receive(:sender_for).with(Postal::SMTPSender, endpoint.domain, nil, { force_rcpt_to: endpoint.address }).and_return(smtp_sender_double)
+        expect(smtp_sender_double).to receive(:send_message).with(queued_message.message).and_return(SendResult.new)
+        expect(state).to receive(:sender_for).with(SMTPSender, endpoint.domain, nil, { force_rcpt_to: endpoint.address }).and_return(smtp_sender_double)
         processor.process
       end
     end
@@ -469,7 +469,7 @@ module MessageDequeuer
       let(:route) { create(:route, server: server, mode: "Endpoint", endpoint: endpoint) }
 
       let(:send_result) do
-        Postal::SendResult.new do |result|
+        SendResult.new do |result|
           result.type = "Sent"
           result.details = "Sent successfully"
         end
@@ -477,7 +477,7 @@ module MessageDequeuer
 
       before do
         smtp_sender_mock = double("SMTPSender")
-        allow(Postal::SMTPSender).to receive(:new).and_return(smtp_sender_mock)
+        allow(SMTPSender).to receive(:new).and_return(smtp_sender_mock)
         allow(smtp_sender_mock).to receive(:start)
         allow(smtp_sender_mock).to receive(:finish)
         allow(smtp_sender_mock).to receive(:send_message).and_return(send_result)
@@ -611,7 +611,7 @@ module MessageDequeuer
 
       before do
         smtp_sender_mock = double("SMTPSender")
-        allow(Postal::SMTPSender).to receive(:new).and_return(smtp_sender_mock)
+        allow(SMTPSender).to receive(:new).and_return(smtp_sender_mock)
         allow(smtp_sender_mock).to receive(:start)
         allow(smtp_sender_mock).to receive(:finish)
         allow(smtp_sender_mock).to receive(:send_message) do

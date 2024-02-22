@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "resolv"
+
 class DNSResolver
 
   attr_reader :nameservers

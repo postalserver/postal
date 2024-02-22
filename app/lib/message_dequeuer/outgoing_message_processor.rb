@@ -135,7 +135,7 @@ module MessageDequeuer
       @result = @state.send_result
       return if @result
 
-      sender = @state.sender_for(Postal::SMTPSender,
+      sender = @state.sender_for(SMTPSender,
                                  queued_message.message.recipient_domain,
                                  queued_message.ip_address)
 
