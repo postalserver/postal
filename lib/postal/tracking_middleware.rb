@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   class TrackingMiddleware
 
@@ -85,8 +87,23 @@ module Postal
       time = Time.now.to_f
       if link["message_id"]
         message_db.update(:messages, { clicked: time }, where: { id: link["message_id"] })
-        message_db.insert(:clicks, { message_id: link["message_id"], link_id: link["id"], ip_address: request.ip, user_agent: request.user_agent, timestamp: time })
-        SendWebhookJob.queue(:main, server_id: message_db.server_id, event: "MessageLinkClicked", payload: { _message: link["message_id"], url: link["url"], token: link["token"], ip_address: request.ip, user_agent: request.user_agent })
+        message_db.insert(:clicks, {
+          message_id: link["message_id"],
+          link_id: link["id"],
+          ip_address: request.ip,
+          user_agent: request.user_agent,
+          timestamp: time
+        })
+        SendWebhookJob.queue(:main,
+                             server_id: message_db.server_id,
+                             event: "MessageLinkClicked",
+                             payload: {
+                               _message: link["message_id"],
+                               url: link["url"],
+                               token: link["token"],
+                               ip_address: request.ip,
+                               user_agent: request.user_agent
+                             })
       end
 
       [307, { "Location" => link["url"] }, ["Redirected to: #{link['url']}"]]

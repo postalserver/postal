@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   class MessageParser
 
@@ -19,7 +21,7 @@ module Postal
     attr_reader :tracked_images
 
     def actioned?
-      @actioned || @tracked_links > 0 || @tracked_images > 0
+      @actioned || @tracked_links.positive? || @tracked_images.positive?
     end
 
     def new_body
@@ -61,15 +63,16 @@ module Postal
 
     def parse_parts(parts)
       parts.each do |part|
-        if part.content_type =~ /text\/html/
+        case part.content_type
+        when /text\/html/
           part.body = parse(part.body.decoded.dup, :html)
           part.content_transfer_encoding = nil
           part.charset = "UTF-8"
-        elsif part.content_type =~ /text\/plain/
+        when /text\/plain/
           part.body = parse(part.body.decoded.dup, :text)
           part.content_transfer_encoding = nil
           part.charset = "UTF-8"
-        elsif part.content_type =~ /multipart\/(alternative|related)/
+        when /multipart\/(alternative|related)/
           unless part.parts.empty?
             parse_parts(part.parts)
           end

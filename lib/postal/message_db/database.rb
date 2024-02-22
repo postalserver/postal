@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   module MessageDB
     class Database
@@ -144,7 +146,7 @@ module Postal
       #   :count     => Return a count of the results instead of the actual data
       #
       def select(table, options = {})
-        sql_query = "SELECT"
+        sql_query = String.new("SELECT")
         if options[:count]
           sql_query << " COUNT(id) AS count"
         elsif options[:fields]
@@ -158,7 +160,7 @@ module Postal
         end
         if options[:order]
           direction = (options[:direction] || "ASC").upcase
-          raise Postal::Error, "Invalid direction #{options[:direction]}" unless ["ASC", "DESC"].include?(direction)
+          raise Postal::Error, "Invalid direction #{options[:direction]}" unless %w[ASC DESC].include?(direction)
 
           sql_query << " ORDER BY `#{options[:order]}` #{direction}"
         end
@@ -194,7 +196,7 @@ module Postal
         result[:records] = select(table, options.merge(limit: per_page, offset: offset))
         result[:per_page] = per_page
         result[:total_pages], remainder = result[:total].divmod(per_page)
-        result[:total_pages] += 1 if remainder > 0
+        result[:total_pages] += 1 if remainder.positive?
         result[:page] = page
         result
       end
@@ -243,7 +245,7 @@ module Postal
           sql_query = "INSERT INTO `#{database_name}`.`#{table}`"
           sql_query << (" (" + keys.map { |k| "`#{k}`" }.join(", ") + ")")
           sql_query << " VALUES "
-          sql_query << values.map { |v| "(" + v.map { |v| escape(v) }.join(", ") + ")" }.join(", ")
+          sql_query << values.map { |v| "(" + v.map { |r| escape(r) }.join(", ") + ")" }.join(", ")
           query(sql_query)
         end
       end
@@ -293,9 +295,7 @@ module Postal
       end
 
       def stringify_keys(hash)
-        hash.each_with_object({}) do |(key, value), hash|
-          hash[key.to_s] = value
-        end
+        hash.transform_keys(&:to_s)
       end
 
       def escape(value)
@@ -304,9 +304,7 @@ module Postal
             "1"
           elsif value == false
             "0"
-          elsif value.nil?
-            "NULL"
-          elsif value.to_s.length == 0
+          elsif value.nil? || value.to_s.empty?
             "NULL"
           else
             "'" + mysql.escape(value.to_s) + "'"
@@ -331,7 +329,7 @@ module Postal
           id = Nifty::Utils::RandomString.generate(length: 6).upcase
           explain_result = ResultForExplainPrinter.new(connection.query("EXPLAIN #{query}"))
           slow_query_logger.info "[#{id}] EXPLAIN #{query}"
-          for line in ActiveRecord::ConnectionAdapters::MySQL::ExplainPrettyPrinter.new.pp(explain_result, time).split("\n")
+          ActiveRecord::ConnectionAdapters::MySQL::ExplainPrettyPrinter.new.pp(explain_result, time).split("\n").each do |line|
             slow_query_logger.info "[#{id}] " + line
           end
         end
@@ -339,7 +337,7 @@ module Postal
       end
 
       def logger
-        defined?(Rails) ? Rails.logger : Logger.new(STDOUT)
+        defined?(Rails) ? Rails.logger : Logger.new($stdout)
       end
 
       def slow_query_logger
@@ -363,16 +361,16 @@ module Postal
             "`#{key}` IN (#{escaped_values})"
           elsif value.is_a?(Hash)
             sql = []
-            value.each do |operator, value|
+            value.each do |operator, inner_value|
               case operator
               when :less_than
-                sql << "`#{key}` < #{escape(value)}"
+                sql << "`#{key}` < #{escape(inner_value)}"
               when :greater_than
-                sql << "`#{key}` > #{escape(value)}"
+                sql << "`#{key}` > #{escape(inner_value)}"
               when :less_than_or_equal_to
-                sql << "`#{key}` <= #{escape(value)}"
+                sql << "`#{key}` <= #{escape(inner_value)}"
               when :greater_than_or_equal_to
-                sql << "`#{key}` >= #{escape(value)}"
+                sql << "`#{key}` >= #{escape(inner_value)}"
               end
             end
             sql.empty? ? "1=1" : sql.join(joiner)

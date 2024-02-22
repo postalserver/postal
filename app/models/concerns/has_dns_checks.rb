@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require "resolv"
 
 module HasDNSChecks
 
   def dns_ok?
-    spf_status == "OK" && dkim_status == "OK" && ["OK", "Missing"].include?(mx_status) && ["OK", "Missing"].include?(return_path_status)
+    spf_status == "OK" && dkim_status == "OK" && %w[OK Missing].include?(mx_status) && %w[OK Missing].include?(return_path_status)
   end
 
   def dns_checked?
@@ -42,12 +44,12 @@ module HasDNSChecks
 
   def check_spf_record
     result = resolver.getresources(name, Resolv::DNS::Resource::IN::TXT)
-    spf_records = result.map(&:data).select { |d| d =~ /\Av=spf1/ }
+    spf_records = result.map(&:data).grep(/\Av=spf1/)
     if spf_records.empty?
       self.spf_status = "Missing"
       self.spf_error = "No SPF record exists for this domain"
     else
-      suitable_spf_records = spf_records.select { |d| d =~ /include:\s*#{Regexp.escape(Postal.config.dns.spf_include)}/ }
+      suitable_spf_records = spf_records.grep(/include:\s*#{Regexp.escape(Postal.config.dns.spf_include)}/)
       if suitable_spf_records.empty?
         self.spf_status = "Invalid"
         self.spf_error = "An SPF record exists but it doesn't include #{Postal.config.dns.spf_include}"

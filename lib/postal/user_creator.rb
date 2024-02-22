@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "highline"
 
 module Postal
@@ -16,18 +18,16 @@ module Postal
       user.password = cli.ask("Initial Password".ljust(20, " ") + ": ") { |value| value.echo = "*" }
 
       block.call(user) if block_given?
+      puts
       if user.save
-        puts
         puts "User has been created with e-mail address \e[32m#{user.email_address}\e[0m"
-        puts
       else
-        puts
         puts "\e[31mFailed to create user\e[0m"
-        for error in user.errors.full_messages
+        user.errors.full_messages.each do |error|
           puts " * #{error}"
         end
-        puts
       end
+      puts
     end
 
   end

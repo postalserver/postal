@@ -2,7 +2,7 @@
 name: 🐛 Bug report
 about: Create a report to help us improve Postal and fix issues.
 title: ''
-labels: bug
+labels: ''
 assignees: ''
 
 ---

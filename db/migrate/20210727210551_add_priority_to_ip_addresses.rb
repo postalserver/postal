@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddPriorityToIPAddresses < ActiveRecord::Migration[5.2]
 
   def change

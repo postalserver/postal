@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 controller :send do
   friendly_name "Send API"
   description "This API allows you to send messages"

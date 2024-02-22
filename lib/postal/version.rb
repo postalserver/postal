@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
 
   VERSION_PATH = File.expand_path("../../VERSION", __dir__)

@@ -1,35 +1,38 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: servers
 #
 #  id                                 :integer          not null, primary key
-#  organization_id                    :integer
-#  uuid                               :string(255)
-#  name                               :string(255)
-#  mode                               :string(255)
-#  ip_pool_id                         :integer
-#  created_at                         :datetime
-#  updated_at                         :datetime
-#  permalink                          :string(255)
-#  send_limit                         :integer
+#  allow_sender                       :boolean          default(FALSE)
 #  deleted_at                         :datetime
+#  domains_not_to_click_track         :text(65535)
+#  log_smtp_data                      :boolean          default(FALSE)
 #  message_retention_days             :integer
+#  mode                               :string(255)
+#  name                               :string(255)
+#  outbound_spam_threshold            :decimal(8, 2)
+#  permalink                          :string(255)
+#  postmaster_address                 :string(255)
+#  privacy_mode                       :boolean          default(FALSE)
 #  raw_message_retention_days         :integer
 #  raw_message_retention_size         :integer
-#  allow_sender                       :boolean          default(FALSE)
-#  token                              :string(255)
+#  send_limit                         :integer
 #  send_limit_approaching_at          :datetime
 #  send_limit_approaching_notified_at :datetime
 #  send_limit_exceeded_at             :datetime
 #  send_limit_exceeded_notified_at    :datetime
-#  spam_threshold                     :decimal(8, 2)
 #  spam_failure_threshold             :decimal(8, 2)
-#  postmaster_address                 :string(255)
+#  spam_threshold                     :decimal(8, 2)
 #  suspended_at                       :datetime
-#  outbound_spam_threshold            :decimal(8, 2)
-#  domains_not_to_click_track         :text(65535)
 #  suspension_reason                  :string(255)
-#  log_smtp_data                      :boolean          default(FALSE)
+#  token                              :string(255)
+#  uuid                               :string(255)
+#  created_at                         :datetime
+#  updated_at                         :datetime
+#  ip_pool_id                         :integer
+#  organization_id                    :integer
 #
 # Indexes
 #
@@ -41,7 +44,8 @@
 
 class Server < ApplicationRecord
 
-  RESERVED_PERMALINKS = ["new", "all", "search", "stats", "edit", "manage", "delete", "destroy", "remove"]
+  RESERVED_PERMALINKS = %w[new all search stats edit manage delete destroy remove].freeze
+  MODES = %w[Live Development].freeze
 
   include HasUUID
   include HasSoftDestroy
@@ -61,8 +65,6 @@ class Server < ApplicationRecord
   has_many :webhook_requests, dependent: :destroy
   has_many :track_domains, dependent: :destroy
   has_many :ip_pool_rules, dependent: :destroy, as: :owner
-
-  MODES = ["Live", "Development"]
 
   random_string :token, type: :chars, length: 6, unique: true, upper_letters_only: true
   default_value :permalink, -> { name ? name.parameterize : nil }
@@ -155,11 +157,11 @@ class Server < ApplicationRecord
       time = Time.now.utc
       total_outgoing = 0.0
       total_bounces = 0.0
-      message_db.statistics.get(:daily, [:outgoing, :bounces], time, 30).each do |date, stat|
+      message_db.statistics.get(:daily, [:outgoing, :bounces], time, 30).each do |_, stat|
         total_outgoing += stat[:outgoing]
         total_bounces += stat[:bounces]
       end
-      total_outgoing == 0 ? 0 : (total_bounces / total_outgoing) * 100
+      total_outgoing.zero? ? 0 : (total_bounces / total_outgoing) * 100
     end
   end
 
@@ -218,6 +220,10 @@ class Server < ApplicationRecord
     }
   end
 
+  # Return the domain which can be used to authenticate emails sent from the given e-mail address.
+  #
+  #  @param address [String] an e-mail address
+  # @return [Domain, nil] the domain to use for authentication
   def authenticated_domain_for_address(address)
     return nil if address.blank?
 
@@ -226,16 +232,24 @@ class Server < ApplicationRecord
     return nil unless uname
     return nil unless domain_name
 
-    uname, = uname.split("+", 2)
+    # Find a verified domain which directly matches the domain name for the given address.
+    domain = Domain.verified
+                   .order(owner_type: :desc)
+                   .where("(owner_type = 'Organization' AND owner_id = ?) OR " \
+                          "(owner_type = 'Server' AND owner_id = ?)", organization_id, id)
+                   .where(name: domain_name)
+                   .first
 
-    # Check the server's domain
-    if domain = Domain.verified.order(owner_type: :desc).where("(owner_type = 'Organization' AND owner_id = ?) OR (owner_type = 'Server' AND owner_id = ?)", organization_id, id).where(name: domain_name).first
-      return domain
-    end
+    # If there is a matching domain, return it
+    return domain if domain
 
-    return unless any_domain = domains.verified.where(use_for_any: true).order(:name).first
+    # Otherwise, we need to look to see if there is a domain configured which can be used as the authenticated
+    # domain for any domain. This will look for domains directly within the server and return that.
+    any_domain = domains.verified.where(use_for_any: true).order(:name).first
+    return any_domain if any_domain
 
-    any_domain
+    # Return nil if we can't find anything suitable
+    nil
   end
 
   def find_authenticated_domain_from_headers(headers)

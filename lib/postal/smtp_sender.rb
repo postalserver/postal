@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require "resolv"
 
 module Postal
   class SMTPSender < Sender
 
     def initialize(domain, source_ip_address, options = {})
+      super()
       @domain = domain
       @source_ip_address = source_ip_address
       @options = options
@@ -55,6 +58,7 @@ module Postal
               # Set the source IP as appropriate
               smtp_client.source_address = ip_type == :aaaa ? @source_ip_address.ipv6 : @source_ip_address.ipv4
             end
+
             case ssl_mode
             when "Auto"
               smtp_client.enable_starttls_auto(self.class.ssl_context_without_verify)
@@ -63,7 +67,8 @@ module Postal
             when "TLS"
               smtp_client.enable_tls(self.class.ssl_context_with_verify)
             else
-              # Nothing
+              smtp_client.disable_starttls
+              smtp_client.disable_tls
             end
 
             smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
@@ -78,7 +83,7 @@ module Postal
             log "Cannot connect to #{@remote_ip}:#{port} (#{hostname}) (#{e.class}: #{e.message})"
             @connection_errors << e.message unless @connection_errors.include?(e.message)
             begin
-              smtp_client.disconnect
+              smtp_client.finish
             rescue StandardError
               nil
             end
@@ -141,9 +146,9 @@ module Postal
           mail_from = "#{message.server.token}@#{Postal.config.dns.return_path}"
         end
         if Postal.config.general.use_resent_sender_header
-            raw_message = "Resent-Sender: #{mail_from}\r\n" + message.raw_message
+          raw_message = "Resent-Sender: #{mail_from}\r\n" + message.raw_message
         else
-            raw_message = message.raw_message
+          raw_message = message.raw_message
         end
         tries = 0
         begin
@@ -250,39 +255,43 @@ module Postal
       records.first&.address&.to_s&.downcase
     end
 
-    def self.ssl_context_with_verify
-      @ssl_context_with_verify ||= begin
-        c = OpenSSL::SSL::SSLContext.new
-        c.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        c.cert_store = OpenSSL::X509::Store.new
-        c.cert_store.set_default_paths
-        c
+    class << self
+
+      def ssl_context_with_verify
+        @ssl_context_with_verify ||= begin
+          c = OpenSSL::SSL::SSLContext.new
+          c.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          c.cert_store = OpenSSL::X509::Store.new
+          c.cert_store.set_default_paths
+          c
+        end
       end
-    end
 
-    def self.ssl_context_without_verify
-      @ssl_context_without_verify ||= begin
-        c = OpenSSL::SSL::SSLContext.new
-        c.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        c
+      def ssl_context_without_verify
+        @ssl_context_without_verify ||= begin
+          c = OpenSSL::SSL::SSLContext.new
+          c.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          c
+        end
       end
-    end
 
-    def self.default_helo_hostname
-      Postal.config.dns.helo_hostname || Postal.config.dns.smtp_server_hostname || "localhost"
-    end
+      def default_helo_hostname
+        Postal.config.dns.helo_hostname || Postal.config.dns.smtp_server_hostname || "localhost"
+      end
 
-    def self.relay_hosts
-      hosts = Postal.config.smtp_relays.map do |relay|
-        next unless relay.hostname.present?
+      def relay_hosts
+        hosts = Postal.config.smtp_relays.map do |relay|
+          next unless relay.hostname.present?
 
-        {
-          hostname: relay.hostname,
-          port: relay.port,
-          ssl_mode: relay.ssl_mode
-        }
-      end.compact
-      hosts.empty? ? nil : hosts
+          {
+            hostname: relay.hostname,
+            port: relay.port,
+            ssl_mode: relay.ssl_mode
+          }
+        end.compact
+        hosts.empty? ? nil : hosts
+      end
+
     end
 
   end

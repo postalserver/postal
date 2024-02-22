@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: smtp_endpoints
@@ -24,7 +26,7 @@ class SMTPEndpoint < ApplicationRecord
   has_many :routes, as: :endpoint
   has_many :additional_route_endpoints, dependent: :destroy, as: :endpoint
 
-  SSL_MODES = ["None", "Auto", "STARTTLS", "TLS"]
+  SSL_MODES = %w[None Auto STARTTLS TLS].freeze
 
   before_destroy :update_routes
 

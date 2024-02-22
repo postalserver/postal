@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   module MessageDB
     class Statistics
@@ -6,8 +8,8 @@ module Postal
         @database = database
       end
 
-      STATS_GAPS = { hourly: :hour, daily: :day, monthly: :month, yearly: :year }
-      COUNTERS = [:incoming, :outgoing, :spam, :bounces, :held]
+      STATS_GAPS = { hourly: :hour, daily: :day, monthly: :month, yearly: :year }.freeze
+      COUNTERS = [:incoming, :outgoing, :spam, :bounces, :held].freeze
 
       #
       # Increment an appropriate counter
@@ -29,7 +31,7 @@ module Postal
       # Increment all stats counters
       #
       def increment_all(time, field)
-        STATS_GAPS.keys.each do |type|
+        STATS_GAPS.each_key do |type|
           increment_one(type, field, time)
         end
       end
@@ -38,7 +40,7 @@ module Postal
       # Get a statistic (or statistics)
       #
       def get(type, counters, start_date = Time.now, quantity = 10)
-        date = start_date.utc
+        start_date = start_date.utc
         items = quantity.times.each_with_object({}) do |i, hash|
           hash[(start_date - i.send(STATS_GAPS[type])).send("beginning_of_#{STATS_GAPS[type]}").utc] = counters.each_with_object({}) do |c, h|
             h[c] = 0

@@ -1,16 +1,162 @@
-inherit_from:
-  - https://dev.k.io/rubocop/rubocop.rails.yml
+AllCops:
+  TargetRubyVersion: 3.0
+  NewCops: enable
+  Exclude:
+    - "bin/*"
+    - "db/schema.rb"
+    # Fixes missing gem exception when running Rubocop on GitHub Actions.
+    - "vendor/bundle/**/*"
 
+# Always use double quotes
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+  AutoCorrect: true
 
-Style/WordArray:
+# We prefer arrays of symbols to look like an array of symbols.
+# For example: [:one, :two, :three] as opposed to %i[one two three]
+Style/SymbolArray:
   EnforcedStyle: brackets
 
-Layout/LineLength:
+# There should always be empty lines inside a class. For example
+#
+#    class MyExample
+#
+#      def some_method
+#      end
+#
+#    end
+Layout/EmptyLinesAroundClassBody:
+  EnforcedStyle: empty_lines
+
+# We want to keep attr_* definitions separated on their own lines, rather than
+# all of them collapsed into a single attr_* call. The collapsed/grouped variant
+# is harder to read, and harder to see what's been changed in diffs.
+Style/AccessorGrouping:
   Enabled: false
 
+# Blocks are slightly different to classes, in these cases there should
+# not be new lines around the contents of the block.
+#
+#    proc do
+#      # Do something
+#    end
+Layout/EmptyLinesAroundBlockBody:
+  EnforcedStyle: no_empty_lines
+
+# Modules are the same as classes unless they're being used for namespacing
+# purposes in which case there should not be new lines.
+Layout/EmptyLinesAroundModuleBody:
+  EnforcedStyle: empty_lines_except_namespace
+
+# Space is required following -> when writing a lambda:
+#
+#    somethign = -> (var) { block }
+Layout/SpaceInLambdaLiteral:
+  EnforcedStyle: require_space
+
+Layout/FirstHashElementIndentation:
+  Enabled: false
+
+# We don't mind setting assignments in conditions so this has been disabled to
+# allow `if something = something_else` without worrying about brackets.
+Lint/AssignmentInCondition:
+  Enabled: false
+
+# Top level documentation is quite rare...
+Style/Documentation:
+  Enabled: false
+
+# We want to allow inner slashes in a regexp to be used when using /xxx/ form.
+Style/RegexpLiteral:
+  AllowInnerSlashes: true
+
+# Blocks of if statements are perfectly fine and usually more readable than
+# putting everything onto a single line just because we can.
+Style/IfUnlessModifier:
+  Enabled: false
+
+# We prefer assignments to happen within the condition rather than setting a
+# variable to the result of a condition.
+Style/ConditionalAssignment:
+  EnforcedStyle: assign_inside_condition
+  IncludeTernaryExpressions: false
+
+# Empty methods should not be compacted onto a single line
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+# As above, just flag them.
+Lint/UnusedBlockArgument:
+  AutoCorrect: false
+
+# While we don't want to make heavy use of get_ or set_ methods we do often need
+# to use these when we want to refer to actually getting or setting something
+# (usually from another API).
+Naming/AccessorMethodName:
+  Enabled: false
+
+# If we want a boolean called :true, we should be allowed that. These are likely
+# not mistakes.
+Lint/BooleanSymbol:
+  Enabled: false
+
+# Using block.map(&:upcase) is not always the neatest way to show something. For
+# example if you have a block that just calls one thing, you don't want it
+# collapsed.
+#
+#    action do |user|
+#      user.delete
+#    end
+#
+# This should be action(&:delete) because it is not clear what is actually
+# happening without the context of knowing what the inner variable should be
+# called.
+Style/SymbolProc:
+  Enabled: false
+
+# Allow a maxmium of 5 arguments and don't include keyword arguments
+Metrics/ParameterLists:
+  Max: 5
+  CountKeywordArgs: false
+
+# This cop checks for chaining of a block after another block that spans multiple lines.
+Style/MultilineBlockChain:
+  Exclude:
+    - "spec/**/*.rb"
+
 Metrics/AbcSize:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  SafeAutoCorrect: true
+
+Naming/PredicateName:
+  Enabled: false
+
+Layout/LineLength:
+  # We want to reduce this back down to 120 but there are a fair number of offences
+  # of this which need addressing individually and carefully. 
+  Max: 200
+
+Metrics/PerceivedComplexity:
+  # As above, we want to enable this again in the future, but for now we'll just 
+  # disable it entirely.
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  # As above.
+  Enabled: false
+
+Metrics/MethodLength:
+  # As above.
+  Enabled: false
+
+Metrics/BlockNesting:
+  # As above.
+  Enabled: false
+
+Style/StringConcatenation:
   Enabled: false
 
 Metrics/BlockLength:
@@ -19,17 +165,11 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Enabled: false
 
-Metrics/CyclomaticComplexity:
-  Enabled: false
-
-Metrics/MethodLength:
-  Enabled: false
-
 Metrics/ModuleLength:
   Enabled: false
 
-Metrics/PerceivedComplexity:
+Lint/UnusedMethodArgument:
   Enabled: false
 
-Lint/MissingSuper:
+Style/SpecialGlobalVars:
   Enabled: false

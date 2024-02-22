@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 class UnqueueMessageJob < Postal::Job
 
+  # rubocop:disable Layout/LineLength
   def perform
     if original_message = QueuedMessage.find_by_id(params["id"])
       if original_message.acquire_lock
@@ -91,11 +94,11 @@ class UnqueueMessageJob < Postal::Job
                 log "#{log_prefix} Message is a bounce"
                 original_messages = queued_message.message.original_messages
                 unless original_messages.empty?
-                  for original_message in queued_message.message.original_messages
-                    queued_message.message.update(bounce_for_id: original_message.id, domain_id: original_message.domain_id)
-                    queued_message.message.create_delivery("Processed", details: "This has been detected as a bounce message for <msg:#{original_message.id}>.")
-                    original_message.bounce!(queued_message.message)
-                    log "#{log_prefix} Bounce linked with message #{original_message.id}"
+                  queued_message.message.original_messages.each do |orig_msg|
+                    queued_message.message.update(bounce_for_id: orig_msg.id, domain_id: orig_msg.domain_id)
+                    queued_message.message.create_delivery("Processed", details: "This has been detected as a bounce message for <msg:#{orig_msg.id}>.")
+                    orig_msg.bounce!(queued_message.message)
+                    log "#{log_prefix} Bounce linked with message #{orig_msg.id}"
                   end
                   queued_message.destroy
                   next
@@ -421,15 +424,17 @@ class UnqueueMessageJob < Postal::Job
             end
           rescue StandardError => e
             log "#{log_prefix} Internal error: #{e.class}: #{e.message}"
-            e.backtrace.each { |e| log("#{log_prefix} #{e}") }
+            e.backtrace.each { |line| log("#{log_prefix} #{line}") }
             queued_message.retry_later
             log "#{log_prefix} Queued message was unlocked"
             if defined?(Sentry)
               Sentry.capture_exception(e, extra: { job_id: self.id, server_id: queued_message.server_id, message_id: queued_message.message_id })
             end
-            if queued_message.message
-              queued_message.message.create_delivery("Error", details: "An internal error occurred while sending this message. This message will be retried automatically. If this persists, contact support for assistance.", output: "#{e.class}: #{e.message}", log_id: "J-#{self.id}")
-            end
+            queued_message.message&.create_delivery("Error",
+                                                    details: "An internal error occurred while sending " \
+                                                             "this message. This message will be retried " \
+                                                             "automatically.",
+                                                    output: "#{e.class}: #{e.message}", log_id: "J-#{self.id}")
           end
         end
 
@@ -446,9 +451,11 @@ class UnqueueMessageJob < Postal::Job
       nil
     end
   end
+  # rubocop:enable Layout/LineLength
 
   private
 
+  # rubocop:disable Naming/MemoizedInstanceVariableName
   def cached_sender(klass, *args)
     @sender ||= begin
       sender = klass.new(*args)
@@ -456,5 +463,6 @@ class UnqueueMessageJob < Postal::Job
       sender
     end
   end
+  # rubocop:enable Naming/MemoizedInstanceVariableName
 
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: domains
@@ -42,14 +44,13 @@ class Domain < ApplicationRecord
 
   include HasDNSChecks
 
-  VERIFICATION_EMAIL_ALIASES = ["webmaster", "postmaster", "admin", "administrator", "hostmaster"]
+  VERIFICATION_EMAIL_ALIASES = %w[webmaster postmaster admin administrator hostmaster].freeze
+  VERIFICATION_METHODS = %w[DNS Email].freeze
 
   belongs_to :server, optional: true
   belongs_to :owner, optional: true, polymorphic: true
   has_many :routes, dependent: :destroy
   has_many :track_domains, dependent: :destroy
-
-  VERIFICATION_METHODS = ["DNS", "Email"]
 
   validates :name, presence: true, format: { with: /\A[a-z0-9\-.]*\z/ }, uniqueness: { case_sensitive: false, scope: [:owner_type, :owner_id], message: "is already added" }
   validates :verification_method, inclusion: { in: VERIFICATION_METHODS }
@@ -83,8 +84,8 @@ class Domain < ApplicationRecord
 
   def parent_domains
     parts = name.split(".")
-    parts[0, parts.size - 1].each_with_index.map do |p, i|
-      parts[i..-1].join(".")
+    parts[0, parts.size - 1].each_with_index.map do |_, i|
+      parts[i..].join(".")
     end
   end
 

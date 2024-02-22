@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "logger"
 
 module Postal
@@ -24,7 +26,7 @@ module Postal
             message
           end
           n.notify!(short_message: message_without_ansi, log_name: @log_name, facility: "postal", application_name: "postal", process_name: ENV.fetch("PROC_NAME", nil), pid: Process.pid)
-        rescue StandardError => e
+        rescue StandardError
           # Can't log this to GELF. Soz.
         end
       end
@@ -43,8 +45,8 @@ module Postal
 
   class LogFormatter
 
-    TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%3N".freeze
-    COLORS = [32, 34, 35, 31, 32, 33]
+    TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%3N"
+    COLORS = [32, 34, 35, 31, 32, 33].freeze
 
     def call(severity, datetime, progname, msg)
       time = datetime.strftime(TIME_FORMAT)

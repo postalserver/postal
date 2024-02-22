@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   module MessageDB
     class Message
@@ -176,11 +178,16 @@ module Postal
       #  Provide access to set and get acceptable attributes
       #
       def method_missing(name, value = nil, &block)
-        if @attributes.has_key?(name.to_s)
+        if @attributes.key?(name.to_s)
           @attributes[name.to_s]
         elsif name.to_s =~ /=\z/
           @attributes[name.to_s.gsub("=", "").to_s] = value
         end
+      end
+
+      def respond_to_missing?(name, include_private = false)
+        name = name.to_s.sub(/=\z/, "")
+        @attributes.key?(name.to_s)
       end
 
       #
@@ -333,7 +340,7 @@ module Postal
       # Return the recipient domain for this message
       #
       def recipient_domain
-        rcpt_to ? rcpt_to.split("@").last : nil
+        rcpt_to&.split("@")&.last
       end
 
       #
@@ -551,14 +558,14 @@ module Postal
       private
 
       def _update
-        @database.update("messages", @attributes.reject { |k, v| k == :id }, where: { id: @attributes["id"] })
+        @database.update("messages", @attributes.except(:id), where: { id: @attributes["id"] })
       end
 
       def _create
         self.timestamp = Time.now.to_f if timestamp.blank?
         self.status = "Pending" if status.blank?
         self.token = Nifty::Utils::RandomString.generate(length: 12) if token.blank?
-        last_id = @database.insert("messages", @attributes.reject { |k, v| k == :id })
+        last_id = @database.insert("messages", @attributes.except(:id))
         @attributes["id"] = last_id
         @database.statistics.increment_all(timestamp, scope)
         Statistic.global.increment!(:total_messages)

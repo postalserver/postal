@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "resolv"
 
 class OutgoingMessagePrototype
@@ -47,13 +49,11 @@ class OutgoingMessagePrototype
   end
 
   def find_domain
-    @domain ||= begin
-      domain = @server.authenticated_domain_for_address(@from)
-      if @server.allow_sender? && domain.nil?
-        domain = @server.authenticated_domain_for_address(@sender)
-      end
-      domain || :none
+    domain = @server.authenticated_domain_for_address(@from)
+    if @server.allow_sender? && domain.nil?
+      domain = @server.authenticated_domain_for_address(@sender)
     end
+    domain || :none
   end
 
   def to_addresses
@@ -93,6 +93,7 @@ class OutgoingMessagePrototype
     @errors || {}
   end
 
+  # rubocop:disable Lint/DuplicateMethods
   def attachments
     (@attachments || []).map do |attachment|
       {
@@ -102,6 +103,7 @@ class OutgoingMessagePrototype
       }
     end
   end
+  # rubocop:enable Lint/DuplicateMethods
 
   def validate
     @errors = []
@@ -135,7 +137,7 @@ class OutgoingMessagePrototype
     end
 
     if attachments.present?
-      attachments.each_with_index do |attachment, index|
+      attachments.each do |attachment|
         if attachment[:name].blank?
           @errors << "AttachmentMissingName" unless @errors.include?("AttachmentMissingName")
         elsif attachment[:data].blank?

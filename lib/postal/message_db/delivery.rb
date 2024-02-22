@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   module MessageDB
     class Delivery
@@ -18,9 +20,13 @@ module Postal
       end
 
       def method_missing(name, value = nil, &block)
-        return unless @attributes.has_key?(name.to_s)
+        return unless @attributes.key?(name.to_s)
 
         @attributes[name.to_s]
+      end
+
+      def respond_to_missing?(name, include_private = false)
+        @attributes.key?(name.to_s)
       end
 
       def timestamp
@@ -55,6 +61,7 @@ module Postal
         }
       end
 
+      # rubocop:disable Style/HashLikeCase
       def webhook_event
         @webhook_event ||= case status
                            when "Sent" then "MessageSent"
@@ -63,6 +70,7 @@ module Postal
                            when "Held" then "MessageHeld"
                            end
       end
+      # rubocop:enable Style/HashLikeCase
 
     end
   end

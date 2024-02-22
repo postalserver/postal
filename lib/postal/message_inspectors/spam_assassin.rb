@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postal
   module MessageInspectors
     class SpamAssassin < MessageInspector
@@ -5,7 +7,7 @@ module Postal
       EXCLUSIONS = {
         outgoing: ["NO_RECEIVED", "NO_RELAYS", "ALL_TRUSTED", "FREEMAIL_FORGED_REPLYTO", "RDNS_DYNAMIC", "CK_HELO_GENERIC", /^SPF_/, /^HELO_/, /DKIM_/, /^RCVD_IN_/],
         incoming: []
-      }
+      }.freeze
 
       def inspect_message(inspection)
         data = nil
