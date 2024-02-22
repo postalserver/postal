@@ -95,7 +95,7 @@ class IncomingMessagePrototype
           content: attachment[:data]
         }
       end
-      mail.header["Received"] = Postal::ReceivedHeader.generate(@server, @source_type, @ip, :http)
+      mail.header["Received"] = ReceivedHeader.generate(@server, @source_type, @ip, :http)
       mail.to_s
     end
   end

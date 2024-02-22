@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-describe Postal::ReceivedHeader do
+describe ReceivedHeader do
   before do
     allow(DNSResolver.local).to receive(:ip_to_hostname).and_return("hostname.com")
   end
