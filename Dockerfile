@@ -31,12 +31,12 @@ RUN mkdir -p /opt/postal/app /opt/postal/config
 WORKDIR /opt/postal/app
 
 # Install bundler
-RUN gem install bundler -v 2.4.9 --no-doc
+RUN gem install bundler -v 2.5.6 --no-doc
 
 # Install the latest and active gem dependencies and re-run
 # the appropriate commands to handle installs.
-COPY Gemfile Gemfile.lock ./
-RUN bundle config set force_ruby_platform true && bundle install -j 4
+COPY --chown=postal Gemfile Gemfile.lock ./
+RUN bundle install -j 6
 
 # Copy the application (and set permissions)
 COPY ./docker/wait-for.sh /docker-entrypoint.sh
