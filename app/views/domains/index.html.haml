@@ -63,7 +63,7 @@
 
           %ul.domainList__properties
             - if domain.verified?
-              %li.domainList__verificationTime Verified on #{domain.verified_at.to_s(:long)}
+              %li.domainList__verificationTime Verified on #{domain.verified_at.to_fs(:long)}
             - else
               %li= link_to "Verify this domain", [:verify, organization, @server, domain], :class => "domainList__verificationLink"
             %li.domainList__links

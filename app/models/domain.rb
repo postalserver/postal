@@ -61,17 +61,7 @@ class Domain < ApplicationRecord
 
   scope :verified, -> { where.not(verified_at: nil) }
 
-  when_attribute :verification_method, changes_to: :anything do
-    before_save do
-      if verification_method == "DNS"
-        self.verification_token = Nifty::Utils::RandomString.generate(length: 32)
-      elsif verification_method == "Email"
-        self.verification_token = rand(999_999).to_s.ljust(6, "0")
-      else
-        self.verification_token = nil
-      end
-    end
-  end
+  before_save :update_verification_token_on_method_change
 
   def verified?
     verified_at.present?
@@ -166,6 +156,20 @@ class Domain < ApplicationRecord
     end
 
     false
+  end
+
+  private
+
+  def update_verification_token_on_method_change
+    return unless verification_method_changed?
+
+    if verification_method == "DNS"
+      self.verification_token = Nifty::Utils::RandomString.generate(length: 32)
+    elsif verification_method == "Email"
+      self.verification_token = rand(999_999).to_s.ljust(6, "0")
+    else
+      self.verification_token = nil
+    end
   end
 
 end

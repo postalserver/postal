@@ -17,7 +17,7 @@ Bundler.require(*Rails.groups)
 module Postal
   class Application < Rails::Application
 
-    config.load_defaults 6.0
+    config.load_defaults 7.0
 
     # Disable most generators
     config.generators do |g|

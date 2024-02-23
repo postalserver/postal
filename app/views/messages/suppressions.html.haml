@@ -22,9 +22,9 @@
             %p.suppressionList__address= link_to suppression['address'], outgoing_organization_server_messages_path(organization, @server, :query => "to: #{suppression['address']}")
             %p.suppressionList__reason= suppression['reason'].capitalize
           .suppressionList__right
-            %p.suppressionList__timestamp Added #{Time.zone.at(suppression['timestamp']).to_s(:long)}
+            %p.suppressionList__timestamp Added #{Time.zone.at(suppression['timestamp']).to_fs(:long)}
             %p.suppressionList__timestamp
-              Expires #{Time.zone.at(suppression['keep_until']).to_s(:long)}
+              Expires #{Time.zone.at(suppression['keep_until']).to_fs(:long)}
               - if suppression['keep_until'] < Time.now.to_f
                 %span.u-red expired
     = render 'shared/message_db_pagination', :data => @suppressions, :name => "suppression"

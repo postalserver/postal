@@ -23,7 +23,7 @@
             = link_to @message.rcpt_to || "[blank]", send("#{@message.scope}_organization_server_messages_path", organization, @server, :query => "to: #{@message.rcpt_to}"), :class => 'u-link'
       %dl
         %dt Received
-        %dd= @message.timestamp.in_time_zone.to_s(:long)
+        %dd= @message.timestamp.in_time_zone.to_fs(:long)
 
 .navBar.navBar--tertiary
   %ul

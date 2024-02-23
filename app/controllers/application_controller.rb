@@ -109,7 +109,8 @@ class ApplicationController < ActionController::Base
       auth_session.invalidate!
       reset_session
     end
-    Authie::Session.start(self, user: user)
+
+    create_auth_session(user)
     @current_user = user
   end
 

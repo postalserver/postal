@@ -19,7 +19,7 @@ class MessagesController < ApplicationController
         @message.from = "test@#{domain.name}"
       end
     end
-    @message.subject = "Test Message at #{Time.zone.now.to_s(:long)}"
+    @message.subject = "Test Message at #{Time.zone.now.to_fs(:long)}"
     @message.plain_body = "This is a message to test the delivery of messages through Postal."
   end
 

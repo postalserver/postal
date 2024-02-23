@@ -3,15 +3,12 @@
 source "https://rubygems.org"
 gem "authie"
 gem "autoprefixer-rails"
-gem "basic_ssl"
 gem "bcrypt"
-gem "changey"
 gem "chronic"
 gem "dotenv-rails"
 gem "dynamic_form"
 gem "encrypto_signo"
 gem "execjs", "~> 2.7", "< 2.8"
-gem "foreman"
 gem "gelf"
 gem "haml"
 gem "hashie"
@@ -26,11 +23,10 @@ gem "nifty-utils"
 gem "nilify_blanks"
 gem "nio4r"
 gem "puma"
-gem "rails", "= 6.1.7.6"
-gem "resolv", "~> 0.2.1"
+gem "rails", "= 7.0.8.1"
+gem "resolv"
 gem "secure_headers"
 gem "sentry-rails"
-gem "sentry-ruby"
 gem "turbolinks", "~> 5"
 
 group :development, :assets do
@@ -38,10 +34,6 @@ group :development, :assets do
   gem "jquery-rails"
   gem "sass-rails"
   gem "uglifier", ">= 1.3.0"
-end
-
-group :development, :test do
-  gem "byebug"
 end
 
 group :development do
