@@ -535,7 +535,9 @@ module Postal
         if parse_result.actioned?
           #  Somethign was changed, update the raw message
           @database.update(raw_table, { data: parse_result.new_body }, where: { id: raw_body_id })
+          @database.update(raw_table, { data: parse_result.new_headers }, where: { id: raw_headers_id })
           @raw = parse_result.new_body
+          @raw_headers = parse_result.new_headers
           @raw_message = nil
         end
         update("parsed" => 1, "tracked_links" => parse_result.tracked_links, "tracked_images" => parse_result.tracked_images)
