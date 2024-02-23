@@ -13,7 +13,6 @@ gem "gelf"
 gem "haml"
 gem "hashie"
 gem "highline", require: false
-gem "jwt"
 gem "kaminari"
 gem "klogger-logger"
 gem "mail"

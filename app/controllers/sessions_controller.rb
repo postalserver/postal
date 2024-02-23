@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
 
   layout "sub"
 
-  skip_before_action :login_required, only: [:new, :create, :create_with_token, :begin_password_reset, :finish_password_reset, :ip, :raise_error]
+  skip_before_action :login_required, only: [:new, :create, :begin_password_reset, :finish_password_reset, :ip, :raise_error]
 
   def create
     login(User.authenticate(params[:email_address], params[:password]))
@@ -13,18 +13,6 @@ class SessionsController < ApplicationController
   rescue Postal::Errors::AuthenticationError
     flash.now[:alert] = "The credentials you've provided are incorrect. Please check and try again."
     render "new"
-  end
-
-  def create_with_token
-    result = JWT.decode(params[:token], Postal.signing_key.to_s, "HS256")[0]
-    if result["timestamp"] > 1.minute.ago.to_f
-      login(User.find(result["user"].to_i))
-      redirect_to root_path
-    else
-      destroy
-    end
-  rescue JWT::VerificationError
-    destroy
   end
 
   def destroy
