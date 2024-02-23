@@ -19,6 +19,8 @@ module Worker
   # after it has completed any outstanding jobs which are already inflight.
   class Process
 
+    include HasPrometheusMetrics
+
     # An array of job classes that should be processed each time the worker ticks.
     #
     # @return [Array<Class>]
@@ -48,6 +50,8 @@ module Worker
       @work_sleep_time = work_sleep_time
       @task_sleep_time = task_sleep_time
       @threads = []
+
+      setup_prometheus
     end
 
     def run
@@ -114,7 +118,7 @@ module Worker
         logger.tagged(component: "worker", thread: "work#{index}") do
           logger.info "started work thread #{index}"
           loop do
-            work_completed = work
+            work_completed = work(index)
 
             if shutdown_after_wait?(work_completed ? 0 : @work_sleep_time)
               break
@@ -129,7 +133,7 @@ module Worker
     # Actually perform the work for this tick. This will call each job which has been registered.
     #
     # @return [Boolean] Whether any work was completed in this job or not
-    def work
+    def work(thread)
       completed_work = 0
       ActiveRecord::Base.connection_pool.with_connection do
         JOBS.each do |job_class|
@@ -137,7 +141,14 @@ module Worker
             job = job_class.new(logger: logger)
             job.call
 
-            completed_work += 1 if job.work_completed?
+            if job.work_completed?
+              completed_work += 1
+              increment_prometheus_counter :postal_worker_job_executions,
+                                           labels: {
+                                              thread: thread,
+                                              job: job_class.to_s.split("::").last
+                                           }
+            end
           end
         end
       end
@@ -236,6 +247,19 @@ module Worker
       logger.error "#{e.class} (#{e.message})"
       e.backtrace.each { |line| logger.error line }
       Sentry.capture_exception(e) if defined?(Sentry)
+
+      increment_prometheus_counter :postal_worker_errors,
+                                   labels: { error: e.class.to_s }
+    end
+
+    def setup_prometheus
+      register_prometheus_counter :postal_worker_job_executions,
+                                  docstring: "The number of jobs worked by a worker",
+                                  labels: [:thread, :job]
+
+      register_prometheus_counter :postal_worker_errors,
+                                  docstring: "The number of errors encountered while processing jobs",
+                                  labels: [:error]
     end
 
   end
