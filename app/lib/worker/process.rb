@@ -139,7 +139,15 @@ module Worker
         JOBS.each do |job_class|
           capture_errors do
             job = job_class.new(logger: logger)
-            job.call
+
+            time = Benchmark.realtime { job.call }
+
+            observe_prometheus_histogram :postal_worker_job_runtime,
+                                         time,
+                                         labels: {
+                                          thread: thread,
+                                          job: job_class.to_s.split("::").last
+                                         }
 
             if job.work_completed?
               completed_work += 1
@@ -222,7 +230,18 @@ module Worker
 
         logger.info "running task"
 
-        capture_errors { task.new(logger: logger).call }
+        time = 0
+        capture_errors do
+          time = Benchmark.realtime do
+            task.new(logger: logger).call
+          end
+
+          observe_prometheus_histogram :postal_worker_task_runtime,
+                                       time,
+                                       labels: {
+                                        task: task.to_s.split("::").last
+                                       }
+        end
 
         next_run_after = task.next_run_after
         logger.info "scheduling task to next run at #{next_run_after}"
@@ -254,12 +273,20 @@ module Worker
 
     def setup_prometheus
       register_prometheus_counter :postal_worker_job_executions,
-                                  docstring: "The number of jobs worked by a worker",
+                                  docstring: "The number of jobs worked by a worker where work was completed",
                                   labels: [:thread, :job]
+
+      register_prometheus_histogram :postal_worker_job_runtime,
+                                    docstring: "The time taken to process jobs",
+                                    labels: [:thread, :job]
 
       register_prometheus_counter :postal_worker_errors,
                                   docstring: "The number of errors encountered while processing jobs",
                                   labels: [:error]
+
+      register_prometheus_histogram :postal_worker_task_runtime,
+                                    docstring: "The time taken to process tasks",
+                                    labels: [:task]
     end
 
   end
