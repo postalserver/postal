@@ -26,7 +26,7 @@ class HealthServer
   private
 
   def root
-    [200, { "Content-Type" => "text/plain" }, ["#{@name} (pid: #{Process.pid}, host: #{Socket.gethostname})"]]
+    [200, { "Content-Type" => "text/plain" }, ["#{@name} (pid: #{Process.pid}, host: #{hostname})"]]
   end
 
   def ok
@@ -41,6 +41,12 @@ class HealthServer
     registry = Prometheus::Client.registry
     body = Prometheus::Client::Formats::Text.marshal(registry)
     [200, { "Content-Type" => "text/plain" }, [body]]
+  end
+
+  def hostname
+    Socket.gethostname
+  rescue StandardError
+    "unknown-hostname"
   end
 
   class << self
