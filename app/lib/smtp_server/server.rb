@@ -6,9 +6,12 @@ require "nio"
 module SMTPServer
   class Server
 
+    include HasPrometheusMetrics
+
     def initialize(options = {})
       @options = options
       @options[:debug] ||= false
+      register_prometheus_metrics
       prepare_environment
     end
 
@@ -60,7 +63,7 @@ module SMTPServer
         @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPINTVL, 10)
         @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPCNT, 5)
       end
-      logger.info "Listening on  #{Postal.config.smtp_server.bind_address}:#{Postal.config.smtp_server.port}"
+      logger.info "Listening on #{Postal.config.smtp_server.bind_address}:#{Postal.config.smtp_server.port}"
     end
 
     def unlisten
@@ -86,6 +89,7 @@ module SMTPServer
             begin
               # Accept the connection
               new_io = io.accept
+              increment_prometheus_counter :postal_smtp_server_connections_total
               if Postal.config.smtp_server.proxy_protocol
                 # If we are using the haproxy proxy protocol, we will be sent the
                 # client's IP later. Delay the welcome process.
@@ -120,6 +124,9 @@ module SMTPServer
               e.backtrace.each do |line|
                 logger.error line
               end
+              increment_prometheus_counter :postal_smtp_server_exceptions_total,
+                                           error: e.class.to_s,
+                                           type: "client-accept"
               begin
                 new_io.close
               rescue StandardError
@@ -138,6 +145,8 @@ module SMTPServer
                 begin
                   # Can we accept the TLS connection at this time?
                   io.accept_nonblock
+                  # Increment prometheus
+                  increment_prometheus_counter :postal_smtp_server_tls_connections_total
                   # We were able to accept the connection, the client is no longer handshaking
                   client.start_tls = false
                 rescue IO::WaitReadable, IO::WaitWritable => e
@@ -232,6 +241,11 @@ module SMTPServer
               e.backtrace.each do |iline|
                 logger.error "[#{client_id}] #{iline}"
               end
+
+              increment_prometheus_counter :postal_smtp_server_exceptions_total,
+                                           error: e.class.to_s,
+                                           type: "data"
+
               # Close all IO and forget this client
               begin
                 @io_selector.deregister(io)
@@ -266,6 +280,20 @@ module SMTPServer
 
     def logger
       Postal.logger
+    end
+
+    def register_prometheus_metrics
+      register_prometheus_counter :postal_smtp_server_connections_total,
+                                  docstring: "The number of connections made to the Postal SMTP server."
+
+      register_prometheus_counter :postal_smtp_server_exceptions_total,
+                                  docstring: "The number of server exceptions encountered by the SMTP server",
+                                  labels: [:type, :error]
+
+      register_prometheus_counter :postal_smtp_server_tls_connections_total,
+                                  docstring: "The number of successfuly TLS connections established"
+
+      Client.register_prometheus_metrics
     end
 
   end

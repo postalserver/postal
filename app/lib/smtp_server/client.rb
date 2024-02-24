@@ -5,6 +5,9 @@ require "nifty/utils/random_string"
 module SMTPServer
   class Client
 
+    extend HasPrometheusMetrics
+    include HasPrometheusMetrics
+
     CRAM_MD5_DIGEST = OpenSSL::Digest.new("md5")
     LOG_REDACTION_STRING = "[redacted]"
 
@@ -86,6 +89,7 @@ module SMTPServer
       when /^RCPT TO/i        then rcpt_to(data)
       when /^DATA/i           then data(data)
       else
+        increment_error_count("invalid-command")
         "502 Invalid/unsupported command"
       end
     end
@@ -104,9 +108,11 @@ module SMTPServer
         check_ip_address
         @state = :welcome
         log "\e[35m   Client identified as #{@ip_address}\e[0m"
+        increment_command_count("PROXY")
         "220 #{Postal.config.dns.smtp_server_hostname} ESMTP Postal/#{id}"
       else
         @finished = true
+        increment_error_count("proxy-error")
         "502 Proxy Error"
       end
     end
@@ -120,8 +126,10 @@ module SMTPServer
       if Postal.config.smtp_server.tls_enabled?
         @start_tls = true
         @tls = true
+        increment_command_count("STARTLS")
         "220 Ready to start TLS"
       else
+        increment_error_count("tls-unavailable")
         "502 TLS not available"
       end
     end
@@ -130,6 +138,7 @@ module SMTPServer
       @helo_name = data.strip.split(" ", 2)[1]
       transaction_reset
       @state = :welcomed
+      increment_command_count("EHLO")
       [
         "250-My capabilities are",
         Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil,
@@ -141,12 +150,14 @@ module SMTPServer
       @helo_name = data.strip.split(" ", 2)[1]
       transaction_reset
       @state = :welcomed
+      increment_command_count("HELO")
       "250 #{Postal.config.dns.smtp_server_hostname}"
     end
 
     def rset
       transaction_reset
       @state = :welcomed
+      increment_command_count("RSET")
       "250 OK"
     end
 
@@ -155,6 +166,8 @@ module SMTPServer
     end
 
     def auth_plain(data)
+      increment_command_count("AUTH PLAIN")
+
       handler = proc do |idata|
         @proc = nil
         idata = Base64.decode64(idata)
@@ -162,6 +175,7 @@ module SMTPServer
         username = parts[-2]
         password = parts[-1]
         unless username && password
+          increment_error_count("missing-credentials")
           next "535 Authenticated failed - protocol error"
         end
 
@@ -179,6 +193,8 @@ module SMTPServer
     end
 
     def auth_login(data)
+      increment_command_count("AUTH LOGIN")
+
       password_handler = proc do |idata|
         @proc = nil
         password = Base64.decode64(idata)
@@ -206,11 +222,14 @@ module SMTPServer
         "235 Granted for #{@credential.server.organization.permalink}/#{@credential.server.permalink}"
       else
         log "\e[33m   WARN: AUTH failure for #{@ip_address}\e[0m"
+        increment_error_count("invalid-credentials")
         "535 Invalid credential"
       end
     end
 
     def auth_cram_md5(data)
+      increment_command_count("AUTH CRAM-MD5")
+
       challenge = Digest::SHA1.hexdigest(Time.now.to_i.to_s + rand(100_000).to_s)
       challenge = "<#{challenge[0, 20]}@#{Postal.config.dns.smtp_server_hostname}>"
 
@@ -221,6 +240,7 @@ module SMTPServer
         server = ::Server.includes(:organization).where(organizations: { permalink: org_permlink }, permalink: server_permalink).first
         if server.nil?
           log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
+          increment_error_count("invalid-credentials")
           next "535 Denied"
         end
 
@@ -237,6 +257,7 @@ module SMTPServer
 
         if grant.nil?
           log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
+          increment_error_count("invalid-credentials")
           next "535 Denied"
         end
 
@@ -249,6 +270,7 @@ module SMTPServer
 
     def mail_from(data)
       unless in_state(:welcomed, :mail_from_received)
+        increment_error_count("mail-from-out-of-order")
         return "503 EHLO/HELO first please"
       end
 
@@ -267,18 +289,21 @@ module SMTPServer
 
     def rcpt_to(data)
       unless in_state(:mail_from_received, :rcpt_to_received)
+        increment_error_count("rcpt-to-out-of-order")
         return "503 EHLO/HELO and MAIL FROM first please"
       end
 
       rcpt_to = data.gsub(/RCPT TO\s*:\s*/i, "").gsub(/.*</, "").gsub(/>.*/, "").strip
 
       if rcpt_to.blank?
+        increment_error_count("empty-rcpt-to")
         return "501 RCPT TO should not be empty"
       end
 
       uname, domain = rcpt_to.split("@", 2)
 
       if domain.blank?
+        increment_error_count("invalid-rcpt-to")
         return "501 Invalid RCPT TO"
       end
 
@@ -289,6 +314,7 @@ module SMTPServer
         @state = :rcpt_to_received
         if server = ::Server.where(token: uname).first
           if server.suspended?
+            increment_error_count("server-suspended")
             "535 Mail server has been suspended"
           else
             log "Added bounce on server #{server.id}"
@@ -296,6 +322,7 @@ module SMTPServer
             "250 OK"
           end
         else
+          increment_error_count("invalid-server-token")
           "550 Invalid server token"
         end
 
@@ -304,8 +331,10 @@ module SMTPServer
         @state = :rcpt_to_received
         if route = Route.where(token: uname).first
           if route.server.suspended?
+            increment_error_count("server-suspended")
             "535 Mail server has been suspended"
           elsif route.mode == "Reject"
+            increment_error_count("route-rejected")
             "550 Route does not accept incoming messages"
           else
             log "Added route #{route.id} to recipients (tag: #{tag.inspect})"
@@ -321,6 +350,7 @@ module SMTPServer
         # This is outgoing mail for an authenticated user
         @state = :rcpt_to_received
         if @credential.server.suspended?
+          increment_error_count("server-suspended")
           "535 Mail server has been suspended"
         else
           log "Added external address '#{rcpt_to}'"
@@ -332,8 +362,10 @@ module SMTPServer
         # This is incoming mail for a route
         @state = :rcpt_to_received
         if route.server.suspended?
+          increment_error_count("server-suspended")
           "535 Mail server has been suspended"
         elsif route.mode == "Reject"
+          increment_error_count("route-rejection")
           "550 Route does not accept incoming messages"
         else
           log "Added route #{route.id} to recipients (tag: #{tag.inspect})"
@@ -352,6 +384,7 @@ module SMTPServer
           @credential.use
           rcpt_to(data)
         else
+          increment_error_count("authentication-required")
           "530 Authentication required"
         end
       end
@@ -359,6 +392,7 @@ module SMTPServer
 
     def data(_data)
       unless in_state(:rcpt_to_received)
+        increment_error_count("data-out-of-order")
         return "503 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
       end
 
@@ -415,12 +449,14 @@ module SMTPServer
       if @data.bytesize > Postal.config.smtp_server.max_message_size.megabytes.to_i
         transaction_reset
         @state = :welcomed
+        increment_error_count("message-too-large")
         return format("552 Message too large (maximum size %dMB)", Postal.config.smtp_server.max_message_size)
       end
 
       if @headers["received"].grep(/by #{Postal.config.dns.smtp_server_hostname}/).count > 4
         transaction_reset
         @state = :welcomed
+        increment_error_count("loop-detected")
         return "550 Loop detected"
       end
 
@@ -430,6 +466,7 @@ module SMTPServer
         if authenticated_domain.nil?
           transaction_reset
           @state = :welcomed
+          increment_error_count("from-name-invalid")
           return "530 From/Sender name is not valid"
         end
       end
@@ -439,6 +476,8 @@ module SMTPServer
 
         case type
         when :credential
+          increment_message_count("outgoing")
+
           # Outgoing messages are just inserted
           message = server.message_db.new_message
           message.rcpt_to = rcpt_to
@@ -451,6 +490,7 @@ module SMTPServer
           message.save
 
         when :bounce
+          increment_message_count("bounce")
           if rp_route = server.routes.where(name: "__returnpath__").first
             # If there's a return path route, we can use this to create the message
             rp_route.create_messages do |msg|
@@ -473,11 +513,12 @@ module SMTPServer
             message.save
           end
         when :route
-          options[:route].create_messages do |message|
-            message.rcpt_to = rcpt_to
-            message.mail_from = @mail_from
-            message.raw_message = @data
-            message.received_with_ssl = @tls
+          increment_message_count("incoming")
+          options[:route].create_messages do |msg|
+            msg.rcpt_to = rcpt_to
+            msg.mail_from = @mail_from
+            msg.raw_message = @data
+            msg.received_with_ssl = @tls
           end
         end
       end
@@ -501,6 +542,39 @@ module SMTPServer
       data = data.dup
       data.gsub!(/(.*AUTH \w+) (.*)\z/i) { "#{::Regexp.last_match(1)} #{LOG_REDACTION_STRING}" }
       data
+    end
+
+    def increment_error_count(error)
+      increment_prometheus_counter :postal_smtp_server_client_errors, labels: { error: error }
+    end
+
+    def increment_command_count(command)
+      increment_prometheus_counter :postal_smtp_server_commands_total, labels: { command: command }
+    end
+
+    def increment_message_count(type)
+      increment_prometheus_counter :postal_smtp_server_messages_total, labels: {
+        type: type,
+        tls: @tls ? "yes" : "no"
+      }
+    end
+
+    class << self
+
+      def register_prometheus_metrics
+        register_prometheus_counter :postal_smtp_server_commands_total,
+                                    docstring: "The number of key commands received by the server",
+                                    labels: [:command]
+
+        register_prometheus_counter :postal_smtp_server_client_errors,
+                                    docstring: "The number of errors sent to a client",
+                                    labels: [:error]
+
+        register_prometheus_counter :postal_smtp_server_messages_total,
+                                    docstring: "The number of messages accepted by the SMTP server",
+                                    labels: [:type, :tls]
+      end
+
     end
 
   end
