@@ -28,7 +28,7 @@ end
 
 message = server.message_db.new_message
 message.scope = "incoming"
-message.rcpt_to = "#{server.token}@#{Postal.config.dns.return_path}"
+message.rcpt_to = "#{server.token}@#{Postal::Config.dns.return_path_domain}"
 message.mail_from = "MAILER-DAEMON@smtp.infra.atech.io"
 message.raw_message = template
 message.bounce = true

@@ -8,6 +8,24 @@ module SMTPServer
 
     include HasPrometheusMetrics
 
+    class << self
+
+      def tls_private_key
+        @tls_private_key ||= OpenSSL::PKey.read(File.read(Postal::Config.smtp_server.tls_private_key_path))
+      end
+
+      def tls_certificates
+        @tls_certificates ||= begin
+          data = File.read(Postal::Config.smtp_server.tls_certificate_path)
+          certs = data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
+          certs.map do |c|
+            OpenSSL::X509::Certificate.new(c)
+          end.freeze
+        end
+      end
+
+    end
+
     def initialize(options = {})
       @options = options
       @options[:debug] ||= false
@@ -43,16 +61,19 @@ module SMTPServer
       @ssl_context ||= begin
         ssl_context      = OpenSSL::SSL::SSLContext.new
         ssl_context.cert = Postal.smtp_certificates[0]
-        ssl_context.extra_chain_cert = Postal.smtp_certificates[1..]
-        ssl_context.key = Postal.smtp_private_key
-        ssl_context.ssl_version = Postal.config.smtp_server.ssl_version if Postal.config.smtp_server.ssl_version
-        ssl_context.ciphers = Postal.config.smtp_server.tls_ciphers if Postal.config.smtp_server.tls_ciphers
+        ssl_context.extra_chain_cert = self.class.tls_certificates[1..]
+        ssl_context.key = self.class.tls_private_key
+        ssl_context.ssl_version = Postal::Config.smtp_server.ssl_version if Postal::Config.smtp_server.ssl_version
+        ssl_context.ciphers = Postal::Config.smtp_server.tls_ciphers if Postal::Config.smtp_server.tls_ciphers
         ssl_context
       end
     end
 
     def listen
-      @server = TCPServer.open(Postal.config.smtp_server.bind_address, Postal.config.smtp_server.port)
+      bind_address = ENV.fetch("BIND_ADDRESS", Postal::Config.smtp_server.default_bind_address)
+      port = ENV.fetch("PORT", Postal::Config.smtp_server.default_port)
+
+      @server = TCPServer.open(bind_address, port)
       @server.autoclose = false
       @server.close_on_exec = false
       if defined?(Socket::SOL_SOCKET) && defined?(Socket::SO_KEEPALIVE)
@@ -63,7 +84,8 @@ module SMTPServer
         @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPINTVL, 10)
         @server.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPCNT, 5)
       end
-      logger.info "Listening on #{Postal.config.smtp_server.bind_address}:#{Postal.config.smtp_server.port}"
+
+      logger.info "Listening on #{bind_address}:#{port}"
     end
 
     def unlisten
@@ -90,22 +112,22 @@ module SMTPServer
               # Accept the connection
               new_io = io.accept
               increment_prometheus_counter :postal_smtp_server_connections_total
-              if Postal.config.smtp_server.proxy_protocol
+              if Postal::Config.smtp_server.proxy_protocol?
                 # If we are using the haproxy proxy protocol, we will be sent the
                 # client's IP later. Delay the welcome process.
                 client = Client.new(nil)
-                if Postal.config.smtp_server.log_connect
+                if Postal::Config.smtp_server.log_connections?
                   logger.debug "[#{client.id}] \e[35m   Connection opened from #{new_io.remote_address.ip_address}\e[0m"
                 end
               else
                 # We're not using the proxy protocol so we already know the client's IP
                 client = Client.new(new_io.remote_address.ip_address)
-                if Postal.config.smtp_server.log_connect
+                if Postal::Config.smtp_server.log_connections?
                   logger.debug "[#{client.id}] \e[35m   Connection opened from #{new_io.remote_address.ip_address}\e[0m"
                 end
                 # We know who the client is, welcome them.
                 client.log "\e[35m   Client identified as #{new_io.remote_address.ip_address}\e[0m"
-                new_io.print("220 #{Postal.config.dns.smtp_server_hostname} ESMTP Postal/#{client.id}")
+                new_io.print("220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{client.id}")
               end
               # Register the client and its socket with nio4r
               monitor = @io_selector.register(new_io, :r)

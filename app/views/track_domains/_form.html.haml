@@ -10,7 +10,7 @@
           = f.select :domain_id, domain_options_for_select(@server, @track_domain.domain), {}, :class => 'input input--select routeNameInput__domain', :disabled => @track_domain.persisted?
         %p.fieldSet__text
           This is the domain that requests for tracked links will be directed through when you use click tracking. We recommend using something like
-          <b>click.yourdomain.com</b>. You will need to a CNAME record to point to <b>#{Postal.config.dns.track_domain}</b> for this once you've added it.
+          <b>click.yourdomain.com</b>. You will need to a CNAME record to point to <b>#{Postal::Config.dns.track_domain}</b> for this once you've added it.
 
     .fieldSet__field
       = f.label :ssl_enabled, :class => 'fieldSet__label'
@@ -47,4 +47,3 @@
 
   .fieldSetSubmit.buttonSet
     = f.submit @track_domain.new_record? ? "Create Track Domain" : "Save Track Domain", :class => 'button button--positive js-form-submit'
-

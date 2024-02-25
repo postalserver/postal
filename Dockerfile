@@ -46,8 +46,11 @@ COPY --chown=postal . .
 ARG VERSION=unspecified
 RUN echo $VERSION > VERSION
 
-# Set the path to the config
-ENV POSTAL_CONFIG_ROOT=/config
+# Set paths for when running in a container
+ENV POSTAL_CONFIG_FILE_PATH=/config/postal.yml
+ENV POSTAL_SIGNING_KEY_PATH=/config/signing.key
+ENV SMTP_SERVER_TLS_CERTIFICATE_PATH=/config/smtp.cert
+ENV SMTP_SERVER_TLS_PRIVATE_KEY_PATH=/config/smtp.key
 
 # Set the CMD
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
@@ -59,5 +62,5 @@ FROM base AS ci
 # full target - default if no --target option is given
 FROM base AS full
 
-RUN POSTAL_SKIP_CONFIG_CHECK=1 RAILS_GROUPS=assets bundle exec rake assets:precompile
+RUN RAILS_GROUPS=assets bundle exec rake assets:precompile
 RUN touch /opt/postal/app/public/assets/.prebuilt

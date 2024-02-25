@@ -47,8 +47,8 @@ class SMTPSender < BaseSender
           end
 
           smtp_client = Net::SMTP.new(@remote_ip, port)
-          smtp_client.open_timeout = Postal.config.smtp_client.open_timeout
-          smtp_client.read_timeout = Postal.config.smtp_client.read_timeout
+          smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
+          smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
           smtp_client.tls_hostname = hostname
 
           if @source_ip_address
@@ -140,9 +140,9 @@ class SMTPSender < BaseSender
       elsif message.domain.return_path_status == "OK"
         mail_from = "#{message.server.token}@#{message.domain.return_path_domain}"
       else
-        mail_from = "#{message.server.token}@#{Postal.config.dns.return_path}"
+        mail_from = "#{message.server.token}@#{Postal::Config.dns.return_path_domain}"
       end
-      if Postal.config.general.use_resent_sender_header
+      if Postal::Config.postal.use_resent_sender_header
         raw_message = "Resent-Sender: #{mail_from}\r\n" + message.raw_message
       else
         raw_message = message.raw_message
@@ -270,15 +270,20 @@ class SMTPSender < BaseSender
     end
 
     def default_helo_hostname
-      Postal.config.dns.helo_hostname || Postal.config.dns.smtp_server_hostname || "localhost"
+      Postal::Config.dns.helo_hostname ||
+        Postal::Config.postal.smtp_hostname ||
+        "localhost"
     end
 
     def relay_hosts
-      hosts = Postal.config.smtp_relays.map do |relay|
-        next unless relay.hostname.present?
+      relays = Postal::Config.postal.smtp_relays
+      return nil if relays.nil?
+
+      hosts = relays.map do |relay|
+        next unless relay.host.present?
 
         {
-          hostname: relay.hostname,
+          hostname: relay.host,
           port: relay.port,
           ssl_mode: relay.ssl_mode
         }

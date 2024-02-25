@@ -272,7 +272,7 @@ module Postal
       # Return the correct database name
       #
       def database_name
-        @database_name ||= "#{Postal.config.message_db.prefix}-server-#{@server_id}"
+        @database_name ||= "#{Postal::Config.message_db.database_name_prefix}-server-#{@server_id}"
       end
 
       #

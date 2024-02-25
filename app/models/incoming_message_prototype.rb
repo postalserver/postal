@@ -88,7 +88,7 @@ class IncomingMessagePrototype
       mail.from = @from
       mail.subject = @subject
       mail.text_part = @plain_body
-      mail.message_id = "<#{SecureRandom.uuid}@#{Postal.config.dns.return_path}>"
+      mail.message_id = "<#{SecureRandom.uuid}@#{Postal::Config.dns.return_path_domain}>"
       attachments.each do |attachment|
         mail.attachments[attachment[:name]] = {
           mime_type: attachment[:content_type],

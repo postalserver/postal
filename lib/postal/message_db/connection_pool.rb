@@ -63,11 +63,11 @@ module Postal
 
       def establish_connection
         Mysql2::Client.new(
-          host: Postal.config.message_db.host,
-          username: Postal.config.message_db.username,
-          password: Postal.config.message_db.password,
-          port: Postal.config.message_db.port,
-          encoding: Postal.config.message_db.encoding || "utf8mb4"
+          host: Postal::Config.message_db.host,
+          username: Postal::Config.message_db.username,
+          password: Postal::Config.message_db.password,
+          port: Postal::Config.message_db.port,
+          encoding: Postal::Config.message_db.encoding
         )
       end
 

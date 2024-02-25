@@ -36,18 +36,18 @@ module SMTPServer
 
       context "when the RCPT TO address is the system return path host" do
         it "returns an error if the server does not exist" do
-          expect(client.handle("RCPT TO: nothing@#{Postal.config.dns.return_path}")).to eq "550 Invalid server token"
+          expect(client.handle("RCPT TO: nothing@#{Postal::Config.dns.return_path_domain}")).to eq "550 Invalid server token"
         end
 
         it "returns an error if the server is suspended" do
           server = create(:server, :suspended)
-          expect(client.handle("RCPT TO: #{server.token}@#{Postal.config.dns.return_path}"))
+          expect(client.handle("RCPT TO: #{server.token}@#{Postal::Config.dns.return_path_domain}"))
             .to eq "535 Mail server has been suspended"
         end
 
         it "adds a recipient if all OK" do
           server = create(:server)
-          address = "#{server.token}@#{Postal.config.dns.return_path}"
+          address = "#{server.token}@#{Postal::Config.dns.return_path_domain}"
           expect(client.handle("RCPT TO: #{address}")).to eq "250 OK"
           expect(client.recipients).to eq [[:bounce, address, server]]
           expect(client.state).to eq :rcpt_to_received
@@ -56,19 +56,19 @@ module SMTPServer
 
       context "when the RCPT TO address is on a host using the return path prefix" do
         it "returns an error if the server does not exist" do
-          address = "nothing@#{Postal.config.dns.custom_return_path_prefix}.example.com"
+          address = "nothing@#{Postal::Config.dns.custom_return_path_prefix}.example.com"
           expect(client.handle("RCPT TO: #{address}")).to eq "550 Invalid server token"
         end
 
         it "returns an error if the server is suspended" do
           server = create(:server, :suspended)
-          address = "#{server.token}@#{Postal.config.dns.custom_return_path_prefix}.example.com"
+          address = "#{server.token}@#{Postal::Config.dns.custom_return_path_prefix}.example.com"
           expect(client.handle("RCPT TO: #{address}")).to eq "535 Mail server has been suspended"
         end
 
         it "adds a recipient if all OK" do
           server = create(:server)
-          address = "#{server.token}@#{Postal.config.dns.custom_return_path_prefix}.example.com"
+          address = "#{server.token}@#{Postal::Config.dns.custom_return_path_prefix}.example.com"
           expect(client.handle("RCPT TO: #{address}")).to eq "250 OK"
           expect(client.recipients).to eq [[:bounce, address, server]]
           expect(client.state).to eq :rcpt_to_received
@@ -77,28 +77,28 @@ module SMTPServer
 
       context "when the RCPT TO address is within the route domain" do
         it "returns an error if the route token is invalid" do
-          address = "nothing@#{Postal.config.dns.route_domain}"
+          address = "nothing@#{Postal::Config.dns.route_domain}"
           expect(client.handle("RCPT TO: #{address}")).to eq "550 Invalid route token"
         end
 
         it "returns an error if the server is suspended" do
           server = create(:server, :suspended)
           route = create(:route, server: server)
-          address = "#{route.token}@#{Postal.config.dns.route_domain}"
+          address = "#{route.token}@#{Postal::Config.dns.route_domain}"
           expect(client.handle("RCPT TO: #{address}")).to eq "535 Mail server has been suspended"
         end
 
         it "returns an error if the route is set to Reject mail" do
           server = create(:server)
           route = create(:route, server: server, mode: "Reject")
-          address = "#{route.token}@#{Postal.config.dns.route_domain}"
+          address = "#{route.token}@#{Postal::Config.dns.route_domain}"
           expect(client.handle("RCPT TO: #{address}")).to eq "550 Route does not accept incoming messages"
         end
 
         it "adds a recipient if all OK" do
           server = create(:server)
           route = create(:route, server: server)
-          address = "#{route.token}+tag1@#{Postal.config.dns.route_domain}"
+          address = "#{route.token}+tag1@#{Postal::Config.dns.route_domain}"
           expect(client.handle("RCPT TO: #{address}")).to eq "250 OK"
           expect(client.recipients).to eq [[:route, "#{route.name}+tag1@#{route.domain.name}", server, { route: route }]]
           expect(client.state).to eq :rcpt_to_received

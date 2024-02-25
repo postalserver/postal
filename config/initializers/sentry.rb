@@ -2,8 +2,8 @@
 
 require "postal/config"
 
-if Postal.config.general&.exception_url
+if Postal::Config.logging.sentry_dsn
   Sentry.init do |config|
-    config.dsn = Postal.config.general.exception_url
+    config.dsn = Postal::Config.logging.sentry_dsn
   end
 end

@@ -24,7 +24,7 @@ module SMTPServer
     describe "when finished sending data" do
       context "when the data is larger than the maximum message size" do
         it "returns an error and resets the state" do
-          allow(Postal.config.smtp_server).to receive(:max_message_size).and_return(1)
+          allow(Postal::Config.smtp_server).to receive(:max_message_size).and_return(1)
           client.handle("DATA")
           client.handle("a" * 1024 * 1024 * 10)
           expect(client.handle(".")).to eq "552 Message too large (maximum size 1MB)"
@@ -34,10 +34,10 @@ module SMTPServer
       context "when a loop is detected" do
         it "returns an error and resets the state" do
           client.handle("DATA")
-          client.handle("Received: from example1.com by #{Postal.config.dns.smtp_server_hostname}")
-          client.handle("Received: from example2.com by #{Postal.config.dns.smtp_server_hostname}")
-          client.handle("Received: from example1.com by #{Postal.config.dns.smtp_server_hostname}")
-          client.handle("Received: from example2.com by #{Postal.config.dns.smtp_server_hostname}")
+          client.handle("Received: from example1.com by #{Postal::Config.postal.smtp_hostname}")
+          client.handle("Received: from example2.com by #{Postal::Config.postal.smtp_hostname}")
+          client.handle("Received: from example1.com by #{Postal::Config.postal.smtp_hostname}")
+          client.handle("Received: from example2.com by #{Postal::Config.postal.smtp_hostname}")
           client.handle("Subject: Test")
           client.handle("From: #{mail_from}")
           client.handle("To: #{rcpt_to}")
@@ -93,7 +93,7 @@ module SMTPServer
 
       context "when sending a bounce message" do
         let(:credential) { nil }
-        let(:rcpt_to) { "#{server.token}@#{Postal.config.dns.return_path}" }
+        let(:rcpt_to) { "#{server.token}@#{Postal::Config.dns.return_path_domain}" }
 
         context "when there is a return path route" do
           let(:domain) { create(:domain, owner: server) }
@@ -114,7 +114,7 @@ module SMTPServer
 
             queued_message = QueuedMessage.first
             expect(queued_message).to have_attributes(
-              domain: Postal.config.dns.return_path,
+              domain: Postal::Config.dns.return_path_domain,
               server: server
             )
 
@@ -145,7 +145,7 @@ module SMTPServer
 
             queued_message = QueuedMessage.first
             expect(queued_message).to have_attributes(
-              domain: Postal.config.dns.return_path,
+              domain: Postal::Config.dns.return_path_domain,
               server: server
             )
 

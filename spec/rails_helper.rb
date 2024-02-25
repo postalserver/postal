@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-ENV["POSTAL_ENV"] = "test"
+ENV["POSTAL_CONFIG_FILE_PATH"] ||= "config/postal/postal.test.yml"
+
+require "dotenv"
+Dotenv.load(".env.test")
 
 require File.expand_path("../config/environment", __dir__)
 require "rspec/rails"

@@ -42,7 +42,7 @@ module MessageDequeuer
     end
 
     context "when the number of attempts is more than the maximum" do
-      let(:queued_message) { create(:queued_message, :locked, message: message, attempts: Postal.config.general.maximum_delivery_attempts + 1) }
+      let(:queued_message) { create(:queued_message, :locked, message: message, attempts: Postal::Config.postal.default_maximum_delivery_attempts + 1) }
 
       it "logs" do
         processor.process
