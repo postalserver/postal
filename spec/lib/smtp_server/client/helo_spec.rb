@@ -11,7 +11,7 @@ module SMTPServer
     describe "HELO" do
       it "returns the hostname" do
         expect(client.state).to eq :welcome
-        expect(client.handle("HELO: test.example.com")).to eq "250 #{Postal.config.dns.smtp_server_hostname}"
+        expect(client.handle("HELO: test.example.com")).to eq "250 #{Postal::Config.postal.smtp_hostname}"
         expect(client.state).to eq :welcomed
       end
     end
@@ -24,7 +24,7 @@ module SMTPServer
 
       context "when TLS is enabled" do
         it "returns capabilities include starttls" do
-          allow(Postal.config.smtp_server).to receive(:tls_enabled?).and_return(true)
+          allow(Postal::Config.smtp_server).to receive(:tls_enabled?).and_return(true)
           expect(client.handle("EHLO test.example.com")).to eq ["250-My capabilities are",
                                                                 "250-STARTTLS",
                                                                 "250 AUTH CRAM-MD5 PLAIN LOGIN"]

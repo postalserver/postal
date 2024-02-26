@@ -48,7 +48,7 @@ module MessageDequeuer
     end
 
     def check_delivery_attempts
-      return if queued_message.attempts < Postal.config.general.maximum_delivery_attempts
+      return if queued_message.attempts < Postal::Config.postal.default_maximum_delivery_attempts
 
       details = "Maximum number of delivery attempts (#{queued_message.attempts}) has been reached."
       if queued_message.message.scope == "incoming"

@@ -216,7 +216,7 @@ describe Domain do
 
   describe "#spf_record" do
     it "returns the SPF record" do
-      expect(domain.spf_record).to eq "v=spf1 a mx include:#{Postal.config.dns.spf_include} ~all"
+      expect(domain.spf_record).to eq "v=spf1 a mx include:#{Postal::Config.dns.spf_include} ~all"
     end
   end
 
@@ -251,7 +251,7 @@ describe Domain do
       end
 
       it "returns the DKIM identifier" do
-        expect(domain.dkim_identifier).to eq "#{Postal.config.dns.dkim_identifier}-#{domain.dkim_identifier_string}"
+        expect(domain.dkim_identifier).to eq "#{Postal::Config.dns.dkim_identifier}-#{domain.dkim_identifier_string}"
       end
     end
   end
@@ -269,14 +269,14 @@ describe Domain do
       end
 
       it "returns the DKIM identifier" do
-        expect(domain.dkim_record_name).to eq "#{Postal.config.dns.dkim_identifier}-#{domain.dkim_identifier_string}._domainkey"
+        expect(domain.dkim_record_name).to eq "#{Postal::Config.dns.dkim_identifier}-#{domain.dkim_identifier_string}._domainkey"
       end
     end
   end
 
   describe "#return_path_domain" do
     it "returns the return path domain" do
-      expect(domain.return_path_domain).to eq "#{Postal.config.dns.custom_return_path_prefix}.#{domain.name}"
+      expect(domain.return_path_domain).to eq "#{Postal::Config.dns.custom_return_path_prefix}.#{domain.name}"
     end
   end
 
@@ -284,14 +284,14 @@ describe Domain do
     let(:domain) { create(:domain, verification_method: "DNS") }
 
     it "returns the DNS verification string" do
-      expect(domain.dns_verification_string).to eq "#{Postal.config.dns.domain_verify_prefix} #{domain.verification_token}"
+      expect(domain.dns_verification_string).to eq "#{Postal::Config.dns.domain_verify_prefix} #{domain.verification_token}"
     end
   end
 
   describe "#resolver" do
     context "when the local nameservers should be used" do
       before do
-        allow(Postal.config.general).to receive(:use_local_ns_for_domains?).and_return(true)
+        allow(Postal::Config.postal).to receive(:use_local_ns_for_domain_verification?).and_return(true)
       end
 
       it "uses the local DNS" do

@@ -32,7 +32,9 @@ module SMTPServer
     end
 
     def check_ip_address
-      return unless @ip_address && Postal.config.smtp_server.log_exclude_ips && @ip_address =~ Regexp.new(Postal.config.smtp_server.log_exclude_ips)
+      return unless @ip_address &&
+                    Postal::Config.smtp_server.log_ip_address_exclusion_matcher &&
+                    @ip_address =~ Regexp.new(Postal::Config.smtp_server.log_ip_address_exclusion_matcher)
 
       @logging_enabled = false
     end
@@ -109,7 +111,7 @@ module SMTPServer
         @state = :welcome
         log "\e[35m   Client identified as #{@ip_address}\e[0m"
         increment_command_count("PROXY")
-        "220 #{Postal.config.dns.smtp_server_hostname} ESMTP Postal/#{id}"
+        "220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{id}"
       else
         @finished = true
         increment_error_count("proxy-error")
@@ -123,7 +125,7 @@ module SMTPServer
     end
 
     def starttls
-      if Postal.config.smtp_server.tls_enabled?
+      if Postal::Config.smtp_server.tls_enabled?
         @start_tls = true
         @tls = true
         increment_command_count("STARTLS")
@@ -141,7 +143,7 @@ module SMTPServer
       increment_command_count("EHLO")
       [
         "250-My capabilities are",
-        Postal.config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil,
+        Postal::Config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil,
         "250 AUTH CRAM-MD5 PLAIN LOGIN"
       ].compact
     end
@@ -151,7 +153,7 @@ module SMTPServer
       transaction_reset
       @state = :welcomed
       increment_command_count("HELO")
-      "250 #{Postal.config.dns.smtp_server_hostname}"
+      "250 #{Postal::Config.postal.smtp_hostname}"
     end
 
     def rset
@@ -231,7 +233,7 @@ module SMTPServer
       increment_command_count("AUTH CRAM-MD5")
 
       challenge = Digest::SHA1.hexdigest(Time.now.to_i.to_s + rand(100_000).to_s)
-      challenge = "<#{challenge[0, 20]}@#{Postal.config.dns.smtp_server_hostname}>"
+      challenge = "<#{challenge[0, 20]}@#{Postal::Config.postal.smtp_hostname}>"
 
       handler = proc do |idata|
         @proc = nil
@@ -309,7 +311,7 @@ module SMTPServer
 
       uname, tag = uname.split("+", 2)
 
-      if domain == Postal.config.dns.return_path || domain =~ /\A#{Regexp.escape(Postal.config.dns.custom_return_path_prefix)}\./
+      if domain == Postal::Config.dns.return_path_domain || domain =~ /\A#{Regexp.escape(Postal::Config.dns.custom_return_path_prefix)}\./
         # This is a return path
         @state = :rcpt_to_received
         if server = ::Server.where(token: uname).first
@@ -326,7 +328,7 @@ module SMTPServer
           "550 Invalid server token"
         end
 
-      elsif domain == Postal.config.dns.route_domain
+      elsif domain == Postal::Config.dns.route_domain
         # This is an email direct to a route. This isn't actually supported yet.
         @state = :rcpt_to_received
         if route = Route.where(token: uname).first
@@ -446,14 +448,14 @@ module SMTPServer
     end
 
     def finished
-      if @data.bytesize > Postal.config.smtp_server.max_message_size.megabytes.to_i
+      if @data.bytesize > Postal::Config.smtp_server.max_message_size.megabytes.to_i
         transaction_reset
         @state = :welcomed
         increment_error_count("message-too-large")
-        return format("552 Message too large (maximum size %dMB)", Postal.config.smtp_server.max_message_size)
+        return format("552 Message too large (maximum size %dMB)", Postal::Config.smtp_server.max_message_size)
       end
 
-      if @headers["received"].grep(/by #{Postal.config.dns.smtp_server_hostname}/).count > 4
+      if @headers["received"].grep(/by #{Postal::Config.postal.smtp_hostname}/).count > 4
         transaction_reset
         @state = :welcomed
         increment_error_count("loop-detected")

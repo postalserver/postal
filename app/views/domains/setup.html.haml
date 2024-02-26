@@ -43,7 +43,7 @@
   %p.pageContent__text
     You need to add a TXT record at the apex/root of your domain (@) with the following
     content. If you already send mail from another service, you may just need to add
-    <b>include:#{Postal.config.dns.spf_include}</b> to your existing record.
+    <b>include:#{Postal::Config.dns.spf_include}</b> to your existing record.
   %pre.codeBlock.u-margin= @domain.spf_record
 
   %h3.pageContent__subTitle DKIM Record
@@ -78,7 +78,7 @@
   %p.pageContent__text
     This is optional but we recommend adding this to improve deliverability. You should add
     a <b>CNAME</b> record at <b>#{@domain.return_path_domain}</b> to point to the hostname below.
-  %pre.codeBlock.u-margin= Postal.config.dns.return_path
+  %pre.codeBlock.u-margin= Postal::Config.dns.return_path_domain
 
 
   %h3.pageContent__subTitle MX Records
@@ -99,6 +99,4 @@
     If you wish to receive incoming e-mail for this domain, you need to add the following MX records
     to the domain. You don't have to do this and we'll only tell you if they're set up or not. Both
     records should be priority <b>10</b>.
-  %pre.codeBlock.u-margin= Postal.config.dns.mx_records.join("\n")
-
-
+  %pre.codeBlock.u-margin= Postal::Config.dns.mx_records.join("\n")

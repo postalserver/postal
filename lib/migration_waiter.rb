@@ -7,8 +7,8 @@
 
 class MigrationWaiter
 
-  ATTEMPTS = ENV.fetch("MIGRATION_WAITER_ATTEMPTS", 120)
-  SLEEP_TIME = ENV.fetch("MIGRATION_WAITER_SLEEP_TIME", 2)
+  ATTEMPTS = Postal::Config.migration_waiter.attempts
+  SLEEP_TIME = Postal::Config.migration_waiter.sleep_time
 
   class << self
 
@@ -35,7 +35,7 @@ class MigrationWaiter
 
     def wait_if_appropriate
       # Don't wait if not configured
-      return unless ENV.fetch("MIGRATION_WAITER_ENABLED", "false") == "true"
+      return unless Postal::Config.migration_waiter.enabled?
 
       # Don't wait in the console, rake tasks or rails commands
       return if console? || rake_task? || rails_command?

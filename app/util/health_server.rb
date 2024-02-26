@@ -51,8 +51,9 @@ class HealthServer
 
   class << self
 
-    def run(default_port: 9090, **options)
+    def run(default_port:, default_bind_address:, **options)
       port = ENV.fetch("HEALTH_SERVER_PORT", default_port)
+      bind_address = ENV.fetch("HEALTH_SERVER_BIND_ADDRESS", default_bind_address)
 
       Rack::Handler::WEBrick.run(new(**options),
                                  Port: port,
@@ -62,10 +63,6 @@ class HealthServer
     rescue Errno::EADDRINUSE
       Postal.logger.info "health server port (#{bind_address}:#{port}) is already " \
                          "in use, not starting health server"
-    end
-
-    def bind_address
-      ENV.fetch("HEALTH_SERVER_BIND_ADDRESS", "127.0.0.1")
     end
 
     def start(**options)

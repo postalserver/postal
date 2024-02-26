@@ -8,8 +8,14 @@ services:
     volumes:
       - "./docker/ci-config:/config"
     environment:
-      POSTAL_CONFIG_ROOT: /config
-      KATAPULT_CONFIG_FILE: /ci-config.yml
+      POSTAL_SIGNING_KEY_PATH: /config/signing.key
+      MAIN_DB_HOST: mariadb
+      MAIN_DB_USERNAME: root
+      MESSAGE_DB_HOST: mariadb
+      MESSAGE_DB_USERNAME: root
+      LOGGING_ENABLED: "false"
+      RAILS_ENVIRONMENT: test
+      RAILS_LOG_ENABLED: "false"
       WAIT_FOR_TIMEOUT: 90
       WAIT_FOR_TARGETS: |-
         mariadb:3306

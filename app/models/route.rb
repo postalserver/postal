@@ -89,7 +89,7 @@ class Route < ApplicationRecord
   end
 
   def forward_address
-    @forward_address ||= "#{token}@#{Postal.config.dns.route_domain}"
+    @forward_address ||= "#{token}@#{Postal::Config.dns.route_domain}"
   end
 
   def wildcard?

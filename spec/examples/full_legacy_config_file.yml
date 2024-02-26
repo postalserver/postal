@@ -1,0 +1,118 @@
+# This a legacy configuration file format which was used in Postal version
+# less than v3. It remains supported in v3+ by mapping these values to their
+# correct values. Support for this file format will be removed in Postal v4.
+#
+# It exists here for reference but also to faciliate testing to ensure the
+# legacy mapping works as expected
+version: 1
+
+web:
+  host: postal.llamas.com
+  protocol: https
+
+general:
+  use_ip_pools: false
+  exception_url: https://sentry.llamas.com/abcdef1234
+  maximum_delivery_attempts: 20
+  maximum_hold_expiry_days: 10
+  suppression_list_removal_delay: 60
+  use_local_ns_for_domains: true
+  default_spam_threshold: 10
+  default_spam_failure_threshold: 25
+  use_resent_sender_header: true
+
+web_server:
+  bind_address: 127.0.0.1
+  port: 6000
+  max_threads: 10
+
+main_db:
+  host: localhost
+  port: 3306
+  username: postal
+  password: t35tpassword
+  database: postal
+  pool_size: 20
+  encoding: utf8mb4
+
+message_db:
+  host: localhost
+  port: 3306
+  username: postal
+  password: p05t41
+  prefix: postal
+
+logging:
+  rails_log: true
+  graylog:
+    host: logs.llamas.com
+    port: 12201
+    facility: mailer
+
+smtp_server:
+  port: 25
+  bind_address: 127.0.0.1
+  tls_enabled: true
+  tls_certificate_path: config/smtp.cert
+  tls_private_key_path: config/smtp.key
+  tls_ciphers: abc
+  ssl_version: SSLv23
+  proxy_protocol: false
+  log_connect: true
+  max_message_size: 10
+
+smtp_relays:
+  - hostname: 1.2.3.4
+    port: 25
+    ssl_mode: Auto
+  - hostname: 2.2.2.2
+    port: 2525
+    ssl_mode: None
+
+dns:
+  mx_records:
+    - mx1.postal.llamas.com
+    - mx2.postal.llamas.com
+  smtp_server_hostname: smtp.postal.llamas.com
+  spf_include: spf.postal.llamas.com
+  return_path: rp.postal.llamas.com
+  route_domain: routes.postal.llamas.com
+  track_domain: track.postal.llamas.com
+  helo_hostname: helo.postal.llamas.com
+  dkim_identifier: postal
+  domain_verify_prefix: postal-verification
+  custom_return_path_prefix: psrp
+
+smtp:
+  host: 127.0.0.1
+  port: 25
+  username: postalserver
+  password: llama
+  from_name: Postal
+  from_address: postal@llamas.com
+
+rails:
+  environment: production
+  secret_key: abcdef123123123123123
+
+rspamd:
+  enabled: true
+  host: rspamd.llamas.com
+  port: 11334
+  ssl: false
+  password: llama
+  flags: abc
+
+spamd:
+  enabled: false
+  host: spamd.llamas.com
+  port: 783
+
+clamav:
+  enabled: false
+  host: clamav.llamas.com
+  port: 2000
+
+smtp_client:
+  open_timeout: 60
+  read_timeout: 120

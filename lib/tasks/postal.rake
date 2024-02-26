@@ -10,6 +10,18 @@ namespace :postal do
       server.message_db.provisioner.migrate
     end
   end
+
+  desc "Generate configuration documentation"
+  task generate_config_docs: :environment do
+    require "konfig/exporters/env_vars_as_markdown"
+
+    FileUtils.mkdir_p("doc/config")
+    output = Konfig::Exporters::EnvVarsAsMarkdown.new(Postal::ConfigSchema).export
+    File.write("doc/config/environment-variables.md", output)
+
+    output = Postal::YamlConfigExporter.new(Postal::ConfigSchema).export
+    File.write("doc/config/yaml.yml", output)
+  end
 end
 
 Rake::Task["db:migrate"].enhance do
