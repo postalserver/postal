@@ -14,7 +14,7 @@ module Postal
 
       return unless @domain
 
-      @parsed_output = generate
+      @parsed_output = generate.split("\r\n\r\n", 2)
     end
 
     attr_reader :tracked_links
@@ -25,7 +25,11 @@ module Postal
     end
 
     def new_body
-      @parsed_output.split("\r\n\r\n", 2)[1]
+      @parsed_output[1]
+    end
+
+    def new_headers
+      @parsed_output[0]
     end
 
     private
