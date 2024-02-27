@@ -17,10 +17,8 @@ class DNSResolver
   # @param [String] name
   # @return [Array<String>]
   def a(name)
-    dns do |dns|
-      dns.getresources(name, Resolv::DNS::Resource::IN::A).map do |s|
-        s.address.to_s
-      end
+    get_resources(name, Resolv::DNS::Resource::IN::A).map do |s|
+      s.address.to_s
     end
   end
 
@@ -29,10 +27,8 @@ class DNSResolver
   # @param [String] name
   # @return [Array<String>]
   def aaaa(name)
-    dns do |dns|
-      dns.getresources(name, Resolv::DNS::Resource::IN::AAAA).map do |s|
-        s.address.to_s
-      end
+    get_resources(name, Resolv::DNS::Resource::IN::AAAA).map do |s|
+      s.address.to_s
     end
   end
 
@@ -41,10 +37,8 @@ class DNSResolver
   # @param [String] name
   # @return [Array<String>]
   def txt(name)
-    dns do |dns|
-      dns.getresources(name, Resolv::DNS::Resource::IN::TXT).map do |s|
-        s.data.to_s.strip
-      end
+    get_resources(name, Resolv::DNS::Resource::IN::TXT).map do |s|
+      s.data.to_s.strip
     end
   end
 
@@ -53,10 +47,8 @@ class DNSResolver
   # @param [String] name
   # @return [Array<String>]
   def cname(name)
-    dns do |dns|
-      dns.getresources(name, Resolv::DNS::Resource::IN::CNAME).map do |s|
-        s.name.to_s.downcase
-      end
+    get_resources(name, Resolv::DNS::Resource::IN::CNAME).map do |s|
+      s.name.to_s.downcase
     end
   end
 
@@ -65,16 +57,14 @@ class DNSResolver
   # @param [String] name
   # @return [Array<Array<Integer, String>>]
   def mx(name)
-    dns do |dns|
-      records = dns.getresources(name, Resolv::DNS::Resource::IN::MX).map do |m|
-        [m.preference.to_i, m.exchange.to_s]
-      end
-      records.sort do |a, b|
-        if a[0] == b[0]
-          [-1, 1].sample
-        else
-          a[0] <=> b[0]
-        end
+    records = get_resources(name, Resolv::DNS::Resource::IN::MX).map do |m|
+      [m.preference.to_i, m.exchange.to_s]
+    end
+    records.sort do |a, b|
+      if a[0] == b[0]
+        [-1, 1].sample
+      else
+        a[0] <=> b[0]
       end
     end
   end
@@ -90,7 +80,7 @@ class DNSResolver
       (parts.size - 1).times do |n|
         d = parts[n, parts.size - n + 1].join(".")
 
-        records = dns.getresources(d, Resolv::DNS::Resource::IN::NS).map do |s|
+        records = get_resources(d, Resolv::DNS::Resource::IN::NS).map do |s|
           s.name.to_s
         end
 
@@ -121,6 +111,13 @@ class DNSResolver
     Resolv::DNS.open(**kwargs) do |dns|
       dns.timeouts = [@timeout, @timeout / 2]
       yield dns
+    end
+  end
+
+  def get_resources(name, type)
+    encoded_name = DomainName::Punycode.encode_hostname(name)
+    dns do |dns|
+      dns.getresources(encoded_name, type)
     end
   end
 
