@@ -37,6 +37,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: ci
+          platforms: linux/amd64,linux/arm64/v8
 
   test:
     name: Test Suite
@@ -86,6 +87,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
+          platforms: linux/amd64,linux/arm64/v8
 
   publish-image:
     name: Publish Image
@@ -111,3 +113,4 @@ jobs:
           target: full
           build-args: |
             VERSION=${{ needs.release-please.outputs.version }}
+          platforms: linux/amd64,linux/arm64/v8
