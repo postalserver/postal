@@ -171,6 +171,11 @@ module Postal
         description "The MariaDB password"
       end
 
+      string :encoding do
+        description "The encoding to use when connecting to the MariaDB database"
+        default "utf8mb4"
+      end
+
       string :database_name_prefix do
         description "The MariaDB prefix to add to database names"
         default "postal"
