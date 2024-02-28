@@ -2,6 +2,20 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [2.3.1](https://github.com/postalserver/postal/compare/2.3.0...2.3.1) (2024-02-23)
+
+
+### Bug Fixes
+
+* update raw headers after changing messages to during parsing ([2834e2c](https://github.com/postalserver/postal/commit/2834e2c37971db9b0b0498e38b382cf1f8ee26eb)), closes [#2816](https://github.com/postalserver/postal/issues/2816)
+
+
+### Miscellaneous Chores
+
+* **github-actions:** add 'docs' label to exclude from staleness checks ([57b72fb](https://github.com/postalserver/postal/commit/57b72fb4b7f7fc934cfa23906de65b8f6d6d1978))
+* **github-actions:** add action to close stale issues and PRs ([d90a456](https://github.com/postalserver/postal/commit/d90a456dfa661d87e820160d2045c73c765564d2))
+* **github-actions:** allow stale action to be run on demand ([559b08d](https://github.com/postalserver/postal/commit/559b08ddd31ecd904fd09c1e2822161b853166b9))
+
 ## [2.3.0](https://github.com/postalserver/postal/compare/2.2.2...2.3.0) (2024-02-13)
 
 
