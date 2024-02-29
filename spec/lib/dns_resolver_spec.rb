@@ -14,6 +14,9 @@ RSpec.describe DNSResolver do
     it "returns a list of IP addresses" do
       expect(resolver.a("www.test.postalserver.io").sort).to eq ["1.2.3.4", "2.3.4.5"]
     end
+    it "resolves a domain name containing an emoji" do
+      expect(resolver.a("☺.test.postalserver.io").sort).to eq ["3.4.5.6"]
+    end
   end
 
   describe "#aaaa" do
