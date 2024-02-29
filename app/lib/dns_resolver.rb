@@ -75,17 +75,15 @@ class DNSResolver
   # @return [Array<String>]
   def effective_ns(name)
     records = []
-    dns do |dns|
-      parts = name.split(".")
-      (parts.size - 1).times do |n|
-        d = parts[n, parts.size - n + 1].join(".")
+    parts = name.split(".")
+    (parts.size - 1).times do |n|
+      d = parts[n, parts.size - n + 1].join(".")
 
-        records = get_resources(d, Resolv::DNS::Resource::IN::NS).map do |s|
-          s.name.to_s
-        end
-
-        break if records.present?
+      records = get_resources(d, Resolv::DNS::Resource::IN::NS).map do |s|
+        s.name.to_s
       end
+
+      break if records.present?
     end
 
     records
