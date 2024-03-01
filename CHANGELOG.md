@@ -2,6 +2,13 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [2.3.2](https://github.com/postalserver/postal/compare/2.3.1...2.3.2) (2024-03-01)
+
+
+### Bug Fixes
+
+* truncate output and details in deliveries to 250 characters ([694240d](https://github.com/postalserver/postal/commit/694240ddcdef1df9b32888de8fb743d2dee86462)), closes [#2831](https://github.com/postalserver/postal/issues/2831)
+
 ## [2.3.1](https://github.com/postalserver/postal/compare/2.3.0...2.3.1) (2024-02-23)
 
 
