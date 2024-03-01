@@ -33,6 +33,7 @@ This document contains all the environment variables which are available for thi
 | `MESSAGE_DB_PORT` | Integer | The MariaDB port to connect to | 3306 |
 | `MESSAGE_DB_USERNAME` | String | The MariaDB username | postal |
 | `MESSAGE_DB_PASSWORD` | String | The MariaDB password |  |
+| `MESSAGE_DB_ENCODING` | String | The encoding to use when connecting to the MariaDB database | utf8mb4 |
 | `MESSAGE_DB_DATABASE_NAME_PREFIX` | String | The MariaDB prefix to add to database names | postal |
 | `LOGGING_RAILS_LOG_ENABLED` | Boolean | Enable the default Rails logger | false |
 | `LOGGING_SENTRY_DSN` | String | A DSN which should be used to report exceptions to Sentry |  |

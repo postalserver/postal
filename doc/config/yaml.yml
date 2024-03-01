@@ -67,6 +67,8 @@ message_db:
   username: postal
   # The MariaDB password
   password: 
+  # The encoding to use when connecting to the MariaDB database
+  encoding: utf8mb4
   # The MariaDB prefix to add to database names
   database_name_prefix: postal
 
