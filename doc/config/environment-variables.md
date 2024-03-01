@@ -63,6 +63,8 @@ This document contains all the environment variables which are available for thi
 | `DNS_DKIM_IDENTIFIER` | String | The identifier to use for DKIM keys in DNS records | postal |
 | `DNS_DOMAIN_VERIFY_PREFIX` | String | The prefix to add before TXT record verification string | postal-verification |
 | `DNS_CUSTOM_RETURN_PATH_PREFIX` | String | The domain to use on external domains which points to the Postal return path domain | psrp |
+| `DNS_TIMEOUT` | Integer | The timeout to wait for DNS resolution | 5 |
+| `DNS_RESOLV_CONF_PATH` | String | The path to the resolv.conf file containing addresses for local nameservers | /etc/resolv.conf |
 | `SMTP_HOST` | String | The hostname to send application-level e-mails to | 127.0.0.1 |
 | `SMTP_PORT` | Integer | The port number to send application-level e-mails to | 25 |
 | `SMTP_USERNAME` | String | The username to use when authentication to the SMTP server |  |

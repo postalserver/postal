@@ -329,6 +329,16 @@ module Postal
         description "The domain to use on external domains which points to the Postal return path domain"
         default "psrp"
       end
+
+      integer :timeout do
+        description "The timeout to wait for DNS resolution"
+        default 5
+      end
+
+      string :resolv_conf_path do
+        description "The path to the resolv.conf file containing addresses for local nameservers"
+        default "/etc/resolv.conf"
+      end
     end
 
     group :smtp do

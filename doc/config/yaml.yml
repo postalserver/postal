@@ -137,6 +137,10 @@ dns:
   domain_verify_prefix: postal-verification
   # The domain to use on external domains which points to the Postal return path domain
   custom_return_path_prefix: psrp
+  # The timeout to wait for DNS resolution
+  timeout: 5
+  # The path to the resolv.conf file containing addresses for local nameservers
+  resolv_conf_path: /etc/resolv.conf
 
 smtp:
   # The hostname to send application-level e-mails to

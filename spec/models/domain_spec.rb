@@ -301,7 +301,7 @@ describe Domain do
 
     context "when local nameservers should not be used" do
       it "uses the a resolver for this domain" do
-        allow(DNSResolver).to receive(:for_domain).with(domain.name).and_return(DNSResolver.new(nameservers: ["1.2.3.4"]))
+        allow(DNSResolver).to receive(:for_domain).with(domain.name).and_return(DNSResolver.new(["1.2.3.4"]))
         expect(domain.resolver).to be_a DNSResolver
         expect(domain.resolver.nameservers).to eq ["1.2.3.4"]
       end

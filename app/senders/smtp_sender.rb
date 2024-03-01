@@ -162,7 +162,7 @@ class SMTPSender < BaseSender
   #
   # @return [Array<String>]
   def resolve_mx_records_for_domain
-    hostnames = DNSResolver.local.mx(@domain).map(&:last)
+    hostnames = DNSResolver.local.mx(@domain, raise_timeout_errors: true).map(&:last)
     return [SMTPClient::Server.new(@domain)] if hostnames.empty?
 
     hostnames.map { |hostname| SMTPClient::Server.new(hostname) }
