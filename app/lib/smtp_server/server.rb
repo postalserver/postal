@@ -194,16 +194,11 @@ module SMTPServer
                   eof = true
                 end
 
-                # Normalize all \r\n and \n to \r\n, but ignore only \r.
-                # A \r\n may be split in 2 buffers (\n in one buffer and \r in the other)
-                buffers[io] = buffers[io].gsub(/\r/, "").encode(buffers[io].encoding, crlf_newline: true)
-
                 # We line buffer, so look to see if we have received a newline
                 # and keep doing so until all buffered lines have been processed.
-                while buffers[io].index("\r\n")
+                while buffers[io].index("\n")
                   # Extract the line
-                  line, buffers[io] = buffers[io].split("\r\n", 2)
-
+                  line, buffers[io] = buffers[io].split("\n", 2)
                   # Send the received line to the client object for processing
                   result = client.handle(line)
                   # If the client object returned some data, write it back to the client

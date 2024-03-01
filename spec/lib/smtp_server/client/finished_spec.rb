@@ -22,12 +22,32 @@ module SMTPServer
     end
 
     describe "when finished sending data" do
+      context "when the . character does not end with a <CR>" do
+        it "does nothing" do
+          allow(Postal::Config.smtp_server).to receive(:max_message_size).and_return(1)
+          client.handle("DATA")
+          client.handle("Subject: Hello")
+          client.handle("\r")
+          expect(client.handle(".")).to be nil
+        end
+      end
+
+      context "when the data before the . character does not end with a <CR>" do
+        it "does nothing" do
+          allow(Postal::Config.smtp_server).to receive(:max_message_size).and_return(1)
+          client.handle("DATA")
+          client.handle("Subject: Hello")
+          expect(client.handle(".\r")).to be nil
+        end
+      end
+
       context "when the data is larger than the maximum message size" do
         it "returns an error and resets the state" do
           allow(Postal::Config.smtp_server).to receive(:max_message_size).and_return(1)
           client.handle("DATA")
           client.handle("a" * 1024 * 1024 * 10)
-          expect(client.handle(".")).to eq "552 Message too large (maximum size 1MB)"
+          client.handle("\r")
+          expect(client.handle(".\r")).to eq "552 Message too large (maximum size 1MB)"
         end
       end
 
@@ -43,7 +63,8 @@ module SMTPServer
           client.handle("To: #{rcpt_to}")
           client.handle("")
           client.handle("This is a test message")
-          expect(client.handle(".")).to eq "550 Loop detected"
+          client.handle("\r")
+          expect(client.handle(".\r")).to eq "550 Loop detected"
         end
       end
 
@@ -55,7 +76,8 @@ module SMTPServer
           client.handle("To: #{rcpt_to}")
           client.handle("")
           client.handle("This is a test message")
-          expect(client.handle(".")).to eq "530 From/Sender name is not valid"
+          client.handle("\r")
+          expect(client.handle(".\r")).to eq "530 From/Sender name is not valid"
         end
       end
 
@@ -71,7 +93,8 @@ module SMTPServer
           client.handle("To: #{rcpt_to}")
           client.handle("")
           client.handle("This is a test message")
-          expect(client.handle(".")).to eq "250 OK"
+          client.handle("\r")
+          expect(client.handle(".\r")).to eq "250 OK"
           queued_message = QueuedMessage.first
           expect(queued_message).to have_attributes(
             domain: "example.com",
@@ -110,7 +133,8 @@ module SMTPServer
             client.handle("To: #{rcpt_to}")
             client.handle("")
             client.handle("This is a test message")
-            expect(client.handle(".")).to eq "250 OK"
+            client.handle("\r")
+            expect(client.handle(".\r")).to eq "250 OK"
 
             queued_message = QueuedMessage.first
             expect(queued_message).to have_attributes(
@@ -141,7 +165,8 @@ module SMTPServer
             client.handle("To: #{rcpt_to}")
             client.handle("")
             client.handle("This is a test message")
-            expect(client.handle(".")).to eq "250 OK"
+            client.handle("\r")
+            expect(client.handle(".\r")).to eq "250 OK"
 
             queued_message = QueuedMessage.first
             expect(queued_message).to have_attributes(
@@ -179,7 +204,8 @@ module SMTPServer
           client.handle("To: #{rcpt_to}")
           client.handle("")
           client.handle("This is a test message")
-          expect(client.handle(".")).to eq "250 OK"
+          client.handle("\r")
+          expect(client.handle(".\r")).to eq "250 OK"
 
           queued_message = QueuedMessage.first
           expect(queued_message).to have_attributes(

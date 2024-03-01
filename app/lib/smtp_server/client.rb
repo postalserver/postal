@@ -22,6 +22,10 @@ module SMTPServer
     def initialize(ip_address)
       @logging_enabled = true
       @ip_address = ip_address
+
+      @cr_present = false
+      @previous_cr_present = nil
+
       if @ip_address
         check_ip_address
         @state = :welcome
@@ -51,6 +55,14 @@ module SMTPServer
     end
 
     def handle(data)
+      if data[-1] == "\r"
+        @cr_present = true
+        data = data.chop # remove last character (\r)
+      else
+        Postal.logger.debug("\e[33m   WARN: Detected line with invalid line ending (missing <CR>)\e[0m", id: id)
+        @cr_present = false
+      end
+
       Postal.logger.tagged(id: id) do
         if @state == :preauth
           return proxy(data)
@@ -59,11 +71,12 @@ module SMTPServer
         log "\e[32m<= #{sanitize_input_for_log(data.strip)}\e[0m"
         if @proc
           @proc.call(data)
-
         else
           handle_command(data)
         end
       end
+    ensure
+      @previous_cr_present = @cr_present
     end
 
     def finished?
@@ -409,7 +422,7 @@ module SMTPServer
       @headers["received"] = [received_header]
 
       handler = proc do |idata|
-        if idata == "."
+        if idata == "." && @cr_present && @previous_cr_present
           @logging_enabled = true
           @proc = nil
           finished
@@ -424,7 +437,7 @@ module SMTPServer
           end
 
           if @receiving_headers
-            if idata.blank?
+            if idata&.length&.zero?
               @receiving_headers = false
             elsif idata.to_s =~ /^\s/
               # This is a continuation of a header
