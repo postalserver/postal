@@ -58,10 +58,13 @@ module SMTPServer
           client.handle("To: test1@example.com")
           client.handle("To: test2@example.com")
           client.handle("X-Something: abcdef1234")
+          client.handle("X-Multiline: 1234")
+          client.handle("             4567")
           expect(client.headers["subject"]).to eq ["Test"]
           expect(client.headers["from"]).to eq ["test@test.com"]
           expect(client.headers["to"]).to eq ["test1@example.com", "test2@example.com"]
           expect(client.headers["x-something"]).to eq ["abcdef1234"]
+          expect(client.headers["x-multiline"]).to eq ["1234             4567"]
         end
 
         it "logs content" do
