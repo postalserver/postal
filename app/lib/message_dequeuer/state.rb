@@ -5,10 +5,10 @@ module MessageDequeuer
 
     attr_accessor :send_result
 
-    def sender_for(klass, *args)
+    def sender_for(klass, *args, **kwargs)
       @cached_senders ||= {}
-      @cached_senders[[klass, args]] ||= begin
-        klass_instance = klass.new(*args)
+      @cached_senders[[klass, args, kwargs]] ||= begin
+        klass_instance = klass.new(*args, **kwargs)
         klass_instance.start
         klass_instance
       end

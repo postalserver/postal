@@ -167,7 +167,7 @@ module MessageDequeuer
       when HTTPEndpoint
         sender = @state.sender_for(HTTPSender, queued_message.message.endpoint)
       when AddressEndpoint
-        sender = @state.sender_for(SMTPSender, queued_message.message.endpoint.domain, nil, force_rcpt_to: queued_message.message.endpoint.address)
+        sender = @state.sender_for(SMTPSender, queued_message.message.endpoint.domain, nil, rcpt_to: queued_message.message.endpoint.address)
       else
         log "invalid endpoint for route (#{queued_message.message.endpoint_type})"
         create_delivery "HardFail", details: "Invalid endpoint for route."
