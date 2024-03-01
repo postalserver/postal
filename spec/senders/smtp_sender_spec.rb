@@ -46,19 +46,48 @@ RSpec.describe SMTPSender do
 
   describe "#start" do
     context "when no servers are provided to the class and there are no SMTP relays" do
-      before do
-        allow(DNSResolver.local).to receive(:mx).and_return([[5, "mx1.example.com"], [10, "mx2.example.com"]])
-        allow(DNSResolver.local).to receive(:a).with("mx1.example.com").and_return(["1.2.3.4"])
-        allow(DNSResolver.local).to receive(:a).with("mx2.example.com").and_return(["6.7.8.9"])
+      context "when there are MX records" do
+        before do
+          allow(DNSResolver.local).to receive(:mx).and_return([[5, "mx1.example.com"], [10, "mx2.example.com"]])
+          allow(DNSResolver.local).to receive(:a).with("mx1.example.com").and_return(["1.2.3.4"])
+          allow(DNSResolver.local).to receive(:a).with("mx2.example.com").and_return(["6.7.8.9"])
+        end
+
+        it "attempts to create an SMTP connection for each endpoint for each MX server for them" do
+          endpoint = sender.start
+          expect(endpoint).to be_a SMTPClient::Endpoint
+          expect(endpoint).to have_attributes(
+            ip_address: "1.2.3.4",
+            server: have_attributes(hostname: "mx1.example.com", port: 25, ssl_mode: SMTPClient::SSLModes::AUTO)
+          )
+        end
       end
 
-      it "attempts to create an SMTP connection for each endpoint for each MX server for them" do
-        endpoint = sender.start
-        expect(endpoint).to be_a SMTPClient::Endpoint
-        expect(endpoint).to have_attributes(
-          ip_address: "1.2.3.4",
-          server: have_attributes(hostname: "mx1.example.com", port: 25, ssl_mode: SMTPClient::SSLModes::AUTO)
-        )
+      context "when there are no MX records" do
+        before do
+          allow(DNSResolver.local).to receive(:mx).and_return([])
+          allow(DNSResolver.local).to receive(:a).with("example.com").and_return(["1.2.3.4"])
+        end
+
+        it "attempts to create an SMTP connection for the domain itself" do
+          endpoint = sender.start
+          expect(endpoint).to be_a SMTPClient::Endpoint
+          expect(endpoint).to have_attributes(
+            ip_address: "1.2.3.4",
+            server: have_attributes(hostname: "example.com", port: 25, ssl_mode: SMTPClient::SSLModes::AUTO)
+          )
+        end
+      end
+
+      context "when the MX lookup times out" do
+        before do
+          allow(DNSResolver.local).to receive(:mx).and_raise(Resolv::ResolvError.new("DNS resolv timeout: example.com"))
+          allow(DNSResolver.local).to receive(:a).with("example.com").and_return(["1.2.3.4"])
+        end
+
+        it "raises an error" do
+          expect { sender.start }.to raise_error Resolv::ResolvError
+        end
       end
     end
 
