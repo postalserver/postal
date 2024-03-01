@@ -36,7 +36,7 @@ RUN gem install bundler -v 2.5.6 --no-doc
 # Install the latest and active gem dependencies and re-run
 # the appropriate commands to handle installs.
 COPY --chown=postal Gemfile Gemfile.lock ./
-RUN bundle install -j 4
+RUN bundle install
 
 # Copy the application (and set permissions)
 COPY ./docker/wait-for.sh /docker-entrypoint.sh
