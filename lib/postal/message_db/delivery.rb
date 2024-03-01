@@ -7,7 +7,14 @@ module Postal
       def self.create(message, attributes = {})
         attributes = message.database.stringify_keys(attributes)
         attributes = attributes.merge("message_id" => message.id, "timestamp" => Time.now.to_f)
+
+        # Ensure that output and details don't overflow their columns. We don't need
+        # these values to store more than 250 characters.
+        attributes["output"] = attributes["output"][0, 250] if attributes["output"]
+        attributes["details"] = attributes["details"][0, 250] if attributes["details"]
+
         id = message.database.insert("deliveries", attributes)
+
         delivery = Delivery.new(message, attributes.merge("id" => id))
         delivery.update_statistics
         delivery.send_webhooks
