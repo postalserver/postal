@@ -21,6 +21,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
 
   inflect.acronym "API"
   inflect.acronym "DNS"
+  inflect.acronym "SSL"
   inflect.acronym "MySQL"
 
   inflect.acronym "DB"
