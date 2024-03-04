@@ -36,7 +36,7 @@ mail.html_part = Mail::Part.new do
     <p>Hello there</p>
     <p>This is an example email. It doesn't do all that much.</p>
     <p>Some other characters: őúéáűí</p>
-    <p>There is a <a href='https://postalserver.io/test-plain-text-link?foo=bar&baz=qux'>link here</a> though...</p>
+    <p>There is a <a href='https://postalserver.io/test-plain-text-link?foo=bar&amp;baz=qux'>link here</a> though...</p>
   BODY
 end
 
