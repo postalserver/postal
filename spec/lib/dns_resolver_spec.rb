@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe DNSResolver do
-  subject(:resolver) { described_class.for_domain("postalserver.io") }
+  subject(:resolver) { described_class.local }
 
   # Now, we could mock everything in here which would give us some comfort
   # but I do think that we'll benefit more from having a full E2E test here
