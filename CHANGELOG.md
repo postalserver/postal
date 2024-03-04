@@ -2,6 +2,57 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.0.0](https://github.com/postalserver/postal/compare/2.3.2...3.0.0) (2024-03-04)
+
+
+### Features
+
+* add "postal:update" task ([b35eea6](https://github.com/postalserver/postal/commit/b35eea6338f1888bfac2ed377d0a412680483e90))
+* add helm env var config exporter ([8938988](https://github.com/postalserver/postal/commit/893898835dcd9684ae3401549389b173a3feb1fb))
+* include list-unsubscribe-post header in dkim signatures ([e1bae60](https://github.com/postalserver/postal/commit/e1bae60768c4cf151d5a6a141985c78753dce02d)), closes [#2789](https://github.com/postalserver/postal/issues/2789) [#2788](https://github.com/postalserver/postal/issues/2788)
+* only accept RFC-compliant End-of-DATA sequence ([0140dc4](https://github.com/postalserver/postal/commit/0140dc44839e77ab8fdf55a0f02b19096b241f98))
+* support for additional SMTP client options ([0daa667](https://github.com/postalserver/postal/commit/0daa667b55fd9b948da643d37ec438e341809369))
+
+
+### Bug Fixes
+
+* fix bug in smtp server when exceptions occur ([9dd00f6](https://github.com/postalserver/postal/commit/9dd00f6edd9f80252f9f51db48d712993fc9011b))
+* fix smtp TLS ([defb511](https://github.com/postalserver/postal/commit/defb5114d0a5d3c0a2fcd4c10d89acf6967d55b0))
+* fixes issue with SMTP sender with address endpoints ([2621a19](https://github.com/postalserver/postal/commit/2621a190b1f9114c245f5257735484cfef2b8003))
+* raise an error if MX lookup times out during sending ([fadca88](https://github.com/postalserver/postal/commit/fadca88f456c11a761a21fd0bba941a3e4c5e3c6)), closes [#2833](https://github.com/postalserver/postal/issues/2833)
+* remove support for setting the 'ssl' option for app-level smtp use ([658aa71](https://github.com/postalserver/postal/commit/658aa7148333923696c0ad998a922965cf5cacab))
+* remove user email verification ([e05f0b3](https://github.com/postalserver/postal/commit/e05f0b3616da8b962b763c48a2139882fd88047a))
+* unescape in URLs which are stored for tracking ([1da1182](https://github.com/postalserver/postal/commit/1da1182c23e9673d8f109d8ed29e80983cdccabf)), closes [#2568](https://github.com/postalserver/postal/issues/2568) [#907](https://github.com/postalserver/postal/issues/907) [#115](https://github.com/postalserver/postal/issues/115)
+* update wording about tracking domain cnames ([0d3eccb](https://github.com/postalserver/postal/commit/0d3eccb368630b4fd21bd858a7829ec00c35f153)), closes [#2808](https://github.com/postalserver/postal/issues/2808)
+* use local resolver for DNS tests (github actions blocks DNS seemingly) ([a4d039c](https://github.com/postalserver/postal/commit/a4d039c44de0772ddad0351c6c155fcc437c1bf4))
+
+
+### Documentation
+
+* add message_db.encoding to config docs ([0c1f925](https://github.com/postalserver/postal/commit/0c1f9250d40f030e4e0aa456617222142b4797b8))
+* update readme ([df096ab](https://github.com/postalserver/postal/commit/df096abdc74cd12273c5d4d2c52f6792844c0588))
+
+
+### Miscellaneous Chores
+
+* release 3.0.0 ([47b203c](https://github.com/postalserver/postal/commit/47b203c3729ada6faf59925174ca14d2ea510d4e))
+* update MIT-LICENCE ([dbd0e27](https://github.com/postalserver/postal/commit/dbd0e279f5c6682f81eab09047719698715694ac))
+
+
+### Code Refactoring
+
+* be less verbose with message DB migrations ([90d3a3f](https://github.com/postalserver/postal/commit/90d3a3f8c969ad5e7263e737117c5771cc783701))
+* change domain used for dns resolver testing ([87d35d7](https://github.com/postalserver/postal/commit/87d35d7c411e1bdae7654089fd8801b6fee1ab4c))
+* refactor log use within SMTP server ([cae4b63](https://github.com/postalserver/postal/commit/cae4b63599c18e25ff8ad464b7cb6246bc155380)), closes [#2794](https://github.com/postalserver/postal/issues/2794) [#2791](https://github.com/postalserver/postal/issues/2791)
+* remove unused UserController#join method ([1ca18db](https://github.com/postalserver/postal/commit/1ca18dbc6e4044c59676294b67ca737025923874))
+* switch to use SecureRandom for random strings ([ce30c07](https://github.com/postalserver/postal/commit/ce30c070bd5f095392fb9a68ebb690f97fe5ebaf))
+
+
+### Tests
+
+* add smtp sender test for MX lookup timeouts ([e4638a0](https://github.com/postalserver/postal/commit/e4638a0c40e965369f2b3a5ba158fe6abd9a47f1))
+* add test for multiline headers ([77e818a](https://github.com/postalserver/postal/commit/77e818a472571d043ab0d8bc27650d98ad3ea97b))
+
 ## [2.3.2](https://github.com/postalserver/postal/compare/2.3.1...2.3.2) (2024-03-01)
 
 
