@@ -67,29 +67,10 @@ class UserController < ApplicationController
       return
     end
 
-    email_changed = @user.email_address_changed?
-
     if @user.save
-      if email_changed
-        redirect_to_with_json verify_path(return_to: settings_path),
-                              notice: "Your settings have been updated successfully. As you've changed, your e-mail " \
-                                      "address you'll need to verify it before you can continue."
-      else
-        redirect_to_with_json settings_path, notice: "Your settings have been updated successfully."
-      end
+      redirect_to_with_json settings_path, notice: "Your settings have been updated successfully."
     else
       render_form_errors "edit", @user
-    end
-  end
-
-  def verify
-    return unless request.post?
-
-    if params[:code].to_s.strip == current_user.email_verification_token.to_s || (Rails.env.development? && params[:code].to_s.strip == "123456")
-      current_user.verify!
-      redirect_to_with_json [:return_to, root_path], notice: "Thanks - your e-mail address has been verified successfully."
-    else
-      flash_now :alert, "The code you've entered isn't correct. Please check and try again."
     end
   end
 

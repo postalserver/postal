@@ -2,22 +2,6 @@
 
 class AppMailer < ApplicationMailer
 
-  def verify_email_address(user)
-    @user = user
-    mail to: @user.email_address, subject: "Verify your new e-mail address"
-  end
-
-  def new_user(user)
-    @user = user
-    mail to: @user.email_address, subject: "Welcome to Postal"
-  end
-
-  def user_invite(user_invite, organization)
-    @user_invite = user_invite
-    @organization = organization
-    mail to: @user_invite.email_address, subject: "Access the #{organization.name} organization on Postal"
-  end
-
   def verify_domain(domain, email_address, user)
     @domain = domain
     @email_address = email_address
