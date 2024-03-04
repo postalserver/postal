@@ -147,8 +147,7 @@ module SMTPServer
                 logger.error line
               end
               increment_prometheus_counter :postal_smtp_server_exceptions_total,
-                                           error: e.class.to_s,
-                                           type: "client-accept"
+                                           labels: { error: e.class.to_s, type: "client-accept" }
               begin
                 new_io.close
               rescue StandardError
@@ -260,8 +259,7 @@ module SMTPServer
               end
 
               increment_prometheus_counter :postal_smtp_server_exceptions_total,
-                                           error: e.class.to_s,
-                                           type: "data"
+                                           labels: { error: e.class.to_s, type: "data" }
 
               # Close all IO and forget this client
               begin
