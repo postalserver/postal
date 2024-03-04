@@ -70,6 +70,11 @@ This document contains all the environment variables which are available for thi
 | `SMTP_PORT` | Integer | The port number to send application-level e-mails to | 25 |
 | `SMTP_USERNAME` | String | The username to use when authentication to the SMTP server |  |
 | `SMTP_PASSWORD` | String | The password to use when authentication to the SMTP server |  |
+| `SMTP_AUTHENTICATION_TYPE` | String | The type of authentication to use | login |
+| `SMTP_ENABLE_STARTTLS` | Boolean | Use STARTTLS when connecting to the SMTP server and fail if unsupported | false |
+| `SMTP_ENABLE_STARTTLS_AUTO` | Boolean | Detects if STARTTLS is enabled in the SMTP server and starts to use it | true |
+| `SMTP_OPENSSL_VERIFY_MODE` | String | When using TLS, you can set how OpenSSL checks the certificate. Use 'none' for no certificate checking | peer |
+| `SMTP_SSL` | Boolean | Use an SSL/TLS connection to the SMTP server (SMTPS) | false |
 | `SMTP_FROM_NAME` | String | The name to use as the from name outgoing emails from Postal | Postal |
 | `SMTP_FROM_ADDRESS` | String | The e-mail to use as the from address outgoing emails from Postal | postal@example.com |
 | `RAILS_ENVIRONMENT` | String | The Rails environment to run the application in | production |

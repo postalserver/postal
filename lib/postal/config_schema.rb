@@ -360,6 +360,31 @@ module Postal
         description "The password to use when authentication to the SMTP server"
       end
 
+      string :authentication_type do
+        description "The type of authentication to use"
+        default "login"
+      end
+
+      boolean :enable_starttls do
+        description "Use STARTTLS when connecting to the SMTP server and fail if unsupported"
+        default false
+      end
+
+      boolean :enable_starttls_auto do
+        description "Detects if STARTTLS is enabled in the SMTP server and starts to use it"
+        default true
+      end
+
+      string :openssl_verify_mode do
+        description "When using TLS, you can set how OpenSSL checks the certificate. Use 'none' for no certificate checking"
+        default "peer"
+      end
+
+      boolean :ssl do
+        description "Use an SSL/TLS connection to the SMTP server (SMTPS)"
+        default false
+      end
+
       string :from_name do
         description "The name to use as the from name outgoing emails from Postal"
         default "Postal"

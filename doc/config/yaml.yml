@@ -153,6 +153,16 @@ smtp:
   username: 
   # The password to use when authentication to the SMTP server
   password: 
+  # The type of authentication to use
+  authentication_type: login
+  # Use STARTTLS when connecting to the SMTP server and fail if unsupported
+  enable_starttls: false
+  # Detects if STARTTLS is enabled in the SMTP server and starts to use it
+  enable_starttls_auto: true
+  # When using TLS, you can set how OpenSSL checks the certificate. Use 'none' for no certificate checking
+  openssl_verify_mode: peer
+  # Use an SSL/TLS connection to the SMTP server (SMTPS)
+  ssl: false
   # The name to use as the from name outgoing emails from Postal
   from_name: Postal
   # The e-mail to use as the from address outgoing emails from Postal
