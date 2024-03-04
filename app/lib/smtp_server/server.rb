@@ -117,17 +117,17 @@ module SMTPServer
                 # client's IP later. Delay the welcome process.
                 client = Client.new(nil)
                 if Postal::Config.smtp_server.log_connections?
-                  logger.debug "[#{client.id}] \e[35m   Connection opened from #{new_io.remote_address.ip_address}\e[0m"
+                  client.logger&.debug "Connection opened from #{new_io.remote_address.ip_address}"
                 end
               else
                 # We're not using the proxy protocol so we already know the client's IP
                 client = Client.new(new_io.remote_address.ip_address)
                 if Postal::Config.smtp_server.log_connections?
-                  logger.debug "[#{client.id}] \e[35m   Connection opened from #{new_io.remote_address.ip_address}\e[0m"
+                  client.logger&.debug "Connection opened from #{new_io.remote_address.ip_address}"
                 end
                 # We know who the client is, welcome them.
-                client.log "\e[35m   Client identified as #{new_io.remote_address.ip_address}\e[0m"
-                new_io.print("220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{client.id}")
+                client.logger&.debug "Client identified as #{new_io.remote_address.ip_address}"
+                new_io.print("220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{client.trace_id}")
               end
               # Register the client and its socket with nio4r
               monitor = @io_selector.register(new_io, :r)
@@ -135,8 +135,8 @@ module SMTPServer
             rescue StandardError => e
               # If something goes wrong, log as appropriate and disconnect the client
               if defined?(Sentry)
-                Sentry.capture_exception(e, extra: { log_id: begin
-                  client.id
+                Sentry.capture_exception(e, extra: { trace_id: begin
+                  client.trace_id
                 rescue StandardError
                   nil
                 end })
@@ -175,7 +175,7 @@ module SMTPServer
                   # We will try again later
                   next
                 rescue OpenSSL::SSL::SSLError => e
-                  client.log "SSL Negotiation Failed: #{e.message}"
+                  client.logger&.debug "SSL Negotiation Failed: #{e.message}"
                   eof = true
                 end
               else
@@ -205,7 +205,7 @@ module SMTPServer
 
                   result = [result] unless result.is_a?(Array)
                   result.compact.each do |iline|
-                    client.log "\e[34m=> #{iline.strip}\e[0m"
+                    client.logger&.debug "\e[34m=> #{iline.strip}"
                     begin
                       io.write(iline.to_s + "\r\n")
                       io.flush
@@ -232,7 +232,7 @@ module SMTPServer
 
               # Has the client requested we close the connection?
               if client.finished? || eof
-                client.log "\e[35m   Connection closed\e[0m"
+                client.logger&.debug "Connection closed"
                 # Deregister the socket and close it
                 @io_selector.deregister(io)
                 buffers.delete(io)
@@ -244,18 +244,18 @@ module SMTPServer
               end
             rescue StandardError => e
               # Something went wrong, log as appropriate
-              client_id = client ? client.id : "------"
+              client_id = client ? client.trace_id : "------"
               if defined?(Sentry)
-                Sentry.capture_exception(e, extra: { log_id: begin
-                  client.id
+                Sentry.capture_exception(e, extra: { trace_id: begin
+                  client&.trace_id
                 rescue StandardError
                   nil
                 end })
               end
-              logger.error "[#{client_id}] An error occurred while processing data from a client."
-              logger.error "[#{client_id}] #{e.class}: #{e.message}"
+              logger.error "An error occurred while processing data from a client.", trace_id: client_id
+              logger.error "#{e.class}: #{e.message}", trace_id: client_id
               e.backtrace.each do |iline|
-                logger.error "[#{client_id}] #{iline}"
+                logger.error iline, trace_id: client_id
               end
 
               increment_prometheus_counter :postal_smtp_server_exceptions_total,

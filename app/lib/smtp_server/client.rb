@@ -50,8 +50,8 @@ module SMTPServer
       @headers = nil
     end
 
-    def id
-      @id ||= Nifty::Utils::RandomString.generate(length: 6).upcase
+    def trace_id
+      @trace_id ||= SecureRandom.alphanumeric(8).upcase
     end
 
     def handle(data)
@@ -59,21 +59,21 @@ module SMTPServer
         @cr_present = true
         data = data.chop # remove last character (\r)
       else
-        Postal.logger.debug("\e[33m   WARN: Detected line with invalid line ending (missing <CR>)\e[0m", id: id)
+        # This doesn't use `logger` because that will be nil when logging is disabled
+        # and we always want to log this.
+        Postal.logger&.warn("Detected line with invalid line ending (missing <CR>)", trace_id: trace_id)
         @cr_present = false
       end
 
-      Postal.logger.tagged(id: id) do
-        if @state == :preauth
-          return proxy(data)
-        end
+      if @state == :preauth
+        return proxy(data)
+      end
 
-        log "\e[32m<= #{sanitize_input_for_log(data.strip)}\e[0m"
-        if @proc
-          @proc.call(data)
-        else
-          handle_command(data)
-        end
+      logger&.debug "\e[32m<= #{sanitize_input_for_log(data.strip)}\e[0m"
+      if @proc
+        @proc.call(data)
+      else
+        handle_command(data)
       end
     ensure
       @previous_cr_present = @cr_present
@@ -109,10 +109,10 @@ module SMTPServer
       end
     end
 
-    def log(text)
-      return false unless @logging_enabled
+    def logger
+      return nil unless @logging_enabled
 
-      Postal.logger.debug(text, id: id)
+      @logger ||= Postal.logger.create_tagged_logger(trace_id: trace_id)
     end
 
     private
@@ -122,7 +122,7 @@ module SMTPServer
         @ip_address = m[2]
         check_ip_address
         @state = :welcome
-        log "\e[35m   Client identified as #{@ip_address}\e[0m"
+        logger&.debug "\e[35mClient identified as #{@ip_address}\e[0m"
         increment_command_count("PROXY")
         "220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{id}"
       else
@@ -236,7 +236,7 @@ module SMTPServer
         @credential.use
         "235 Granted for #{@credential.server.organization.permalink}/#{@credential.server.permalink}"
       else
-        log "\e[33m   WARN: AUTH failure for #{@ip_address}\e[0m"
+        logger&.warn "Authentication failure for #{@ip_address}"
         increment_error_count("invalid-credentials")
         "535 Invalid credential"
       end
@@ -254,7 +254,7 @@ module SMTPServer
         org_permlink, server_permalink = username.split(/[\/_]/, 2)
         server = ::Server.includes(:organization).where(organizations: { permalink: org_permlink }, permalink: server_permalink).first
         if server.nil?
-          log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
+          logger&.warn "Authentication failure for #{@ip_address}"
           increment_error_count("invalid-credentials")
           next "535 Denied"
         end
@@ -271,7 +271,7 @@ module SMTPServer
         end
 
         if grant.nil?
-          log "\e[33m WARN: AUTH failure for #{@ip_address}\e[0m"
+          logger&.warn "Authentication failure for #{@ip_address}"
           increment_error_count("invalid-credentials")
           next "535 Denied"
         end
@@ -332,7 +332,7 @@ module SMTPServer
             increment_error_count("server-suspended")
             "535 Mail server has been suspended"
           else
-            log "Added bounce on server #{server.id}"
+            logger&.debug "Added bounce on server #{server.id}"
             @recipients << [:bounce, rcpt_to, server]
             "250 OK"
           end
@@ -352,7 +352,7 @@ module SMTPServer
             increment_error_count("route-rejected")
             "550 Route does not accept incoming messages"
           else
-            log "Added route #{route.id} to recipients (tag: #{tag.inspect})"
+            logger&.debug "Added route #{route.id} to recipients (tag: #{tag.inspect})"
             actual_rcpt_to = "#{route.name}#{tag ? "+#{tag}" : ''}@#{route.domain.name}"
             @recipients << [:route, actual_rcpt_to, route.server, { route: route }]
             "250 OK"
@@ -368,7 +368,7 @@ module SMTPServer
           increment_error_count("server-suspended")
           "535 Mail server has been suspended"
         else
-          log "Added external address '#{rcpt_to}'"
+          logger&.debug "Added external address '#{rcpt_to}'"
           @recipients << [:credential, rcpt_to, @credential.server]
           "250 OK"
         end
@@ -383,7 +383,7 @@ module SMTPServer
           increment_error_count("route-rejection")
           "550 Route does not accept incoming messages"
         else
-          log "Added route #{route.id} to recipients (tag: #{tag.inspect})"
+          logger&.debug "Added route #{route.id} to recipients (tag: #{tag.inspect})"
           @recipients << [:route, rcpt_to, route.server, { route: route }]
           "250 OK"
         end
@@ -400,6 +400,7 @@ module SMTPServer
           rcpt_to(data)
         else
           increment_error_count("authentication-required")
+          logger&.warn "Authentication failure for #{@ip_address}"
           "530 Authentication required"
         end
       end
@@ -432,7 +433,7 @@ module SMTPServer
           if @credential&.server&.log_smtp_data?
             # We want to log if enabled
           else
-            log "Not logging further message data."
+            logger&.debug "Not logging further message data."
             @logging_enabled = false
           end
 
