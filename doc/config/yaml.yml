@@ -1,0 +1,209 @@
+version: 2
+
+postal:
+  # The hostname that the Postal web interface runs on
+  web_hostname: postal.example.com
+  # The HTTP protocol to use for the Postal web interface
+  web_protocol: https
+  # The hostname that the Postal SMTP server runs on
+  smtp_hostname: postal.example.com
+  # Should IP pools be enabled for this installation?
+  use_ip_pools: false
+  # The maximum number of delivery attempts
+  default_maximum_delivery_attempts: 18
+  # The number of days to hold a message before they will be expired
+  default_maximum_hold_expiry_days: 7
+  # The number of days an address will remain in a suppression list before being removed
+  default_suppression_list_automatic_removal_days: 30
+  # The default threshold at which a message should be treated as spam
+  default_spam_threshold: 5
+  # The default threshold at which a message should be treated as spam failure
+  default_spam_failure_threshold: 20
+  # Domain verification and checking usually checks with a domain's nameserver. Enable this to check with the server's local nameservers.
+  use_local_ns_for_domain_verification: false
+  # Append a Resend-Sender header to all outgoing e-mails
+  use_resent_sender_header: true
+  # Path to the private key used for signing
+  signing_key_path: config/postal/signing.key
+  # An array of SMTP relays in the format of smtp://host:port
+  smtp_relays: []
+
+web_server:
+  # The default port the web server should listen on unless overriden by the PORT environment variable
+  default_port: 5000
+  # The default bind address the web server should listen on unless overriden by the BIND_ADDRESS environment variable
+  default_bind_address: 127.0.0.1
+  # The maximum number of threads which can be used by the web server
+  max_threads: 5
+
+worker:
+  # The default port for the worker health server to listen on
+  default_health_server_port: 9090
+  # The default bind address for the worker health server to listen on
+  default_health_server_bind_address: 127.0.0.1
+
+main_db:
+  # Hostname for the main MariaDB server
+  host: localhost
+  # The MariaDB port to connect to
+  port: 3306
+  # The MariaDB username
+  username: postal
+  # The MariaDB password
+  password: 
+  # The MariaDB database name
+  database: postal
+  # The maximum size of the MariaDB connection pool
+  pool_size: 5
+  # The encoding to use when connecting to the MariaDB database
+  encoding: utf8mb4
+
+message_db:
+  # Hostname for the MariaDB server which stores the mail server databases
+  host: localhost
+  # The MariaDB port to connect to
+  port: 3306
+  # The MariaDB username
+  username: postal
+  # The MariaDB password
+  password: 
+  # The encoding to use when connecting to the MariaDB database
+  encoding: utf8mb4
+  # The MariaDB prefix to add to database names
+  database_name_prefix: postal
+
+logging:
+  # Enable the default Rails logger
+  rails_log_enabled: false
+  # A DSN which should be used to report exceptions to Sentry
+  sentry_dsn: 
+  # Enable the Postal logger to log to STDOUT
+  enabled: true
+  # Enable highlighting of log lines
+  highlighting_enabled: false
+
+gelf:
+  # GELF-capable host to send logs to
+  host: 
+  # GELF port to send logs to
+  port: 12201
+  # The facility name to add to all log entries sent to GELF
+  facility: postal
+
+smtp_server:
+  # The default port the SMTP server should listen on unless overriden by the PORT environment variable
+  default_port: 25
+  # The default bind address the SMTP server should listen on unless overriden by the BIND_ADDRESS environment variable
+  default_bind_address: 127.0.0.1
+  # The default port for the SMTP server health server to listen on
+  default_health_server_port: 9091
+  # The default bind address for the SMTP server health server to listen on
+  default_health_server_bind_address: 127.0.0.1
+  # Enable TLS for the SMTP server (requires certificate)
+  tls_enabled: false
+  # The path to the SMTP server's TLS certificate
+  tls_certificate_path: config/postal/smtp.cert
+  # The path to the SMTP server's TLS private key
+  tls_private_key_path: config/postal/smtp.key
+  # Override ciphers to use for SSL
+  tls_ciphers: 
+  # The SSL versions which are supported
+  ssl_version: SSLv23
+  # Enable proxy protocol for use behind some load balancers
+  proxy_protocol: false
+  # Enable connection logging
+  log_connections: false
+  # The maximum message size to accept from the SMTP server (in MB)
+  max_message_size: 14
+  # A regular expression to use to exclude connections from logging
+  log_ip_address_exclusion_matcher: 
+
+dns:
+  # The names of the default MX records
+  mx_records:
+    - mx1.postal.example.com
+    - mx2.postal.example.com
+  # The location of the SPF record
+  spf_include: spf.postal.example.com
+  # The return path hostname
+  return_path_domain: rp.postal.example.com
+  # The domain to use for hosting route-specific addresses
+  route_domain: routes.postal.example.com
+  # The CNAME which tracking domains should be pointed to
+  track_domain: track.postal.example.com
+  # The hostname to use in HELO/EHLO when connecting to external SMTP servers
+  helo_hostname: 
+  # The identifier to use for DKIM keys in DNS records
+  dkim_identifier: postal
+  # The prefix to add before TXT record verification string
+  domain_verify_prefix: postal-verification
+  # The domain to use on external domains which points to the Postal return path domain
+  custom_return_path_prefix: psrp
+  # The timeout to wait for DNS resolution
+  timeout: 5
+  # The path to the resolv.conf file containing addresses for local nameservers
+  resolv_conf_path: /etc/resolv.conf
+
+smtp:
+  # The hostname to send application-level e-mails to
+  host: 127.0.0.1
+  # The port number to send application-level e-mails to
+  port: 25
+  # The username to use when authentication to the SMTP server
+  username: 
+  # The password to use when authentication to the SMTP server
+  password: 
+  # The name to use as the from name outgoing emails from Postal
+  from_name: Postal
+  # The e-mail to use as the from address outgoing emails from Postal
+  from_address: postal@example.com
+
+rails:
+  # The Rails environment to run the application in
+  environment: production
+  # The secret key used to sign and encrypt cookies and session data in the application
+  secret_key: 
+
+rspamd:
+  # Enable rspamd for message inspection
+  enabled: false
+  # The hostname of the rspamd server
+  host: 127.0.0.1
+  # The port of the rspamd server
+  port: 11334
+  # Enable SSL for the rspamd connection
+  ssl: false
+  # The password for the rspamd server
+  password: 
+  # Any flags for the rspamd server
+  flags: 
+
+spamd:
+  # Enable SpamAssassin for message inspection
+  enabled: false
+  # The hostname for the SpamAssassin server
+  host: 127.0.0.1
+  # The port of the SpamAssassin server
+  port: 783
+
+clamav:
+  # Enable ClamAV for message inspection
+  enabled: false
+  # The host of the ClamAV server
+  host: 127.0.0.1
+  # The port of the ClamAV server
+  port: 2000
+
+smtp_client:
+  # The open timeout for outgoing SMTP connections
+  open_timeout: 30
+  # The read timeout for outgoing SMTP connections
+  read_timeout: 30
+
+migration_waiter:
+  # Wait for all migrations to run before starting a process
+  enabled: false
+  # The number of attempts to try waiting for migrations to complete before start
+  attempts: 120
+  # The number of seconds to wait between each migration check
+  sleep_time: 2

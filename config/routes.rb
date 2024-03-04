@@ -81,7 +81,6 @@ Rails.application.routes.draw do
 
   get "login" => "sessions#new"
   post "login" => "sessions#create"
-  get "login/token" => "sessions#create_with_token"
   delete "logout" => "sessions#destroy"
   match "login/reset" => "sessions#begin_password_reset", :via => [:get, :post]
   match "login/reset/:token" => "sessions#finish_password_reset", :via => [:get, :post]

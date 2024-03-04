@@ -19,7 +19,7 @@ class MessagesController < ApplicationController
         @message.from = "test@#{domain.name}"
       end
     end
-    @message.subject = "Test Message at #{Time.zone.now.to_s(:long)}"
+    @message.subject = "Test Message at #{Time.zone.now.to_fs(:long)}"
     @message.plain_body = "This is a message to test the delivery of messages through Postal."
   end
 
@@ -116,7 +116,7 @@ class MessagesController < ApplicationController
   def retry
     if @message.raw_message?
       if @message.queued_message
-        @message.queued_message.queue!
+        @message.queued_message.retry_now
         flash[:notice] = "This message will be retried shortly."
       elsif @message.held?
         @message.add_to_message_queue(manual: true)
@@ -161,7 +161,7 @@ class MessagesController < ApplicationController
 
       if @query = (params[:query] || session["msg_query_#{@server.id}_#{scope}"]).presence
         session["msg_query_#{@server.id}_#{scope}"] = @query
-        qs = Postal::QueryString.new(@query)
+        qs = QueryString.new(@query)
         if qs.empty?
           flash.now[:alert] = "It doesn't appear you entered anything to filter on. Please double check your query."
         else

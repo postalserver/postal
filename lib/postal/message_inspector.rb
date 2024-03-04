@@ -15,7 +15,7 @@ module Postal
     private
 
     def logger
-      Postal.logger_for(:message_inspection)
+      Postal.logger
     end
 
     class << self
@@ -24,14 +24,14 @@ module Postal
       # installation.
       def inspectors
         [].tap do |inspectors|
-          if Postal.config.rspamd&.enabled
-            inspectors << MessageInspectors::Rspamd.new(Postal.config.rspamd)
-          elsif Postal.config.spamd&.enabled
-            inspectors << MessageInspectors::SpamAssassin.new(Postal.config.spamd)
+          if Postal::Config.rspamd.enabled?
+            inspectors << MessageInspectors::Rspamd.new(Postal::Config.rspamd)
+          elsif Postal::Config.spamd.enabled?
+            inspectors << MessageInspectors::SpamAssassin.new(Postal::Config.spamd)
           end
 
-          if Postal.config.clamav&.enabled
-            inspectors << MessageInspectors::Clamav.new(Postal.config.clamav)
+          if Postal::Config.clamav.enabled?
+            inspectors << MessageInspectors::Clamav.new(Postal::Config.clamav)
           end
         end
       end

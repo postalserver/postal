@@ -39,6 +39,10 @@ module Postal
         @attributes = attributes
       end
 
+      def reload
+        self.class.find_one(@database, @attributes["id"])
+      end
+
       #
       # Return the server for this message
       #
@@ -99,7 +103,7 @@ module Postal
       end
 
       #
-      #  Return the time that the last delivery was attempted
+      # Return the time that the last delivery was attempted
       #
       def last_delivery_attempt
         @last_delivery_attempt ||= @attributes["last_delivery_attempt"] ? Time.zone.at(@attributes["last_delivery_attempt"]) : nil
@@ -124,7 +128,7 @@ module Postal
       #
       def create_delivery(status, options = {})
         delivery = Delivery.create(self, options.merge(status: status))
-        hold_expiry = status == "Held" ? Postal.config.general.maximum_hold_expiry_days.days.from_now.to_f : nil
+        hold_expiry = status == "Held" ? Postal::Config.postal.default_maximum_hold_expiry_days.days.from_now.to_f : nil
         update(status: status, last_delivery_attempt: delivery.timestamp.to_f, held: status == "Held", hold_expiry: hold_expiry)
         delivery
       end
@@ -168,14 +172,14 @@ module Postal
       end
 
       #
-      #  Return all activity entries
+      # Return all activity entries
       #
       def activity_entries
         @activity_entries ||= (deliveries + clicks + loads).sort_by(&:timestamp)
       end
 
       #
-      #  Provide access to set and get acceptable attributes
+      # Provide access to set and get acceptable attributes
       #
       def method_missing(name, value = nil, &block)
         if @attributes.key?(name.to_s)
@@ -198,11 +202,11 @@ module Postal
       end
 
       #
-      #  Save this message
+      # Save this message
       #
-      def save
+      def save(queue_on_create: true)
         save_raw_message
-        persisted? ? _update : _create
+        persisted? ? _update : _create(queue: queue_on_create)
         self
       end
 
@@ -219,7 +223,7 @@ module Postal
       end
 
       #
-      #  Delete the message from the database
+      # Delete the message from the database
       #
       def delete
         return unless persisted?
@@ -228,7 +232,7 @@ module Postal
       end
 
       #
-      #  Return the headers
+      # Return the headers
       #
       def raw_headers
         if raw_table
@@ -239,7 +243,7 @@ module Postal
       end
 
       #
-      #  Return the full raw message body for this message.
+      # Return the full raw message body for this message.
       #
       def raw_body
         if raw_table
@@ -299,7 +303,7 @@ module Postal
       end
 
       #
-      #  Return the HTML body for this message
+      # Return the HTML body for this message
       #
       def html_body
         mail&.html_body
@@ -346,8 +350,14 @@ module Postal
       #
       # Create a new item in the message queue for this message
       #
-      def add_to_message_queue(options = {})
-        QueuedMessage.create!(message: self, server_id: @database.server_id, batch_key: batch_key, domain: recipient_domain, route_id: route_id, manual: options[:manual]).id
+      def add_to_message_queue(**options)
+        QueuedMessage.create!({
+          message: self,
+          server_id: @database.server_id,
+          batch_key: batch_key,
+          domain: recipient_domain,
+          route_id: route_id
+        }.merge(options))
       end
 
       #
@@ -403,7 +413,7 @@ module Postal
       def add_outgoing_headers
         headers = []
         if domain
-          dkim = Postal::DKIMHeader.new(domain, raw_message)
+          dkim = DKIMHeader.new(domain, raw_message)
           headers << dkim.dkim_header
         end
         headers << "X-Postal-MsgID: #{token}"
@@ -445,7 +455,11 @@ module Postal
       #
       def bounce!(bounce_message)
         create_delivery("Bounced", details: "We've received a bounce message for this e-mail. See <msg:#{bounce_message.id}> for details.")
-        SendWebhookJob.queue(:main, server_id: database.server_id, event: "MessageBounced", payload: { _original_message: id, _bounce: bounce_message.id })
+
+        WebhookRequest.trigger(server, "MessageBounced", {
+          original_message: webhook_hash,
+          bounce: bounce_message.webhook_hash
+        })
       end
 
       #
@@ -461,11 +475,16 @@ module Postal
       def create_load(request)
         update("loaded" => Time.now.to_f) if loaded.nil?
         database.insert(:loads, { message_id: id, ip_address: request.ip, user_agent: request.user_agent, timestamp: Time.now.to_f })
-        SendWebhookJob.queue(:main, server_id: database.server_id, event: "MessageLoaded", payload: { _message: id, ip_address: request.ip, user_agent: request.user_agent })
+
+        WebhookRequest.trigger(server, "MessageLoaded", {
+          message: webhook_hash,
+          ip_address: request.ip,
+          user_agent: request.user_agent
+        })
       end
 
       #
-      #  Create a new link
+      # Create a new link
       #
       def create_link(url)
         hash = Digest::SHA1.hexdigest(url.to_s)
@@ -475,7 +494,7 @@ module Postal
       end
 
       #
-      #  Return a message object that this message is a reply to
+      # Return a message object that this message is a reply to
       #
       def original_messages
         return nil unless bounce
@@ -492,7 +511,7 @@ module Postal
       # Was thsi message sent to a return path?
       #
       def rcpt_to_return_path?
-        !!(rcpt_to =~ /@#{Regexp.escape(Postal.config.dns.custom_return_path_prefix)}\./)
+        !!(rcpt_to =~ /@#{Regexp.escape(Postal::Config.dns.custom_return_path_prefix)}\./)
       end
 
       #
@@ -512,7 +531,7 @@ module Postal
       end
 
       #
-      #  Return all spam checks for this message
+      # Return all spam checks for this message
       #
       def spam_checks
         @spam_checks ||= database.select(:spam_checks, where: { message_id: id })
@@ -533,7 +552,7 @@ module Postal
       def parse_content
         parse_result = Postal::MessageParser.new(self)
         if parse_result.actioned?
-          #  Somethign was changed, update the raw message
+          # Somethign was changed, update the raw message
           @database.update(raw_table, { data: parse_result.new_body }, where: { id: raw_body_id })
           @database.update(raw_table, { data: parse_result.new_headers }, where: { id: raw_headers_id })
           @raw = parse_result.new_body
@@ -563,7 +582,7 @@ module Postal
         @database.update("messages", @attributes.except(:id), where: { id: @attributes["id"] })
       end
 
-      def _create
+      def _create(queue: true)
         self.timestamp = Time.now.to_f if timestamp.blank?
         self.status = "Pending" if status.blank?
         self.token = Nifty::Utils::RandomString.generate(length: 12) if token.blank?
@@ -572,7 +591,7 @@ module Postal
         @database.statistics.increment_all(timestamp, scope)
         Statistic.global.increment!(:total_messages)
         Statistic.global.increment!("total_#{scope}".to_sym)
-        add_to_message_queue
+        add_to_message_queue if queue
       end
 
       def mail

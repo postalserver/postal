@@ -36,6 +36,5 @@
     %dl.pageContent__definitions
       %dt MX Records
       %dd
-        - for mx in Postal.config.dns.mx_records
+        - for mx in Postal::Config.dns.mx_records
           %p.pageContent__definitionCode= mx
-

@@ -2,7 +2,7 @@
 
 class ApplicationMailer < ActionMailer::Base
 
-  default from: "#{Postal.smtp_from_name} <#{Postal.smtp_from_address}>"
+  default from: "#{Postal::Config.smtp.from_name} <#{Postal::Config.smtp.from_address}>"
   layout false
 
 end

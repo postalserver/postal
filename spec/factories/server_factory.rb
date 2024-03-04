@@ -52,6 +52,12 @@ FactoryBot.define do
 
     trait :suspended do
       suspended_at { Time.current }
+      suspension_reason { "Test Reason" }
+    end
+
+    trait :exceeded_send_limit do
+      send_limit_approaching_at { 5.minutes.ago }
+      send_limit_exceeded_at { 1.minute.ago }
     end
   end
 end

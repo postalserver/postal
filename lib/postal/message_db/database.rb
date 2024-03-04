@@ -12,9 +12,10 @@ module Postal
 
       end
 
-      def initialize(organization_id, server_id)
+      def initialize(organization_id, server_id, database_name: nil)
         @organization_id = organization_id
         @server_id = server_id
+        @database_name = database_name
       end
 
       attr_reader :organization_id
@@ -58,8 +59,8 @@ module Postal
       end
 
       #
-      #  Create a new message with the given attributes. This won't be saved to the database
-      #  until it has been 'save'd.
+      # Create a new message with the given attributes. This won't be saved to the database
+      # until it has been 'save'd.
       #
       def new_message(attributes = {})
         Message.new(self, attributes)
@@ -73,35 +74,35 @@ module Postal
       end
 
       #
-      #  Return the live stats instance
+      # Return the live stats instance
       #
       def live_stats
         @live_stats ||= LiveStats.new(self)
       end
 
       #
-      #  Return the statistics instance
+      # Return the statistics instance
       #
       def statistics
         @statistics ||= Statistics.new(self)
       end
 
       #
-      #  Return the provisioner instance
+      # Return the provisioner instance
       #
       def provisioner
         @provisioner ||= Provisioner.new(self)
       end
 
       #
-      #  Return the provisioner instance
+      # Return the provisioner instance
       #
       def suppression_list
         @suppression_list ||= SuppressionList.new(self)
       end
 
       #
-      #  Return the provisioner instance
+      # Return the provisioner instance
       #
       def webhooks
         @webhooks ||= Webhooks.new(self)
@@ -182,7 +183,7 @@ module Postal
       end
 
       #
-      #  A paginated version of select
+      # A paginated version of select
       #
       def select_with_pagination(table, page, options = {})
         page = page.to_i
@@ -252,7 +253,7 @@ module Postal
 
       #
       # Deletes a in the database. Accepts a table name, and some options which
-      #  are shown below:
+      # are shown below:
       #
       #   :where     => The condition to apply to the query
       #
@@ -268,10 +269,10 @@ module Postal
       end
 
       #
-      #  Return the correct database name
+      # Return the correct database name
       #
       def database_name
-        @database_name ||= "#{Postal.config.message_db.prefix}-server-#{@server_id}"
+        @database_name ||= "#{Postal::Config.message_db.database_name_prefix}-server-#{@server_id}"
       end
 
       #
@@ -325,12 +326,12 @@ module Postal
         result = connection.query(query, cast_booleans: true)
         time = Time.now.to_f - start_time
         logger.debug "  \e[4;34mMessageDB Query (#{time.round(2)}s) \e[0m  \e[33m#{query}\e[0m"
-        if time > 0.5 && query =~ /\A(SELECT|UPDATE|DELETE) /
+        if time > 0.05 && query =~ /\A(SELECT|UPDATE|DELETE) /
           id = Nifty::Utils::RandomString.generate(length: 6).upcase
           explain_result = ResultForExplainPrinter.new(connection.query("EXPLAIN #{query}"))
-          slow_query_logger.info "[#{id}] EXPLAIN #{query}"
+          logger.info "  [#{id}] EXPLAIN #{query}"
           ActiveRecord::ConnectionAdapters::MySQL::ExplainPrettyPrinter.new.pp(explain_result, time).split("\n").each do |line|
-            slow_query_logger.info "[#{id}] " + line
+            logger.info "  [#{id}] " + line
           end
         end
         result
@@ -338,10 +339,6 @@ module Postal
 
       def logger
         defined?(Rails) ? Rails.logger : Logger.new($stdout)
-      end
-
-      def slow_query_logger
-        Postal.logger_for(:slow_message_db_queries)
       end
 
       def with_mysql(&block)

@@ -54,17 +54,16 @@ class TrackDomain < ApplicationRecord
   end
 
   def check_dns
-    result = domain.resolver.getresources(full_name, Resolv::DNS::Resource::IN::CNAME)
-    records = result.map { |r| r.name.to_s.downcase }
+    records = domain.resolver.cname(full_name)
     if records.empty?
       self.dns_status = "Missing"
       self.dns_error = "There is no record at #{full_name}"
-    elsif records.size == 1 && records.first == Postal.config.dns.track_domain
+    elsif records.size == 1 && records.first == Postal::Config.dns.track_domain
       self.dns_status = "OK"
       self.dns_error = nil
     else
       self.dns_status = "Invalid"
-      self.dns_error = "There is a CNAME record at #{full_name} but it points to #{records.first} which is incorrect. It should point to #{Postal.config.dns.track_domain}."
+      self.dns_error = "There is a CNAME record at #{full_name} but it points to #{records.first} which is incorrect. It should point to #{Postal::Config.dns.track_domain}."
     end
     self.dns_checked_at = Time.now
     save!

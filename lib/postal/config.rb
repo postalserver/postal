@@ -6,185 +6,128 @@ require "pathname"
 require "cgi"
 require "openssl"
 require "fileutils"
+require "konfig"
+require "konfig/sources/environment"
+require "konfig/sources/yaml"
+require "dotenv"
+require "klogger"
+
 require_relative "error"
 require_relative "version"
+require_relative "config_schema"
+require_relative "legacy_config_source"
 
 module Postal
 
-  # rubocop:disable Lint/EmptyClass
-  class Config
-  end
-  # rubocop:enable Lint/EmptyClass
+  class << self
 
-  def self.host
-    @host ||= config.web.host || "localhost:5000"
-  end
-
-  def self.protocol
-    @protocol ||= config.web.protocol || "http"
-  end
-
-  def self.host_with_protocol
-    @host_with_protocol ||= "#{protocol}://#{host}"
-  end
-
-  def self.app_root
-    @app_root ||= Pathname.new(File.expand_path("../..", __dir__))
-  end
-
-  def self.config
-    @config ||= begin
-      require "hashie/mash"
-      config = Hashie::Mash.new(defaults)
-      config = config.deep_merge(yaml_config)
-      config.deep_merge(local_yaml_config)
+    # Return the path to the config file
+    #
+    # @return [String]
+    def config_file_path
+      ENV.fetch("POSTAL_CONFIG_FILE_PATH", "config/postal/postal.yml")
     end
-  end
 
-  def self.config_root
-    if ENV["POSTAL_CONFIG_ROOT"]
-      @config_root ||= Pathname.new(ENV["POSTAL_CONFIG_ROOT"])
-    else
-      @config_root ||= Pathname.new(File.expand_path("../../config/postal", __dir__))
-    end
-  end
+    def initialize_config
+      sources = []
 
-  def self.log_root
-    if config.logging.root
-      @log_root ||= Pathname.new(config.logging.root)
-    else
-      @log_root ||= app_root.join("log")
-    end
-  end
+      # Load environment variables to begin with. Any config provided
+      # by an environment variable will override any provided in the
+      # config file.
+      Dotenv.load(".env")
+      sources << Konfig::Sources::Environment.new(ENV)
 
-  def self.config_file_path
-    if env == "default"
-      @config_file_path ||= File.join(config_root, "postal.yml")
-    else
-      @config_file_path ||= File.join(config_root, "postal.#{env}.yml")
-    end
-  end
+      # If a config file exists, we need to load that. Config files can
+      # either be legacy (v1) or new (v2). Any file without a 'version'
+      # key is a legacy file whereas new-style config files will include
+      # the 'version: 2' key/value.
+      if File.file?(config_file_path)
+        puts "Loading config from #{config_file_path}"
 
-  def self.env
-    @env ||= ENV.fetch("POSTAL_ENV", "default")
-  end
-
-  def self.yaml_config
-    @yaml_config ||= File.exist?(config_file_path) ? YAML.load_file(config_file_path) : {}
-  end
-
-  def self.local_config_file_path
-    @local_config_file_path ||= File.join(config_root, "postal.local.yml")
-  end
-
-  def self.local_yaml_config
-    @local_yaml_config ||= File.exist?(local_config_file_path) ? YAML.load_file(local_config_file_path) : {}
-  end
-
-  def self.defaults_file_path
-    @defaults_file_path ||= app_root.join("config", "postal.defaults.yml")
-  end
-
-  def self.defaults
-    @defaults ||= begin
-      file = File.read(defaults_file_path)
-      yaml = ERB.new(file).result
-      YAML.safe_load(yaml)
-    end
-  end
-
-  def self.logger_for(name)
-    @loggers ||= {}
-    @loggers[name.to_sym] ||= begin
-      require "postal/app_logger"
-      if config.logging.stdout || ENV["LOG_TO_STDOUT"]
-        Postal::AppLogger.new(name, $stdout)
+        config_file = File.read(config_file_path)
+        yaml = YAML.safe_load(config_file)
+        config_version = yaml["version"] || 1
+        case config_version
+        when 1
+          puts "WARNING: Using legacy config file format. Upgrade your postal.yml to use"
+          puts "version 2 of the Postal configuration or configure using environment"
+          puts "variables. See https://postalserver.io/config-v2 for details."
+          sources << LegacyConfigSource.new(yaml)
+        when 2
+          sources << Konfig::Sources::YAML.new(config_file)
+        else
+          raise "Invalid version specified in Postal config file. Must be 1 or 2."
+        end
       else
-        FileUtils.mkdir_p(log_root)
-        Postal::AppLogger.new(name, log_root.join("#{name}.log"), config.logging.max_log_files, config.logging.max_log_file_size.megabytes)
+        puts "No configuration file found at #{config_file_path}"
+        puts "Only using environment variables for configuration"
+      end
+
+      # Build configuration with the provided sources.
+      Konfig::Config.build(ConfigSchema, sources: sources)
+    end
+
+    def host_with_protocol
+      @host_with_protocol ||= "#{Config.postal.web_protocol}://#{Config.postal.web_hostname}"
+    end
+
+    def logger
+      @logger ||= begin
+        k = Klogger.new(nil, destination: Config.logging.enabled? ? $stdout : "/dev/null", highlight: Config.logging.highlighting_enabled?)
+        k.add_destination(graylog_logging_destination) if Config.gelf.host.present?
+        k
       end
     end
-  end
 
-  def self.process_name
-    @process_name ||= begin
-      string = "host:#{Socket.gethostname} pid:#{Process.pid}"
-      string += " procname:#{ENV['PROC_NAME']}" if ENV["PROC_NAME"]
+    def process_name
+      @process_name ||= begin
+        "host:#{Socket.gethostname} pid:#{Process.pid}"
+      rescue StandardError
+        "pid:#{Process.pid}"
+      end
+    end
+
+    def locker_name
+      string = process_name.dup
+      string += " job:#{Thread.current[:job_id]}" if Thread.current[:job_id]
+      string += " thread:#{Thread.current.native_thread_id}"
       string
-    rescue StandardError
-      "pid:#{Process.pid}"
-    end
-  end
-
-  def self.locker_name
-    string = process_name.dup
-    string += " job:#{Thread.current[:job_id]}" if Thread.current[:job_id]
-    string
-  end
-
-  def self.smtp_from_name
-    config.smtp&.from_name || "Postal"
-  end
-
-  def self.smtp_from_address
-    config.smtp&.from_address || "postal@example.com"
-  end
-
-  def self.smtp_private_key_path
-    config.smtp_server.tls_private_key_path || config_root.join("smtp.key")
-  end
-
-  def self.smtp_private_key
-    @smtp_private_key ||= OpenSSL::PKey.read(File.read(smtp_private_key_path))
-  end
-
-  def self.smtp_certificate_path
-    config.smtp_server.tls_certificate_path || config_root.join("smtp.cert")
-  end
-
-  def self.smtp_certificate_data
-    @smtp_certificate_data ||= File.read(smtp_certificate_path)
-  end
-
-  def self.smtp_certificates
-    @smtp_certificates ||= begin
-      certs = smtp_certificate_data.scan(/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/m)
-      certs.map do |c|
-        OpenSSL::X509::Certificate.new(c)
-      end.freeze
-    end
-  end
-
-  def self.signing_key_path
-    ENV.fetch("POSTAL_SIGNING_KEY_PATH") { config_root.join("signing.key") }
-  end
-
-  def self.signing_key
-    @signing_key ||= OpenSSL::PKey::RSA.new(File.read(signing_key_path))
-  end
-
-  def self.rp_dkim_dns_record
-    public_key = signing_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
-    "v=DKIM1; t=s; h=sha256; p=#{public_key};"
-  end
-
-  class ConfigError < Postal::Error
-  end
-
-  def self.check_config!
-    return if ENV["POSTAL_SKIP_CONFIG_CHECK"].to_i == 1
-
-    unless File.exist?(config_file_path)
-      raise ConfigError, "No config found at #{config_file_path}"
     end
 
-    return if File.exist?(signing_key_path)
+    def locker_name_with_suffix(suffix)
+      "#{locker_name} #{suffix}"
+    end
 
-    raise ConfigError, "No signing key found at #{signing_key_path}"
+    def signing_key
+      @signing_key ||= OpenSSL::PKey::RSA.new(File.read(Config.postal.signing_key_path))
+    end
+
+    def rp_dkim_dns_record
+      public_key = signing_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
+      "v=DKIM1; t=s; h=sha256; p=#{public_key};"
+    end
+
+    def ip_pools?
+      Config.postal.use_ip_pools?
+    end
+
+    def graylog_logging_destination
+      @graylog_logging_destination ||= begin
+        notifier = GELF::Notifier.new(Config.gelf.host, Config.gelf.port, "WAN")
+        proc do |_logger, payload, group_ids|
+          short_message = payload.delete(:message) || "[message missing]"
+          notifier.notify!(short_message: short_message, **{
+            facility: Config.gelf.facility,
+            _environment: Config.rails.environment,
+            _version: Postal::VERSION.to_s,
+            _group_ids: group_ids.join(" ")
+          }.merge(payload.transform_keys { |k| "_#{k}".to_sym }.transform_values(&:to_s)))
+        end
+      end
+    end
+
   end
 
-  def self.ip_pools?
-    config.general.use_ip_pools?
-  end
+  Config = initialize_config
 
 end

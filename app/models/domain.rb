@@ -61,23 +61,15 @@ class Domain < ApplicationRecord
 
   scope :verified, -> { where.not(verified_at: nil) }
 
-  when_attribute :verification_method, changes_to: :anything do
-    before_save do
-      if verification_method == "DNS"
-        self.verification_token = Nifty::Utils::RandomString.generate(length: 32)
-      elsif verification_method == "Email"
-        self.verification_token = rand(999_999).to_s.ljust(6, "0")
-      else
-        self.verification_token = nil
-      end
-    end
-  end
+  before_save :update_verification_token_on_method_change
 
   def verified?
     verified_at.present?
   end
 
-  def verify
+  def mark_as_verified
+    return false if verified?
+
     self.verified_at = Time.now
     save!
   end
@@ -94,6 +86,8 @@ class Domain < ApplicationRecord
   end
 
   def dkim_key
+    return nil unless dkim_private_key
+
     @dkim_key ||= OpenSSL::PKey::RSA.new(dkim_private_key)
   end
 
@@ -110,67 +104,72 @@ class Domain < ApplicationRecord
   end
 
   def spf_record
-    "v=spf1 a mx include:#{Postal.config.dns.spf_include} ~all"
+    "v=spf1 a mx include:#{Postal::Config.dns.spf_include} ~all"
   end
 
   def dkim_record
+    return if dkim_key.nil?
+
     public_key = dkim_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
     "v=DKIM1; t=s; h=sha256; p=#{public_key};"
   end
 
   def dkim_identifier
-    Postal.config.dns.dkim_identifier + "-#{dkim_identifier_string}"
+    return nil unless dkim_identifier_string
+
+    Postal::Config.dns.dkim_identifier + "-#{dkim_identifier_string}"
   end
 
   def dkim_record_name
-    "#{dkim_identifier}._domainkey"
+    identifier = dkim_identifier
+    return if identifier.nil?
+
+    "#{identifier}._domainkey"
   end
 
   def return_path_domain
-    "#{Postal.config.dns.custom_return_path_prefix}.#{name}"
+    "#{Postal::Config.dns.custom_return_path_prefix}.#{name}"
   end
 
-  def nameservers
-    @nameservers ||= get_nameservers
-  end
-
+  # Returns a DNSResolver instance that can be used to perform DNS lookups needed for
+  # the verification and DNS checking for this domain.
+  #
+  # @return [DNSResolver]
   def resolver
-    @resolver ||= Postal.config.general.use_local_ns_for_domains? ? Resolv::DNS.new : Resolv::DNS.new(nameserver: nameservers)
+    return DNSResolver.local if Postal::Config.postal.use_local_ns_for_domain_verification?
+
+    @resolver ||= DNSResolver.for_domain(name)
   end
 
   def dns_verification_string
-    "#{Postal.config.dns.domain_verify_prefix} #{verification_token}"
+    "#{Postal::Config.dns.domain_verify_prefix} #{verification_token}"
   end
 
   def verify_with_dns
     return false unless verification_method == "DNS"
 
-    result = resolver.getresources(name, Resolv::DNS::Resource::IN::TXT)
-    if result.map { |d| d.data.to_s.strip }.include?(dns_verification_string)
+    result = resolver.txt(name)
+
+    if result.include?(dns_verification_string)
       self.verified_at = Time.now
-      save
-    else
-      false
+      return save
     end
+
+    false
   end
 
   private
 
-  def get_nameservers
-    local_resolver = Resolv::DNS.new
-    ns_records = []
-    parts = name.split(".")
-    (parts.size - 1).times do |n|
-      d = parts[n, parts.size - n + 1].join(".")
-      ns_records = local_resolver.getresources(d, Resolv::DNS::Resource::IN::NS).map { |s| s.name.to_s }
-      break if ns_records.present?
+  def update_verification_token_on_method_change
+    return unless verification_method_changed?
+
+    if verification_method == "DNS"
+      self.verification_token = Nifty::Utils::RandomString.generate(length: 32)
+    elsif verification_method == "Email"
+      self.verification_token = rand(999_999).to_s.ljust(6, "0")
+    else
+      self.verification_token = nil
     end
-    return [] if ns_records.blank?
-
-    ns_records = ns_records.map { |r| local_resolver.getresources(r, Resolv::DNS::Resource::IN::A).map { |s| s.address.to_s } }.flatten
-    return [] if ns_records.blank?
-
-    ns_records
   end
 
 end

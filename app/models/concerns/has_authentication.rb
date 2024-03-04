@@ -8,13 +8,7 @@ module HasAuthentication
     has_secure_password
 
     validates :password, length: { minimum: 8, allow_blank: true }
-
-    when_attribute :password_digest, changes_to: :anything do
-      before_save do
-        self.password_reset_token = nil
-        self.password_reset_token_valid_until = nil
-      end
-    end
+    before_save :clear_password_reset_token_on_password_change
   end
 
   class_methods do
@@ -40,6 +34,15 @@ module HasAuthentication
     self.password_reset_token_valid_until = 1.day.from_now
     save!
     AppMailer.password_reset(self, return_to).deliver
+  end
+
+  private
+
+  def clear_password_reset_token_on_password_change
+    return unless password_digest_changed?
+
+    self.password_reset_token = nil
+    self.password_reset_token_valid_until = nil
   end
 
 end

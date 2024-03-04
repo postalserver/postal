@@ -1,10 +1,10 @@
-FROM ruby:3.2.1-bullseye AS base
+FROM ruby:3.2.2-bullseye AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
   software-properties-common dirmngr apt-transport-https \
-  && (curl -sL https://deb.nodesource.com/setup_14.x | bash -) \
+  && (curl -sL https://deb.nodesource.com/setup_20.x | bash -) \
   && rm -rf /var/lib/apt/lists/*
 
 # Install main dependencies
@@ -31,12 +31,12 @@ RUN mkdir -p /opt/postal/app /opt/postal/config
 WORKDIR /opt/postal/app
 
 # Install bundler
-RUN gem install bundler -v 2.4.9 --no-doc
+RUN gem install bundler -v 2.5.6 --no-doc
 
 # Install the latest and active gem dependencies and re-run
 # the appropriate commands to handle installs.
-COPY Gemfile Gemfile.lock ./
-RUN bundle config set force_ruby_platform true && bundle install -j 4
+COPY --chown=postal Gemfile Gemfile.lock ./
+RUN bundle install
 
 # Copy the application (and set permissions)
 COPY ./docker/wait-for.sh /docker-entrypoint.sh
@@ -46,8 +46,11 @@ COPY --chown=postal . .
 ARG VERSION=unspecified
 RUN echo $VERSION > VERSION
 
-# Set the path to the config
-ENV POSTAL_CONFIG_ROOT=/config
+# Set paths for when running in a container
+ENV POSTAL_CONFIG_FILE_PATH=/config/postal.yml
+ENV POSTAL_SIGNING_KEY_PATH=/config/signing.key
+ENV SMTP_SERVER_TLS_CERTIFICATE_PATH=/config/smtp.cert
+ENV SMTP_SERVER_TLS_PRIVATE_KEY_PATH=/config/smtp.key
 
 # Set the CMD
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
@@ -59,5 +62,5 @@ FROM base AS ci
 # full target - default if no --target option is given
 FROM base AS full
 
-RUN POSTAL_SKIP_CONFIG_CHECK=1 RAILS_GROUPS=assets bundle exec rake assets:precompile
+RUN RAILS_GROUPS=assets bundle exec rake assets:precompile
 RUN touch /opt/postal/app/public/assets/.prebuilt

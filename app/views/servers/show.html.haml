@@ -35,7 +35,7 @@
           %li #{@first_date.strftime("%A at %l%P")} &rarr;
           %li Today at #{Time.now.strftime("%l%P")}
         - else
-          %li #{@first_date.to_date.to_s(:long)} &rarr;
+          %li #{@first_date.to_date.to_fs(:long)} &rarr;
           %li Today
 
     .titleWithLinks.u-margin
@@ -44,4 +44,3 @@
         %li= link_to "View message queue", [:queue, organization, @server], :class => 'titleWithLinks__link'
         %li= link_to "View full e-mail history", [:outgoing, organization, @server, :messages], :class => 'titleWithLinks__link'
     = render 'messages/list', :messages => @messages
-

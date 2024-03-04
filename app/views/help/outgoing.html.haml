@@ -18,7 +18,7 @@
         Mail servers can be enabled to send mail from any domain by the administrator.
       %li
         If a message cannot be delivered, the system will not send you a bounce message but dispatch a webhook (if you set one up).
-        If a message delivery fails but can be retried, the system will try #{Postal.config.general.maximum_delivery_attempts} times to deliver it before giving up.
+        If a message delivery fails but can be retried, the system will try #{Postal::Config.postal.default_maximum_delivery_attempts} times to deliver it before giving up.
   .u-margin
     %h2.pageContent__subTitle Sending using SMTP
     %p.pageContent__text
@@ -27,10 +27,10 @@
     %dl.pageContent__definitions
       %dt SMTP Server Address
       %dd
-        %p.pageContent__definitionCode= Postal.config.dns.smtp_server_hostname
+        %p.pageContent__definitionCode= Postal::Config.postal.smtp_hostname
       %dt Port
       %dd
-        %p.pageContent__definitionCode= Postal.config.smtp_server.port
+        %p.pageContent__definitionCode= Postal::Config.smtp_server.default_port
         %p.pageContent__definitionText
           The SMTP service supports STARTTLS if you wish to send messages securely. Be aware that security
           cannot guaranteed all the way to their final destination.

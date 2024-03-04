@@ -17,7 +17,7 @@ Bundler.require(*Rails.groups)
 module Postal
   class Application < Rails::Application
 
-    config.load_defaults 6.0
+    config.load_defaults 7.0
 
     # Disable most generators
     config.generators do |g|
@@ -35,12 +35,14 @@ module Postal
     config.action_view.field_error_proc = proc { |t, _| t }
 
     # Load the tracking server middleware
-    require "postal/tracking_middleware"
-    config.middleware.insert_before ActionDispatch::HostAuthorization, Postal::TrackingMiddleware
+    require "tracking_middleware"
+    config.middleware.insert_before ActionDispatch::HostAuthorization, TrackingMiddleware
 
-    config.logger = Postal.logger_for(:rails)
+    config.hosts << Postal::Config.postal.web_hostname
 
-    config.hosts << Postal.config.web.host
+    unless Postal::Config.logging.rails_log_enabled?
+      config.logger = Logger.new("/dev/null")
+    end
 
   end
 end

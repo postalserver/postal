@@ -4,7 +4,8 @@ require "rails_helper"
 
 describe Postal::MessageDB::Database do
   context "when provisioned" do
-    subject(:database) { GLOBAL_SERVER.message_db }
+    let(:server) { create(:server) }
+    subject(:database) { server.message_db }
 
     it "should be a message db" do
       expect(database).to be_a Postal::MessageDB::Database

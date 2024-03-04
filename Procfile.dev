@@ -1,5 +1,3 @@
-web: bundle exec puma -C config/puma.rb
+web: unset PORT; bundle exec puma -C config/puma.rb
 worker: bundle exec ruby script/worker.rb
-cron: bundle exec rake postal:cron
-smtp: bundle exec rake postal:smtp_server
-requeuer: bundle exec rake postal:requeuer
+smtp: unset PORT; bundle exec ruby script/smtp_server.rb

@@ -11,7 +11,7 @@
       %p
         This message has been held. By releasing the message, we will allow it to continue on its way to its destination.
         - if @message.hold_expiry
-          It will be held until #{@message.hold_expiry.to_s(:long)}.
+          It will be held until #{@message.hold_expiry.to_fs(:long)}.
       %p.buttonSet
         = link_to "Release message", retry_organization_server_message_path(organization, @server, message.id), :class => "button button--small", :remote => true, :method => :post
         = link_to "Cancel hold", cancel_hold_organization_server_message_path(organization, @server, message.id), :class => "button button--small button--danger", :remote => true, :method => :post
@@ -33,7 +33,7 @@
       %li.deliveryList__item
         .deliveryList__top
           .deliveryList__time
-            = delivery.timestamp.to_s(:long)
+            = delivery.timestamp.to_fs(:long)
           .deliveryList__status
             - if delivery.sent_with_ssl
               = image_tag 'icons/lock.svg', :class => 'deliveryList__secure'

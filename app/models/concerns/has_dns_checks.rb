@@ -43,16 +43,16 @@ module HasDNSChecks
   #
 
   def check_spf_record
-    result = resolver.getresources(name, Resolv::DNS::Resource::IN::TXT)
-    spf_records = result.map(&:data).grep(/\Av=spf1/)
+    result = resolver.txt(name)
+    spf_records = result.grep(/\Av=spf1/)
     if spf_records.empty?
       self.spf_status = "Missing"
       self.spf_error = "No SPF record exists for this domain"
     else
-      suitable_spf_records = spf_records.grep(/include:\s*#{Regexp.escape(Postal.config.dns.spf_include)}/)
+      suitable_spf_records = spf_records.grep(/include:\s*#{Regexp.escape(Postal::Config.dns.spf_include)}/)
       if suitable_spf_records.empty?
         self.spf_status = "Invalid"
-        self.spf_error = "An SPF record exists but it doesn't include #{Postal.config.dns.spf_include}"
+        self.spf_error = "An SPF record exists but it doesn't include #{Postal::Config.dns.spf_include}"
         false
       else
         self.spf_status = "OK"
@@ -73,8 +73,7 @@ module HasDNSChecks
 
   def check_dkim_record
     domain = "#{dkim_record_name}.#{name}"
-    result = resolver.getresources(domain, Resolv::DNS::Resource::IN::TXT)
-    records = result.map(&:data)
+    records = resolver.txt(domain)
     if records.empty?
       self.dkim_status = "Missing"
       self.dkim_error = "No TXT records were returned for #{domain}"
@@ -104,17 +103,16 @@ module HasDNSChecks
   #
 
   def check_mx_records
-    result = resolver.getresources(name, Resolv::DNS::Resource::IN::MX)
-    records = result.map(&:exchange)
+    records = resolver.mx(name).map(&:last)
     if records.empty?
       self.mx_status = "Missing"
       self.mx_error = "There are no MX records for #{name}"
     else
-      missing_records = Postal.config.dns.mx_records.dup - records.map { |r| r.to_s.downcase }
+      missing_records = Postal::Config.dns.mx_records.dup - records.map { |r| r.to_s.downcase }
       if missing_records.empty?
         self.mx_status = "OK"
         self.mx_error = nil
-      elsif missing_records.size == Postal.config.dns.mx_records.size
+      elsif missing_records.size == Postal::Config.dns.mx_records.size
         self.mx_status = "Missing"
         self.mx_error = "You have MX records but none of them point to us."
       else
@@ -134,17 +132,16 @@ module HasDNSChecks
   #
 
   def check_return_path_record
-    result = resolver.getresources(return_path_domain, Resolv::DNS::Resource::IN::CNAME)
-    records = result.map { |r| r.name.to_s.downcase }
+    records = resolver.cname(return_path_domain)
     if records.empty?
       self.return_path_status = "Missing"
       self.return_path_error = "There is no return path record at #{return_path_domain}"
-    elsif records.size == 1 && records.first == Postal.config.dns.return_path
+    elsif records.size == 1 && records.first == Postal::Config.dns.return_path_domain
       self.return_path_status = "OK"
       self.return_path_error = nil
     else
       self.return_path_status = "Invalid"
-      self.return_path_error = "There is a CNAME record at #{return_path_domain} but it points to #{records.first} which is incorrect. It should point to #{Postal.config.dns.return_path}."
+      self.return_path_error = "There is a CNAME record at #{return_path_domain} but it points to #{records.first} which is incorrect. It should point to #{Postal::Config.dns.return_path_domain}."
     end
   end
 

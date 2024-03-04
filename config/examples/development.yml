@@ -1,0 +1,30 @@
+# This is an example Postal configuration file for use in 
+# development environments. For a production example, see
+# the https://github.com/postalserver/install repository.
+
+version: 2
+
+postal:
+  web_hostname: postal.example.com
+  web_protocol: https
+  smtp_hostname: postal.example.com
+
+main_db:
+  host: 127.0.0.1
+  username: root
+  password: 
+  database: postal
+
+message_db:
+  host: 127.0.0.1
+  username: root
+  password: 
+  prefix: postal
+
+logging:
+  rails_log_enabled: true
+  highlighting_enabled: true
+
+rails:
+  environment: development
+  secret_key: 7f27856d26e864bafd49d0df37ad3d1339086e86ef0447e0f1814dde5277452fea97dab9e3aad6dfa11bfe359c82ce302d97bf1e58f6103c4408e4fbad4eeccf

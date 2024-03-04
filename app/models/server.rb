@@ -71,8 +71,8 @@ class Server < ApplicationRecord
   default_value :raw_message_retention_days, -> { 30 }
   default_value :raw_message_retention_size, -> { 2048 }
   default_value :message_retention_days, -> { 60 }
-  default_value :spam_threshold, -> { Postal.config.general.default_spam_threshold }
-  default_value :spam_failure_threshold, -> { Postal.config.general.default_spam_failure_threshold }
+  default_value :spam_threshold, -> { Postal::Config.postal.default_spam_threshold }
+  default_value :spam_failure_threshold, -> { Postal::Config.postal.default_spam_failure_threshold }
 
   validates :name, presence: true, uniqueness: { scope: :organization_id, case_sensitive: false }
   validates :mode, inclusion: { in: MODES }
@@ -192,37 +192,33 @@ class Server < ApplicationRecord
   end
 
   def send_limit_approaching?
-    send_limit && (send_volume >= send_limit * 0.90)
+    return false unless send_limit
+
+    (send_volume >= send_limit * 0.90)
   end
 
   def send_limit_exceeded?
-    send_limit && send_volume >= send_limit
+    return false unless send_limit
+
+    send_volume >= send_limit
   end
 
   def send_limit_warning(type)
-    AppMailer.send("server_send_limit_#{type}", self).deliver
+    if organization.notification_addresses.present?
+      AppMailer.send("server_send_limit_#{type}", self).deliver
+    end
+
     update_column("send_limit_#{type}_notified_at", Time.now)
     WebhookRequest.trigger(self, "SendLimit#{type.to_s.capitalize}", server: webhook_hash, volume: send_volume, limit: send_limit)
   end
 
   def queue_size
-    @queue_size ||= queued_messages.retriable.count
-  end
-
-  def stats
-    {
-      queue: queue_size,
-      held: held_messages,
-      bounce_rate: bounce_rate,
-      message_rate: message_rate,
-      throughput: throughput_stats,
-      size: message_db.total_size
-    }
+    @queue_size ||= queued_messages.ready.count
   end
 
   # Return the domain which can be used to authenticate emails sent from the given e-mail address.
   #
-  #  @param address [String] an e-mail address
+  # @param address [String] an e-mail address
   # @return [Domain, nil] the domain to use for authentication
   def authenticated_domain_for_address(address)
     return nil if address.blank?
@@ -274,19 +270,16 @@ class Server < ApplicationRecord
     self.suspended_at = Time.now
     self.suspension_reason = reason
     save!
-    AppMailer.server_suspended(self).deliver
+    if organization.notification_addresses.present?
+      AppMailer.server_suspended(self).deliver
+    end
+    true
   end
 
   def unsuspend
     self.suspended_at = nil
     self.suspension_reason = nil
     save!
-  end
-
-  def validate_ip_pool_belongs_to_organization
-    return unless ip_pool && ip_pool_id_changed? && !organization.ip_pools.include?(ip_pool)
-
-    errors.add :ip_pool_id, "must belong to the organization"
   end
 
   def ip_pool_for_message(message)
@@ -300,46 +293,48 @@ class Server < ApplicationRecord
         end
       end
     end
+
     ip_pool
   end
 
-  def self.triggered_send_limit(type)
-    servers = where("send_limit_#{type}_at IS NOT NULL AND send_limit_#{type}_at > ?", 3.minutes.ago)
-    servers.where("send_limit_#{type}_notified_at IS NULL OR send_limit_#{type}_notified_at < ?", 1.hour.ago)
+  private
+
+  def validate_ip_pool_belongs_to_organization
+    return unless ip_pool && ip_pool_id_changed? && !organization.ip_pools.include?(ip_pool)
+
+    errors.add :ip_pool_id, "must belong to the organization"
   end
 
-  def self.send_send_limit_notifications
-    [:approaching, :exceeded].each_with_object({}) do |type, hash|
-      hash[type] = 0
-      servers = triggered_send_limit(type)
-      next if servers.empty?
+  class << self
 
-      servers.each do |server|
-        hash[type] += 1
-        server.send_limit_warning(type)
-      end
-    end
-  end
-
-  def self.[](id, extra = nil)
-    server = nil
-    if id.is_a?(String)
-      if id =~ /\A(\w+)\/(\w+)\z/
-        server = includes(:organization).where(organizations: { permalink: ::Regexp.last_match(1) }, permalink: ::Regexp.last_match(2)).first
-      end
-    else
-      server = where(id: id).first
+    def triggered_send_limit(type)
+      servers = where("send_limit_#{type}_at IS NOT NULL AND send_limit_#{type}_at > ?", 3.minutes.ago)
+      servers.where("send_limit_#{type}_notified_at IS NULL OR send_limit_#{type}_notified_at < ?", 1.hour.ago)
     end
 
-    if extra
-      if extra.is_a?(String)
-        server.domains.where(name: extra.to_s).first
+    def send_send_limit_notifications
+      [:approaching, :exceeded].each_with_object({}) do |type, hash|
+        hash[type] = 0
+        servers = triggered_send_limit(type)
+        next if servers.empty?
+
+        servers.each do |server|
+          hash[type] += 1
+          server.send_limit_warning(type)
+        end
+      end
+    end
+
+    def [](id, extra = nil)
+      if id.is_a?(String) && id =~ /\A(\w+)\/(\w+)\z/
+        joins(:organization).where(
+          organizations: { permalink: ::Regexp.last_match(1) }, permalink: ::Regexp.last_match(2)
+        ).first
       else
-        server.message(extra.to_i)
+        find_by(id: id.to_i)
       end
-    else
-      server
     end
+
   end
 
 end

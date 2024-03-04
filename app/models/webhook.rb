@@ -35,12 +35,7 @@ class Webhook < ApplicationRecord
   scope :enabled, -> { where(enabled: true) }
 
   after_save :save_events
-
-  when_attribute :all_events, changes_to: true do
-    after_save do
-      webhook_events.destroy_all
-    end
-  end
+  after_save :destroy_events_when_all_events_enabled
 
   def events
     @events ||= webhook_events.map(&:event)
@@ -50,13 +45,22 @@ class Webhook < ApplicationRecord
     @events = value.map(&:to_s).select(&:present?)
   end
 
+  private
+
   def save_events
     return unless @events
 
     @events.each do |event|
       webhook_events.where(event: event).first_or_create!
     end
+
     webhook_events.where.not(event: @events).destroy_all
+  end
+
+  def destroy_events_when_all_events_enabled
+    return unless all_events
+
+    webhook_events.destroy_all
   end
 
 end
