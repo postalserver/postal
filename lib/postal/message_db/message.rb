@@ -488,7 +488,7 @@ module Postal
       #
       def create_link(url)
         hash = Digest::SHA1.hexdigest(url.to_s)
-        token = Nifty::Utils::RandomString.generate(length: 8)
+        token = SecureRandom.alphanumeric(16)
         database.insert(:links, { message_id: id, hash: hash, url: url, timestamp: Time.now.to_f, token: token })
         token
       end
@@ -585,7 +585,7 @@ module Postal
       def _create(queue: true)
         self.timestamp = Time.now.to_f if timestamp.blank?
         self.status = "Pending" if status.blank?
-        self.token = Nifty::Utils::RandomString.generate(length: 12) if token.blank?
+        self.token = SecureRandom.alphanumeric(16) if token.blank?
         last_id = @database.insert("messages", @attributes.except(:id))
         @attributes["id"] = last_id
         @database.statistics.increment_all(timestamp, scope)

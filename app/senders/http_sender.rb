@@ -6,7 +6,7 @@ class HTTPSender < BaseSender
     super()
     @endpoint = endpoint
     @options = options
-    @log_id = Nifty::Utils::RandomString.generate(length: 8).upcase
+    @log_id = SecureRandom.alphanumeric(8).upcase
   end
 
   def send_message(message)

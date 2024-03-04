@@ -30,7 +30,7 @@ module HasAuthentication
   end
 
   def begin_password_reset(return_to = nil)
-    self.password_reset_token = Nifty::Utils::RandomString.generate(length: 24)
+    self.password_reset_token = SecureRandom.alphanumeric(24)
     self.password_reset_token_valid_until = 1.day.from_now
     save!
     AppMailer.password_reset(self, return_to).deliver

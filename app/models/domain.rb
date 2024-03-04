@@ -164,7 +164,7 @@ class Domain < ApplicationRecord
     return unless verification_method_changed?
 
     if verification_method == "DNS"
-      self.verification_token = Nifty::Utils::RandomString.generate(length: 32)
+      self.verification_token = SecureRandom.alphanumeric(32)
     elsif verification_method == "Email"
       self.verification_token = rand(999_999).to_s.ljust(6, "0")
     else
