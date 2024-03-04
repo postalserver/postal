@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe DNSResolver do
-  subject(:resolver) { described_class.local }
+  subject(:resolver) { described_class.for_domain("postalserver.io") }
 
   # Now, we could mock everything in here which would give us some comfort
   # but I do think that we'll benefit more from having a full E2E test here
@@ -12,27 +12,27 @@ RSpec.describe DNSResolver do
 
   describe "#a" do
     it "returns a list of IP addresses" do
-      expect(resolver.a("www.test.postalserver.io").sort).to eq ["1.2.3.4", "2.3.4.5"]
+      expect(resolver.a("www.dnstest.postalserver.io").sort).to eq ["1.2.3.4", "2.3.4.5"]
     end
 
     it "resolves a domain name containing an emoji" do
-      expect(resolver.a("☺.test.postalserver.io").sort).to eq ["3.4.5.6"]
+      expect(resolver.a("☺.dnstest.postalserver.io").sort).to eq ["3.4.5.6"]
     end
 
     it "returns an empty array when timeout is exceeded" do
       allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
-      expect(resolver.a("www.test.postalserver.io")).to eq []
+      expect(resolver.a("www.dnstest.postalserver.io")).to eq []
     end
 
     context "when raise_timeout_errors is true" do
       it "returns a list of IP addresses" do
-        expect(resolver.a("www.test.postalserver.io", raise_timeout_errors: true).sort).to eq ["1.2.3.4", "2.3.4.5"]
+        expect(resolver.a("www.dnstest.postalserver.io", raise_timeout_errors: true).sort).to eq ["1.2.3.4", "2.3.4.5"]
       end
 
       it "raises an error when the timeout is exceeded" do
         allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
         expect do
-          resolver.a("www.test.postalserver.io", raise_timeout_errors: true)
+          resolver.a("www.dnstest.postalserver.io", raise_timeout_errors: true)
         end.to raise_error(Resolv::ResolvError, /timeout/)
       end
     end
@@ -40,23 +40,23 @@ RSpec.describe DNSResolver do
 
   describe "#aaaa" do
     it "returns a list of IP addresses" do
-      expect(resolver.aaaa("www.test.postalserver.io").sort).to eq ["2a00:67a0:a::1", "2a00:67a0:a::2"]
+      expect(resolver.aaaa("www.dnstest.postalserver.io").sort).to eq ["2a00:67a0:a::1", "2a00:67a0:a::2"]
     end
 
     it "returns an empty array when timeout is exceeded" do
       allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
-      expect(resolver.aaaa("www.test.postalserver.io")).to eq []
+      expect(resolver.aaaa("www.dnstest.postalserver.io")).to eq []
     end
 
     context "when raise_timeout_errors is true" do
       it "returns a list of IP addresses" do
-        expect(resolver.aaaa("www.test.postalserver.io", raise_timeout_errors: true).sort).to eq ["2a00:67a0:a::1", "2a00:67a0:a::2"]
+        expect(resolver.aaaa("www.dnstest.postalserver.io", raise_timeout_errors: true).sort).to eq ["2a00:67a0:a::1", "2a00:67a0:a::2"]
       end
 
       it "raises an error when the timeout is exceeded" do
         allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
         expect do
-          resolver.aaaa("www.test.postalserver.io", raise_timeout_errors: true)
+          resolver.aaaa("www.dnstest.postalserver.io", raise_timeout_errors: true)
         end.to raise_error(Resolv::ResolvError, /timeout/)
       end
     end
@@ -64,7 +64,7 @@ RSpec.describe DNSResolver do
 
   describe "#txt" do
     it "returns a list of TXT records" do
-      expect(resolver.txt("test.postalserver.io").sort).to eq [
+      expect(resolver.txt("dnstest.postalserver.io").sort).to eq [
         "an example txt record",
         "another example"
       ]
@@ -72,12 +72,12 @@ RSpec.describe DNSResolver do
 
     it "returns an empty array when timeout is exceeded" do
       allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
-      expect(resolver.txt("test.postalserver.io")).to eq []
+      expect(resolver.txt("dnstest.postalserver.io")).to eq []
     end
 
     context "when raise_timeout_errors is true" do
       it "returns a list of TXT records" do
-        expect(resolver.txt("test.postalserver.io", raise_timeout_errors: true).sort).to eq [
+        expect(resolver.txt("dnstest.postalserver.io", raise_timeout_errors: true).sort).to eq [
           "an example txt record",
           "another example"
         ]
@@ -86,7 +86,7 @@ RSpec.describe DNSResolver do
       it "raises an error when the timeout is exceeded" do
         allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
         expect do
-          resolver.txt("test.postalserver.io", raise_timeout_errors: true)
+          resolver.txt("dnstest.postalserver.io", raise_timeout_errors: true)
         end.to raise_error(Resolv::ResolvError, /timeout/)
       end
     end
@@ -94,23 +94,23 @@ RSpec.describe DNSResolver do
 
   describe "#cname" do
     it "returns a list of CNAME records" do
-      expect(resolver.cname("cname.test.postalserver.io")).to eq ["www.test.postalserver.io"]
+      expect(resolver.cname("cname.dnstest.postalserver.io")).to eq ["www.dnstest.postalserver.io"]
     end
 
     it "returns an empty array when timeout is exceeded" do
       allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
-      expect(resolver.cname("cname.test.postalserver.io")).to eq []
+      expect(resolver.cname("cname.dnstest.postalserver.io")).to eq []
     end
 
     context "when raise_timeout_errors is true" do
       it "returns a list of CNAME records" do
-        expect(resolver.cname("cname.test.postalserver.io", raise_timeout_errors: true)).to eq ["www.test.postalserver.io"]
+        expect(resolver.cname("cname.dnstest.postalserver.io", raise_timeout_errors: true)).to eq ["www.dnstest.postalserver.io"]
       end
 
       it "raises an error when the timeout is exceeded" do
         allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
         expect do
-          resolver.cname("cname.test.postalserver.io", raise_timeout_errors: true)
+          resolver.cname("cname.dnstest.postalserver.io", raise_timeout_errors: true)
         end.to raise_error(Resolv::ResolvError, /timeout/)
       end
     end
@@ -118,29 +118,29 @@ RSpec.describe DNSResolver do
 
   describe "#mx" do
     it "returns a list of MX records" do
-      expect(resolver.mx("test.postalserver.io")).to eq [
-        [10, "mx1.test.postalserver.io"],
-        [20, "mx2.test.postalserver.io"]
+      expect(resolver.mx("dnstest.postalserver.io")).to eq [
+        [10, "mx1.dnstest.postalserver.io"],
+        [20, "mx2.dnstest.postalserver.io"]
       ]
     end
 
     it "returns an empty array when timeout is exceeded" do
       allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
-      expect(resolver.mx("test.postalserver.io")).to eq []
+      expect(resolver.mx("dnstest.postalserver.io")).to eq []
     end
 
     context "when raise_timeout_errors is true" do
       it "returns a list of MX records" do
-        expect(resolver.mx("test.postalserver.io", raise_timeout_errors: true)).to eq [
-          [10, "mx1.test.postalserver.io"],
-          [20, "mx2.test.postalserver.io"]
+        expect(resolver.mx("dnstest.postalserver.io", raise_timeout_errors: true)).to eq [
+          [10, "mx1.dnstest.postalserver.io"],
+          [20, "mx2.dnstest.postalserver.io"]
         ]
       end
 
       it "raises an error when the timeout is exceeded" do
         allow(Postal::Config.dns).to receive(:timeout).and_return(0.00001)
         expect do
-          resolver.mx("test.postalserver.io", raise_timeout_errors: true)
+          resolver.mx("dnstest.postalserver.io", raise_timeout_errors: true)
         end.to raise_error(Resolv::ResolvError, /timeout/)
       end
     end
@@ -202,7 +202,7 @@ RSpec.describe DNSResolver do
 
   describe ".for_domain" do
     it "finds the effective nameservers for a given domain and returns them" do
-      resolver = described_class.for_domain("test.postalserver.io")
+      resolver = described_class.for_domain("dnstest.postalserver.io")
       expect(resolver.nameservers.sort).to eq ["151.252.1.100", "151.252.2.100"]
     end
   end
@@ -246,7 +246,7 @@ RSpec.describe DNSResolver do
   end
 
   context "when using a resolver for a domain" do
-    subject(:resolver) { described_class.for_domain("test.postalserver.io") }
+    subject(:resolver) { described_class.for_domain("dnstest.postalserver.io") }
 
     it "will not return domains that are not hosted on that server" do
       expect(resolver.a("example.com")).to eq []
