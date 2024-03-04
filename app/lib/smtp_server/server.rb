@@ -60,7 +60,7 @@ module SMTPServer
     def ssl_context
       @ssl_context ||= begin
         ssl_context      = OpenSSL::SSL::SSLContext.new
-        ssl_context.cert = Postal.smtp_certificates[0]
+        ssl_context.cert = self.class.tls_certificates[0]
         ssl_context.extra_chain_cert = self.class.tls_certificates[1..]
         ssl_context.key = self.class.tls_private_key
         ssl_context.ssl_version = Postal::Config.smtp_server.ssl_version if Postal::Config.smtp_server.ssl_version
