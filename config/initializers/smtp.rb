@@ -13,6 +13,5 @@ ActionMailer::Base.smtp_settings = {
   authentication: config.authentication_type&.to_sym,
   enable_starttls: config.enable_starttls?,
   enable_starttls_auto: config.enable_starttls_auto?,
-  openssl_verify_mode: config.openssl_verify_mode,
-  ssl: config.ssl?
+  openssl_verify_mode: config.openssl_verify_mode
 }

@@ -161,8 +161,6 @@ smtp:
   enable_starttls_auto: true
   # When using TLS, you can set how OpenSSL checks the certificate. Use 'none' for no certificate checking
   openssl_verify_mode: peer
-  # Use an SSL/TLS connection to the SMTP server (SMTPS)
-  ssl: false
   # The name to use as the from name outgoing emails from Postal
   from_name: Postal
   # The e-mail to use as the from address outgoing emails from Postal

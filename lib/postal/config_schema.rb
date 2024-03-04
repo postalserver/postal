@@ -380,11 +380,6 @@ module Postal
         default "peer"
       end
 
-      boolean :ssl do
-        description "Use an SSL/TLS connection to the SMTP server (SMTPS)"
-        default false
-      end
-
       string :from_name do
         description "The name to use as the from name outgoing emails from Postal"
         default "Postal"
