@@ -4,9 +4,7 @@ namespace :postal do
   desc "Run all migrations on message databases"
   task migrate_message_databases: :environment do
     Server.all.each do |server|
-      puts "\e[35m-------------------------------------------------------------------\e[0m"
-      puts "\e[35m#{server.id}: #{server.name} (#{server.permalink})\e[0m"
-      puts "\e[35m-------------------------------------------------------------------\e[0m"
+      puts "Running migrations for #{server.organization.permalink}/#{server.permalink} (ID: #{server.id})"
       server.message_db.provisioner.migrate
     end
   end
