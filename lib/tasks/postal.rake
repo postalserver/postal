@@ -22,6 +22,11 @@ namespace :postal do
     output = Postal::YamlConfigExporter.new(Postal::ConfigSchema).export
     File.write("doc/config/yaml.yml", output)
   end
+
+  desc "Generate Helm Environment Variables"
+  task generate_helm_env_vars: :environment do
+    puts Postal::HelmConfigExporter.new(Postal::ConfigSchema).export
+  end
 end
 
 Rake::Task["db:migrate"].enhance do
