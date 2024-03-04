@@ -27,6 +27,19 @@ namespace :postal do
   task generate_helm_env_vars: :environment do
     puts Postal::HelmConfigExporter.new(Postal::ConfigSchema).export
   end
+
+  desc "Update the database"
+  task update: :environment do
+    mysql = ActiveRecord::Base.connection
+    if mysql.table_exists?("schema_migrations") &&
+       mysql.select_all("select * from schema_migrations").any?
+      puts "Database schema is already loaded. Running migrations with db:migrate"
+      Rake::Task["db:migrate"].invoke
+    else
+      puts "No schema migrations exist. Loading schema with db:schema:load"
+      Rake::Task["db:schema:load"].invoke
+    end
+  end
 end
 
 Rake::Task["db:migrate"].enhance do

@@ -25,12 +25,15 @@ case "$1" in
 
     initialize)
         echo 'Initializing database'
-        run "bundle exec rake db:create db:schema:load db:seed"
+        run "bundle exec rake db:create postal:update"
         ;;
 
     upgrade)
-        echo 'Migrating database'
-        run "bundle exec rake db:migrate"
+        run "bundle exec rake postal:update"
+        ;;
+
+    update)
+        run "bundle exec rake postal:update"
         ;;
 
     console)
@@ -65,7 +68,7 @@ case "$1" in
         echo "Setup/upgrade tools:"
         echo
         echo -e " * \033[32minitialize\033[0m - create and load the DB schema"
-        echo -e " * \033[32mupgrade\033[0m - upgrade the DB schema"
+        echo -e " * \033[32mupdate\033[0m - upgrade the DB schema"
         echo
         echo "Other tools:"
         echo
