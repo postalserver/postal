@@ -38,7 +38,7 @@ class DKIMHeader
           ^(
             from|sender|reply-to|subject|date|message-id|to|cc|mime-version|content-type|content-transfer-encoding|
             resent-to|resent-cc|resent-from|resent-sender|resent-message-id|in-reply-to|references|list-id|list-help|
-            list-owner|list-unsubscribe|list-subscribe|list-post
+            list-owner|list-unsubscribe|list-unsubscribe-post|list-subscribe|list-post
           ):/ix)
       end
       dkim_headers.each do |h|
