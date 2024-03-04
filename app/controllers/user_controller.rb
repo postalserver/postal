@@ -28,26 +28,6 @@ class UserController < ApplicationController
     end
   end
 
-  def join
-    if @invite = UserInvite.where(uuid: params[:token]).where("expires_at > ?", Time.now).first
-      if logged_in?
-        if request.post?
-          @invite.accept(current_user)
-          redirect_to_with_json root_path(nrd: 1), notice: "Invitation has been accepted successfully. You now have access to this organization."
-        elsif request.delete?
-          @invite.reject
-          redirect_to_with_json root_path(nrd: 1), notice: "Invitation has been rejected successfully."
-        else
-          @organizations = @invite.organizations.order(:name).to_a
-        end
-      else
-        redirect_to new_signup_path(params[:token])
-      end
-    else
-      redirect_to_with_json root_path(nrd: 1), alert: "The invite URL you have has expired. Please ask the person who invited you to re-send your invitation."
-    end
-  end
-
   def update
     @user = User.find(current_user.id)
     @user.attributes = params.require(:user).permit(:first_name, :last_name, :time_zone, :email_address, :password, :password_confirmation)
