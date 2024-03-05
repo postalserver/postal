@@ -53,7 +53,7 @@ module Postal
       "gelf.facility" => -> (c) { c.dig("logging", "graylog", "facility") },
 
       "smtp_server.default_port" => -> (c) { c.dig("smtp_server", "port") },
-      "smtp_server.default_bind_address" => -> (c) { c.dig("smtp_server", "bind_address") },
+      "smtp_server.default_bind_address" => -> (c) { c.dig("smtp_server", "bind_address") || "::" },
       "smtp_server.tls_enabled" => -> (c) { c.dig("smtp_server", "tls_enabled") },
       "smtp_server.tls_certificate_path" => -> (c) { c.dig("smtp_server", "tls_certificate_path") },
       "smtp_server.tls_private_key_path" => -> (c) { c.dig("smtp_server", "tls_private_key_path") },
