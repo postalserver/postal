@@ -250,7 +250,7 @@ class SMTPSender < BaseSender
         SMTPClient::Server.new(relay.host, relay.port, ssl_mode: relay.ssl_mode)
       end.compact
 
-      @smtp_relays = hosts.empty? ? nil : hosts
+      @smtp_relays = relays.empty? ? nil : relays
     end
 
   end
