@@ -207,7 +207,7 @@ module SMTPServer
 
                   result = [result] unless result.is_a?(Array)
                   result.compact.each do |iline|
-                    client.logger&.debug "\e[34m=> #{iline.strip}"
+                    client.logger&.debug "\e[34m=> #{iline.strip}\e[0m"
                     begin
                       io.write(iline.to_s + "\r\n")
                       io.flush
