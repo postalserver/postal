@@ -2,6 +2,58 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.0.0](https://github.com/postalserver/postal/compare/2.3.2...3.0.0) (2024-03-04)
+
+This version of Postal introduces a number of larger changes. Please be sure to follow the [upgrade guide](https://docs.postalserver.io/getting-started/upgrade-to-v3) when upgrading to Postal v3. Highlights include:
+
+* Removal of RabbitMQ dependency
+* Removal of `cron` and `requeuer` processes
+* Improved logging
+* Improved configuration
+* Adds prometheus metric exporters for workers and SMTP servers
+* Only accepted RFC-compliant end-of-DATA sequences (to avoid SMTP smuggling)
+
+### Features
+
+* add health server and prometheus metrics to worker ([a2eb70e](https://github.com/postalserver/postal/commit/a2eb70e))
+* add option to delay starting processes until all migrations are run ([1c5ff5a](https://github.com/postalserver/postal/commit/1c5ff5a))
+* add prometheus metrics to smtp server ([2e7b36c](https://github.com/postalserver/postal/commit/2e7b36c))
+* add prometheus metrics to worker ([bea7450](https://github.com/postalserver/postal/commit/bea7450))
+* more consistent logging ([044058d](https://github.com/postalserver/postal/commit/044058d))
+* new background work process ([dc8e895](https://github.com/postalserver/postal/commit/dc8e895))
+* new configuration system (and schema) (#2819) ([0163ac3](https://github.com/postalserver/postal/commit/0163ac3))
+* only accept RFC-compliant End-of-DATA sequence ([0140dc4](https://github.com/postalserver/postal/commit/0140dc4))
+* add "postal:update" task ([b35eea6](https://github.com/postalserver/postal/commit/b35eea6338f1888bfac2ed377d0a412680483e90))
+* add helm env var config exporter ([8938988](https://github.com/postalserver/postal/commit/893898835dcd9684ae3401549389b173a3feb1fb))
+* include list-unsubscribe-post header in dkim signatures ([e1bae60](https://github.com/postalserver/postal/commit/e1bae60768c4cf151d5a6a141985c78753dce02d)), closes [#2789](https://github.com/postalserver/postal/issues/2789) [#2788](https://github.com/postalserver/postal/issues/2788)
+* support for additional SMTP client options ([0daa667](https://github.com/postalserver/postal/commit/0daa667b55fd9b948da643d37ec438e341809369))
+
+
+### Bug Fixes
+
+* fixes potential issue if machine hostname cannot be determined ([0fcf778](https://github.com/postalserver/postal/commit/0fcf778))
+* raise an error if MX lookup times out during sending ([fadca88](https://github.com/postalserver/postal/commit/fadca88)), closes [#2833](https://github.com/postalserver/postal/issues/2833)
+* set correct component in health server log lines ([a7a9a18](https://github.com/postalserver/postal/commit/a7a9a18))
+* translate unicode domain names to Punycode for compatibility with DNS (#2823) ([be0df7b](https://github.com/postalserver/postal/commit/be0df7b))
+* remove user email verification ([e05f0b3](https://github.com/postalserver/postal/commit/e05f0b3616da8b962b763c48a2139882fd88047a))
+* unescape in URLs which are stored for tracking ([1da1182](https://github.com/postalserver/postal/commit/1da1182c23e9673d8f109d8ed29e80983cdccabf)), closes [#2568](https://github.com/postalserver/postal/issues/2568) [#907](https://github.com/postalserver/postal/issues/907) [#115](https://github.com/postalserver/postal/issues/115)
+* update wording about tracking domain cnames ([0d3eccb](https://github.com/postalserver/postal/commit/0d3eccb368630b4fd21bd858a7829ec00c35f153)), closes [#2808](https://github.com/postalserver/postal/issues/2808)
+
+
+### Documentation
+
+* add message_db.encoding to config docs ([0c1f925](https://github.com/postalserver/postal/commit/0c1f925))
+* add new repo readme welcome image ([afa1726](https://github.com/postalserver/postal/commit/afa1726))
+* add quick contributing instructions ([8d21adc](https://github.com/postalserver/postal/commit/8d21adc))
+* update SECURITY policy ([cfc1c9b](https://github.com/postalserver/postal/commit/cfc1c9b))
+* update docs for how IP address allocation works ([07eb152](https://github.com/postalserver/postal/commit/07eb152)), closes [#2209](https://github.com/postalserver/postal/issues/2209)
+
+### Miscellaneous Chores
+
+* upgrade bundler to 2.5.6 ([1ae8ef6](https://github.com/postalserver/postal/commit/1ae8ef6))
+* upgrade rails to 7.0 and other dependencies ([ecd09a2](https://github.com/postalserver/postal/commit/ecd09a2))
+* upgrade ruby to 3.2.2 and nodejs to 20.x ([72715fe](https://github.com/postalserver/postal/commit/72715fe))
+
 ## [2.3.2](https://github.com/postalserver/postal/compare/2.3.1...2.3.2) (2024-03-01)
 
 
