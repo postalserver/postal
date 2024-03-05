@@ -2,6 +2,13 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.0.1](https://github.com/postalserver/postal/compare/3.0.0...3.0.1) (2024-03-05)
+
+
+### Bug Fixes
+
+* fix issue with sending mail when smtp relays are configured ([6dd6e29](https://github.com/postalserver/postal/commit/6dd6e29929c70eaa8b9d3b33c184996b0b6abb82))
+
 ## [3.0.0](https://github.com/postalserver/postal/compare/2.3.2...3.0.0) (2024-03-04)
 
 This version of Postal introduces a number of larger changes. Please be sure to follow the [upgrade guide](https://docs.postalserver.io/getting-started/upgrade-to-v3) when upgrading to Postal v3. Highlights include:
