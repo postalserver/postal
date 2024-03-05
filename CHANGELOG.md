@@ -2,6 +2,18 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.0.2](https://github.com/postalserver/postal/compare/3.0.1...3.0.2) (2024-03-05)
+
+
+### Bug Fixes
+
+* default to listening on all addresses when using legacy config ([48f6494](https://github.com/postalserver/postal/commit/48f6494240eb0374d5f865425b362e6f306b2653))
+
+
+### Miscellaneous Chores
+
+* removing arm64 support until we can get a reasonable build pipeline sorted ([e8e44f5](https://github.com/postalserver/postal/commit/e8e44f54b09426c8a04e466bc037851a0833d124))
+
 ## [3.0.1](https://github.com/postalserver/postal/compare/3.0.0...3.0.1) (2024-03-05)
 
 
