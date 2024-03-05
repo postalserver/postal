@@ -27,6 +27,8 @@ postal:
   signing_key_path: config/postal/signing.key
   # An array of SMTP relays in the format of smtp://host:port
   smtp_relays: []
+  # An array of IP addresses to trust for proxying requests to Postal (in addition to localhost addresses)
+  trusted_proxies: []
 
 web_server:
   # The default port the web server should listen on unless overriden by the PORT environment variable

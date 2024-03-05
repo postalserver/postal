@@ -84,6 +84,12 @@ module Postal
           }
         end
       end
+
+      string :trusted_proxies do
+        array
+        description "An array of IP addresses to trust for proxying requests to Postal (in addition to localhost addresses)"
+        transform { |ip| IPAddr.new(ip) }
+      end
     end
 
     group :web_server do
