@@ -2,6 +2,28 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.1.0](https://github.com/postalserver/postal/compare/3.0.2...3.1.0) (2024-03-06)
+
+
+### Features
+
+* configurable trusted proxies for web requests ([3785c99](https://github.com/postalserver/postal/commit/3785c998513c634d225b489ccb43e926ce3f270a))
+
+
+### Bug Fixes
+
+* **message-dequeuer:** ensure SMTP endpoints are sent to SMTP sender appropriately ([e2d642c](https://github.com/postalserver/postal/commit/e2d642c0cbf443550886d90abc3a6edf3e4bc4fc)), closes [#2853](https://github.com/postalserver/postal/issues/2853)
+* **smtp-server:** listen on all interfaces by default ([d1e5b68](https://github.com/postalserver/postal/commit/d1e5b68200ea4b9710cc8714afb3271bad1f4f66)), closes [#2852](https://github.com/postalserver/postal/issues/2852)
+* **smtp-server:** remove ::ffff: from the start of ipv4 addresses ([0dc7359](https://github.com/postalserver/postal/commit/0dc7359431001c9ef1222913f8d1344093397596))
+* **smtp-server:** reset ansi sequence after logging ([9bf6152](https://github.com/postalserver/postal/commit/9bf6152060ffb8b611b66818c1d1ac7c929b7ffe))
+* **ui:** fixes typo on queue page ([33513a7](https://github.com/postalserver/postal/commit/33513a77c0df24d832ab7ed5237d68e2b1bde887))
+* **web-server:** allow for trusted proxies not be set ([4e1deb2](https://github.com/postalserver/postal/commit/4e1deb2d2aeb61d9dddb3729916411c94e73c1c6))
+
+
+### Styles
+
+* **rubocop:** use _ when not using a variable in helm config exporter ([2c20ba6](https://github.com/postalserver/postal/commit/2c20ba65f64ccb0f8174e3f523dedb3806478782))
+
 ## [3.0.2](https://github.com/postalserver/postal/compare/3.0.1...3.0.2) (2024-03-05)
 
 
