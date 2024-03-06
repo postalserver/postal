@@ -233,7 +233,7 @@ module Postal
 
       string :default_bind_address do
         description "The default bind address the SMTP server should listen on unless overriden by the BIND_ADDRESS environment variable"
-        default "127.0.0.1"
+        default "::"
       end
 
       integer :default_health_server_port do
