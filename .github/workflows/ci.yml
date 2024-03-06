@@ -33,7 +33,7 @@ jobs:
       - uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ghcr.io/postalserver/postal:ci-${{ github.sha }}
+          tags: ghcr.io/jmdunsing/postal:ci-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: ci
@@ -54,10 +54,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - run: docker-compose pull
         env:
-          POSTAL_IMAGE: ghcr.io/postalserver/postal:ci-${{ github.sha }}
+          POSTAL_IMAGE: ghcr.io/jmdunsing/postal:ci-${{ github.sha }}
       - run: docker-compose run postal sh -c 'bundle exec rspec'
         env:
-          POSTAL_IMAGE: ghcr.io/postalserver/postal:ci-${{ github.sha }}
+          POSTAL_IMAGE: ghcr.io/jmdunsing/postal:ci-${{ github.sha }}
 
   release-branch:
     name: Release (branch)
@@ -83,8 +83,8 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/postalserver/postal:${{ steps.tag.outputs.tag }}
-            ghcr.io/postalserver/postal:commit-${{ github.sha }}
+            ghcr.io/jmdunsing/postal:${{ steps.tag.outputs.tag }}
+            ghcr.io/jmdunsing/postal:commit-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
@@ -108,8 +108,8 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/postalserver/postal:stable
-            ghcr.io/postalserver/postal:${{ needs.release-please.outputs.version }}
+            ghcr.io/jmdunsing/postal:stable
+            ghcr.io/jmdunsing/postal:${{ needs.release-please.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
