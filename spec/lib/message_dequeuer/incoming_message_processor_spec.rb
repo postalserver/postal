@@ -422,7 +422,7 @@ module MessageDequeuer
       it "gets a sender from the state and sends the message to it" do
         smtp_sender_double = double("SMTPSender")
         expect(smtp_sender_double).to receive(:send_message).with(queued_message.message).and_return(SendResult.new)
-        expect(state).to receive(:sender_for).with(SMTPSender, message.recipient_domain, nil, { servers: [endpoint] }).and_return(smtp_sender_double)
+        expect(state).to receive(:sender_for).with(SMTPSender, message.recipient_domain, nil, { servers: [kind_of(SMTPClient::Server)] }).and_return(smtp_sender_double)
         processor.process
       end
     end

@@ -47,4 +47,8 @@ class SMTPEndpoint < ApplicationRecord
     routes.each { |r| r.update(endpoint: nil, mode: "Reject") }
   end
 
+  def to_smtp_client_server
+    SMTPClient::Server.new(hostname, port: port || 25, ssl_mode: ssl_mode)
+  end
+
 end

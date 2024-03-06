@@ -163,7 +163,7 @@ module MessageDequeuer
 
       case queued_message.message.endpoint
       when SMTPEndpoint
-        sender = @state.sender_for(SMTPSender, queued_message.message.recipient_domain, nil, servers: [queued_message.message.endpoint])
+        sender = @state.sender_for(SMTPSender, queued_message.message.recipient_domain, nil, servers: [queued_message.message.endpoint.to_smtp_client_server])
       when HTTPEndpoint
         sender = @state.sender_for(HTTPSender, queued_message.message.endpoint)
       when AddressEndpoint
