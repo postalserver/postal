@@ -261,7 +261,7 @@ RSpec.describe SMTPSender do
             sender.send_message(message)
             expect(sender.endpoints.last).to have_received(:send_message).with(
               kind_of(String),
-              "#{server.token}@#{domain.return_path_domain}",
+              "#{server.token}+#{message.token}@#{domain.return_path_domain}",
               ["john@example.com"]
             )
           end
@@ -272,7 +272,7 @@ RSpec.describe SMTPSender do
             sender.send_message(message)
             expect(sender.endpoints.last).to have_received(:send_message).with(
               kind_of(String),
-              "#{server.token}@#{Postal::Config.dns.return_path_domain}",
+              "#{server.token}+#{message.token}@#{Postal::Config.dns.return_path_domain}",
               ["john@example.com"]
             )
           end
@@ -306,7 +306,7 @@ RSpec.describe SMTPSender do
           it "adds the resent-sender header" do
             sender.send_message(message)
             expect(sender.endpoints.last).to have_received(:send_message).with(
-              "Resent-Sender: #{server.token}@#{Postal::Config.dns.return_path_domain}\r\n#{message.raw_message}",
+              "Resent-Sender: #{server.token}+#{message.token}@#{Postal::Config.dns.return_path_domain}\r\n#{message.raw_message}",
               kind_of(String),
               kind_of(Array)
             )
