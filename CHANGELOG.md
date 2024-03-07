@@ -2,6 +2,14 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.0.1](https://github.com/jmdunsing/postal/compare/3.0.0...3.0.1) (2024-03-07)
+
+
+### Miscellaneous Chores
+
+* **main:** release 3.0.0 ([#20](https://github.com/jmdunsing/postal/issues/20)) ([b415e45](https://github.com/jmdunsing/postal/commit/b415e45c7247e76624a34e387a4f99519d34b455))
+* update release please manifest json ([c261ffd](https://github.com/jmdunsing/postal/commit/c261ffd9c2dd10ddde1a26eeda821e7c550f6192))
+
 ## [3.0.0](https://github.com/jmdunsing/postal/compare/v3.1.0...3.0.0) (2024-03-06)
 
 
