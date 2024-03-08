@@ -16,7 +16,7 @@ gem "hashie"
 gem "highline", require: false
 gem "kaminari"
 gem "klogger-logger"
-gem "konfig-config", "~> 2.0"
+gem "konfig-config", "~> 3.0"
 gem "mail"
 gem "moonrope"
 gem "mysql2"

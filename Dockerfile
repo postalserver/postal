@@ -48,9 +48,6 @@ RUN echo $VERSION > VERSION
 
 # Set paths for when running in a container
 ENV POSTAL_CONFIG_FILE_PATH=/config/postal.yml
-ENV POSTAL_SIGNING_KEY_PATH=/config/signing.key
-ENV SMTP_SERVER_TLS_CERTIFICATE_PATH=/config/smtp.cert
-ENV SMTP_SERVER_TLS_PRIVATE_KEY_PATH=/config/smtp.key
 
 # Set the CMD
 ENTRYPOINT [ "/docker-entrypoint.sh" ]

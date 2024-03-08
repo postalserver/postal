@@ -17,7 +17,9 @@ module Postal
       # by the schema itself. Otherwise, we might see a value returned that
       # looks correct but is actually the default rather than the value from
       # config file.
-      allow_any_instance_of(Konfig::SchemaAttribute).to receive(:default).and_return(nil)
+      allow_any_instance_of(Konfig::SchemaAttribute).to receive(:default) do |a|
+        a.array? ? [] : nil
+      end
     end
 
     let(:source) { described_class.new(SOURCE_CONFIG) }

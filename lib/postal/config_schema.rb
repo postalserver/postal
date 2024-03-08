@@ -68,7 +68,8 @@ module Postal
 
       string :signing_key_path do
         description "Path to the private key used for signing"
-        default "config/postal/signing.key"
+        default "$config-file-root/signing.key"
+        transform { |v| Postal.substitute_config_file_root(v) }
       end
 
       string :smtp_relays do
@@ -253,12 +254,14 @@ module Postal
 
       string :tls_certificate_path do
         description "The path to the SMTP server's TLS certificate"
-        default "config/postal/smtp.cert"
+        default "$config-file-root/smtp.cert"
+        transform { |v| Postal.substitute_config_file_root(v) }
       end
 
       string :tls_private_key_path do
         description "The path to the SMTP server's TLS private key"
-        default "config/postal/smtp.key"
+        default "$config-file-root/smtp.key"
+        transform { |v| Postal.substitute_config_file_root(v) }
       end
 
       string :tls_ciphers do
@@ -500,6 +503,16 @@ module Postal
         default 2
       end
     end
+  end
+
+  class << self
+
+    def substitute_config_file_root(string)
+      return if string.nil?
+
+      string.gsub(/\$config-file-root/i, File.dirname(Postal.config_file_path))
+    end
+
   end
 
 end

@@ -149,7 +149,7 @@ GEM
       concurrent-ruby (>= 1.0, < 2.0)
       json
       rouge (>= 3.30, < 5.0)
-    konfig-config (2.1.1)
+    konfig-config (3.0.0)
       hashie
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -353,7 +353,7 @@ DEPENDENCIES
   jquery-rails
   kaminari
   klogger-logger
-  konfig-config (~> 2.0)
+  konfig-config (~> 3.0)
   mail
   moonrope
   mysql2
