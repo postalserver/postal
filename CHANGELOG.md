@@ -2,6 +2,18 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.1.1](https://github.com/postalserver/postal/compare/3.1.0...3.1.1) (2024-03-08)
+
+
+### Bug Fixes
+
+* don't override paths in dockerfile ([9399e32](https://github.com/postalserver/postal/commit/9399e3223467cdacd010e70b58ad6093e128213d))
+
+
+### Tests
+
+* **smtp-sender:** add more tests for AUTH LOGIN ([22dcd49](https://github.com/postalserver/postal/commit/22dcd4901f188915cf4b3c758c6f2fc637a4e1e3))
+
 ## [3.1.0](https://github.com/postalserver/postal/compare/3.0.2...3.1.0) (2024-03-06)
 
 
