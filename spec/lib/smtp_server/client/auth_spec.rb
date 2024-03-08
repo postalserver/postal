@@ -55,6 +55,26 @@ module SMTPServer
         it "requests the username" do
           expect(client.handle("AUTH LOGIN")).to eq("334 VXNlcm5hbWU6")
         end
+
+        it "requests a password after a username" do
+          client.handle("AUTH LOGIN")
+          expect(client.handle("xx")).to eq("334 UGFzc3dvcmQ6")
+        end
+
+        it "authenticates and returns a response if the password is correct" do
+          client.handle("AUTH LOGIN")
+          client.handle("xx")
+          credential = create(:credential, type: "SMTP")
+          password = Base64.encode64(credential.key)
+          expect(client.handle(password)).to match(/235 Granted for/)
+        end
+
+        it "returns an error when an invalid credential is provided" do
+          client.handle("AUTH LOGIN")
+          client.handle("xx")
+          password = Base64.encode64("xx")
+          expect(client.handle(password)).to eq("535 Invalid credential")
+        end
       end
 
       context "when a username is provided on the first line" do
@@ -71,9 +91,7 @@ module SMTPServer
           expect(client.handle(password)).to match(/235 Granted for/)
           expect(client.credential).to eq credential
         end
-      end
 
-      context "when invalid credentials are provided" do
         it "returns an error and resets the state" do
           username = Base64.encode64("xx")
           password = Base64.encode64("xx")
