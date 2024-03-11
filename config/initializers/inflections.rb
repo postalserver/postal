@@ -16,6 +16,7 @@
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.acronym "DKIM"
   inflect.acronym "HTTP"
+  inflect.acronym "OIDC"
   inflect.acronym "SMTP"
   inflect.acronym "UUID"
 

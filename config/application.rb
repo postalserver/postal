@@ -12,7 +12,9 @@ require "sprockets/railtie"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
-Bundler.require(*Rails.groups)
+gem_groups = Rails.groups
+gem_groups << :oidc if Postal::Config.oidc.enabled?
+Bundler.require(*gem_groups)
 
 module Postal
   class Application < Rails::Application

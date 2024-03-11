@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_23_141501) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
   create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
@@ -330,6 +330,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_23_141501) do
     t.string "password_reset_token"
     t.datetime "password_reset_token_valid_until", precision: nil
     t.boolean "admin", default: false
+    t.string "oidc_uid"
+    t.string "oidc_issuer"
     t.index ["email_address"], name: "index_users_on_email_address", length: 8
     t.index ["uuid"], name: "index_users_on_uuid", length: 8
   end

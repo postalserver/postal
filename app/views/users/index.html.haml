@@ -7,15 +7,20 @@
   %ul.userList.u-margin
     - for user in @users
       %li.userList__item
-        = image_tag user.avatar_url, :class => 'userList__avatar'
         .userList__details
           %p.userList__name
             = user.name
             - if user.admin?
-              %span.userList__admin.label Admin
+              %span.userList__tag.label.label--blue Admin
+            - if Postal::Config.oidc.enabled?
+              - if user.oidc?
+                %span.userList__tag.label.label--green OIDC
+              - elsif !Postal::Config.oidc.local_authentication_enabled?
+                %span.userList__tag.label.label--orange Pending
+              
           %p.userList__email= user.email_address
         %ul.userList__actions
-          %li= link_to "Edit permissions", [:edit, user]
+          %li= link_to "Edit user", [:edit, user]
           %li= link_to "Delete user", user, :method => :delete, :data => {:confirm => "Are you sure you wish to revoke #{user.name}'s access?", :disable_with => "Deleting..."}, :remote => true, :class => 'userList__revoke'
 
   %p.u-center= link_to "Add a new user", :new_user, :class => 'button button--positive'

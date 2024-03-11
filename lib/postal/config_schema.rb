@@ -508,6 +508,77 @@ module Postal
         default 2
       end
     end
+
+    group :oidc do
+      boolean :enabled do
+        description "Enable OIDC authentication"
+        default false
+      end
+
+      boolean :local_authentication_enabled do
+        description "When enabled, users with passwords will still be able to login locally. If disable, only OpenID Connect will be available."
+        default true
+      end
+
+      string :name do
+        description "The name of the OIDC provider as shown in the UI"
+        default "OIDC Provider"
+      end
+
+      string :issuer do
+        description "The OIDC issuer URL"
+      end
+
+      string :identifier do
+        description "The client ID for OIDC"
+      end
+
+      string :secret do
+        description "The client secret for OIDC"
+      end
+
+      string :scopes do
+        description "Scopes to request from the OIDC server."
+        array
+        default "openid,email"
+      end
+
+      string :uid_field do
+        description "The field to use to determine the user's UID"
+        default "sub"
+      end
+
+      string :email_address_field do
+        description "The field to use to determine the user's email address"
+        default "email"
+      end
+
+      string :name_field do
+        description "The field to use to determine the user's name"
+        default "name"
+      end
+
+      boolean :discovery do
+        description "Enable discovery to determine endpoints from .well-known/openid-configuration from the Issuer"
+        default true
+      end
+
+      string :authorization_endpoint do
+        description "The authorize endpoint on the authorization server (only used when discovery is false)"
+      end
+
+      string :token_endpoint do
+        description "The token endpoint on the authorization server (only used when discovery is false)"
+      end
+
+      string :userinfo_endpoint do
+        description "The user info endpoint on the authorization server (only used when discovery is false)"
+      end
+
+      string :jwks_uri do
+        description "The JWKS endpoint on the authorization server (only used when discovery is false)"
+      end
+    end
   end
 
   class << self

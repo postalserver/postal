@@ -97,3 +97,17 @@ This document contains all the environment variables which are available for thi
 | `MIGRATION_WAITER_ENABLED` | Boolean | Wait for all migrations to run before starting a process | false |
 | `MIGRATION_WAITER_ATTEMPTS` | Integer | The number of attempts to try waiting for migrations to complete before start | 120 |
 | `MIGRATION_WAITER_SLEEP_TIME` | Integer | The number of seconds to wait between each migration check | 2 |
+| `OIDC_ENABLED` | Boolean | Enable OIDC authentication | false |
+| `OIDC_NAME` | String | The name of the OIDC provider as shown in the UI | OIDC Provider |
+| `OIDC_ISSUER` | String | The OIDC issuer URL |  |
+| `OIDC_IDENTIFIER` | String | The client ID for OIDC |  |
+| `OIDC_SECRET` | String | The client secret for OIDC |  |
+| `OIDC_SCOPES` | Array of strings | Scopes to request from the OIDC server. | openid |
+| `OIDC_UID_FIELD` | String | The field to use to determine the user's UID | sub |
+| `OIDC_EMAIL_ADDRESS_FIELD` | String | The field to use to determine the user's email address | sub |
+| `OIDC_NAME_FIELD` | String | The field to use to determine the user's name | name |
+| `OIDC_DISCOVERY` | Boolean | Enable discovery to determine endpoints from .well-known/openid-configuration from the Issuer | true |
+| `OIDC_AUTHORIZATION_ENDPOINT` | String | The authorize endpoint on the authorization server (only used when discovery is false) |  |
+| `OIDC_TOKEN_ENDPOINT` | String | The token endpoint on the authorization server (only used when discovery is false) |  |
+| `OIDC_USERINFO_ENDPOINT` | String | The user info endpoint on the authorization server (only used when discovery is false) |  |
+| `OIDC_JWKS_URI` | String | The JWKS endpoint on the authorization server (only used when discovery is false) |  |

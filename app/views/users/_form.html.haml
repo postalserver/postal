@@ -11,11 +11,25 @@
       .fieldSet__input= f.text_field :last_name, :class => 'input input--text'
     .fieldSet__field
       = f.label :email_address, :class => 'fieldSet__label'
-      .fieldSet__input= f.text_field :email_address, :class => 'input input--text', autocomplete: 'one-time-code'
-    - unless @user.persisted?
+      .fieldSet__input
+        = f.text_field :email_address, :class => 'input input--text', autocomplete: 'one-time-code'
+        - if Postal::Config.oidc.enabled?
+          %p.fieldSet__text
+            This e-mail address should match the address provided by your OpenID Connect identity provider.
+
+    
+    - if Postal::Config.oidc.local_authentication_enabled? && !@user.persisted?
       .fieldSet__field
         = f.label :password, :class => 'fieldSet__label'
-        .fieldSet__input= f.password_field :password, :class => 'input input--text', :placeholder => '•••••••••••', autocomplete: 'one-time-code'
+        .fieldSet__input
+          = f.password_field :password, :class => 'input input--text', :placeholder => '•••••••••••', autocomplete: 'one-time-code'
+          - if Postal::Config.oidc.enabled?
+            %p.fieldSet__text
+              You have enabled OIDC which means a password is not required. If you do not provide
+              a password this user will be matched to an OIDC identity based on the e-mail address
+              provided above. You may, however, enter a password and this user will be permitted to
+              use that password until they have successfully logged in with OIDC.
+        
       .fieldSet__field
         = f.label :password_confirmation, "Confirm".html_safe, :class => 'fieldSet__label'
         .fieldSet__input= f.password_field :password_confirmation, :class => 'input input--text', :placeholder => '•••••••••••', autocomplete: 'one-time-code'

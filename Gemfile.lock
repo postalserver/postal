@@ -68,16 +68,20 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
+    aes_key_wrap (1.1.0)
     annotate (3.2.0)
       activerecord (>= 3.2, < 8.0)
       rake (>= 10.4, < 14.0)
     ast (2.4.2)
+    attr_required (1.0.2)
     authie (4.1.3)
       activerecord (>= 6.1, < 8.0)
     autoprefixer-rails (10.4.13.0)
       execjs (~> 2)
+    base64 (0.2.0)
     bcrypt (3.1.20)
     bigdecimal (3.1.6)
+    bindata (2.5.0)
     builder (3.2.4)
     chronic (0.10.2)
     coffee-rails (5.0.0)
@@ -106,6 +110,8 @@ GEM
     dynamic_form (1.3.1)
       actionview (> 5.2.0)
       activemodel (> 5.2.0)
+    email_validator (2.2.4)
+      activemodel
     encrypto_signo (1.0.0)
     erubi (1.12.0)
     execjs (2.7.0)
@@ -114,6 +120,12 @@ GEM
     factory_bot_rails (6.4.3)
       factory_bot (~> 6.4)
       railties (>= 5.0.0)
+    faraday (2.9.0)
+      faraday-net_http (>= 2.0, < 3.2)
+    faraday-follow_redirects (0.3.0)
+      faraday (>= 1, < 3)
+    faraday-net_http (3.1.0)
+      net-http
     ffi (1.15.5)
     gelf (3.1.0)
       json
@@ -133,6 +145,13 @@ GEM
       railties (>= 4.2.0)
       thor (>= 0.14, < 2.0)
     json (2.7.1)
+    json-jwt (1.16.6)
+      activesupport (>= 4.2)
+      aes_key_wrap
+      base64
+      bindata
+      faraday (~> 2.0)
+      faraday-follow_redirects
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.2)
@@ -169,6 +188,8 @@ GEM
       json
       rack (>= 1.4)
     mysql2 (0.5.6)
+    net-http (0.4.1)
+      uri
     net-imap (0.4.10)
       date
       net-protocol
@@ -194,6 +215,29 @@ GEM
       racc (~> 1.4)
     nokogiri (1.16.2-x86_64-linux)
       racc (~> 1.4)
+    omniauth (2.1.2)
+      hashie (>= 3.4.6)
+      rack (>= 2.2.3)
+      rack-protection
+    omniauth-rails_csrf_protection (1.0.1)
+      actionpack (>= 4.2)
+      omniauth (~> 2.0)
+    omniauth_openid_connect (0.7.1)
+      omniauth (>= 1.9, < 3)
+      openid_connect (~> 2.2)
+    openid_connect (2.3.0)
+      activemodel
+      attr_required (>= 1.0.0)
+      email_validator
+      faraday (~> 2.0)
+      faraday-follow_redirects
+      json-jwt (>= 1.16)
+      mail
+      rack-oauth2 (~> 2.2)
+      swd (~> 2.0)
+      tzinfo
+      validate_url
+      webfinger (~> 2.0)
     parallel (1.22.1)
     parser (3.2.1.1)
       ast (~> 2.4.1)
@@ -203,6 +247,16 @@ GEM
       nio4r (~> 2.0)
     racc (1.7.3)
     rack (2.2.8.1)
+    rack-oauth2 (2.2.1)
+      activesupport
+      attr_required
+      faraday (~> 2.0)
+      faraday-follow_redirects
+      json-jwt (>= 1.11.0)
+      rack (>= 2.1.0)
+    rack-protection (3.2.0)
+      base64 (>= 0.1.0)
+      rack (~> 2.2, >= 2.2.4)
     rack-test (2.1.0)
       rack (>= 1.3)
     rails (7.0.8.1)
@@ -302,6 +356,11 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
+    swd (2.0.3)
+      activesupport (>= 3)
+      attr_required (>= 0.0.5)
+      faraday (~> 2.0)
+      faraday-follow_redirects
     temple (0.10.3)
     thor (1.3.0)
     tilt (2.3.0)
@@ -315,6 +374,14 @@ GEM
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
     unicode-display_width (2.4.2)
+    uri (0.13.0)
+    validate_url (1.0.15)
+      activemodel (>= 3.0.0)
+      public_suffix
+    webfinger (2.1.3)
+      activesupport
+      faraday (~> 2.0)
+      faraday-follow_redirects
     webmock (3.20.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
@@ -360,6 +427,8 @@ DEPENDENCIES
   nifty-utils
   nilify_blanks
   nio4r
+  omniauth-rails_csrf_protection
+  omniauth_openid_connect
   prometheus-client
   puma
   rails (= 7.0.8.1)

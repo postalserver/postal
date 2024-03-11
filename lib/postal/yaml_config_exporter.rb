@@ -19,7 +19,7 @@ module Postal
               contents << "  #{name}: []"
             else
               contents << "  #{name}:"
-              attr.default.each do |d|
+              attr.transform(attr.default).each do |d|
                 contents << "    - #{d}"
               end
             end
