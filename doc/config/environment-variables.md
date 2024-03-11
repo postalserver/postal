@@ -15,9 +15,9 @@ This document contains all the environment variables which are available for thi
 | `POSTAL_DEFAULT_SPAM_FAILURE_THRESHOLD` | Integer | The default threshold at which a message should be treated as spam failure | 20 |
 | `POSTAL_USE_LOCAL_NS_FOR_DOMAIN_VERIFICATION` | Boolean | Domain verification and checking usually checks with a domain's nameserver. Enable this to check with the server's local nameservers. | false |
 | `POSTAL_USE_RESENT_SENDER_HEADER` | Boolean | Append a Resend-Sender header to all outgoing e-mails | true |
-| `POSTAL_SIGNING_KEY_PATH` | String | Path to the private key used for signing | config/postal/signing.key |
-| `POSTAL_SMTP_RELAYS` | Array of strings | An array of SMTP relays in the format of smtp://host:port |  |
-| `POSTAL_TRUSTED_PROXIES` | Array of strings | An array of IP addresses to trust for proxying requests to Postal (in addition to localhost addresses) |  |
+| `POSTAL_SIGNING_KEY_PATH` | String | Path to the private key used for signing | $config-file-root/signing.key |
+| `POSTAL_SMTP_RELAYS` | Array of strings | An array of SMTP relays in the format of smtp://host:port | [] |
+| `POSTAL_TRUSTED_PROXIES` | Array of strings | An array of IP addresses to trust for proxying requests to Postal (in addition to localhost addresses) | [] |
 | `WEB_SERVER_DEFAULT_PORT` | Integer | The default port the web server should listen on unless overriden by the PORT environment variable | 5000 |
 | `WEB_SERVER_DEFAULT_BIND_ADDRESS` | String | The default bind address the web server should listen on unless overriden by the BIND_ADDRESS environment variable | 127.0.0.1 |
 | `WEB_SERVER_MAX_THREADS` | Integer | The maximum number of threads which can be used by the web server | 5 |
@@ -44,12 +44,12 @@ This document contains all the environment variables which are available for thi
 | `GELF_PORT` | Integer | GELF port to send logs to | 12201 |
 | `GELF_FACILITY` | String | The facility name to add to all log entries sent to GELF | postal |
 | `SMTP_SERVER_DEFAULT_PORT` | Integer | The default port the SMTP server should listen on unless overriden by the PORT environment variable | 25 |
-| `SMTP_SERVER_DEFAULT_BIND_ADDRESS` | String | The default bind address the SMTP server should listen on unless overriden by the BIND_ADDRESS environment variable | 127.0.0.1 |
+| `SMTP_SERVER_DEFAULT_BIND_ADDRESS` | String | The default bind address the SMTP server should listen on unless overriden by the BIND_ADDRESS environment variable | :: |
 | `SMTP_SERVER_DEFAULT_HEALTH_SERVER_PORT` | Integer | The default port for the SMTP server health server to listen on | 9091 |
 | `SMTP_SERVER_DEFAULT_HEALTH_SERVER_BIND_ADDRESS` | String | The default bind address for the SMTP server health server to listen on | 127.0.0.1 |
 | `SMTP_SERVER_TLS_ENABLED` | Boolean | Enable TLS for the SMTP server (requires certificate) | false |
-| `SMTP_SERVER_TLS_CERTIFICATE_PATH` | String | The path to the SMTP server's TLS certificate | config/postal/smtp.cert |
-| `SMTP_SERVER_TLS_PRIVATE_KEY_PATH` | String | The path to the SMTP server's TLS private key | config/postal/smtp.key |
+| `SMTP_SERVER_TLS_CERTIFICATE_PATH` | String | The path to the SMTP server's TLS certificate | $config-file-root/smtp.cert |
+| `SMTP_SERVER_TLS_PRIVATE_KEY_PATH` | String | The path to the SMTP server's TLS private key | $config-file-root/smtp.key |
 | `SMTP_SERVER_TLS_CIPHERS` | String | Override ciphers to use for SSL |  |
 | `SMTP_SERVER_SSL_VERSION` | String | The SSL versions which are supported | SSLv23 |
 | `SMTP_SERVER_PROXY_PROTOCOL` | Boolean | Enable proxy protocol for use behind some load balancers | false |

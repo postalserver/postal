@@ -24,7 +24,7 @@ postal:
   # Append a Resend-Sender header to all outgoing e-mails
   use_resent_sender_header: true
   # Path to the private key used for signing
-  signing_key_path: config/postal/signing.key
+  signing_key_path: $config-file-root/signing.key
   # An array of SMTP relays in the format of smtp://host:port
   smtp_relays: []
   # An array of IP addresses to trust for proxying requests to Postal (in addition to localhost addresses)
@@ -96,7 +96,7 @@ smtp_server:
   # The default port the SMTP server should listen on unless overriden by the PORT environment variable
   default_port: 25
   # The default bind address the SMTP server should listen on unless overriden by the BIND_ADDRESS environment variable
-  default_bind_address: 127.0.0.1
+  default_bind_address: ::
   # The default port for the SMTP server health server to listen on
   default_health_server_port: 9091
   # The default bind address for the SMTP server health server to listen on
@@ -104,9 +104,9 @@ smtp_server:
   # Enable TLS for the SMTP server (requires certificate)
   tls_enabled: false
   # The path to the SMTP server's TLS certificate
-  tls_certificate_path: config/postal/smtp.cert
+  tls_certificate_path: $config-file-root/smtp.cert
   # The path to the SMTP server's TLS private key
-  tls_private_key_path: config/postal/smtp.key
+  tls_private_key_path: $config-file-root/smtp.key
   # Override ciphers to use for SSL
   tls_ciphers: 
   # The SSL versions which are supported
