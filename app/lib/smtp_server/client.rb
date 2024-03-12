@@ -252,7 +252,7 @@ module SMTPServer
         org_permlink, server_permalink = username.split(/[\/_]/, 2)
         server = ::Server.includes(:organization).where(organizations: { permalink: org_permlink }, permalink: server_permalink).first
         if server.nil?
-          logger&.warn "Authentication failure for #{@ip_address}"
+          logger&.warn "Authentication failure for #{@ip_address} (no server found matching #{username})"
           increment_error_count("invalid-credentials")
           next "535 Denied"
         end
@@ -264,12 +264,13 @@ module SMTPServer
 
           @credential = credential
           @credential.use
+          logger&.debug "Authenticated with with credential #{credential.id}"
           grant = "235 Granted for #{credential.server.organization.permalink}/#{credential.server.permalink}"
           break
         end
 
         if grant.nil?
-          logger&.warn "Authentication failure for #{@ip_address}"
+          logger&.warn "Authentication failure for #{@ip_address} (invalid credential)"
           increment_error_count("invalid-credentials")
           next "535 Denied"
         end
