@@ -32,6 +32,13 @@ gem "sentry-rails"
 gem "turbolinks", "~> 5"
 gem "webrick"
 
+group :oidc do
+  # These are gems which are needed for OpenID connect. They are only required by the application
+  # when OIDC is enabled in the Postal configuration.
+  gem "omniauth_openid_connect"
+  gem "omniauth-rails_csrf_protection"
+end
+
 group :development, :assets do
   gem "coffee-rails", "~> 5.0"
   gem "jquery-rails"

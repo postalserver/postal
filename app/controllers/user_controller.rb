@@ -30,22 +30,27 @@ class UserController < ApplicationController
 
   def update
     @user = User.find(current_user.id)
-    @user.attributes = params.require(:user).permit(:first_name, :last_name, :time_zone, :email_address, :password, :password_confirmation)
+    safe_params = [:first_name, :last_name, :time_zone, :email_address]
 
-    if @user.authenticate_with_previous_password_first(params[:password])
-      @password_correct = true
-    else
-      respond_to do |wants|
-        wants.html do
-          flash.now[:alert] = "The current password you have entered is incorrect. Please check and try again."
-          render "edit"
+    if @user.password? && Postal::Config.oidc.local_authentication_enabled?
+      safe_params += [:password, :password_confirmation]
+      if @user.authenticate_with_previous_password_first(params[:password])
+        @password_correct = true
+      else
+        respond_to do |wants|
+          wants.html do
+            flash.now[:alert] = "The current password you have entered is incorrect. Please check and try again."
+            render "edit"
+          end
+          wants.json do
+            render json: { alert: "The current password you've entered is incorrect. Please check and try again" }
+          end
         end
-        wants.json do
-          render json: { alert: "The current password you've entered is incorrect. Please check and try again" }
-        end
+        return
       end
-      return
     end
+
+    @user.attributes = params.require(:user).permit(safe_params)
 
     if @user.save
       redirect_to_with_json settings_path, notice: "Your settings have been updated successfully."

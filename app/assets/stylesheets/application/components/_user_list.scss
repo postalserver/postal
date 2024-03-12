@@ -1,74 +1,67 @@
 .userList {
-  border-radius:4px;
-  color:$darkBlue;
-  overflow:hidden;
-  box-shadow:0 0 10px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  color: $darkBlue;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .userList__item {
-  display:block;
-  background:#fff;
-  padding:15px;
-  display:flex;
+  display: block;
+  background: #fff;
+  padding: 15px;
+  display: flex;
   align-items: center;
 }
+
 .userList__item:nth-child(even) {
-  background:none;
+  background: none;
 }
 
-.userList__item + .userList__item {
-  border-top:1px solid lighten(#ccd4e0, 10%);
-}
-
-.userList__avatar {
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  background:#fff;
-  border:2px solid #efefef;
-  padding:3px;
-  flex: 0 0 auto;
+.userList__item+.userList__item {
+  border-top: 1px solid lighten(#ccd4e0, 10%);
 }
 
 .userList__details {
   flex: 1 1 auto;
-  margin:0 25px;
+  margin: 0 0;
 }
 
 
 .userList__actions {
   flex: 0 0 auto;
-  width:180px;
-  font-size:12px;
-  line-height:1.5;
-  color:#999;
-  text-decoration: underline;
+  width: 120px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #999;
+
+  a {
+    text-decoration: underline;
+  }
 }
 
 .userList__name {
-  font-weight:600;
-  font-size:16px;
-  margin-bottom:3px;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 3px;
 }
 
 .userList__owner {
-  vertical-align:2px;
-  margin-left:5px;
-  background-color:$orange;
+  vertical-align: 2px;
+  margin-left: 5px;
+  background-color: $orange;
 }
 
 .userList__pending {
-  vertical-align:2px;
-  margin-left:5px;
-  background-color:#ccc;
+  vertical-align: 2px;
+  margin-left: 5px;
+  background-color: #ccc;
 }
 
-.userList__admin {
-  vertical-align:2px;
-  margin-left:5px;
-  background-color:$blue;
+.userList__tag {
+  vertical-align: 2px;
+  margin-left: 3px;
 }
 
 .userList__revoke {
-  color:$red;
+  color: $red;
 }

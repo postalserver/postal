@@ -219,3 +219,34 @@ migration_waiter:
   attempts: 120
   # The number of seconds to wait between each migration check
   sleep_time: 2
+
+oidc:
+  # Enable OIDC authentication
+  enabled: false
+  # The name of the OIDC provider as shown in the UI
+  name: OIDC Provider
+  # The OIDC issuer URL
+  issuer: 
+  # The client ID for OIDC
+  identifier: 
+  # The client secret for OIDC
+  secret: 
+  # Scopes to request from the OIDC server.
+  scopes:
+    - openid
+  # The field to use to determine the user's UID
+  uid_field: sub
+  # The field to use to determine the user's email address
+  email_address_field: sub
+  # The field to use to determine the user's name
+  name_field: name
+  # Enable discovery to determine endpoints from .well-known/openid-configuration from the Issuer
+  discovery: true
+  # The authorize endpoint on the authorization server (only used when discovery is false)
+  authorization_endpoint: 
+  # The token endpoint on the authorization server (only used when discovery is false)
+  token_endpoint: 
+  # The user info endpoint on the authorization server (only used when discovery is false)
+  userinfo_endpoint: 
+  # The JWKS endpoint on the authorization server (only used when discovery is false)
+  jwks_uri: 

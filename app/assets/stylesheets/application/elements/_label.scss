@@ -1,136 +1,137 @@
 .label {
-  display:inline-block;
-  background:#000;
-  color:#fff;
-  font-size:9px;
+  display: inline-block;
+  background: #000;
+  color: #fff;
+  font-size: 9px;
   text-transform: uppercase;
-  border-radius:40px;
-  padding:2px 6px;
-  line-height:0.9;
+  border-radius: 40px;
+  padding: 2px 6px;
+  line-height: 0.9;
 }
 
 .label--green {
-  background-color:$green;
+  background-color: $green;
 }
 
 .label--red {
-  background-color:$red;
+  background-color: $red;
 }
 
 .label--orange {
-  background-color:$orange;
+  background-color: $orange;
 }
 
 .label--blue {
-  background-color:$blue;
+  background-color: $blue;
 }
 
 .label--grey {
-  background-color:#999;
+  background-color: #999;
 }
 
 .label--turquoise {
-  background-color:$blue;
+  background-color: $blue;
 }
 
 .label--purple {
-  background-color:$purple;
+  background-color: $purple;
 }
 
 .label--large {
-  font-size:11px;
-  padding:4px 10px;
+  font-size: 11px;
+  padding: 4px 10px;
 }
 
 .label--serverStatus-live {
-  background-color:$green;
+  background-color: $green;
 }
 
 .label--serverStatus-development {
-  background-color:#636363;
+  background-color: #636363;
 }
 
 .label--serverStatus-suspended {
-  background-color:$red;
+  background-color: $red;
 }
 
 .label--messageStatus-pending {
-  background-color:$subBlue;
+  background-color: $subBlue;
 }
 
 .label--messageStatus-held {
-  background-color:#aaa;
+  background-color: #aaa;
 }
 
 .label--messageStatus-processed {
-  background-color:$green;
+  background-color: $green;
 }
 
 .label--messageStatus-sent {
-  background-color:$green;
+  background-color: $green;
 }
 
 .label--messageStatus-hard_fail {
-  background-color:$red;
+  background-color: $red;
 }
 
 .label--messageStatus-soft_fail {
-  background-color:$orange;
+  background-color: $orange;
 }
 
 .label--messageStatus-bounced {
-  background-color:$red;
+  background-color: $red;
 }
 
 .label--messageStatus-hold_cancelled {
-  background-color:#ccc;
+  background-color: #ccc;
 }
 
 
 .label--credentialType-api {
-  background-color:$blue;
+  background-color: $blue;
 }
 
 .label--credentialType-smtp {
-  background-color:$turquoise;
+  background-color: $turquoise;
 }
 
 .label--credentialType-smtp_ip {
-  background-color:$orange;
+  background-color: $orange;
 }
 
 .label--spamStatus-not_checked {
-  background:#aaa;
+  background: #aaa;
 }
 
 .label--spamStatus-spam {
-  background:$orange;
+  background: $orange;
 }
 
 .label--spamStatus-not_spam {
-  background:$turquoise;
+  background: $turquoise;
 }
 
 .label--http-status-2 {
-  background-color:$green;
+  background-color: $green;
 }
 
 .label--http-status-3 {
-  background-color:$orange;
+  background-color: $orange;
 }
 
 .label--http-status-4,
 .label--http-status-5 {
-  background-color:$red;
+  background-color: $red;
 }
 
 .domainList__ssl {
-  color:$green;
+  color: $green;
+
   &:hover {
-    text-decoration:underline;
+    text-decoration: underline;
   }
 }
 
 .domainList__ssl--disabled {
-  color:#999;
+  color: #999;
 }

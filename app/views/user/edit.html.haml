@@ -6,15 +6,16 @@
   = form_for @user, :url => settings_path, :remote => true do |f|
     = f.error_messages
     %fieldset.fieldSet
-      .fieldSet__field
-        = label_tag :password, 'Your Password', :class => 'fieldSet__label'
-        .fieldSet__input
-          = password_field_tag :password, params[:password], :autofocus => @password_correct.nil?, :disabled => @password_correct, :class => 'input input--text', :placeholder => "Enter your current password to change your details"
-          - if @password_correct
-            = hidden_field_tag :password, params[:password]
-          %p.fieldSet__text
-            In order to protect your account, you need to enter your current password in the field above
-            to authenticate the change of your details.
+      - if @user.password? && Postal::Config.oidc.local_authentication_enabled?
+        .fieldSet__field
+          = label_tag :password, 'Your Password', :class => 'fieldSet__label'
+          .fieldSet__input
+            = password_field_tag :password, params[:password], :autofocus => @password_correct.nil?, :disabled => @password_correct, :class => 'input input--text', :placeholder => "Enter your current password to change your details"
+            - if @password_correct
+              = hidden_field_tag :password, params[:password]
+            %p.fieldSet__text
+              In order to protect your account, you need to enter your current password in the field above
+              to authenticate the change of your details.
 
       .fieldSet__title
         Your details
@@ -41,14 +42,15 @@
             Choose the time zone that you'd like times to be displayed to you when you use our
             web interface. By default, times are displayed in UTC.
 
-      .fieldSet__title
-        Change your password?
-      .fieldSet__field
-        = f.label :password, "New Password", :class => 'fieldSet__label'
-        .fieldSet__input
-          .inputPair
-            = f.password_field :password, :class => 'input input--text', :placeholder => "•••••••••••", :value => @user.password
-            = f.password_field :password_confirmation, :class => 'input input--text', :placeholder => "and confirm it", :value => @user.password_confirmation
+      - if @user.password? && Postal::Config.oidc.local_authentication_enabled?
+        .fieldSet__title
+          Change your password?
+        .fieldSet__field
+          = f.label :password, "New Password", :class => 'fieldSet__label'
+          .fieldSet__input
+            .inputPair
+              = f.password_field :password, :class => 'input input--text', :placeholder => "•••••••••••", :value => @user.password
+              = f.password_field :password_confirmation, :class => 'input input--text', :placeholder => "and confirm it", :value => @user.password_confirmation
 
 
     %p.fieldSetSubmit.buttonSet
