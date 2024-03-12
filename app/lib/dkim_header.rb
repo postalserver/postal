@@ -9,7 +9,7 @@ class DKIMHeader
       @dkim_identifier = domain.dkim_identifier
     else
       @domain_name = Postal::Config.dns.return_path_domain
-      @dkim_key = Postal.signing_key
+      @dkim_key = Postal.signer.private_key
       @dkim_identifier = Postal::Config.dns.dkim_identifier
     end
     @domain = domain

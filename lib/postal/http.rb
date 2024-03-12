@@ -40,8 +40,9 @@ module Postal
       end
 
       if options[:sign]
-        signature = EncryptoSigno.sign(Postal.signing_key, request.body.to_s).gsub("\n", "")
-        request.add_field "X-Postal-Signature", signature
+        request.add_field "X-Postal-Signature-KID", Postal.signer.jwk.kid
+        request.add_field "X-Postal-Signature", Postal.signer.sha1_sign64(request.body.to_s)
+        request.add_field "X-Postal-Signature-256", Postal.signer.sign64(request.body.to_s)
       end
 
       request["User-Agent"] = options[:user_agent] || "Postal/#{Postal.version}"

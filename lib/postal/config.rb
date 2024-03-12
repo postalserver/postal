@@ -98,12 +98,15 @@ module Postal
       "#{locker_name} #{suffix}"
     end
 
-    def signing_key
-      @signing_key ||= OpenSSL::PKey::RSA.new(File.read(Config.postal.signing_key_path))
+    def signer
+      @signer ||= begin
+        key = OpenSSL::PKey::RSA.new(File.read(Config.postal.signing_key_path))
+        Signer.new(key)
+      end
     end
 
     def rp_dkim_dns_record
-      public_key = signing_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
+      public_key = signer.private_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
       "v=DKIM1; t=s; h=sha256; p=#{public_key};"
     end
 
