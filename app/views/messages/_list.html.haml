@@ -1,24 +1,50 @@
 %ul.messageList
   - for message in messages
+  
     - if message.is_a?(QueuedMessage)
+      - queued_message = message
       - message = message.message
-    %li.messageList__message
-      = link_to organization_server_message_path(organization, @server, message.id), :class => 'messageList__link' do
-        .messageList__details{:class => 'messageList__details--' + message.scope}
-          %p.messageList__subject= message.subject || "No subject"
-          %dl.messageList__addresses
-            %dt To
-            %dd
-              - if message.rcpt_to_return_path?
-                %span.returnPathTag Return Path
-              - else
-                = message.rcpt_to || "none"
-            %dt From
-            %dd= message.mail_from || "none"
+      
+    
+    - if message.nil? && queued_message
+      %li.messageList__message
+        .messageList__link
+          .messageList__details
+            %p.messageList__subject Deleted message ##{queued_message.message_id}
+            %dl.messageList__addresses
+              %dt Domain
+              %dd= queued_message.domain
+              %dt Locked
+              %dd= queued_message.locked? ? "Yes" : "No"
+          .messageList__meta
+            %p.messageList__timestamp= queued_message.created_at.in_time_zone.to_fs(:long)
+            %p.messageList__status
+              %span.label{:class => "label--messageStatus-deleted"} Deleted
 
-        .messageList__meta
-          %p.messageList__timestamp= message.timestamp.in_time_zone.to_fs(:long)
-          %p.messageList__status
-            - if message.read?
-              %span.label.label--purple Opened
-            %span.label{:class => "label--messageStatus-#{message.status.underscore}"}= message.status.underscore.humanize
+
+    - else
+      %li.messageList__message
+        = link_to organization_server_message_path(organization, @server, message.id), :class => 'messageList__link' do
+          .messageList__details{:class => 'messageList__details--' + message.scope}
+            %p.messageList__subject= message.subject || "No subject"
+            %dl.messageList__addresses
+              %dt To
+              %dd
+                - if message.rcpt_to_return_path?
+                  %span.returnPathTag Return Path
+                - else
+                  = message.rcpt_to || "none"
+              %dt From
+              %dd= message.mail_from || "none"
+              - if queued_message
+                %dt Attempts
+                %dd= queued_message.attempts
+                %dt Retry after
+                %dd= queued_message.retry_after&.to_fs(:short) || "ASAP"
+
+          .messageList__meta
+            %p.messageList__timestamp= message.timestamp.in_time_zone.to_fs(:long)
+            %p.messageList__status
+              - if message.read?
+                %span.label.label--purple Opened
+              %span.label{:class => "label--messageStatus-#{message.status.underscore}"}= message.status.underscore.humanize

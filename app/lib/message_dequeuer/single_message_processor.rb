@@ -31,8 +31,8 @@ module MessageDequeuer
     private
 
     def check_message_exists
-      queued_message.message
-    rescue Postal::MessageDB::Message::NotFound
+      return if queued_message.message
+
       log "unqueueing because backend message has been removed"
       remove_from_queue
       stop_processing
