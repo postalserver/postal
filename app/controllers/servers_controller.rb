@@ -45,8 +45,16 @@ class ServersController < ApplicationController
     extra_params = [:spam_threshold, :spam_failure_threshold, :postmaster_address]
 
     if current_user.admin?
-      extra_params += [:send_limit, :allow_sender, :privacy_mode, :log_smtp_data, :outbound_spam_threshold,
-                       :message_retention_days, :raw_message_retention_days, :raw_message_retention_size]
+      extra_params += [
+        :send_limit,
+        :allow_sender,
+        :privacy_mode,
+        :log_smtp_data,
+        :outbound_spam_threshold,
+        :message_retention_days,
+        :raw_message_retention_days,
+        :raw_message_retention_size,
+      ]
     end
 
     if @server.update(safe_params(*extra_params))

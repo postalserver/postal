@@ -125,6 +125,9 @@ Style/MultilineBlockChain:
   Exclude:
     - "spec/**/*.rb"
 
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
 Metrics/AbcSize:
   Enabled: false
 

@@ -209,7 +209,7 @@ describe Domain do
         "postmaster@example.com",
         "admin@example.com",
         "administrator@example.com",
-        "hostmaster@example.com"
+        "hostmaster@example.com",
       ]
     end
   end

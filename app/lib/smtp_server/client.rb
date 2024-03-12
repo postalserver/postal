@@ -155,7 +155,7 @@ module SMTPServer
       [
         "250-My capabilities are",
         Postal::Config.smtp_server.tls_enabled? && !@tls ? "250-STARTTLS" : nil,
-        "250 AUTH CRAM-MD5 PLAIN LOGIN"
+        "250 AUTH CRAM-MD5 PLAIN LOGIN",
       ].compact
     end
 

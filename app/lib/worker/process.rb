@@ -26,7 +26,7 @@ module Worker
     # @return [Array<Class>]
     JOBS = [
       Jobs::ProcessQueuedMessagesJob,
-      Jobs::ProcessWebhookRequestsJob
+      Jobs::ProcessWebhookRequestsJob,
     ].freeze
 
     # An array of tasks that should be processed
@@ -41,7 +41,7 @@ module Worker
       PruneSuppressionListsScheduledTask,
       PruneWebhookRequestsScheduledTask,
       SendNotificationsScheduledTask,
-      TidyQueuedMessagesTask
+      TidyQueuedMessagesTask,
     ].freeze
 
     # @param [Integer] thread_count The number of worker threads to run in this process

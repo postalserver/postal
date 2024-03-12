@@ -29,7 +29,7 @@ module SMTPClient
             have_attributes(ip_address: "2a00::67a0:a::1234"),
             have_attributes(ip_address: "2a00::67a0:a::2345"),
             have_attributes(ip_address: "1.2.3.4"),
-            have_attributes(ip_address: "2.3.4.5")
+            have_attributes(ip_address: "2.3.4.5"),
           ]
         end
       end
@@ -43,7 +43,7 @@ module SMTPClient
         it "returns ipv4 endpoints" do
           expect(server.endpoints).to match [
             have_attributes(ip_address: "1.2.3.4"),
-            have_attributes(ip_address: "2.3.4.5")
+            have_attributes(ip_address: "2.3.4.5"),
           ]
         end
       end
@@ -57,7 +57,7 @@ module SMTPClient
         it "returns ipv6 endpoints" do
           expect(server.endpoints).to match [
             have_attributes(ip_address: "2a00::67a0:a::1234"),
-            have_attributes(ip_address: "2a00::67a0:a::2345")
+            have_attributes(ip_address: "2a00::67a0:a::2345"),
           ]
         end
       end

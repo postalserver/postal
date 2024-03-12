@@ -13,7 +13,7 @@ class ReplySeparator
     /^>*\s*On.{10,200}wrote:\s*$.*/m,
     /^>*\s*Sent from my.*/m,
     /^>*\s*=== Please reply above this line ===.*/m,
-    /(^>.*\n?){10,}/
+    /(^>.*\n?){10,}/,
   ].freeze
 
   def self.separate(text)

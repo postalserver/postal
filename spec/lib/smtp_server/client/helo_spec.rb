@@ -19,7 +19,7 @@ module SMTPServer
     describe "EHLO" do
       it "returns the capabilities" do
         expect(client.handle("EHLO test.example.com")).to eq ["250-My capabilities are",
-                                                              "250 AUTH CRAM-MD5 PLAIN LOGIN"]
+                                                              "250 AUTH CRAM-MD5 PLAIN LOGIN",]
       end
 
       context "when TLS is enabled" do
@@ -27,7 +27,7 @@ module SMTPServer
           allow(Postal::Config.smtp_server).to receive(:tls_enabled?).and_return(true)
           expect(client.handle("EHLO test.example.com")).to eq ["250-My capabilities are",
                                                                 "250-STARTTLS",
-                                                                "250 AUTH CRAM-MD5 PLAIN LOGIN"]
+                                                                "250 AUTH CRAM-MD5 PLAIN LOGIN",]
         end
       end
     end

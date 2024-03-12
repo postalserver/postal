@@ -66,7 +66,7 @@ RSpec.describe DNSResolver do
     it "returns a list of TXT records" do
       expect(resolver.txt("dnstest.postalserver.io").sort).to eq [
         "an example txt record",
-        "another example"
+        "another example",
       ]
     end
 
@@ -79,7 +79,7 @@ RSpec.describe DNSResolver do
       it "returns a list of TXT records" do
         expect(resolver.txt("dnstest.postalserver.io", raise_timeout_errors: true).sort).to eq [
           "an example txt record",
-          "another example"
+          "another example",
         ]
       end
 
@@ -120,7 +120,7 @@ RSpec.describe DNSResolver do
     it "returns a list of MX records" do
       expect(resolver.mx("dnstest.postalserver.io")).to eq [
         [10, "mx1.dnstest.postalserver.io"],
-        [20, "mx2.dnstest.postalserver.io"]
+        [20, "mx2.dnstest.postalserver.io"],
       ]
     end
 
@@ -133,7 +133,7 @@ RSpec.describe DNSResolver do
       it "returns a list of MX records" do
         expect(resolver.mx("dnstest.postalserver.io", raise_timeout_errors: true)).to eq [
           [10, "mx1.dnstest.postalserver.io"],
-          [20, "mx2.dnstest.postalserver.io"]
+          [20, "mx2.dnstest.postalserver.io"],
         ]
       end
 
@@ -150,7 +150,7 @@ RSpec.describe DNSResolver do
     it "returns the nameserver names that are authoritative for the given domain" do
       expect(resolver.effective_ns("postalserver.io").sort).to eq [
         "prestigious-honeybadger.katapultdns.com",
-        "the-cake-is-a-lie.katapultdns.com"
+        "the-cake-is-a-lie.katapultdns.com",
       ]
     end
 
@@ -163,7 +163,7 @@ RSpec.describe DNSResolver do
       it "returns a list of NS records" do
         expect(resolver.effective_ns("postalserver.io", raise_timeout_errors: true).sort).to eq [
           "prestigious-honeybadger.katapultdns.com",
-          "the-cake-is-a-lie.katapultdns.com"
+          "the-cake-is-a-lie.katapultdns.com",
         ]
       end
 

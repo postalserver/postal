@@ -180,8 +180,10 @@ RSpec.describe SMTPSender do
 
       it "includes both endpoints in the array of endpoints tried" do
         sender.start
-        expect(sender.endpoints).to match([have_attributes(ip_address: "1.2.3.4"),
-                                           have_attributes(ip_address: "2.3.4.5")])
+        expect(sender.endpoints).to match([
+                                            have_attributes(ip_address: "1.2.3.4"),
+                                            have_attributes(ip_address: "2.3.4.5"),
+                                          ])
       end
     end
 

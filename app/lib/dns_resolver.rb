@@ -111,9 +111,11 @@ class DNSResolver
   def dns(raise_timeout_errors: false)
     Resolv::DNS.open(nameserver: @nameservers,
                      raise_timeout_errors: raise_timeout_errors) do |dns|
-      dns.timeouts = [Postal::Config.dns.timeout,
-                      Postal::Config.dns.timeout / 2,
-                      Postal::Config.dns.timeout / 2]
+      dns.timeouts = [
+        Postal::Config.dns.timeout,
+        Postal::Config.dns.timeout / 2,
+        Postal::Config.dns.timeout / 2,
+      ]
       yield dns
     end
   end
