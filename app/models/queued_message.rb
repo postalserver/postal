@@ -33,14 +33,14 @@ class QueuedMessage < ApplicationRecord
 
   belongs_to :server
   belongs_to :ip_address, optional: true
-  belongs_to :user, optional: true
 
   before_create :allocate_ip_address
 
   scope :ready_with_delayed_retry, -> { where("retry_after IS NULL OR retry_after < ?", 30.seconds.ago) }
+  scope :with_stale_lock, -> { where("locked_at IS NOT NULL AND locked_at < ?", Postal::Config.postal.queued_message_lock_stale_days.days.ago) }
 
   def retry_now
-    update(retry_after: nil)
+    update!(retry_after: nil)
   end
 
   def send_bounce
@@ -50,7 +50,11 @@ class QueuedMessage < ApplicationRecord
   end
 
   def allocate_ip_address
-    return unless Postal.ip_pools? && message && pool = server.ip_pool_for_message(message)
+    return unless Postal.ip_pools?
+    return if message.nil?
+
+    pool = server.ip_pool_for_message(message)
+    return if pool.nil?
 
     self.ip_address = pool.ip_addresses.select_by_priority
   end

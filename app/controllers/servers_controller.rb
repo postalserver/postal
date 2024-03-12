@@ -73,7 +73,7 @@ class ServersController < ApplicationController
   end
 
   def queue
-    @messages = @server.queued_messages.order(id: :desc).page(params[:page])
+    @messages = @server.queued_messages.order(id: :desc).page(params[:page]).includes(:ip_address)
     @messages_with_message = @messages.include_message
   end
 

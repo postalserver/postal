@@ -40,7 +40,8 @@ module Worker
       ProcessMessageRetentionScheduledTask,
       PruneSuppressionListsScheduledTask,
       PruneWebhookRequestsScheduledTask,
-      SendNotificationsScheduledTask
+      SendNotificationsScheduledTask,
+      TidyQueuedMessagesTask
     ].freeze
 
     # @param [Integer] thread_count The number of worker threads to run in this process

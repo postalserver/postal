@@ -19,5 +19,11 @@ FactoryBot.define do
   factory :ip_pool do
     name { "Default Pool" }
     default { true }
+
+    trait :with_ip_address do
+      after(:create) do |ip_pool|
+        ip_pool.ip_addresses << create(:ip_address, ip_pool: ip_pool)
+      end
+    end
   end
 end

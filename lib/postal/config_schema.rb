@@ -91,6 +91,11 @@ module Postal
         description "An array of IP addresses to trust for proxying requests to Postal (in addition to localhost addresses)"
         transform { |ip| IPAddr.new(ip) }
       end
+
+      integer :queued_message_lock_stale_days do
+        description "The number of days after which to consider a lock as stale. Messages with stale locks will be removed and not retried."
+        default 1
+      end
     end
 
     group :web_server do
