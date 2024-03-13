@@ -16,6 +16,7 @@ require_relative "error"
 require_relative "version"
 require_relative "config_schema"
 require_relative "legacy_config_source"
+require_relative "signer"
 
 module Postal
 
