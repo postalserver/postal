@@ -2,6 +2,30 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.2.0](https://github.com/postalserver/postal/compare/3.1.1...3.2.0) (2024-03-13)
+
+
+### Features
+
+* add sha256 signatures to outgoing http requests ([#2874](https://github.com/postalserver/postal/issues/2874)) ([96d7365](https://github.com/postalserver/postal/commit/96d73653d7cb4dde1fbe74ccb3596147ef8cd9ed))
+* automatically remove queued messages with stale locks ([#2872](https://github.com/postalserver/postal/issues/2872)) ([d84152e](https://github.com/postalserver/postal/commit/d84152eb5df6f963426d6ba8d02d39b3c146c8a5))
+* openid connect support ([#2873](https://github.com/postalserver/postal/issues/2873)) ([5ed94f6](https://github.com/postalserver/postal/commit/5ed94f6f855735aa00544b2574dfb9e65d559a38))
+
+
+### Bug Fixes
+
+* **smtp-server:** add additional information to cram-md5 log entries ([9982bb8](https://github.com/postalserver/postal/commit/9982bb8c31ee4885d188666e2e8afdc218528df7))
+
+
+### Styles
+
+* **rubocop:** Style/TrailingCommaInArrayLiteral ([4e13577](https://github.com/postalserver/postal/commit/4e13577891dc827244abc6bf6d9ab4ee45860556))
+
+
+### Miscellaneous Chores
+
+* regenerate config docs ([5d8213a](https://github.com/postalserver/postal/commit/5d8213a98735f07fdf1700c7d01597654f41dbd0))
+
 ## [3.1.1](https://github.com/postalserver/postal/compare/3.1.0...3.1.1) (2024-03-08)
 
 
