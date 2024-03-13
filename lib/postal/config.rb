@@ -43,7 +43,9 @@ module Postal
       # key is a legacy file whereas new-style config files will include
       # the 'version: 2' key/value.
       if File.file?(config_file_path)
-        puts "Loading config from #{config_file_path}"
+        unless ENV.fetch("SILENCE_POSTAL_CONFIG_LOCATION_MESSAGE", "false") == "true"
+          warn "Loading config from #{config_file_path}"
+        end
 
         config_file = File.read(config_file_path)
         yaml = YAML.safe_load(config_file)
