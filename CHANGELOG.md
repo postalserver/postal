@@ -2,6 +2,13 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.2.1](https://github.com/postalserver/postal/compare/3.2.0...3.2.1) (2024-03-13)
+
+
+### Bug Fixes
+
+* fixes `postal default-dkim-record` ([58dddeb](https://github.com/postalserver/postal/commit/58dddebeb81dc6fab945d2b10a91588eddc471c2))
+
 ## [3.2.0](https://github.com/postalserver/postal/compare/3.1.1...3.2.0) (2024-03-13)
 
 
