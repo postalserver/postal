@@ -99,7 +99,7 @@ class OutgoingMessagePrototype
       {
         name: attachment[:name],
         content_type: attachment[:content_type] || "application/octet-stream",
-        data: attachment[:base64] ? Base64.decode64(attachment[:data]) : attachment[:data]
+        data: attachment[:base64] && attachment[:data] ? Base64.decode64(attachment[:data]) : attachment[:data]
       }
     end
   end

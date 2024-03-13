@@ -37,9 +37,16 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include GeneralHelpers
 
+  # Before all request specs, set the hostname to the web hostname for
+  # Postal otherwise it'll be www.example.com which will fail host
+  # authorization checks.
+  config.before(:each, type: :request) do
+    host! Postal::Config.postal.web_hostname
+  end
+
+  # Test that the factories are working as they should and then clean up before getting started on
+  # the rest of the suite.
   config.before(:suite) do
-    # Test that the factories are working as they should and then clean up before getting started on
-    # the rest of the suite.
     DatabaseCleaner.start
     FactoryBot.lint
   ensure
