@@ -112,7 +112,6 @@ GEM
       activemodel (> 5.2.0)
     email_validator (2.2.4)
       activemodel
-    encrypto_signo (1.0.0)
     erubi (1.12.0)
     execjs (2.7.0)
     factory_bot (6.4.6)
@@ -152,6 +151,8 @@ GEM
       bindata
       faraday (~> 2.0)
       faraday-follow_redirects
+    jwt (2.8.1)
+      base64
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.2)
@@ -410,7 +411,6 @@ DEPENDENCIES
   domain_name
   dotenv
   dynamic_form
-  encrypto_signo
   execjs (~> 2.7, < 2.8)
   factory_bot_rails
   gelf
@@ -418,6 +418,7 @@ DEPENDENCIES
   hashie
   highline
   jquery-rails
+  jwt
   kaminari
   klogger-logger
   konfig-config (~> 3.0)

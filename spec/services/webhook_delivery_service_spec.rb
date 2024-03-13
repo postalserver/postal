@@ -28,7 +28,9 @@ RSpec.describe WebhookDeliveryService do
         }.to_json,
         headers: {
           "Content-Type" => "application/json",
-          "X-Postal-Signature" => /\A[a-z0-9\/+]+=*\z/i
+          "X-Postal-Signature" => /\A[a-z0-9\/+]+=*\z/i,
+          "X-Postal-Signature-256" => /\A[a-z0-9\/+]+=*\z/i,
+          "X-Postal-Signature-KID" => /\A[a-f0-9\/+]{64}\z/i
         }
       })
     end

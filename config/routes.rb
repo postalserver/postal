@@ -89,6 +89,8 @@ Rails.application.routes.draw do
     get "auth/oidc/callback", to: "sessions#create_from_oidc"
   end
 
+  get ".well-known/jwks.json" => "well_known#jwks"
+
   get "ip" => "sessions#ip"
 
   root "organizations#index"
