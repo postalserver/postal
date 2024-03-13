@@ -279,7 +279,7 @@ module Postal
       end
 
       boolean :proxy_protocol do
-        description "Enable proxy protocol for use behind some load balancers"
+        description "Enable proxy protocol for use behind some load balancers (supports proxy protocol v1 only)"
         default false
       end
 

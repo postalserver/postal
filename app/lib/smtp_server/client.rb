@@ -116,18 +116,19 @@ module SMTPServer
     private
 
     def proxy(data)
+      # inet-protocol, client-ip, proxy-ip, client-port, proxy-port
       if m = data.match(/\APROXY (.+) (.+) (.+) (.+) (.+)\z/)
         @ip_address = m[2]
         check_ip_address
         @state = :welcome
         logger&.debug "\e[35mClient identified as #{@ip_address}\e[0m"
         increment_command_count("PROXY")
-        "220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{id}"
-      else
-        @finished = true
-        increment_error_count("proxy-error")
-        "502 Proxy Error"
+        return "220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{trace_id}"
       end
+
+      @finished = true
+      increment_error_count("proxy-error")
+      "502 Proxy Error"
     end
 
     def quit
