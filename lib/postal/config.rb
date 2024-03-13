@@ -38,12 +38,14 @@ module Postal
       Dotenv.load(".env")
       sources << Konfig::Sources::Environment.new(ENV)
 
+      silence_config_messages = ENV.fetch("SILENCE_POSTAL_CONFIG_MESSAGES", "false") == "true"
+
       # If a config file exists, we need to load that. Config files can
       # either be legacy (v1) or new (v2). Any file without a 'version'
       # key is a legacy file whereas new-style config files will include
       # the 'version: 2' key/value.
       if File.file?(config_file_path)
-        unless ENV.fetch("SILENCE_POSTAL_CONFIG_LOCATION_MESSAGE", "false") == "true"
+        unless silence_config_messages
           warn "Loading config from #{config_file_path}"
         end
 
@@ -52,18 +54,20 @@ module Postal
         config_version = yaml["version"] || 1
         case config_version
         when 1
-          puts "WARNING: Using legacy config file format. Upgrade your postal.yml to use"
-          puts "version 2 of the Postal configuration or configure using environment"
-          puts "variables. See https://postalserver.io/config-v2 for details."
+          unless silence_config_messages
+            warn "WARNING: Using legacy config file format. Upgrade your postal.yml to use"
+            warn "version 2 of the Postal configuration or configure using environment"
+            warn "variables. See https://postalserver.io/config-v2 for details."
+          end
           sources << LegacyConfigSource.new(yaml)
         when 2
           sources << Konfig::Sources::YAML.new(config_file)
         else
           raise "Invalid version specified in Postal config file. Must be 1 or 2."
         end
-      else
-        puts "No configuration file found at #{config_file_path}"
-        puts "Only using environment variables for configuration"
+      elsif !silence_config_messages
+        warn "No configuration file found at #{config_file_path}"
+        warn "Only using environment variables for configuration"
       end
 
       # Build configuration with the provided sources.
