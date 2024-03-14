@@ -2,6 +2,26 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.2.2](https://github.com/postalserver/postal/compare/3.2.1...3.2.2) (2024-03-14)
+
+
+### Bug Fixes
+
+* don't use authentication on org & server deletion ([be45652](https://github.com/postalserver/postal/commit/be456523dd3aacb5c3eb45c9261da97ebffe603c))
+* **smtp-server:** fixes proxy protocol ([9240612](https://github.com/postalserver/postal/commit/92406129cfcf1a06499a6f5aa18c73f1d6195793))
+
+
+### Miscellaneous Chores
+
+* allow config location message to be suppressed ([f760cdb](https://github.com/postalserver/postal/commit/f760cdb5a1d53e9c30ee495d129cbf12603a3cbd))
+* hide further config messages ([1c67f72](https://github.com/postalserver/postal/commit/1c67f72209c93404d7024ce3d15f6f54f2d707c4))
+* suppress config location on default-dkim-record ([aa76aae](https://github.com/postalserver/postal/commit/aa76aae2322af41af1bd60cfe1d69a11ac76324e))
+
+
+### Tests
+
+* add tests for the legacy API ([3d208d6](https://github.com/postalserver/postal/commit/3d208d632f4fc8a4adbfdb2bf4b377271eae6692))
+
 ## [3.2.1](https://github.com/postalserver/postal/compare/3.2.0...3.2.1) (2024-03-13)
 
 
