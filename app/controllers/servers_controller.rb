@@ -65,17 +65,15 @@ class ServersController < ApplicationController
   end
 
   def destroy
-    unless current_user.authenticate(params[:password])
+    if params[:confirm_text].blank? || params[:confirm_text].downcase.strip != @server.name.downcase.strip
       respond_to do |wants|
-        wants.html do
-          redirect_to [:delete, organization, @server], alert: "The password you entered was not valid. Please check and try again."
-        end
-        wants.json do
-          render json: { alert: "The password you entere was invalid. Please check and try again" }
-        end
+        alert_text = "The text you entered does not match the server name. Please check and try again."
+        wants.html { redirect_to organization_delete_path(@organization), alert: alert_text }
+        wants.json { render json: { alert: alert_text } }
       end
       return
     end
+
     @server.soft_destroy
     redirect_to_with_json organization_root_path(organization), notice: "#{@server.name} has been deleted successfully"
   end

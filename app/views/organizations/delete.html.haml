@@ -13,12 +13,11 @@
     all its mail servers & data will be deleted from our systems.
   .dangerZone
     %p.pageContent__text.u-margin
-      To continue to delete this organization, please enter your password in the field below and press
+      To continue to delete this organization, please enter the name of the organization in the field below and press
       continue. <b class='u-red'>There will be no other confirmations.</b>
     = form_tag [organization, :delete], :method => :delete, :remote => true do
       = hidden_field_tag 'return_to', params[:return_to]
       %p.u-margin
-        = password_field_tag "password", '', :class => 'input input--text input--danger'
+        = text_field_tag "confirm_text", '', :class => 'input input--text input--danger'
       .buttonSet.u-center
         = submit_tag "Delete this organization, mail servers and all messages", :class => 'button button--danger js-form-submit'
-

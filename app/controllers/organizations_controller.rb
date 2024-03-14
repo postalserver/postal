@@ -43,10 +43,11 @@ class OrganizationsController < ApplicationController
   end
 
   def destroy
-    unless current_user.authenticate(params[:password])
+    if params[:confirm_text].blank? || params[:confirm_text].downcase.strip != organization.name.downcase.strip
       respond_to do |wants|
-        wants.html { redirect_to organization_delete_path(@organization), alert: "The password you entered was not valid. Please check and try again." }
-        wants.json { render json: { alert: "The password you entered was invalid. Please check and try again." } }
+        alert_text = "The text you entered does not match the organization name. Please check and try again."
+        wants.html { redirect_to organization_delete_path(@organization), alert: alert_text }
+        wants.json { render json: { alert: alert_text } }
       end
       return
     end
