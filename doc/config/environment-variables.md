@@ -53,7 +53,7 @@ This document contains all the environment variables which are available for thi
 | `SMTP_SERVER_TLS_PRIVATE_KEY_PATH` | String | The path to the SMTP server's TLS private key | $config-file-root/smtp.key |
 | `SMTP_SERVER_TLS_CIPHERS` | String | Override ciphers to use for SSL |  |
 | `SMTP_SERVER_SSL_VERSION` | String | The SSL versions which are supported | SSLv23 |
-| `SMTP_SERVER_PROXY_PROTOCOL` | Boolean | Enable proxy protocol for use behind some load balancers | false |
+| `SMTP_SERVER_PROXY_PROTOCOL` | Boolean | Enable proxy protocol for use behind some load balancers (supports proxy protocol v1 only) | false |
 | `SMTP_SERVER_LOG_CONNECTIONS` | Boolean | Enable connection logging | false |
 | `SMTP_SERVER_MAX_MESSAGE_SIZE` | Integer | The maximum message size to accept from the SMTP server (in MB) | 14 |
 | `SMTP_SERVER_LOG_IP_ADDRESS_EXCLUSION_MATCHER` | String | A regular expression to use to exclude connections from logging |  |

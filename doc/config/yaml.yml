@@ -113,7 +113,7 @@ smtp_server:
   tls_ciphers: 
   # The SSL versions which are supported
   ssl_version: SSLv23
-  # Enable proxy protocol for use behind some load balancers
+  # Enable proxy protocol for use behind some load balancers (supports proxy protocol v1 only)
   proxy_protocol: false
   # Enable connection logging
   log_connections: false
