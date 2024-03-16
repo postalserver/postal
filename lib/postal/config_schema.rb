@@ -96,6 +96,11 @@ module Postal
         description "The number of days after which to consider a lock as stale. Messages with stale locks will be removed and not retried."
         default 1
       end
+
+      boolean :batch_queued_messages do
+        description "When enabled queued messages will be de-queued in batches based on their destination"
+        default true
+      end
     end
 
     group :web_server do

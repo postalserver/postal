@@ -17,7 +17,7 @@ module MessageDequeuer
             # Process the original message and then all of those
             # found for batching.
             process_message(@queued_message)
-            @other_messages.each { |message| process_message(message) }
+            @other_messages&.each { |message| process_message(message) }
           end
         ensure
           @state.finished
@@ -45,6 +45,8 @@ module MessageDequeuer
     end
 
     def find_other_messages_for_batch
+      return unless Postal::Config.postal.batch_queued_messages?
+
       @other_messages = @queued_message.batchable_messages(100)
       log "found #{@other_messages.size} associated messages to process at the same time", batch_key: @queued_message.batch_key
     rescue StandardError

@@ -62,13 +62,28 @@ module MessageDequeuer
         @queued_message3 = create(:queued_message, message: @message3)
       end
 
-      it "calls the single message process for the initial message and all batchable messages" do
-        [queued_message, @queued_message2, @queued_message3].each do |msg|
-          expect(SingleMessageProcessor).to receive(:process).with(msg,
-                                                                   logger: logger,
-                                                                   state: processor.state)
+      context "when postal.batch_queued_messages is enabled" do
+        it "calls the single message process for the initial message and all batchable messages" do
+          [queued_message, @queued_message2, @queued_message3].each do |msg|
+            expect(SingleMessageProcessor).to receive(:process).with(msg,
+                                                                     logger: logger,
+                                                                     state: processor.state)
+          end
+          processor.process
         end
-        processor.process
+      end
+
+      context "when postal.batch_queued_messages is disabled" do
+        before do
+          allow(Postal::Config.postal).to receive(:batch_queued_messages?) { false }
+        end
+
+        it "does not call the single message process more than once" do
+          expect(SingleMessageProcessor).to receive(:process).once.with(queued_message,
+                                                                        logger: logger,
+                                                                        state: processor.state)
+          processor.process
+        end
       end
     end
 

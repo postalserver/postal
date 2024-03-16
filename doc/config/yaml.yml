@@ -31,6 +31,8 @@ postal:
   trusted_proxies: []
   # The number of days after which to consider a lock as stale. Messages with stale locks will be removed and not retried.
   queued_message_lock_stale_days: 1
+  # When enabled queued messages will be de-queued in batches based on their destination
+  batch_queued_messages: true
 
 web_server:
   # The default port the web server should listen on unless overriden by the PORT environment variable
