@@ -223,6 +223,8 @@ migration_waiter:
 oidc:
   # Enable OIDC authentication
   enabled: false
+  # When enabled, users with passwords will still be able to login locally. If disable, only OpenID Connect will be available.
+  local_authentication_enabled: true
   # The name of the OIDC provider as shown in the UI
   name: OIDC Provider
   # The OIDC issuer URL
@@ -233,11 +235,11 @@ oidc:
   secret: 
   # Scopes to request from the OIDC server.
   scopes:
-    - openid
+    - openid,email
   # The field to use to determine the user's UID
   uid_field: sub
   # The field to use to determine the user's email address
-  email_address_field: sub
+  email_address_field: email
   # The field to use to determine the user's name
   name_field: name
   # Enable discovery to determine endpoints from .well-known/openid-configuration from the Issuer
