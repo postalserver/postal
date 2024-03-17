@@ -47,6 +47,8 @@ worker:
   default_health_server_port: 9090
   # The default bind address for the worker health server to listen on
   default_health_server_bind_address: 127.0.0.1
+  # The number of threads to execute within each worker
+  threads: 2
 
 main_db:
   # Hostname for the main MariaDB server

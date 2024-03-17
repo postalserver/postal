@@ -130,6 +130,11 @@ module Postal
         description "The default bind address for the worker health server to listen on"
         default "127.0.0.1"
       end
+
+      integer :threads do
+        description "The number of threads to execute within each worker"
+        default 2
+      end
     end
 
     group :main_db do

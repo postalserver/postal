@@ -45,7 +45,9 @@ module Worker
     ].freeze
 
     # @param [Integer] thread_count The number of worker threads to run in this process
-    def initialize(thread_count: 2, work_sleep_time: 5, task_sleep_time: 60)
+    def initialize(thread_count: Postal::Config.worker.threads,
+                   work_sleep_time: 5,
+                   task_sleep_time: 60)
       @thread_count = thread_count
       @exit_pipe_read, @exit_pipe_write = IO.pipe
       @work_sleep_time = work_sleep_time
