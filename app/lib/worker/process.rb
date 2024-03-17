@@ -288,6 +288,9 @@ module Worker
       register_prometheus_histogram :postal_worker_task_runtime,
                                     docstring: "The time taken to process tasks",
                                     labels: [:task]
+
+      register_prometheus_histogram :postal_message_queue_latency,
+                                    docstring: "The length of time between a message being queued and being dequeued"
     end
 
   end

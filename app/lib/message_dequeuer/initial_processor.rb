@@ -3,6 +3,8 @@
 module MessageDequeuer
   class InitialProcessor < Base
 
+    include HasPrometheusMetrics
+
     attr_accessor :send_result
 
     def process
@@ -10,6 +12,7 @@ module MessageDequeuer
         logger.info "starting message unqueue"
         begin
           catch_stops do
+            increment_dequeue_metric
             check_message_exists
             check_message_is_ready
             find_other_messages_for_batch
@@ -27,6 +30,13 @@ module MessageDequeuer
     end
 
     private
+
+    def increment_dequeue_metric
+      time_in_queue = Time.now.to_f - @queued_message.created_at.to_f
+      log "queue latency is #{time_in_queue}s"
+      observe_prometheus_histogram :postal_message_queue_latency,
+                                   time_in_queue
+    end
 
     def check_message_exists
       return if @queued_message.message
