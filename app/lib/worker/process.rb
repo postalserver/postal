@@ -60,6 +60,7 @@ module Worker
     def run
       logger.tagged(component: "worker") do
         setup_traps
+        ensure_connection_pool_size_is_suitable
         start_work_threads
         start_tasks_thread
         wait_for_threads
@@ -94,6 +95,23 @@ module Worker
     # @return [Boolean]
     def shutdown_after_wait?(wait_time)
       @exit_pipe_read.wait_readable(wait_time) ? true : false
+    end
+
+    # Ensure that the connection pool is big enough for the number of threads
+    # configured.
+    #
+    # @return [void]
+    def ensure_connection_pool_size_is_suitable
+      current_pool_size = ActiveRecord::Base.connection_pool.size
+      desired_pool_size = @thread_count + 3
+
+      return if current_pool_size >= desired_pool_size
+
+      logger.warn "number of worker threads (#{@thread_count}) is more  " \
+                  "than the db connection pool size (#{current_pool_size}+3), " \
+                  "increasing connection pool size to #{desired_pool_size}"
+
+      Postal.change_database_connection_pool_size(desired_pool_size)
     end
 
     # Wait for all threads to complete

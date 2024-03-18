@@ -22,6 +22,8 @@ module Postal
 
   class << self
 
+    attr_writer :current_process_type
+
     # Return the path to the config file
     #
     # @return [String]
@@ -134,6 +136,21 @@ module Postal
           }.merge(payload.transform_keys { |k| "_#{k}".to_sym }.transform_values(&:to_s)))
         end
       end
+    end
+
+    # Change the connection pool size to the given size.
+    #
+    # @param new_size [Integer]
+    # @return [void]
+    def change_database_connection_pool_size(new_size)
+      ActiveRecord::Base.connection_pool.disconnect!
+
+      config = ActiveRecord::Base.configurations
+                                 .configs_for(env_name: Rails.env)
+                                 .first
+                                 .configuration_hash
+
+      ActiveRecord::Base.establish_connection(config.merge(pool: new_size))
     end
 
   end
