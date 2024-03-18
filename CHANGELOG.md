@@ -2,6 +2,26 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.0](https://github.com/postalserver/postal/compare/3.2.2...3.3.0) (2024-03-18)
+
+
+### Features
+
+* **prometheus:** add `postal_message_queue_latency` metric ([ee8d829](https://github.com/postalserver/postal/commit/ee8d829a854f91e476167869cafe35c2d37bb314))
+* **worker:** allow number of threads to be configured ([7e2accc](https://github.com/postalserver/postal/commit/7e2acccd1ebd80750a3ebdb96cb5c36b5263cc24))
+* **worker:** scale connection pool with worker threads ([ea542a0](https://github.com/postalserver/postal/commit/ea542a0694b3465b04fd3ebc439837df414deb1e))
+
+
+### Bug Fixes
+
+* **message-dequeuer:** ability to disable batching ([4fcb9e9](https://github.com/postalserver/postal/commit/4fcb9e9a2e34be5aa4bdf13f0529f40e564b72b4))
+
+
+### Miscellaneous Chores
+
+* **config-docs:** update docs for latest oidc defaults ([364eba6](https://github.com/postalserver/postal/commit/364eba6c5fce2f08a36489f42856ad5024a2062c))
+* **config-docs:** update proxy protocol to mention v1 ([45dd8aa](https://github.com/postalserver/postal/commit/45dd8aaac56f15481cb7bf9081401cb28dc1e707))
+
 ## [3.2.2](https://github.com/postalserver/postal/compare/3.2.1...3.2.2) (2024-03-14)
 
 
