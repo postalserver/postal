@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  # Legacy API Routes
+  match "/api/v1/send/message" => "legacy_api/send#message", via: [:get, :post, :patch, :put]
+  match "/api/v1/send/raw" => "legacy_api/send#raw", via: [:get, :post, :patch, :put]
+  match "/api/v1/messages/message" => "legacy_api/messages#message", via: [:get, :post, :patch, :put]
+  match "/api/v1/messages/deliveries" => "legacy_api/messages#deliveries", via: [:get, :post, :patch, :put]
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]

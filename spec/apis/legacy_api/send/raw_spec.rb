@@ -60,13 +60,14 @@ RSpec.describe "Legacy Send API", type: :request do
           bounce: false
         }
       end
+      let(:content_type) { "application/json" }
       let(:params) { default_params }
 
       before do
         post "/api/v1/send/raw",
              headers: { "x-server-api-key" => credential.key,
-                        "content-type" => "application/json" },
-             params: params.to_json
+                        "content-type" => content_type },
+             params: content_type == "application/json" ? params.to_json : params
       end
 
       context "when rcpt_to is not provided" do
@@ -144,6 +145,21 @@ RSpec.describe "Legacy Send API", type: :request do
               scope: "outgoing",
               raw_message: data.to_s
             )
+          end
+        end
+
+        context "when params are provided as a param" do
+          let(:content_type) { nil }
+          let(:params) { { params: default_params.to_json } }
+
+          it "returns details of the messages created" do
+            parsed_body = JSON.parse(response.body)
+            expect(parsed_body["data"]["message_id"]).to be_a String
+            expect(parsed_body["data"]["messages"]).to be_a Hash
+            expect(parsed_body["data"]["messages"]).to match({
+              "test1@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/ },
+              "test2@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/ }
+            })
           end
         end
       end
