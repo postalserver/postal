@@ -84,7 +84,6 @@ jobs:
           push: true
           tags: |
             ghcr.io/postalserver/postal:${{ steps.tag.outputs.tag }}
-            ghcr.io/postalserver/postal:commit-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
