@@ -73,21 +73,33 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - id: tag
+      - id: info
         run: |
-          TAG="${GITHUB_REF#refs/heads/}"
-          if [ -z "$TAG" ]; then exit 1; fi
-          if [[ $TAG == "main" ]]; then TAG="latest"; else TAG="branch-${TAG}"; fi
-          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          IMAGE=ghcr.io/postalserver/postal
+
+          REF="${GITHUB_REF#refs/heads/}"
+          if [ -z "$REF" ]; then exit 1; fi
+
+          VER="$(git describe --tags 2>/dev/null)"
+          echo "version=${VER}" >> "$GITHUB_OUTPUT"
+
+          echo 'tags<<EOF' >> "$GITHUB_OUTPUT"
+          if [[ "$REF" == "main" ]]; then
+            echo "${IMAGE}:latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "${IMAGE}:branch-${REF}" >> "$GITHUB_OUTPUT"
+          fi
+          echo 'EOF' >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v4
         with:
           push: true
-          tags: |
-            ghcr.io/postalserver/postal:${{ steps.tag.outputs.tag }}
+          tags: ${{ steps.info.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
           platforms: linux/amd64
+          build-args: |
+            VERSION=${{ steps.info.outputs.version }}
 
   publish-image:
     name: Publish Image
