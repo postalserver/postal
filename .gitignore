@@ -29,6 +29,7 @@ vendor/bundle
 
 Procfile.local
 VERSION
+BRANCH
 
 .rubocop-https*
 .env*

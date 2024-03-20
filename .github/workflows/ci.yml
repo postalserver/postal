@@ -87,6 +87,7 @@ jobs:
 
           VER="$(git describe --tags 2>/dev/null)"
           echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          echo "branch=${REF}" >> "$GITHUB_OUTPUT"
 
           echo 'tags<<EOF' >> "$GITHUB_OUTPUT"
           if [[ "$REF" == "main" ]]; then
@@ -105,6 +106,7 @@ jobs:
           platforms: linux/amd64
           build-args: |
             VERSION=${{ steps.info.outputs.version }}
+            BRANCH=${{ steps.info.outputs.branch }}
 
   publish-image:
     name: Publish Image
