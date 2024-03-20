@@ -3,7 +3,7 @@ FROM ruby:3.2.2-bullseye AS base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-  software-properties-common dirmngr apt-transport-https \
+      software-properties-common dirmngr apt-transport-https \
   && (curl -sL https://deb.nodesource.com/setup_20.x | bash -) \
   && rm -rf /var/lib/apt/lists/*
 
@@ -43,8 +43,10 @@ COPY ./docker/wait-for.sh /docker-entrypoint.sh
 COPY --chown=postal . .
 
 # Export the version
-ARG VERSION=unspecified
-RUN echo $VERSION > VERSION
+ARG VERSION=null
+ARG BRANCH=null
+RUN echo $VERSION > VERSION \
+  && echo $BRANCH > BRANCH
 
 # Set paths for when running in a container
 ENV POSTAL_CONFIG_FILE_PATH=/config/postal.yml

@@ -153,6 +153,18 @@ module Postal
       ActiveRecord::Base.establish_connection(config.merge(pool: new_size))
     end
 
+    # Return the branch name which created this release
+    #
+    # @return [String, nil]
+    def branch
+      return @branch if instance_variable_defined?("@branch")
+
+      @branch = begin
+        path = Rails.root.join("BRANCH")
+        File.read(path).strip if File.exist?(path)
+      end
+    end
+
   end
 
   Config = initialize_config
