@@ -13,7 +13,6 @@ require "dotenv"
 require "klogger"
 
 require_relative "error"
-require_relative "version"
 require_relative "config_schema"
 require_relative "legacy_config_source"
 require_relative "signer"
@@ -131,7 +130,7 @@ module Postal
           notifier.notify!(short_message: short_message, **{
             facility: Config.gelf.facility,
             _environment: Config.rails.environment,
-            _version: Postal::VERSION.to_s,
+            _version: Postal.version.to_s,
             _group_ids: group_ids.join(" ")
           }.merge(payload.transform_keys { |k| "_#{k}".to_sym }.transform_values(&:to_s)))
         end
@@ -159,10 +158,26 @@ module Postal
     def branch
       return @branch if instance_variable_defined?("@branch")
 
-      @branch = begin
-        path = Rails.root.join("BRANCH")
-        File.read(path).strip if File.exist?(path)
-      end
+      @branch ||= read_version_file("BRANCH")
+    end
+
+    # Return the branch name which created this release
+    #
+    # @return [String, nil]
+    def version
+      return @version if instance_variable_defined?("@version")
+
+      @version ||= read_version_file("VERSION") || "0.0.0"
+    end
+
+    private
+
+    def read_version_file(file)
+      path = Rails.root.join(file)
+      return unless File.exist?(path)
+
+      value = File.read(path).strip
+      value.empty? ? nil : value
     end
 
   end

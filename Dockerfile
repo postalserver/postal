@@ -43,10 +43,10 @@ COPY ./docker/wait-for.sh /docker-entrypoint.sh
 COPY --chown=postal . .
 
 # Export the version
-ARG VERSION=null
-ARG BRANCH=null
-RUN echo $VERSION > VERSION \
-  && echo $BRANCH > BRANCH
+ARG VERSION
+ARG BRANCH
+RUN if [ "$VERSION" != "" ]; then echo $VERSION > VERSION; fi \
+  && if [ "$BRANCH" != "" ]; then echo $BRANCH > BRANCH; fi
 
 # Set paths for when running in a container
 ENV POSTAL_CONFIG_FILE_PATH=/config/postal.yml
