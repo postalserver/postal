@@ -161,7 +161,7 @@ module Postal
       @branch ||= read_version_file("BRANCH")
     end
 
-    # Return the branch name which created this release
+    # Return the version
     #
     # @return [String, nil]
     def version
