@@ -524,4 +524,41 @@ RSpec.describe SMTPSender do
       expect(sender.endpoints).to all have_received(:finish_smtp_session).at_least(:once)
     end
   end
+
+  describe ".smtp_relays" do
+    before do
+      if described_class.instance_variable_defined?("@smtp_relays")
+        described_class.remove_instance_variable("@smtp_relays")
+      end
+    end
+
+    it "returns nil if smtp relays is nil" do
+      allow(Postal::Config.postal).to receive(:smtp_relays).and_return(nil)
+      expect(described_class.smtp_relays).to be nil
+    end
+
+    it "returns nil if there are no smtp relays" do
+      allow(Postal::Config.postal).to receive(:smtp_relays).and_return([])
+      expect(described_class.smtp_relays).to be nil
+    end
+
+    it "does not return relays where the host is nil" do
+      allow(Postal::Config.postal).to receive(:smtp_relays).and_return([
+                                                                         Hashie::Mash.new(host: nil, port: 25, ssl_mode: "Auto"),
+                                                                         Hashie::Mash.new(host: "test.example.com", port: 25, ssl_mode: "Auto"),
+                                                                       ])
+      expect(described_class.smtp_relays).to match [kind_of(SMTPClient::Server)]
+    end
+
+    it "returns relays with options" do
+      allow(Postal::Config.postal).to receive(:smtp_relays).and_return([
+                                                                         Hashie::Mash.new(host: "test.example.com", port: 25, ssl_mode: "Auto"),
+                                                                         Hashie::Mash.new(host: "test2.example.com", port: 2525, ssl_mode: "TLS"),
+                                                                       ])
+      expect(described_class.smtp_relays).to match [
+        have_attributes(hostname: "test.example.com", port: 25, ssl_mode: "Auto"),
+        have_attributes(hostname: "test2.example.com", port: 2525, ssl_mode: "TLS"),
+      ]
+    end
+  end
 end
