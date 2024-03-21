@@ -2,6 +2,28 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.1](https://github.com/postalserver/postal/compare/3.3.0...3.3.1) (2024-03-21)
+
+
+### Bug Fixes
+
+* **smtp-sender:** ensure relays without a host are excluded ([3a56ec8](https://github.com/postalserver/postal/commit/3a56ec8a74950e0162d98f1af5f58a67a82d6455))
+* **smtp-sender:** fixes `SMTPSender.smtp_relays` ([b3264b9](https://github.com/postalserver/postal/commit/b3264b942776e254d3c351c94c435d172a514e18))
+
+
+### Miscellaneous Chores
+
+* **container:** add the branch name to the container ([bee5098](https://github.com/postalserver/postal/commit/bee509832edc151d97fe5bfc48c4973452873fc8))
+* **github-actions:** don't generate commit- tags ([d65bbe0](https://github.com/postalserver/postal/commit/d65bbe0579037c5df962a18134bc007f5159d7e5))
+* **github-actions:** don't run for dependabot or release-please PRs and fetch whole repo ([adaf2b0](https://github.com/postalserver/postal/commit/adaf2b07502e9ed91290873ad8465051c6fd814f))
+* **github-actions:** include a version string on branch-*/latest images ([64bc7dc](https://github.com/postalserver/postal/commit/64bc7dcf7c0a8e006ab6eb6e8b4a52ad5e7e6528))
+* **ui:** display branch in footer if present ([1823617](https://github.com/postalserver/postal/commit/18236171ebc398c157f2e61b15c7df9f91205284))
+
+
+### Code Refactoring
+
+* remove moonrope but maintain legacy API actions ([#2889](https://github.com/postalserver/postal/issues/2889)) ([4d9654d](https://github.com/postalserver/postal/commit/4d9654dac47d59c760be96388d0421de74d3e6ac))
+
 ## [3.3.0](https://github.com/postalserver/postal/compare/3.2.2...3.3.0) (2024-03-18)
 
 
