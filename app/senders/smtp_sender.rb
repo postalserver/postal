@@ -244,7 +244,7 @@ class SMTPSender < BaseSender
       relays = Postal::Config.postal.smtp_relays
       return nil if relays.nil?
 
-      relays = relays.map do |relay|
+      relays = relays.filter_map do |relay|
         next unless relay.host.present?
 
         SMTPClient::Server.new(relay.host, port: relay.port, ssl_mode: relay.ssl_mode)
