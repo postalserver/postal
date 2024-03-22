@@ -2,6 +2,13 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.2](https://github.com/postalserver/postal/compare/3.3.1...3.3.2) (2024-03-21)
+
+
+### Code Refactoring
+
+* **versioning:** improve how current version and branch is determined and set ([07c6b31](https://github.com/postalserver/postal/commit/07c6b317f2b9dc04b6a8c88df1e6aa9e54597504))
+
 ## [3.3.1](https://github.com/postalserver/postal/compare/3.3.0...3.3.1) (2024-03-21)
 
 
