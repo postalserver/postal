@@ -88,6 +88,49 @@ RSpec.describe "Legacy Messages API", type: :request do
           end
         end
 
+        context "when all expansions are requested" do
+          let(:expansions) { true }
+
+          it "returns details about the message" do
+            expect(response.status).to eq 200
+            parsed_body = JSON.parse(response.body)
+            expect(parsed_body["status"]).to eq "success"
+            expect(parsed_body["data"]).to match({
+              "id" => message.id,
+              "token" => message.token,
+              "status" => { "held" => false,
+                            "hold_expiry" => nil,
+                            "last_delivery_attempt" => nil,
+                            "status" => "Pending" },
+              "details" => { "bounce" => false,
+                             "bounce_for_id" => 0,
+                             "direction" => "outgoing",
+                             "mail_from" => "test@example.com",
+                             "message_id" => message.message_id,
+                             "rcpt_to" => "john@example.com",
+                             "received_with_ssl" => nil,
+                             "size" => kind_of(String),
+                             "subject" => "An example message",
+                             "tag" => nil,
+                             "timestamp" => kind_of(Float) },
+              "inspection" => { "inspected" => false,
+                                "spam" => false,
+                                "spam_score" => 0.0,
+                                "threat" => false,
+                                "threat_details" => nil },
+              "plain_body" => message.plain_body,
+              "html_body" => message.html_body,
+              "attachments" => [],
+              "headers" => message.headers,
+              "raw_message" => Base64.encode64(message.raw_message),
+              "activity_entries" => {
+                "loads" => [],
+                "clicks" => []
+              }
+            })
+          end
+        end
+
         context "when the status expansion is requested" do
           let(:expansions) { ["status"] }
 

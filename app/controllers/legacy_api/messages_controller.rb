@@ -24,7 +24,7 @@ module LegacyAPI
       message_hash = { id: message.id, token: message.token }
       expansions = api_params["_expansions"]
 
-      if expansions.include?("status")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("status"))
         message_hash[:status] = {
           status: message.status,
           last_delivery_attempt: message.last_delivery_attempt&.to_f,
@@ -33,7 +33,7 @@ module LegacyAPI
         }
       end
 
-      if expansions.include?("details")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("details"))
         message_hash[:details] = {
           rcpt_to: message.rcpt_to,
           mail_from: message.mail_from,
@@ -49,7 +49,7 @@ module LegacyAPI
         }
       end
 
-      if expansions.include?("inspection")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("inspection"))
         message_hash[:inspection] = {
           inspected: message.inspected,
           spam: message.spam,
@@ -59,15 +59,15 @@ module LegacyAPI
         }
       end
 
-      if expansions.include?("plain_body")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("plain_body"))
         message_hash[:plain_body] = message.plain_body
       end
 
-      if expansions.include?("html_body")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("html_body"))
         message_hash[:html_body] = message.html_body
       end
 
-      if expansions.include?("attachments")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("attachments"))
         message_hash[:attachments] = message.attachments.map do |attachment|
           {
             filename: attachment.filename.to_s,
@@ -79,15 +79,15 @@ module LegacyAPI
         end
       end
 
-      if expansions.include?("headers")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("headers"))
         message_hash[:headers] = message.headers
       end
 
-      if expansions.include?("raw_message")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("raw_message"))
         message_hash[:raw_message] = Base64.encode64(message.raw_message)
       end
 
-      if expansions.include?("activity_entries")
+      if expansions == true || (expansions.is_a?(Array) && expansions.include?("activity_entries"))
         message_hash[:activity_entries] = {
           loads: message.loads,
           clicks: message.clicks
