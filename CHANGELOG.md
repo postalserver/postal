@@ -2,6 +2,13 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.3](https://github.com/postalserver/postal/compare/3.3.2...3.3.3) (2024-04-18)
+
+
+### Bug Fixes
+
+* **legacy-api:** allow _expansions to be provided as true to return all expansions ([39f704c](https://github.com/postalserver/postal/commit/39f704c256fc3e71a1dc009acc77796a1efffead)), closes [#2932](https://github.com/postalserver/postal/issues/2932)
+
 ## [3.3.2](https://github.com/postalserver/postal/compare/3.3.1...3.3.2) (2024-03-21)
 
 
