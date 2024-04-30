@@ -14,6 +14,10 @@ Rails.application.routes.draw do
   post "/api/v1/domains/check" => "legacy_api/domains#check"
   delete "/api/v1/domains/delete" => "legacy_api/domains#delete"
 
+  # Route management routes
+  post "/api/v1/routes/create" => "legacy_api/routes#create"
+  delete "/api/v1/routes/delete" => "legacy_api/routes#delete"
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]
