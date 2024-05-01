@@ -1,6 +1,8 @@
 module LegacyAPI
   class RoutesController < BaseController
 
+    # Endpoints to add and remove routes
+
     # POST /api/v1/routes/create
     def create
       server = @current_credential.server

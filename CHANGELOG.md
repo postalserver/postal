@@ -2,8 +2,6 @@
 
 This file contains all the latest changes and updates to Postal.
 
-## [3.0.0](https://github.com/utopianinc/postal/compare/v3.3.3-domains...3.0.0) (2024-04-26)
-
 
 ### Features
 
@@ -261,6 +259,10 @@ This file contains all the latest changes and updates to Postal.
 * remove FACTORIES_EXCLUDED_FROM_LINT ([1cf665a](https://github.com/utopianinc/postal/commit/1cf665a0cf61d1eae3d08bdadf6fccaab6413023))
 * rename database spec file ([b9edcf5](https://github.com/utopianinc/postal/commit/b9edcf5b7dda7f4976a9d3f90668bbdacea57350))
 * **smtp-sender:** add more tests for AUTH LOGIN ([22dcd49](https://github.com/utopianinc/postal/commit/22dcd4901f188915cf4b3c758c6f2fc637a4e1e3))
+
+## [3.3.3-alpha](https://github.com/postalserver/postal/compare/3.3.2...3.3.3) (2024-04-18)
+    Just adding in routes and domains legacy API endpoints
+
 
 ## [3.3.3](https://github.com/postalserver/postal/compare/3.3.2...3.3.3) (2024-04-18)
 
