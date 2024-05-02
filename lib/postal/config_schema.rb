@@ -81,7 +81,9 @@ module Postal
           {
             host: uri.host,
             port: uri.port || 25,
-            ssl_mode: query["ssl_mode"]&.first || "Auto"
+            ssl_mode: query["ssl_mode"]&.first || "Auto",
+            username: uri.user,
+            password: uri.password
           }
         end
       end

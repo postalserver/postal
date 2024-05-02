@@ -245,9 +245,15 @@ class SMTPSender < BaseSender
       return nil if relays.nil?
 
       relays = relays.filter_map do |relay|
-        next unless relay.host.present?
+        next unless relay[:host].present?
 
-        SMTPClient::Server.new(relay.host, port: relay.port, ssl_mode: relay.ssl_mode)
+        SMTPClient::Server.new(
+          relay[:host],
+          port: relay[:port],
+          ssl_mode: relay[:ssl_mode],
+          username: relay[:username],
+          password: relay[:password]
+        )
       end
 
       @smtp_relays = relays.empty? ? nil : relays

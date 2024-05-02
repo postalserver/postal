@@ -72,8 +72,8 @@ module Postal
 
       it "returns a value for postal.smtp_relays" do
         expect(config.postal.smtp_relays).to eq [
-          { "host" => "1.2.3.4", "port" => 25, "ssl_mode" => "Auto" },
-          { "host" => "2.2.2.2", "port" => 2525, "ssl_mode" => "None" },
+          { "host" => "1.2.3.4", "port" => 25, "ssl_mode" => "Auto", "password" => nil, "username" => nil },
+          { "host" => "2.2.2.2", "port" => 2525, "ssl_mode" => "None", "password" => nil, "username" => nil },
         ]
       end
     end
