@@ -6,7 +6,7 @@ module LegacyAPI
     # POST /api/v1/routes/create
     def create
       server = @current_credential.server
-      route = server.routes.find_by(name: route_params[:name], domain_id: route_params[:domain_id])
+      route = server.routes.find_by(name: route_params[:name], domain_id: route_params[:domain_id], endpoint_id: route_params[:endpoint_id], endpoint_type: route_params[:endpoint_type])
 
       if route
         render_error("RouteAlreadyExists", message: "Route already exists", status: :conflict)
