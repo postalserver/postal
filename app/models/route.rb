@@ -48,6 +48,7 @@ class Route < ApplicationRecord
   after_save :save_additional_route_endpoints
 
   random_string :token, type: :chars, length: 8, unique: true
+  attr_accessor :_endpoint
 
   def return_path?
     name == "__returnpath__"
