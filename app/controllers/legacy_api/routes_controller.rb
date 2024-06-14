@@ -35,10 +35,14 @@ module LegacyAPI
       route_id = params[:id].to_i
       route = @current_credential.server.routes.find_by(id: route_id)
 
-      if route&.destroy
-        render_success(message: "Route deleted successfully")
+      if route
+        if route.destroy
+          render_success(message: "Route deleted successfully")
+        else
+          render_error("RouteNotDeleted", message: "Failed to delete route", status: :unprocessable_entity)
+        end
       else
-        render_error("RouteNotDeleted", message: "Failed to delete route", status: :unprocessable_entity)
+        render_success(message: "Route does not exist")
       end
     end
 
