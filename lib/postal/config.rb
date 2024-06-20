@@ -145,7 +145,7 @@ module Postal
       ActiveRecord::Base.connection_pool.disconnect!
 
       config = ActiveRecord::Base.configurations
-                                 .configs_for(env_name: Rails.env)
+                                 .configs_for(env_name: Config.rails.environment)
                                  .first
                                  .configuration_hash
 
@@ -173,7 +173,7 @@ module Postal
     private
 
     def read_version_file(file)
-      path = Rails.root.join(file)
+      path = File.expand_path("../../../" + file, __FILE__)
       return unless File.exist?(path)
 
       value = File.read(path).strip
