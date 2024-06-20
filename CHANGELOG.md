@@ -2,6 +2,15 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.4](https://github.com/postalserver/postal/compare/3.3.3...3.3.4) (2024-06-20)
+
+
+### Bug Fixes
+
+* fix `postal version` command ([4fa88ac](https://github.com/postalserver/postal/commit/4fa88acea0dececd0eae485506a2ad8268fbea59))
+* fix issue running message pruning task ([3a33e53](https://github.com/postalserver/postal/commit/3a33e53d843584757bb00898746aa059d7616db4))
+* raise NotImplementedError when no call method on a scheduled task ([2b0919c](https://github.com/postalserver/postal/commit/2b0919c1454eabea93db96f50ecbd8e36bb89f1f))
+
 ## [3.3.3](https://github.com/postalserver/postal/compare/3.3.2...3.3.3) (2024-04-18)
 
 
