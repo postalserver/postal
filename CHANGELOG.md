@@ -1,6 +1,7 @@
-# CHANGELOG
-
 This file contains all the latest changes and updates to Postal.
+
+## [3.3.4-luna.1] (2024-06-25)
+* Fix broken changes in routes API
 
 ## [3.3.4](https://github.com/postalserver/postal/compare/3.3.3...3.3.4) (2024-06-20)
 
