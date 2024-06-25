@@ -7,7 +7,7 @@ class ApplicationScheduledTask
   end
 
   def call
-    # override me
+    raise NotImplementedError
   end
 
   attr_reader :logger

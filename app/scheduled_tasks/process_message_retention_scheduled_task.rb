@@ -2,7 +2,7 @@
 
 class ProcessMessageRetentionScheduledTask < ApplicationScheduledTask
 
-  def perform
+  def call
     Server.all.each do |server|
       if server.raw_message_retention_days
         # If the server has a maximum number of retained raw messages, remove any that are older than this
