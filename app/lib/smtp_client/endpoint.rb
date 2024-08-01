@@ -103,17 +103,23 @@ module SMTPClient
     # @return [void]
     def send_message(raw_message, mail_from, rcpt_to, retry_on_connection_error: true)
       raise SMTPSessionNotStartedError if @smtp_client.nil? || (@smtp_client && !@smtp_client.started?)
-
+    
       @smtp_client.rset_errors
-      @smtp_client.send_message(raw_message, mail_from, [rcpt_to])
+      response = @smtp_client.send_message(raw_message, mail_from, [rcpt_to])
+      return response
     rescue Errno::ECONNRESET, Errno::EPIPE, OpenSSL::SSL::SSLError
       if retry_on_connection_error
         finish_smtp_session
         start_smtp_session
         return send_message(raw_message, mail_from, rcpt_to, retry_on_connection_error: false)
       end
-
+    
       raise
+    end
+
+    # The helper methods remain unchanged
+    def using_ses_smtp_relay?
+      @server.hostname.include?("amazonaws.com")
     end
 
     # Reset the current SMTP session for this server if possible otherwise

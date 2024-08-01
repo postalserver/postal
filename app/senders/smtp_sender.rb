@@ -65,7 +65,7 @@ class SMTPSender < BaseSender
 
     rcpt_to = determine_rcpt_to_for_message(message)
     logger.info "Sending message #{message.server.id}::#{message.id} to #{rcpt_to}"
-    send_message_to_smtp_client(raw_message, mail_from, rcpt_to)
+    send_message_to_smtp_client(raw_message, mail_from, rcpt_to, message: message)
   end
 
   def finish
@@ -84,9 +84,19 @@ class SMTPSender < BaseSender
   # @param retry_on_connection_error [Boolean] if true, we will retry the connection if there is an error
   #
   # @return [SendResult]
-  def send_message_to_smtp_client(raw_message, mail_from, rcpt_to, retry_on_connection_error: true)
+  def send_message_to_smtp_client(raw_message, mail_from, rcpt_to, retry_on_connection_error: true, message: nil)
     start_time = Time.now
     smtp_result = @current_endpoint.send_message(raw_message, mail_from, [rcpt_to])
+    if @current_endpoint.using_ses_smtp_relay? && message && (smtp_result.status == "250") && smtp_result.string && match_data = smtp_result.string.match(/250 Ok (.*)/)
+      ses_message_id = match_data[1]
+      ses_message_id_full = "<#{ses_message_id}@eu-central-1.amazonses.com>"
+
+      # Add SES Message ID to the headers
+      message.append_headers("X-SES-Message-ID: #{ses_message_id_full}")
+
+      # Optionally: save the message again if necessary
+      message.save
+    end
     logger.info "Accepted by #{@current_endpoint} for #{rcpt_to}"
     create_result("Sent", start_time) do |r|
       r.details = "Message for #{rcpt_to} accepted by #{@current_endpoint}"

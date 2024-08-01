@@ -101,7 +101,8 @@ RSpec.describe "Legacy Messages API", type: :request do
                                                    "sent_with_ssl" => true,
                                                    "log_id" => "1234",
                                                    "time" => 1.2,
-                                                   "timestamp" => kind_of(Float) },
+                                                   "timestamp" => kind_of(Float),
+                                                   "ses_message_id" => nil },
                                                  { "id" => kind_of(Integer),
                                                    "status" => "Sent",
                                                    "details" => "sent successfully",
@@ -109,7 +110,8 @@ RSpec.describe "Legacy Messages API", type: :request do
                                                    "sent_with_ssl" => false,
                                                    "log_id" => "5678",
                                                    "time" => 2.2,
-                                                   "timestamp" => kind_of(Float) },
+                                                   "timestamp" => kind_of(Float),
+                                                   "ses_message_id" => nil },
                                                ])
         end
       end
