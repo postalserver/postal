@@ -126,7 +126,8 @@ module LegacyAPI
           sent_with_ssl: d.sent_with_ssl,
           log_id: d.log_id,
           time: d.time&.to_f,
-          timestamp: d.timestamp.to_f
+          timestamp: d.timestamp.to_f,
+          ses_message_id: message.headers["x-ses-message-id"]&.first
         }
       end
       render_success deliveries
