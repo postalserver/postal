@@ -1,5 +1,8 @@
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.4-luna.2] (2024-06-25)
+* Add SES message ID to message headers after send and return with deliveries
+
 ## [3.3.4-luna.1] (2024-06-25)
 * Fix broken changes in routes API
 
