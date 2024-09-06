@@ -539,6 +539,11 @@ module Postal
         description "The OIDC issuer URL"
       end
 
+      boolean :pkce do
+        description "set pkce option to true if OIDC provider has this option"
+        default false
+      end
+
       string :identifier do
         description "The client ID for OIDC"
       end
