@@ -540,7 +540,7 @@ module Postal
       end
 
       boolean :pkce do
-        description "set pkce option to true if OIDC provider has this option"
+        description "Option to enable Proof Key for Code Exchange by OAuth Public Clients"
         default false
       end
 
