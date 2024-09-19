@@ -21,6 +21,10 @@ message_db:
   password: 
   prefix: postal
 
+new_relic:
+  license_key:
+  app_name:
+
 logging:
   rails_log_enabled: true
   highlighting_enabled: true

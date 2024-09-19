@@ -195,6 +195,7 @@ GEM
       timeout
     net-smtp (0.4.0.1)
       net-protocol
+    newrelic_rpm (9.13.0)
     nifty-utils (1.1.7)
     nilify_blanks (1.4.0)
       activerecord (>= 4.0.0)
@@ -419,6 +420,7 @@ DEPENDENCIES
   konfig-config (~> 3.0)
   mail
   mysql2
+  newrelic_rpm
   nifty-utils
   nilify_blanks
   nio4r
