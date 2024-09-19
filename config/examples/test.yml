@@ -16,6 +16,10 @@ message_db:
   password: 
   prefix: postal-test
 
+new_relic:
+  license_key:
+  app_name:
+
 logging:
   enabled: false
   rails_log_enabled: false
