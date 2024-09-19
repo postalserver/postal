@@ -80,6 +80,12 @@ message_db:
   # The MariaDB prefix to add to database names
   database_name_prefix: postal
 
+new_relic:
+  # The New Relic license key to use for monitoring
+  license_key:
+  # The name of the application to use in New Relic
+  app_name:
+
 logging:
   # Enable the default Rails logger
   rails_log_enabled: false
