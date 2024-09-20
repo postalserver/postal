@@ -83,7 +83,7 @@ module Postal
             port: uri.port || 25,
             ssl_mode: query["ssl_mode"]&.first || "Auto",
             username: uri.user,
-            password: uri.password
+            password: uri.password,
           }
         end
       end
@@ -204,6 +204,24 @@ module Postal
         description "The MariaDB prefix to add to database names"
         default "postal"
       end
+    end
+
+    group :new_relic do
+      boolean :enabled do
+        description "Enable New Relic for application monitoring"
+        default false
+      end
+
+      string :license_key do
+        description "The license key for your New Relic account"
+      end
+
+      string :app_name do
+        description "The name of your application as you'd like it to appear in New Relic"
+        default "Postal"
+      end
+
+      # You can add more New Relic configuration options here if needed
     end
 
     group :logging do
@@ -594,13 +612,10 @@ module Postal
   end
 
   class << self
-
     def substitute_config_file_root(string)
       return if string.nil?
 
       string.gsub(/\$config-file-root/i, File.dirname(Postal.config_file_path))
     end
-
   end
-
 end
