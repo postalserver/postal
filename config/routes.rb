@@ -18,6 +18,30 @@ Rails.application.routes.draw do
   post "/api/v1/routes/create" => "legacy_api/routes#create"
   delete "/api/v1/routes/delete" => "legacy_api/routes#delete"
 
+  # IP Pool management routes
+
+  # IP Addresses routes
+  match "/api/v1/ip_pools/ip_addresses" => "legacy_api/ip_addresses#index", via: [:get, :post, :patch, :put]
+  post "/api/v1/ip_pools/ip_addresses/create" => "legacy_api/ip_addresses#create"
+  post "/api/v1/ip_pools/ip_addresses/update" => "legacy_api/ip_addresses#update"
+  delete "/api/v1/ip_pools/ip_addresses/delete" => "legacy_api/ip_addresses#delete"
+
+  # IP Pool Rules routes
+  match "/api/v1/ip_pool_rules" => "legacy_api/ip_pool_rules#index", via: [:get, :post, :patch, :put]
+  post "/api/v1/ip_pool_rules/create" => "legacy_api/ip_pool_rules#create"
+  post "/api/v1/ip_pool_rules/update" => "legacy_api/ip_pool_rules#update"
+  delete "/api/v1/ip_pool_rules/delete" => "legacy_api/ip_pool_rules#delete"
+
+  # IP Pools routes
+  match "/api/v1/ip_pools" => "legacy_api/ip_pools#index", via: [:get, :post, :patch, :put]
+  post "/api/v1/ip_pools/create" => "legacy_api/ip_pools#create"
+  post "/api/v1/ip_pools/update" => "legacy_api/ip_pools#update"
+  delete "/api/v1/ip_pools/delete" => "legacy_api/ip_pools#delete"
+
+  # Organization IP Pools routes
+  match "/api/v1/organizations/ip_pools" => "legacy_api/organization_ip_pools#index", via: [:get, :post, :patch, :put]
+  post "/api/v1/organizations/ip_pools/assignments" => "legacy_api/organization_ip_pools#assignments"
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]
