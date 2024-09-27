@@ -39,8 +39,10 @@ Rails.application.routes.draw do
   delete "/api/v1/ip_pools/delete" => "legacy_api/ip_pools#delete"
 
   # Organization IP Pools routes
-  match "/api/v1/organizations/ip_pools" => "legacy_api/organization_ip_pools#index", via: [:get, :post, :patch, :put]
-  post "/api/v1/organizations/ip_pools/assignments" => "legacy_api/organization_ip_pools#assignments"
+  get "/api/v1/ip_pools/organisation" => "legacy_api/ip_pools#organisation"
+  post "/api/v1/ip_pools/assignments" => "legacy_api/ip_pools#assignments"
+  post "/api/v1/ip_pools/add_pool" => "legacy_api/ip_pools#add_pool"
+  post "/api/v1/ip_pools/remove_pool" => "legacy_api/ip_pools#remove_pool"
 
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
