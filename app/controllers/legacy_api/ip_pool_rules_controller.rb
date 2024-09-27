@@ -138,7 +138,8 @@ module LegacyAPI
     # DELETE /api/v1/ip_pool_rules/delete
     #
     # Parameters:
-    #   id => REQ: The ID of the IP pool rule to delete
+    #   id        => REQ: The ID of the IP pool rule to delete
+    #   server_id => OPT: The UUID of the server from which to delete the rule
     #
     # Response:
     #   Success message upon deletion
@@ -148,14 +149,36 @@ module LegacyAPI
         return
       end
 
-      ip_pool_rule = organization.ip_pool_rules.find_by(id: params["id"])
-      if ip_pool_rule.nil?
-        render_error "IPPoolRuleNotFound",
-                     message: "No IP pool rule found matching provided ID",
-                     id: params["id"]
-        return
+      if params["server_id"]
+        # Find the server by the given server_id within the organization
+        server = organization.servers.find_by(id: params["server_id"])
+        if server.nil?
+          render_error "ServerNotFound",
+                       message: "No server found matching provided ID",
+                       id: params["server_id"]
+          return
+        end
+
+        # Find the IP pool rule within the server's IP pool rules
+        ip_pool_rule = server.ip_pool_rules.find_by(id: params["id"])
+        if ip_pool_rule.nil?
+          render_error "IPPoolRuleNotFound",
+                       message: "No IP pool rule found matching provided ID for the specified server",
+                       id: params["id"]
+          return
+        end
+      else
+        # Find the IP pool rule within the organization's IP pool rules
+        ip_pool_rule = organization.ip_pool_rules.find_by(id: params["id"])
+        if ip_pool_rule.nil?
+          render_error "IPPoolRuleNotFound",
+                       message: "No IP pool rule found matching provided ID",
+                       id: params["id"]
+          return
+        end
       end
 
+      # Delete the IP pool rule
       if ip_pool_rule.destroy
         render_success message: "IP Pool Rule deleted successfully"
       else
