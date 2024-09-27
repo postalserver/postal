@@ -130,7 +130,7 @@ module LegacyAPI
       end
     end
 
-    # POST /api/v1/ip_pool_rules/delete
+    # DELETE /api/v1/ip_pool_rules/delete
     #
     # Parameters:
     #   id => REQ: The ID of the IP pool rule to delete
@@ -138,16 +138,16 @@ module LegacyAPI
     # Response:
     #   Success message upon deletion
     def delete
-      if api_params["id"].blank?
+      if params["id"].blank?
         render_parameter_error "`id` parameter is required but missing"
         return
       end
 
-      ip_pool_rule = IPPoolRule.find_by(id: api_params["id"])
+      ip_pool_rule = IPPoolRule.find_by(id: params["id"])
       if ip_pool_rule.nil?
         render_error "IPPoolRuleNotFound",
                      message: "No IP pool rule found matching provided ID",
-                     id: api_params["id"]
+                     id: params["id"]
         return
       end
 

@@ -51,7 +51,7 @@ module LegacyAPI
         return
       end
 
-      ip_pool = IPPool.find_by_uuid(api_params["ip_pool_id"])
+      ip_pool = IPPool.find_by(id: api_params["ip_pool_id"])
       if ip_pool.nil?
         render_error "IPPoolNotFound",
                      message: "No IP pool found matching provided ID",
@@ -84,7 +84,7 @@ module LegacyAPI
         return
       end
 
-      ip_pool = IPPool.find_by_uuid(api_params["ip_pool_id"])
+      ip_pool = IPPool.find_by(id: api_params["ip_pool_id"])
       if ip_pool.nil?
         render_error "IPPoolNotFound",
                      message: "No IP pool found matching provided ID",
@@ -109,7 +109,7 @@ module LegacyAPI
       end
     end
 
-    # POST /api/v1/ip_pools/ip_addresses/delete
+    # DELETE /api/v1/ip_pools/ip_addresses/delete
     #
     # Parameters:
     #   ip_pool_id => REQ: The UUID of the IP pool
@@ -118,24 +118,24 @@ module LegacyAPI
     # Response:
     #   Success message upon deletion
     def delete
-      if api_params["ip_pool_id"].blank? || api_params["id"].blank?
+      if params["ip_pool_id"].blank? || params["id"].blank?
         render_parameter_error "`ip_pool_id` and `id` parameters are required but missing"
         return
       end
 
-      ip_pool = IPPool.find_by_uuid(api_params["ip_pool_id"])
+      ip_pool = IPPool.find_by(id: params["ip_pool_id"])
       if ip_pool.nil?
         render_error "IPPoolNotFound",
                      message: "No IP pool found matching provided ID",
-                     id: api_params["ip_pool_id"]
+                     id: params["ip_pool_id"]
         return
       end
 
-      ip_address = ip_pool.ip_addresses.find_by(id: api_params["id"])
+      ip_address = ip_pool.ip_addresses.find_by(id: params["id"])
       if ip_address.nil?
         render_error "IPAddressNotFound",
                      message: "No IP address found matching provided ID",
-                     id: api_params["id"]
+                     id: params["id"]
         return
       end
 

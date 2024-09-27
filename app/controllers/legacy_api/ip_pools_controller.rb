@@ -81,16 +81,16 @@ module LegacyAPI
     # Response:
     #   Success message upon deletion
     def delete
-      if api_params["id"].blank?
+      if params["id"].blank?
         render_parameter_error "`id` parameter is required but missing"
         return
       end
 
-      ip_pool = IPPool.find_by(id: api_params["id"])
+      ip_pool = IPPool.find_by(id: params["id"])
       if ip_pool.nil?
         render_error "IPPoolNotFound",
                      message: "No IP pool found matching provided ID",
-                     id: api_params["id"]
+                     id: params["id"]
         return
       end
 
