@@ -12,10 +12,6 @@ module LegacyAPI
     # Response:
     #   An array of IP pool rules within the specified organization or server
     def index
-      # Log all servers in the organization
-      all_servers = organization.servers
-      logger.info "All Servers: #{all_servers.pluck(:id, :name)}" # Log server IDs and names
-
       if params["server_id"]
         server = organization.servers.find_by(id: params["server_id"])
         if server.nil?
@@ -41,21 +37,13 @@ module LegacyAPI
     # Response:
     #   The created IP pool rule object
     def create
-      logger.info "1"
-      puts "1"
       if api_params["ip_pool_rule"].blank?
         render_parameter_error "ip_pool_rule parameter is required but missing"
         return
       end
-      logger.info "2"
-      puts "2"
       if api_params["server_id"]
-        logger.info "3"
-        puts "3"
         server = organization.servers.find_by(id: api_params["server_id"])
         if server.nil?
-          logger.info "4"
-          puts "4"
           render_error "ServerNotFound",
                        message: "No server found matching provided ID",
                        id: api_params["server_id"]
@@ -63,22 +51,11 @@ module LegacyAPI
         end
         ip_pool_rule = server.ip_pool_rules.build(api_params["ip_pool_rule"])
       else
-        logger.info "5"
-        puts "5"
-        Puts "Organization: #{organization.inspect}"
         ip_pool_rule = organization.ip_pool_rules.build(api_params["ip_pool_rule"])
       end
-      logger.info "6"
-      puts "6"
       if ip_pool_rule.save
-        logger.info "7"
-        puts "7"
         render_success ip_pool_rule: ip_pool_rule.attributes, message: "IP Pool Rule created successfully"
       else
-        logger.info "8"
-        puts "8"
-        logger.info "Validation Errors: #{ip_pool_rule.errors.full_messages}"
-        puts "Validation Errors: #{ip_pool_rule.errors.full_messages}"
         render_error "ValidationError",
                      message: ip_pool_rule.errors.full_messages.to_sentence,
                      status: :unprocessable_entity
@@ -192,10 +169,6 @@ module LegacyAPI
 
     # Setting the organization before each action
     def set_organization
-      # Print out all organizations
-      all_organizations = Organization.all
-      logger.info "All Organizations: #{all_organizations.pluck(:id, :name)}" # Log organization IDs and names
-      puts "All Organizations: #{all_organizations.pluck(:id, :name)}" # Print organization IDs and names to console
 
       # Setting organization based on params or current_user logic
       if params[:organization_id]
