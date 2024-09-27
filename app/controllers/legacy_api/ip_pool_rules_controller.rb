@@ -90,6 +90,7 @@ module LegacyAPI
     # Parameters:
     #   id           => REQ: The ID of the IP pool rule to update
     #   ip_pool_rule => REQ: A hash of IP pool rule attributes to update
+    #   server_id    => OPT: The UUID of the server to update rules for
     #
     # Response:
     #   The updated IP pool rule object
@@ -99,12 +100,30 @@ module LegacyAPI
         return
       end
 
-      ip_pool_rule = organization.ip_pool_rules.find_by(id: api_params["id"])
-      if ip_pool_rule.nil?
-        render_error "IPPoolRuleNotFound",
-                     message: "No IP pool rule found matching provided ID",
-                     id: api_params["id"]
-        return
+      if api_params["server_id"]
+        server = organization.servers.find_by(id: api_params["server_id"])
+        if server.nil?
+          render_error "ServerNotFound",
+                       message: "No server found matching provided ID",
+                       id: api_params["server_id"]
+          return
+        end
+
+        ip_pool_rule = server.ip_pool_rules.find_by(id: api_params["id"])
+        if ip_pool_rule.nil?
+          render_error "IPPoolRuleNotFound",
+                       message: "No IP pool rule found matching provided ID for the specified server",
+                       id: api_params["id"]
+          return
+        end
+      else
+        ip_pool_rule = organization.ip_pool_rules.find_by(id: api_params["id"])
+        if ip_pool_rule.nil?
+          render_error "IPPoolRuleNotFound",
+                       message: "No IP pool rule found matching provided ID",
+                       id: api_params["id"]
+          return
+        end
       end
 
       if ip_pool_rule.update(api_params["ip_pool_rule"])
