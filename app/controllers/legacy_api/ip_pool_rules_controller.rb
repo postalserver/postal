@@ -2,97 +2,83 @@
 
 module LegacyAPI
   class IPPoolRulesController < BaseController
+    before_action :set_organization
 
     # GET /api/v1/ip_pool_rules
     #
     # Parameters:
-    #   organization_id => The UUID of the organization (optional if server_id is provided)
-    #   server_id       => The permalink of the server (optional if organization_id is provided)
+    #   server_id => OPT: The UUID of the server to filter rules
     #
     # Response:
-    #   An array of IP pool rules within the specified scope
+    #   An array of IP pool rules within the specified organization or server
     def index
-      if params["organization_id"].blank? && params["server_id"].blank?
-        render_parameter_error "`organization_id` or `server_id` parameter is required but missing"
-        return
+      # Log all servers in the organization
+      all_servers = organization.servers
+      logger.info "All Servers: #{all_servers.pluck(:id, :name)}" # Log server IDs and names
+
+      if params["server_id"]
+        server = organization.servers.find_by(id: params["server_id"])
+        if server.nil?
+          render_error "ServerNotFound",
+                       message: "No server found matching provided ID",
+                       id: params["server_id"]
+          return
+        end
+        ip_pool_rules = server.ip_pool_rules
+      else
+        ip_pool_rules = organization.ip_pool_rules
       end
 
-      ip_pool_rules = if params["server_id"].present?
-                        server = @current_credential.organization.servers.find_by(id: params["server_id"])
-                        if server.nil?
-                          render_error "ServerNotFound",
-                                       message: "No server found matching provided ID",
-                                       id: params["server_id"]
-                          return
-                        end
-                        server.ip_pool_rules
-                      else
-                        organization = Organization.find_by(id: params["organization_id"])
-                        if organization.nil?
-                          render_error "OrganizationNotFound",
-                                       message: "No organization found matching provided ID",
-                                       id: params["organization_id"]
-                          return
-                        end
-                        organization.ip_pool_rules
-                      end
-
-      rules = ip_pool_rules.map do |rule|
-        {
-          id: rule.id,
-          from_text: rule.from_text,
-          to_text: rule.to_text,
-          ip_pool_id: rule.ip_pool_id
-        }
-      end
-
-      render_success ip_pool_rules: rules
+      render_success ip_pool_rules: ip_pool_rules.map(&:attributes)
     end
 
     # POST /api/v1/ip_pool_rules/create
     #
     # Parameters:
-    #   organization_id => The UUID of the organization (optional if server_id is provided)
-    #   server_id       => The permalink of the server (optional if organization_id is provided)
-    #   ip_pool_rule    => REQ: A hash of IP pool rule attributes
+    #   server_id    => OPT: The UUID of the server to which the rule belongs
+    #   ip_pool_rule => REQ: A hash of IP pool rule attributes
     #
     # Response:
     #   The created IP pool rule object
     def create
+      logger.info "1"
+      puts "1"
       if api_params["ip_pool_rule"].blank?
-        render_parameter_error "`ip_pool_rule` parameter is required but missing"
+        render_parameter_error "ip_pool_rule parameter is required but missing"
         return
       end
-
-      if api_params["organization_id"].blank? && api_params["server_id"].blank?
-        render_parameter_error "`organization_id` or `server_id` parameter is required but missing"
-        return
+      logger.info "2"
+      puts "2"
+      if api_params["server_id"]
+        logger.info "3"
+        puts "3"
+        server = organization.servers.find_by(id: api_params["server_id"])
+        if server.nil?
+          logger.info "4"
+          puts "4"
+          render_error "ServerNotFound",
+                       message: "No server found matching provided ID",
+                       id: api_params["server_id"]
+          return
+        end
+        ip_pool_rule = server.ip_pool_rules.build(api_params["ip_pool_rule"])
+      else
+        logger.info "5"
+        puts "5"
+        Puts "Organization: #{organization.inspect}"
+        ip_pool_rule = organization.ip_pool_rules.build(api_params["ip_pool_rule"])
       end
-
-      scope = if api_params["server_id"].present?
-                server = @current_credential.organization.servers.find_by_permalink(api_params["server_id"])
-                if server.nil?
-                  render_error "ServerNotFound",
-                               message: "No server found matching provided ID",
-                               id: api_params["server_id"]
-                  return
-                end
-                server
-              else
-                organization = Organization.find_by_uuid(api_params["organization_id"])
-                if organization.nil?
-                  render_error "OrganizationNotFound",
-                               message: "No organization found matching provided ID",
-                               id: api_params["organization_id"]
-                  return
-                end
-                organization
-              end
-
-      ip_pool_rule = scope.ip_pool_rules.build(api_params["ip_pool_rule"])
+      logger.info "6"
+      puts "6"
       if ip_pool_rule.save
+        logger.info "7"
+        puts "7"
         render_success ip_pool_rule: ip_pool_rule.attributes, message: "IP Pool Rule created successfully"
       else
+        logger.info "8"
+        puts "8"
+        logger.info "Validation Errors: #{ip_pool_rule.errors.full_messages}"
+        puts "Validation Errors: #{ip_pool_rule.errors.full_messages}"
         render_error "ValidationError",
                      message: ip_pool_rule.errors.full_messages.to_sentence,
                      status: :unprocessable_entity
@@ -102,18 +88,18 @@ module LegacyAPI
     # POST /api/v1/ip_pool_rules/update
     #
     # Parameters:
-    #   id             => REQ: The ID of the IP pool rule
-    #   ip_pool_rule   => REQ: A hash of IP pool rule attributes to update
+    #   id           => REQ: The ID of the IP pool rule to update
+    #   ip_pool_rule => REQ: A hash of IP pool rule attributes to update
     #
     # Response:
     #   The updated IP pool rule object
     def update
       if api_params["id"].blank? || api_params["ip_pool_rule"].blank?
-        render_parameter_error "`id` and `ip_pool_rule` parameters are required but missing"
+        render_parameter_error "id and ip_pool_rule parameters are required but missing"
         return
       end
 
-      ip_pool_rule = IPPoolRule.find_by(id: api_params["id"])
+      ip_pool_rule = organization.ip_pool_rules.find_by(id: api_params["id"])
       if ip_pool_rule.nil?
         render_error "IPPoolRuleNotFound",
                      message: "No IP pool rule found matching provided ID",
@@ -139,11 +125,11 @@ module LegacyAPI
     #   Success message upon deletion
     def delete
       if params["id"].blank?
-        render_parameter_error "`id` parameter is required but missing"
+        render_parameter_error "id parameter is required but missing"
         return
       end
 
-      ip_pool_rule = IPPoolRule.find_by(id: params["id"])
+      ip_pool_rule = organization.ip_pool_rules.find_by(id: params["id"])
       if ip_pool_rule.nil?
         render_error "IPPoolRuleNotFound",
                      message: "No IP pool rule found matching provided ID",
@@ -160,5 +146,35 @@ module LegacyAPI
       end
     end
 
+    private
+
+    # Setting the organization before each action
+    def set_organization
+      # Print out all organizations
+      all_organizations = Organization.all
+      logger.info "All Organizations: #{all_organizations.pluck(:id, :name)}" # Log organization IDs and names
+      puts "All Organizations: #{all_organizations.pluck(:id, :name)}" # Print organization IDs and names to console
+
+      # Setting organization based on params or current_user logic
+      if params[:organization_id]
+        @organization = Organization.find_by(id: params[:organization_id])
+      elsif current_user
+        @organization = current_user.organization
+      end
+
+      # Render an error if organization is not found
+      unless @organization
+        render_error("OrganizationNotFound", message: "Organization not found")
+      end
+    end
+
+    def organization
+      @organization
+    end
+
+    # Permitting necessary parameters for API requests
+    def api_params
+      params.permit(:id, :server_id, ip_pool_rule: [:from_text, :to_text, :ip_pool_id])
+    end
   end
 end
