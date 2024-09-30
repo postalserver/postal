@@ -1,5 +1,8 @@
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.4-luna.5] (2024-09-20)
+* Adding APIs for all IP endpoints
+
 ## [3.3.4-luna.4] (2024-09-20)
 * Ensure new relic values are in the schema
 
