@@ -1,15 +1,28 @@
 version: "3"
 services:
+  init-netplan:
+    image: alpine
+    command: sh -c "mkdir -p /etc/netplan && touch /etc/netplan/60-floating-ip.yaml"
+    volumes:
+      - /etc/netplan:/etc/netplan
+    entrypoint: ["/bin/sh", "-c"]
+    # Make sure it runs before 'postal'
+    depends_on:
+      - mariadb
+    # Remove the container after the job is done
+    restart: "no"
+
   postal:
     image: ${POSTAL_IMAGE}
     depends_on:
+      - init-netplan
       - mariadb
     entrypoint: ["/docker-entrypoint.sh"]
     volumes:
+      - ./docker/ci-config:/config
       - type: bind
         source: /etc/netplan/60-floating-ip.yaml
         target: /etc/netplan/60-floating-ip.yaml
-      - "./docker/ci-config:/config"
     environment:
       POSTAL_SIGNING_KEY_PATH: /config/signing.key
       MAIN_DB_HOST: mariadb
