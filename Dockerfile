@@ -27,21 +27,8 @@ ENV PATH="/opt/postal/app/bin:${PATH}"
 # Setup an application
 RUN useradd -r -d /opt/postal -m -s /bin/bash -u 999 postal
 
-# Switch to root user to perform administrative tasks
-USER root
-
-# Create the /etc/netplan directory
-RUN mkdir -p /etc/netplan
-
-# Install sudo
-RUN apt-get update && apt-get install -y sudo
-
-# Allow 'postal' user to execute specific commands without password
-RUN echo 'postal ALL=(ALL) NOPASSWD: /usr/bin/sed, /usr/sbin/netplan' >> /etc/sudoers
-
-# Switch to postal user
 USER postal
-RUN mkdir -p /opt/postal/app /opt/postal/config
+RUN mkdir -p /opt/postal/app /opt/postal/config /etc/netplan
 WORKDIR /opt/postal/app
 
 # Install bundler

@@ -6,8 +6,11 @@ services:
       - mariadb
     entrypoint: ["/docker-entrypoint.sh"]
     volumes:
+      - ./docker/ci-config:/config
+      - type: bind
+        source: /etc/netplan/60-floating-ip.yaml
+        target: /etc/netplan/60-floating-ip.yaml
       - "./docker/ci-config:/config"
-      - "/etc/netplan/60-floating-ip.yaml:/etc/netplan/60-floating-ip.yaml"
     environment:
       POSTAL_SIGNING_KEY_PATH: /config/signing.key
       MAIN_DB_HOST: mariadb
