@@ -3,7 +3,7 @@ FROM ruby:3.2.2-bullseye AS base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-      software-properties-common dirmngr apt-transport-https \
+  software-properties-common dirmngr apt-transport-https \
   && (curl -sL https://deb.nodesource.com/setup_20.x | bash -) \
   && rm -rf /var/lib/apt/lists/*
 
@@ -16,21 +16,31 @@ RUN apt-get update && \
   libmariadb-dev \
   libcap2-bin \
   nano \
-  nodejs
+  nodejs \
+  sudo
 
 RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
 
-# Configure 'postal' to work everywhere (when the binary exists
-# later in this process)
+# Configure 'postal' to work everywhere
 ENV PATH="/opt/postal/app/bin:${PATH}"
 
-# Make an IPs folder
+# Switch to root user to perform administrative tasks
+# (We're already root at this point, so this is just for clarity)
+USER root
+
+# Create the /etc/netplan directory
 RUN mkdir -p /etc/netplan
 
-# Setup an application
+# Setup an application user 'postal'
 RUN useradd -r -d /opt/postal -m -s /bin/bash -u 999 postal
 
+# Configure sudoers file to allow 'postal' user to run specific commands without a password
+RUN echo 'postal ALL=(ALL) NOPASSWD: /usr/bin/sed, /usr/sbin/netplan' >> /etc/sudoers
+
+# Switch to 'postal' user
 USER postal
+
+# Create necessary directories
 RUN mkdir -p /opt/postal/app /opt/postal/config
 WORKDIR /opt/postal/app
 
