@@ -7,7 +7,7 @@ services:
     entrypoint: ["/docker-entrypoint.sh"]
     volumes:
       - "./docker/ci-config:/config"
-      - "/etc/netplan/60-floating-ip.yaml:/etc/netplan/60-floating-ip.yaml:ro"
+      - "/etc/netplan/60-floating-ip.yaml:/etc/netplan/60-floating-ip.yaml"
     environment:
       POSTAL_SIGNING_KEY_PATH: /config/signing.key
       MAIN_DB_HOST: mariadb
