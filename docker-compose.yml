@@ -6,7 +6,6 @@ services:
       - mariadb
     entrypoint: ["/docker-entrypoint.sh"]
     volumes:
-      - ./docker/ci-config:/config
       - type: bind
         source: /etc/netplan/60-floating-ip.yaml
         target: /etc/netplan/60-floating-ip.yaml
