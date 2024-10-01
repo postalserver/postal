@@ -1,13 +1,24 @@
 version: "3"
 services:
+  init-netplan:
+    image: alpine
+    command: sh -c "mkdir -p /etc/netplan && touch /etc/netplan/60-floating-ip.yaml"
+    volumes:
+      - netplan_data:/etc/netplan
+    entrypoint: ["/bin/sh", "-c"]
+    depends_on:
+      - mariadb
+    restart: "no"
+
   postal:
     image: ${POSTAL_IMAGE}
     depends_on:
+      - init-netplan
       - mariadb
     entrypoint: ["/docker-entrypoint.sh"]
     volumes:
-      - "./docker/ci-config:/config"
-      - "/etc/netplan/60-floating-ip.yaml:/etc/netplan/60-floating-ip.yaml"
+      - ./docker/ci-config:/config
+      - netplan_data:/etc/netplan
     environment:
       POSTAL_SIGNING_KEY_PATH: /config/signing.key
       MAIN_DB_HOST: mariadb
@@ -28,3 +39,6 @@ services:
       MARIADB_DATABASE: postal
       MARIADB_ALLOW_EMPTY_PASSWORD: 'yes'
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+
+volumes:
+  netplan_data:
