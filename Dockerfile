@@ -24,11 +24,14 @@ RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
 # later in this process)
 ENV PATH="/opt/postal/app/bin:${PATH}"
 
+# Make an IPs folder
+RUN mkdir -p /etc/netplan
+
 # Setup an application
 RUN useradd -r -d /opt/postal -m -s /bin/bash -u 999 postal
 
 USER postal
-RUN mkdir -p /opt/postal/app /opt/postal/config /etc/netplan
+RUN mkdir -p /opt/postal/app /opt/postal/config
 WORKDIR /opt/postal/app
 
 # Install bundler
