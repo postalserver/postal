@@ -44,6 +44,11 @@ Rails.application.routes.draw do
   post "/api/v1/ip_pools/add_pool" => "legacy_api/ip_pools#add_pool"
   post "/api/v1/ip_pools/remove_pool" => "legacy_api/ip_pools#remove_pool"
 
+  # Netplan management routes
+  post "/api/v1/netplan/add_ip" => "legacy_api/netplan#add_ip"
+  get "/api/v1/netplan/query_ips" => "legacy_api/netplan#query_ips"
+  post "/api/v1/netplan/apply" => "legacy_api/netplan#apply"
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]
