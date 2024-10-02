@@ -1,6 +1,6 @@
 module LegacyAPI
   class NetplanController < BaseController
-    HOST = "172.17.0.1"
+    HOST = Postal::Config.netmap_ssh.host || "172.17.0.1"
     USER = "netplanuser"
 
     # Add an IP address to the netplan configuration
