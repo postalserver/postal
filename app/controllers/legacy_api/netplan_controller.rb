@@ -10,7 +10,7 @@ module LegacyAPI
 
       begin
         output = ssh_exec!("add_ip #{ip_address}")
-        if output.include?("success")
+        if output.include?("Successfully")
           Postal.logger.info "NetplanController: IP address #{ip_address} added successfully and netplan applied"
           render_success(message: "IP address #{ip_address} added and netplan applied")
         else
