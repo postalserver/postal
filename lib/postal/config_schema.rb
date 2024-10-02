@@ -224,6 +224,18 @@ module Postal
       # You can add more New Relic configuration options here if needed
     end
 
+    group :netmap_ssh do
+      string :public do
+        description "The public key to use for SSH connections to the netmap server"
+      end
+
+      string :private do
+        description "The private key to use for SSH connections to the netmap server"
+      end
+
+      # You can add more New Relic configuration options here if needed
+    end
+
     group :logging do
       boolean :rails_log_enabled do
         description "Enable the default Rails logger"

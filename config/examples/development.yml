@@ -25,6 +25,10 @@ new_relic:
   license_key:
   app_name:
 
+netmap_ssh:
+  public:
+  private:
+
 logging:
   rails_log_enabled: true
   highlighting_enabled: true
