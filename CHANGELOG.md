@@ -1,5 +1,8 @@
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.4-luna.16] (2024-10-28)
+* Improving deliverability
+
 ## [3.3.4-luna.15] (2024-10-02)
 * Internal test
 
