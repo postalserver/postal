@@ -287,7 +287,7 @@ GEM
     rake (13.1.0)
     regexp_parser (2.7.0)
     resolv (0.3.0)
-    rexml (3.2.5)
+    rexml (3.3.9)
     rouge (4.2.0)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
