@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class SMTPSender < BaseSender
-
   attr_reader :endpoints
 
   # @param domain [String] the domain to send mesages to
@@ -41,17 +40,17 @@ class SMTPSender < BaseSender
     # If we don't have a current endpoint than we should raise an error.
     if @current_endpoint.nil?
       return create_result("SoftFail") do |r|
-        r.retry = true
-        r.details = "No SMTP servers were available for #{@domain}."
-        if @endpoints.empty?
-          r.details += " No hosts to try."
-        else
-          hostnames = @endpoints.map { |e| e.server.hostname }.uniq
-          r.details += " Tried #{hostnames.to_sentence}."
-        end
-        r.output = @connection_errors.join(", ")
-        r.connect_error = true
-      end
+               r.retry = true
+               r.details = "No SMTP servers were available for #{@domain}."
+               if @endpoints.empty?
+                 r.details += " No hosts to try."
+               else
+                 hostnames = @endpoints.map { |e| e.server.hostname }.uniq
+                 r.details += " Tried #{hostnames.to_sentence}."
+               end
+               r.output = @connection_errors.join(", ")
+               r.connect_error = true
+             end
     end
 
     mail_from = determine_mail_from_for_message(message)
@@ -59,6 +58,7 @@ class SMTPSender < BaseSender
 
     # Append the Resent-Sender header to the mesage to include the
     # MAIL FROM if the installation is configured to use that?
+    # Remove this?
     if Postal::Config.postal.use_resent_sender_header?
       raw_message = "Resent-Sender: #{mail_from}\r\n" + raw_message
     end
@@ -149,6 +149,12 @@ class SMTPSender < BaseSender
   def determine_mail_from_for_message(message)
     return "" if message.bounce
 
+    # Attempt to use the sender's email address directly as the Return-Path
+    sender_email = message.from_address
+    return sender_email if sender_email.present?
+
+    # If the sender's email is not available, use the existing logic as a fallback
+
     # If the domain has a valid custom return path configured, return
     # that.
     if message.domain.return_path_status == "OK"
@@ -187,6 +193,9 @@ class SMTPSender < BaseSender
   # @param endpoint [SMTPClient::Endpoint]
   # @return [Boolean]
   def connect_to_endpoint(endpoint, allow_ssl: true)
+    # Force using IPv4 only
+    return false if endpoint.ipv6?
+
     if @source_ip_address && @source_ip_address.ipv6.blank? && endpoint.ipv6?
       # Don't try to use IPv6 if the IP address we're sending from doesn't support it.
       return false
@@ -262,13 +271,11 @@ class SMTPSender < BaseSender
           port: relay[:port],
           ssl_mode: relay[:ssl_mode],
           username: relay[:username],
-          password: relay[:password]
+          password: relay[:password],
         )
       end
 
       @smtp_relays = relays.empty? ? nil : relays
     end
-
   end
-
 end

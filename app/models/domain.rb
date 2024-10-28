@@ -128,6 +128,7 @@ class Domain < ApplicationRecord
   end
 
   def return_path_domain
+    # TODO remove this?
     "#{Postal::Config.dns.custom_return_path_prefix}.#{name}"
   end
 
