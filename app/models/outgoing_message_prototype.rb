@@ -3,7 +3,6 @@
 require "resolv"
 
 class OutgoingMessagePrototype
-
   attr_accessor :from
   attr_accessor :sender
   attr_accessor :to
@@ -25,10 +24,18 @@ class OutgoingMessagePrototype
     @source_type = source_type
     @custom_headers = {}
     @attachments = []
-    @message_id = "#{SecureRandom.uuid}@#{Postal::Config.dns.return_path_domain}"
+
+    # Set attributes first so we have access to @from
     attributes.each do |key, value|
       instance_variable_set("@#{key}", value)
     end
+
+    # Extract domain from from address
+    from_domain = @from.to_s.split("@")[1] if @from
+    # Fallback to return_path_domain if from is not set or invalid
+    from_domain ||= Postal::Config.dns.return_path_domain
+
+    @message_id = "#{SecureRandom.uuid}@#{from_domain}"
   end
 
   attr_reader :message_id
@@ -43,9 +50,9 @@ class OutgoingMessagePrototype
 
   def domain
     @domain ||= begin
-      d = find_domain
-      d == :none ? nil : d
-    end
+        d = find_domain
+        d == :none ? nil : d
+      end
   end
 
   def find_domain
@@ -99,10 +106,11 @@ class OutgoingMessagePrototype
       {
         name: attachment[:name],
         content_type: attachment[:content_type] || "application/octet-stream",
-        data: attachment[:base64] && attachment[:data] ? Base64.decode64(attachment[:data]) : attachment[:data]
+        data: attachment[:base64] && attachment[:data] ? Base64.decode64(attachment[:data]) : attachment[:data],
       }
     end
   end
+
   # rubocop:enable Lint/DuplicateMethods
 
   def validate
@@ -150,37 +158,37 @@ class OutgoingMessagePrototype
 
   def raw_message
     @raw_message ||= begin
-      mail = Mail.new
-      if @custom_headers.is_a?(Hash)
-        @custom_headers.each { |key, value| mail[key.to_s] = value.to_s }
-      end
-      mail.to = to_addresses.join(", ") if to_addresses.present?
-      mail.cc = cc_addresses.join(", ") if cc_addresses.present?
-      mail.from = @from
-      mail.sender = @sender
-      mail.subject = @subject
-      mail.reply_to = @reply_to
-      mail.part content_type: "multipart/alternative" do |p|
-        if @plain_body.present?
-          p.text_part = Mail::Part.new
-          p.text_part.body = @plain_body
+        mail = Mail.new
+        if @custom_headers.is_a?(Hash)
+          @custom_headers.each { |key, value| mail[key.to_s] = value.to_s }
         end
-        if @html_body.present?
-          p.html_part = Mail::Part.new
-          p.html_part.content_type = "text/html; charset=UTF-8"
-          p.html_part.body = @html_body
+        mail.to = to_addresses.join(", ") if to_addresses.present?
+        mail.cc = cc_addresses.join(", ") if cc_addresses.present?
+        mail.from = @from
+        mail.sender = @sender
+        mail.subject = @subject
+        mail.reply_to = @reply_to
+        mail.part content_type: "multipart/alternative" do |p|
+          if @plain_body.present?
+            p.text_part = Mail::Part.new
+            p.text_part.body = @plain_body
+          end
+          if @html_body.present?
+            p.html_part = Mail::Part.new
+            p.html_part.content_type = "text/html; charset=UTF-8"
+            p.html_part.body = @html_body
+          end
         end
+        attachments.each do |attachment|
+          mail.attachments[attachment[:name]] = {
+            mime_type: attachment[:content_type],
+            content: attachment[:data],
+          }
+        end
+        mail.header["Received"] = ReceivedHeader.generate(@server, @source_type, @ip, :http)
+        mail.message_id = "<#{@message_id}>"
+        mail.to_s
       end
-      attachments.each do |attachment|
-        mail.attachments[attachment[:name]] = {
-          mime_type: attachment[:content_type],
-          content: attachment[:data]
-        }
-      end
-      mail.header["Received"] = ReceivedHeader.generate(@server, @source_type, @ip, :http)
-      mail.message_id = "<#{@message_id}>"
-      mail.to_s
-    end
   end
 
   def create_message(address)
@@ -197,5 +205,4 @@ class OutgoingMessagePrototype
     message.save
     { id: message.id, token: message.token }
   end
-
 end

@@ -69,7 +69,7 @@ class HTTPSender < BaseSender
       hash = {
         id: message.id,
         rcpt_to: message.rcpt_to,
-        mail_from: message.mail_from,
+        mail_from: message.headers["from"]&.last, # message.mail_from,
         token: message.token,
         subject: message.subject,
         message_id: message.message_id,
