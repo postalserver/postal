@@ -158,7 +158,7 @@ class SMTPSender < BaseSender
     # If the domain has a valid custom return path configured, return
     # that.
     if message.domain.return_path_status == "OK"
-      return "#{message.server.token}@#{message.domain.return_path_domain}"
+      return message.from_address
     end
 
     "#{message.server.token}@#{Postal::Config.dns.return_path_domain}"

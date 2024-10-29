@@ -57,7 +57,7 @@ module LegacyAPI
 
         attributes[:attachments] << { name: attachment["name"], content_type: attachment["content_type"], data: attachment["data"], base64: true }
       end
-
+      # TODO here?
       message = OutgoingMessagePrototype.new(@current_credential.server, request.ip, "api", attributes)
       message.credential = @current_credential
       if message.valid?

@@ -232,16 +232,16 @@ module MessageDequeuer
       end
     end
 
-    context "when the message already has an x-postal-msgid header" do
+    context "when the message already has an x-internal-msgid header" do
       let(:message) do
         MessageFactory.outgoing(server, domain: domain, credential: credential) do |_, mail|
-          mail["x-postal-msgid"] = "existing-id"
+          mail["x-internal-msgid"] = "existing-id"
         end
       end
 
       it "does not another one" do
         processor.process
-        expect(message.reload.headers["x-postal-msgid"]).to eq ["existing-id"]
+        expect(message.reload.headers["x-internal-msgid"]).to eq ["existing-id"]
       end
 
       it "does not add dkim headers" do
@@ -250,10 +250,10 @@ module MessageDequeuer
       end
     end
 
-    context "when the message does not have a x-postal-msgid header" do
+    context "when the message does not have a x-internal-msgid header" do
       it "adds it" do
         processor.process
-        expect(message.reload.headers["x-postal-msgid"]).to match [match(/[a-zA-Z0-9]{12}/)]
+        expect(message.reload.headers["x-internal-msgid"]).to match [match(/[a-zA-Z0-9]{12}/)]
       end
 
       it "adds a dkim header" do

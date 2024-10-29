@@ -49,7 +49,7 @@ module MessageDequeuer
       let(:message) do
         MessageFactory.incoming(server) do |msg, mail|
           msg.bounce = true
-          mail["X-Postal-MsgID"] = existing_message.token
+          mail["X-Internal-MsgID"] = existing_message.token
         end
       end
 
