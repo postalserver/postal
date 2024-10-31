@@ -12,8 +12,10 @@
         %li.serverHeader__list--ok DKIM & SPF configured correctly on #{pluralize total - unverified, 'domain'}
       - else
         %li.serverHeader__list--warning= link_to "#{pluralize bad_dns, 'domain'} has misconfigured DNS records", [organization, @server, :domains]
-      - if unverified > 0
-        %li= link_to "#{pluralize unverified, 'domain'} is awaiting verification", [organization, @server, :domains]
+      - if unverified == 1
+        %li= link_to "One domain is awaiting verification", [organization, @server, :domains]
+      - elsif unverified > 0
+        %li= link_to "#{pluralize unverified, 'domain'} are awaiting verification", [organization, @server, :domains]
       - if Postal.ip_pools? && @server.ip_pool
         %li Sending via #{@server.ip_pool.name}
 
