@@ -1,0 +1,37 @@
+name: Build & Publish to GHCR
+
+on:
+  push:
+    branches: [ "main" ]
+  # Или укажите нужные ветки/триггеры
+
+permissions:
+  contents: write
+  packages: write  # <-- нужно для записи пакетов
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        run: |
+          # Подставьте свой репозиторий (или свой namespace) здесь
+          # Например, ghcr.io/ВАШ_ЮЗЕР/ВАШ_РЕПО:latest
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/postal:latest"
+
+          echo "Building image $IMAGE_NAME"
+          docker build -t "$IMAGE_NAME" .
+          docker push "$IMAGE_NAME"
