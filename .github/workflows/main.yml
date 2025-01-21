@@ -1,4 +1,4 @@
-name: Build & Publish to GHCR
+name: Build & Publish to GHCR2
 
 on:
   push:
