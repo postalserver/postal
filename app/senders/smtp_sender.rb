@@ -144,7 +144,9 @@ class SMTPSender < BaseSender
     if message.domain.return_path_status == "OK"
       return "#{message.server.token}@#{message.domain.return_path_domain}"
     end
-
+    if Postal::Config.dns.skip_return_path_dns_verification?
+      return "#{message.server.token}@#{message.domain.return_path_domain}"
+    end
     "#{message.server.token}@#{Postal::Config.dns.return_path_domain}"
   end
 
