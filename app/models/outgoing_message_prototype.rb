@@ -177,7 +177,7 @@ class OutgoingMessagePrototype
           content: attachment[:data]
         }
       end
-      mail.header["Received"] = ReceivedHeader.generate(@server, @source_type, @ip, :http)
+      mail.header["Received"] = "#{Postal::Config.postal.received_header}; #{Time.now.utc.rfc2822.to_s}"
       mail.message_id = "<#{@message_id}>"
       mail.to_s
     end
