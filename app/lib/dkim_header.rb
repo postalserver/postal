@@ -18,7 +18,7 @@ class DKIMHeader
   end
 
   def dkim_header
-    "DKIM-Signature: v=1; " + dkim_properties.join("\r\n\t") + signature.scan(/.{1,72}/).join("\r\n\t")
+    "DKIM-Signature: v=1; " + dkim_properties.join(" ") + signature
   end
 
   private
