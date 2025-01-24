@@ -416,7 +416,7 @@ module SMTPServer
       @headers = {}
       @receiving_headers = true
 
-      received_header = "#{Postal::Config.postal.received_header}; #{Time.now.utc.rfc2822.to_s}".force_encoding("BINARY")
+      received_header = "from api (10-42-11-130.email.vs-ru.svc.cluster.local [10.42.11.130]) by VS with HTTP; #{Time.now.utc.rfc2822.to_s}".force_encoding("BINARY")
 
       @data << "Received: #{received_header}\r\n"
       @headers["received"] = [received_header]
