@@ -415,8 +415,8 @@ module SMTPServer
       @data = String.new.force_encoding("BINARY")
       @headers = {}
       @receiving_headers = true
-      @authenticated_domain_for_received = @credential.server.find_authenticated_domain_from_headers(@headers)
-      received_header = ReceivedHeader.generate(@credential&.server, @authenticated_domain_for_received, @ip_address, :smtp)
+
+      received_header = ReceivedHeader.generate(@credential&.server, @helo_name, @ip_address, :smtp)
                                       .force_encoding("BINARY")
       @data << "Received: #{received_header}\r\n"
       @headers["received"] = [received_header]
