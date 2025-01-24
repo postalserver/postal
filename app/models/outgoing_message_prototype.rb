@@ -177,7 +177,8 @@ class OutgoingMessagePrototype
           content: attachment[:data]
         }
       end
-      mail.header["Received"] = ReceivedHeader.generate(@server, @source_type, @ip, :http)
+      @domain_for_received = @server.authenticated_domain_for_address(@from)
+      mail.header["Received"] = ReceivedHeader.generate(@server, @domain_for_received, @ip, :http)
       mail.message_id = "<#{@message_id}>"
       mail.to_s
     end
