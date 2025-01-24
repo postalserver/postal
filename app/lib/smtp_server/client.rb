@@ -415,9 +415,9 @@ module SMTPServer
       @data = String.new.force_encoding("BINARY")
       @headers = {}
       @receiving_headers = true
-
-      received_header = "from api (10-42-11-130.email.vs-ru.svc.cluster.local [10.42.11.130]) by VS with HTTP; #{Time.now.utc.rfc2822.to_s}".force_encoding("BINARY")
-
+      @authenticated_domain_for_received = @credential.server.find_authenticated_domain_from_headers(@headers)
+      received_header = ReceivedHeader.generate(@credential&.server, @authenticated_domain_for_received, @ip_address, :smtp)
+                                      .force_encoding("BINARY")
       @data << "Received: #{received_header}\r\n"
       @headers["received"] = [received_header]
 
