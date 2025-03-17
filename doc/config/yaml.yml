@@ -239,7 +239,8 @@ oidc:
   secret: 
   # Scopes to request from the OIDC server.
   scopes:
-    - openid,email
+    - openid
+    - email
   # The field to use to determine the user's UID
   uid_field: sub
   # The field to use to determine the user's email address

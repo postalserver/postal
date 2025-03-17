@@ -105,7 +105,7 @@ This document contains all the environment variables which are available for thi
 | `OIDC_ISSUER` | String | The OIDC issuer URL |  |
 | `OIDC_IDENTIFIER` | String | The client ID for OIDC |  |
 | `OIDC_SECRET` | String | The client secret for OIDC |  |
-| `OIDC_SCOPES` | Array of strings | Scopes to request from the OIDC server. | openid,email |
+| `OIDC_SCOPES` | Array of strings | Scopes to request from the OIDC server. | ["openid", "email"] |
 | `OIDC_UID_FIELD` | String | The field to use to determine the user's UID | sub |
 | `OIDC_EMAIL_ADDRESS_FIELD` | String | The field to use to determine the user's email address | email |
 | `OIDC_NAME_FIELD` | String | The field to use to determine the user's name | name |
