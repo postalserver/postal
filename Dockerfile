@@ -14,6 +14,7 @@ RUN apt-get update \
     nano \
   && (curl -sL https://deb.nodesource.com/setup_20.x | bash -) \
   && apt-get install -y --no-install-recommends nodejs \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
@@ -34,9 +35,7 @@ RUN gem install bundler -v 2.5.6 --no-doc
 # Install the latest and active gem dependencies and re-run
 # the appropriate commands to handle installs.
 COPY --chown=postal Gemfile Gemfile.lock ./
-RUN bundle install \
-    && rm -rf /usr/local/bundle/cache/*.gem \
-    && rm -rf /opt/postal/.bundle/cache
+RUN bundle install
 
 # Copy the application (and set permissions)
 COPY ./docker/wait-for.sh /docker-entrypoint.sh
