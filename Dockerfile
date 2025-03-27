@@ -1,22 +1,21 @@
-FROM ruby:3.2.2-bullseye AS base
+FROM ruby:3.2.2-slim-bullseye AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-      software-properties-common dirmngr apt-transport-https \
+    software-properties-common \
+    dirmngr \
+    apt-transport-https \
+    curl \
+    build-essential  \
+    netcat \
+    libmariadb-dev \
+    libcap2-bin \
+    nano \
   && (curl -sL https://deb.nodesource.com/setup_20.x | bash -) \
+  && apt-get install -y --no-install-recommends nodejs \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-
-# Install main dependencies
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends \
-  build-essential  \
-  netcat \
-  curl \
-  libmariadb-dev \
-  libcap2-bin \
-  nano \
-  nodejs
 
 RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
 
