@@ -12,7 +12,6 @@ describe "Legacy API - Domains API" do
     let(:domain_name) { "test-#{SecureRandom.alphanumeric(6)}.example.com" }
     let(:params) do
       {
-        server_id: server.uuid,
         name: domain_name
       }
     end
@@ -29,15 +28,6 @@ describe "Legacy API - Domains API" do
       # Verify the domain was created in the database
       domain = server.domains.find_by(name: domain_name)
       expect(domain).to be_present
-    end
-
-    it "returns error if server_id is missing" do
-      params.delete(:server_id)
-      post "/api/v1/domains/create", params: { params: params.to_json }, headers: headers
-      expect(response.status).to eq(200)
-      
-      json = JSON.parse(response.body)
-      expect(json["status"]).to eq("parameter-error")
     end
 
     it "returns error if name is missing" do

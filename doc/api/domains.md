@@ -24,7 +24,6 @@ The API supports two content types:
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| server_id | String | Yes | The UUID of the server to add the domain to |
 | name | String | Yes | The domain name to add |
 
 #### Example Request
@@ -35,7 +34,6 @@ curl -X POST \
   -H 'Content-Type: application/json' \
   -H 'X-Server-API-Key: YOUR_API_KEY' \
   -d '{
-    "server_id": "server-uuid",
     "name": "example.com"
   }'
 ```

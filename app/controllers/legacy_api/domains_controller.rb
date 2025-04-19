@@ -4,32 +4,16 @@ module LegacyAPI
   class DomainsController < BaseController
     def create
       # Extract required parameters
-      server_id = api_params["server_id"]
       domain_name = api_params["name"]
       
       # Validate parameters
-      if server_id.blank?
-        render_parameter_error("server_id is required")
-        return
-      end
-      
       if domain_name.blank?
         render_parameter_error("name is required")
         return
       end
       
-      # Find the server
-      server = @current_credential.server.organization.servers.find_by_uuid(server_id)
-      if server.nil?
-        render_error "InvalidServer", message: "The server could not be found with the provided server_id"
-        return
-      end
-      
-      # Check if server matches credential's server
-      unless server == @current_credential.server
-        render_error "AccessDenied", message: "You don't have permission to add domains to this server"
-        return
-      end
+      # Use the server directly from the credential
+      server = @current_credential.server
       
       # Create the domain
       domain = server.domains.build(
@@ -37,11 +21,8 @@ module LegacyAPI
         verification_method: "DNS"
       )
       
-      # Auto-verify if the API credential belongs to an admin
-      if @current_credential.user&.admin?
-        domain.verified_at = Time.now
-      end
-      
+      domain.verified_at = Time.now
+
       # Save the domain
       if domain.save
         render_success(
@@ -113,17 +94,26 @@ module LegacyAPI
     def dns_records
       # Extract required parameters
       domain_uuid = api_params["domain_id"]
+      domain_name = api_params["domain_name"]
       
-      # Validate parameters
-      if domain_uuid.blank?
-        render_parameter_error("domain_id is required")
+      # Validate parameters - require either domain_id or domain_name
+      if domain_uuid.blank? && domain_name.blank?
+        render_parameter_error("Either domain_id or domain_name is required")
         return
       end
       
-      # Find the domain
-      domain = @current_credential.server.domains.find_by_uuid(domain_uuid)
+      # Find the domain by UUID or name
+      domain = if domain_uuid.present?
+                 @current_credential.server.domains.find_by_uuid(domain_uuid)
+               else
+                 @current_credential.server.domains.find_by(name: domain_name)
+               end
+               
       if domain.nil?
-        render_error "InvalidDomain", message: "The domain could not be found with the provided domain_id"
+        error_message = domain_uuid.present? ? 
+          "The domain could not be found with the provided domain_id" : 
+          "The domain could not be found with the provided domain_name"
+        render_error "InvalidDomain", message: error_message
         return
       end
       
