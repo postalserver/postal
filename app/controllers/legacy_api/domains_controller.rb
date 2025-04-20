@@ -2,6 +2,74 @@
 
 module LegacyAPI
   class DomainsController < BaseController
+    # Helper method to get DNS records for a domain
+    private def get_dns_records_for_domain(domain)
+      records = []
+      
+      # Verification record - only if domain is not verified
+      unless domain.verified?
+        records << {
+          type: "TXT",
+          name: domain.name,
+          value: domain.dns_verification_string,
+          purpose: "verification"
+        }
+      end
+      
+      # SPF record
+      records << {
+        type: "TXT", 
+        name: domain.name,
+        value: domain.spf_record,
+        purpose: "spf"
+      }
+      
+      # DKIM record
+      if domain.dkim_record.present? && domain.dkim_record_name.present?
+        records << {
+          type: "TXT",
+          name: domain.dkim_record_name,
+          short_name: "#{domain.dkim_identifier}._domainkey",
+          value: domain.dkim_record,
+          purpose: "dkim"
+        }
+      end
+      
+      # Return path record
+      records << {
+        type: "CNAME",
+        name: domain.return_path_domain,
+        short_name: Postal::Config.dns.custom_return_path_prefix,
+        value: Postal::Config.dns.return_path,
+        purpose: "return_path"
+      }
+      
+      # MX records - only for incoming domains
+      if domain.incoming?
+        records << {
+          type: "MX",
+          name: domain.name,
+          priority: 10,
+          value: Postal::Config.dns.mx_records.first,
+          purpose: "mx"
+        }
+      end
+      
+      # Track domain records if any exist
+      if domain.track_domains.exists?
+        domain.track_domains.each do |track_domain|
+          records << {
+            type: "CNAME",
+            name: track_domain.name,
+            value: Postal::Config.dns.track_domain,
+            purpose: "tracking"
+          }
+        end
+      end
+      
+      records
+    end
+    
     def create
       # Extract required parameters
       domain_name = api_params["name"]
@@ -23,71 +91,29 @@ module LegacyAPI
       
       domain.verified_at = Time.now
 
-      # Save the domain
-      if domain.save
+      # Check if domain already exists
+      existing_domain = server.domains.find_by(name: domain_name)
+      
+      if existing_domain
+        # Get DNS records for the existing domain
+        records = get_dns_records_for_domain(existing_domain)
+        
+        render_success(
+          domain: {
+            uuid: existing_domain.uuid,
+            name: existing_domain.name,
+            verification_method: existing_domain.verification_method,
+            verified: existing_domain.verified?,
+            verification_token: existing_domain.verification_token,
+            dns_verification_string: existing_domain.dns_verification_string,
+            created_at: existing_domain.created_at,
+            updated_at: existing_domain.updated_at
+          },
+          dns_records: records
+        )
+      elsif domain.save
         # Get DNS records for the domain
-        records = []
-        
-        # Verification record - only if domain is not verified
-        unless domain.verified?
-          records << {
-            type: "TXT",
-            name: domain.name,
-            value: domain.dns_verification_string,
-            purpose: "verification"
-          }
-        end
-        
-        # SPF record
-        records << {
-          type: "TXT", 
-          name: domain.name,
-          value: domain.spf_record,
-          purpose: "spf"
-        }
-        
-        # DKIM record
-        if domain.dkim_record.present? && domain.dkim_record_name.present?
-          records << {
-            type: "TXT",
-            name: domain.dkim_record_name,
-            short_name: "#{domain.dkim_identifier}._domainkey",
-            value: domain.dkim_record,
-            purpose: "dkim"
-          }
-        end
-        
-        # Return path record
-        records << {
-          type: "CNAME",
-          name: domain.return_path_domain,
-          short_name: Postal::Config.dns.custom_return_path_prefix,
-          value: Postal::Config.dns.return_path,
-          purpose: "return_path"
-        }
-        
-        # MX records - only for incoming domains
-        if domain.incoming?
-          records << {
-            type: "MX",
-            name: domain.name,
-            priority: 10,
-            value: Postal::Config.dns.mx_records.first,
-            purpose: "mx"
-          }
-        end
-        
-        # Track domain records if any exist
-        if domain.track_domains.exists?
-          domain.track_domains.each do |track_domain|
-            records << {
-              type: "CNAME",
-              name: track_domain.name,
-              value: Postal::Config.dns.track_domain,
-              purpose: "tracking"
-            }
-          end
-        end
+        records = get_dns_records_for_domain(domain)
         
         render_success(
           domain: {
@@ -182,69 +208,8 @@ module LegacyAPI
         return
       end
       
-      # Get DNS records for the domain
-      records = []
-      
-      # Verification record - only if domain is not verified
-      unless domain.verified?
-        records << {
-          type: "TXT",
-          name: domain.name,
-          value: domain.dns_verification_string,
-          purpose: "verification"
-        }
-      end
-      
-      # SPF record
-      records << {
-        type: "TXT", 
-        name: domain.name,
-        value: domain.spf_record,
-        purpose: "spf"
-      }
-      
-      # DKIM record
-      if domain.dkim_record.present? && domain.dkim_record_name.present?
-        records << {
-          type: "TXT",
-          name: domain.dkim_record_name,
-          short_name: "#{domain.dkim_identifier}._domainkey",
-          value: domain.dkim_record,
-          purpose: "dkim"
-        }
-      end
-      
-      # Return path record
-      records << {
-        type: "CNAME",
-        name: domain.return_path_domain,
-        short_name: Postal::Config.dns.custom_return_path_prefix,
-        value: Postal::Config.dns.return_path,
-        purpose: "return_path"
-      }
-      
-      # MX records - only for incoming domains
-      if domain.incoming?
-        records << {
-          type: "MX",
-          name: domain.name,
-          priority: 10,
-          value: Postal::Config.dns.mx_records.first,
-          purpose: "mx"
-        }
-      end
-      
-      # Track domain records if any exist
-      if domain.track_domains.exists?
-        domain.track_domains.each do |track_domain|
-          records << {
-            type: "CNAME",
-            name: track_domain.name,
-            value: Postal::Config.dns.track_domain,
-            purpose: "tracking"
-          }
-        end
-      end
+      # Get DNS records for the domain using the helper method
+      records = get_dns_records_for_domain(domain)
       
       render_success(
         domain: {
