@@ -25,6 +25,70 @@ module LegacyAPI
 
       # Save the domain
       if domain.save
+        # Get DNS records for the domain
+        records = []
+        
+        # Verification record - only if domain is not verified
+        unless domain.verified?
+          records << {
+            type: "TXT",
+            name: domain.name,
+            value: domain.dns_verification_string,
+            purpose: "verification"
+          }
+        end
+        
+        # SPF record
+        records << {
+          type: "TXT", 
+          name: domain.name,
+          value: domain.spf_record,
+          purpose: "spf"
+        }
+        
+        # DKIM record
+        if domain.dkim_record.present? && domain.dkim_record_name.present?
+          records << {
+            type: "TXT",
+            name: domain.dkim_record_name,
+            short_name: "#{domain.dkim_identifier}._domainkey",
+            value: domain.dkim_record,
+            purpose: "dkim"
+          }
+        end
+        
+        # Return path record
+        records << {
+          type: "CNAME",
+          name: domain.return_path_domain,
+          short_name: Postal::Config.dns.custom_return_path_prefix,
+          value: Postal::Config.dns.return_path,
+          purpose: "return_path"
+        }
+        
+        # MX records - only for incoming domains
+        if domain.incoming?
+          records << {
+            type: "MX",
+            name: domain.name,
+            priority: 10,
+            value: Postal::Config.dns.mx_records.first,
+            purpose: "mx"
+          }
+        end
+        
+        # Track domain records if any exist
+        if domain.track_domains.exists?
+          domain.track_domains.each do |track_domain|
+            records << {
+              type: "CNAME",
+              name: track_domain.name,
+              value: Postal::Config.dns.track_domain,
+              purpose: "tracking"
+            }
+          end
+        end
+        
         render_success(
           domain: {
             uuid: domain.uuid,
@@ -35,7 +99,8 @@ module LegacyAPI
             dns_verification_string: domain.dns_verification_string,
             created_at: domain.created_at,
             updated_at: domain.updated_at
-          }
+          },
+          dns_records: records
         )
       else
         render_error "ValidationError", 
