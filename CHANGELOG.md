@@ -2,6 +2,13 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.5.0](https://github.com/MissionInbox/postal/compare/3.4.0...3.5.0) (2025-04-20)
+
+
+### Features
+
+* **domains:** refactor DNS records retrieval into a helper method ([cb5c630](https://github.com/MissionInbox/postal/commit/cb5c630273f3d52c17c54118541f093a2fe03e34))
+
 ## [3.4.0](https://github.com/MissionInbox/postal/compare/3.3.4...3.4.0) (2025-04-20)
 
 
