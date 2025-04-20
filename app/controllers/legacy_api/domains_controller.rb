@@ -24,16 +24,14 @@ module LegacyAPI
         purpose: "spf"
       }
       
-      # DKIM record
-      if domain.dkim_record.present? && domain.dkim_record_name.present?
-        records << {
-          type: "TXT",
-          name: domain.dkim_record_name,
-          short_name: "#{domain.dkim_identifier}._domainkey",
-          value: domain.dkim_record,
-          purpose: "dkim"
-        }
-      end
+      # DKIM record - always using the same key and default selector
+      records << {
+        type: "TXT",
+        name: "default._domainkey.#{domain.name}",
+        short_name: "default._domainkey",
+        value: domain.dkim_record,
+        purpose: "dkim"
+      }
       
       # Return path record
       records << {

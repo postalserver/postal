@@ -3,14 +3,15 @@
 class DKIMHeader
 
   def initialize(domain, message)
-    if domain && domain.dkim_status == "OK"
+    # Always use the domain name but with the global DKIM key
+    if domain
       @domain_name = domain.name
-      @dkim_key = domain.dkim_key
-      @dkim_identifier = domain.dkim_identifier
+      @dkim_key = Postal.signer.private_key
+      @dkim_identifier = "default"
     else
       @domain_name = Postal::Config.dns.return_path_domain
       @dkim_key = Postal.signer.private_key
-      @dkim_identifier = Postal::Config.dns.dkim_identifier
+      @dkim_identifier = "default"
     end
     @domain = domain
     @message = message
