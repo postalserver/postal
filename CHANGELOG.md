@@ -2,6 +2,30 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.4.0](https://github.com/MissionInbox/postal/compare/3.3.4...3.4.0) (2025-04-20)
+
+
+### Features
+
+* **ci:** add release step to ci ([7ef3218](https://github.com/MissionInbox/postal/commit/7ef321849ffbd23b4c6a55a4b3d5467ed25a2e91))
+* **ci:** add release step to release-please job ([b500554](https://github.com/MissionInbox/postal/commit/b5005548c54b1b636903d1cfe2c0264902817cfe))
+* **domains:** add DNS records generation for newly created domains ([b44ce05](https://github.com/MissionInbox/postal/commit/b44ce0569035cbfe2e5db14d6cd9cf3f71dbfa3e))
+* **domains:** implement Domain API for creating, verifying, and retrieving DNS records [WIP] ([5f13593](https://github.com/MissionInbox/postal/commit/5f13593da22a4f944857f97156905410fe77f7c4))
+
+
+### Bug Fixes
+
+* typo in the credentials page ([fd3c7cc](https://github.com/MissionInbox/postal/commit/fd3c7ccdf6dc4ee0a76c9523cbd735159e4b8000))
+
+
+### Code Refactoring
+
+* **ci:** add release-please job to CI configuration ([e8d2366](https://github.com/MissionInbox/postal/commit/e8d23665ebb750983b56cc6180d1ec2437448381))
+* **ci:** add release-please job to CI configuration ([aa74440](https://github.com/MissionInbox/postal/commit/aa744408b7ecc6a98f18d2c6085e8d63664cd839))
+* **ci:** remove release-please job from CI configuration ([7285f93](https://github.com/MissionInbox/postal/commit/7285f937571129b1415994c31949e33be3d4a30d))
+* **ci:** update image repository from postalserver to missioninbox ([eaefc25](https://github.com/MissionInbox/postal/commit/eaefc25f36f8a2d855b2c97e23b80664ac9f8bae))
+* **domains:** remove server_id requirement and enhance domain retrieval ([6b9be0b](https://github.com/MissionInbox/postal/commit/6b9be0b0b7b6f5e35b0d805f9e44c6f3b2561958))
+
 ## [3.3.4](https://github.com/postalserver/postal/compare/3.3.3...3.3.4) (2024-06-20)
 
 
