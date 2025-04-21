@@ -57,7 +57,8 @@ class Domain < ApplicationRecord
 
   random_string :dkim_identifier_string, type: :chars, length: 6, unique: true, upper_letters_only: true
 
-  # Using a global DKIM key instead of per-domain keys
+  before_create :generate_dkim_key
+
   scope :verified, -> { where.not(verified_at: nil) }
 
   before_save :update_verification_token_on_method_change
@@ -80,9 +81,14 @@ class Domain < ApplicationRecord
     end
   end
 
-  # Using global DKIM key instead of per-domain key
+  def generate_dkim_key
+    self.dkim_private_key = OpenSSL::PKey::RSA.new(1024).to_s
+  end
+
   def dkim_key
-    Postal.signer.private_key
+    return nil unless dkim_private_key
+
+    @dkim_key ||= OpenSSL::PKey::RSA.new(dkim_private_key)
   end
 
   def to_param
@@ -109,11 +115,16 @@ class Domain < ApplicationRecord
   end
 
   def dkim_identifier
-    "default"
+    return nil unless dkim_identifier_string
+
+    Postal::Config.dns.dkim_identifier + "-#{dkim_identifier_string}"
   end
 
   def dkim_record_name
-    "default._domainkey"
+    identifier = dkim_identifier
+    return if identifier.nil?
+
+    "#{identifier}._domainkey"
   end
 
   def return_path_domain
