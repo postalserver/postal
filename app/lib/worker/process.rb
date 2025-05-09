@@ -298,7 +298,7 @@ module Worker
                                   labels: [:thread, :job]
 
       register_prometheus_histogram :postal_worker_job_runtime,
-                                    docstring: "The time taken to process jobs",
+                                    docstring: "The time taken to process jobs (in seconds)",
                                     labels: [:thread, :job]
 
       register_prometheus_counter :postal_worker_errors,
@@ -306,11 +306,11 @@ module Worker
                                   labels: [:error]
 
       register_prometheus_histogram :postal_worker_task_runtime,
-                                    docstring: "The time taken to process tasks",
+                                    docstring: "The time taken to process tasks (in seconds)",
                                     labels: [:task]
 
       register_prometheus_histogram :postal_message_queue_latency,
-                                    docstring: "The length of time between a message being queued and being dequeued"
+                                    docstring: "The length of time between a message being queued and being dequeued (in seconds)"
     end
 
   end
