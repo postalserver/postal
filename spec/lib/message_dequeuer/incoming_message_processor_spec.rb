@@ -37,6 +37,16 @@ module MessageDequeuer
         expect(delivery).to have_attributes(status: "HardFail", details: /was a bounce but we couldn't link it with any outgoing message/i)
       end
 
+      it "sets the bounce_type to hard" do
+        processor.process
+        expect(message.reload.bounce_type).to eq "hard"
+      end
+
+      it "sets the bounce_type to hard" do
+        processor.process
+        expect(message.reload.bounce_type).to eq "hard"
+      end
+
       it "removes the queued message" do
         processor.process
         expect { queued_message.reload }.to raise_error(ActiveRecord::RecordNotFound)
@@ -91,6 +101,19 @@ module MessageDequeuer
           bounce: kind_of(Hash)
         })
         processor.process
+      end
+
+      it "triggers a MessageBounced webhook event with bounce_type" do
+        expect(WebhookRequest).to receive(:trigger).with(server, "MessageBounced", {
+          original_message: hash_including(bounce_type: nil),
+          bounce: hash_including(bounce_type: "soft")
+        })
+        processor.process
+      end
+
+      it "sets the bounce_type to soft" do
+        processor.process
+        expect(message.reload.bounce_type).to eq "soft"
       end
 
       it "removes the queued message" do
