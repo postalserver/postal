@@ -25,19 +25,25 @@ class WebhookDeliveryService
   private
 
   def generate_payload
-    @payload = {
-      event: @webhook_request.event,
-      timestamp: @webhook_request.created_at.to_f,
-      payload: @webhook_request.payload,
-      uuid: @webhook_request.uuid
-    }.to_json
+    if @webhook_request.event == "MessageBounced"
+      @payload = generate_listmonk_bounce_payload.to_json
+    else
+      @payload = {
+        event: @webhook_request.event,
+        timestamp: @webhook_request.created_at.to_f,
+        payload: @webhook_request.payload,
+        uuid: @webhook_request.uuid
+      }.to_json
+    end
   end
 
   def send_request
     @http_result = Postal::HTTP.post(@webhook_request.url,
                                      sign: true,
                                      json: @payload,
-                                     timeout: 5)
+                                     timeout: 5,
+                                     username: Postal::Config.listmonk.api_user,
+                                     password: Postal::Config.listmonk.api_key)
 
     @success = (@http_result[:code] >= 200 && @http_result[:code] < 300)
   end
@@ -88,6 +94,21 @@ class WebhookDeliveryService
 
     logger.info "Have tried #{@webhook_request.attempts} times. Giving up."
     @webhook_request.destroy!
+  end
+
+  def generate_listmonk_bounce_payload
+    payload_data = @webhook_request.payload
+    bounce_data = payload_data[:bounce] || payload_data["bounce"]
+    original_data = payload_data[:original_message] || payload_data["original_message"]
+
+    bounce_type = bounce_data[:bounce_type] || bounce_data["bounce_type"]
+    email = original_data[:to] || original_data["to"]
+
+    {
+      email: email,
+      source: "postal",
+      type: bounce_type == "soft" ? "soft" : "hard"
+    }
   end
 
   def logger
