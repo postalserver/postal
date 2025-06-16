@@ -6,6 +6,7 @@ class WebhookDeliveryService
 
   def initialize(webhook_request:)
     @webhook_request = webhook_request
+    @webhook = @webhook_request.webhook
   end
 
   def call
@@ -25,25 +26,27 @@ class WebhookDeliveryService
   private
 
   def generate_payload
-    if @webhook_request.event == "MessageBounced"
-      @payload = generate_listmonk_bounce_payload.to_json
-    else
-      @payload = {
-        event: @webhook_request.event,
-        timestamp: @webhook_request.created_at.to_f,
-        payload: @webhook_request.payload,
-        uuid: @webhook_request.uuid
-      }.to_json
-    end
+    @payload = case @webhook.output_style
+                when 'listmonk'
+                 generate_listmonk_payload.to_json
+               else
+                 generate_postal_payload.to_json
+               end
   end
 
   def send_request
-    @http_result = Postal::HTTP.post(@webhook_request.url,
-                                     sign: true,
-                                     json: @payload,
-                                     timeout: 5,
-                                     username: Postal::Config.listmonk.api_user,
-                                     password: Postal::Config.listmonk.api_key)
+    options = {
+      sign: false,
+      json: @payload,
+      timeout: 5
+    }
+
+    if @webhook.output_style == 'listmonk'
+      options[:username] = Postal::Config.listmonk.api_user
+      options[:password] = Postal::Config.listmonk.api_key
+    end
+
+    @http_result = Postal::HTTP.post(@webhook_request.url, options)
 
     @success = (@http_result[:code] >= 200 && @http_result[:code] < 300)
   end
@@ -94,6 +97,25 @@ class WebhookDeliveryService
 
     logger.info "Have tried #{@webhook_request.attempts} times. Giving up."
     @webhook_request.destroy!
+  end
+
+  def generate_postal_payload
+    {
+      event: @webhook_request.event,
+      timestamp: @webhook_request.created_at.to_f,
+      payload: @webhook_request.payload,
+      uuid: @webhook_request.uuid
+    }
+  end
+
+  def generate_listmonk_payload
+    case @webhook_request.event
+    when "MessageBounced"
+      generate_listmonk_bounce_payload
+    else
+      # Fallback to postal format for unsupported events
+      generate_postal_payload
+    end
   end
 
   def generate_listmonk_bounce_payload

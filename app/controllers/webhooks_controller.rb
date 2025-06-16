@@ -48,7 +48,7 @@ class WebhooksController < ApplicationController
   private
 
   def safe_params
-    params.require(:webhook).permit(:name, :url, :all_events, :enabled, events: [])
+    params.require(:webhook).permit(:name, :url, :all_events, :enabled, :output_style, events: [])
   end
 
 end

@@ -24,6 +24,14 @@
           webhook deliveries, they will still be completed even if disabled.
 
     .fieldSet__field
+      = f.label :output_style, 'Output Style', :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :output_style, [["Postal - Standard Postal webhook format", "postal"], ["Listmonk - Listmonk compatible format", "listmonk"]], {}, :class => 'input input--select'
+        %p.fieldSet__text
+          Choose the format for webhook payloads. Postal format provides full event details, while Listmonk format
+          is compatible with Listmonk's webhook expectations for bounce handling.
+
+    .fieldSet__field
       = f.label :all_events, 'Events', :class => 'fieldSet__label'
       .fieldSet__input
         = hidden_field_tag 'webhook[events][]'
@@ -41,4 +49,3 @@
     .fieldSetSubmit__delete
       - if f.object.persisted?
         = link_to "Delete Webhook", [organization, @server, @webhook], :remote => true, :class => 'button button--danger', :method => :delete, :data => {:confirm => "Are you sure you wish to delete this webhook?"}
-
