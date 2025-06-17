@@ -36,7 +36,7 @@ class WebhookDeliveryService
 
   def send_request
     options = {
-      sign: false,
+      sign: true,
       json: @payload,
       timeout: 5
     }
