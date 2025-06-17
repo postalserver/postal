@@ -2,6 +2,14 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.5](https://github.com/mudrockdev/postal/compare/3.3.4...3.3.5) (2025-06-17)
+
+
+### Bug Fixes
+
+* oidc scopes are invalid when concatenated ([#3332](https://github.com/mudrockdev/postal/issues/3332)) ([9c5f96a](https://github.com/mudrockdev/postal/commit/9c5f96ae90cf06dcd5db776806865752f667bd95))
+* typo in the credentials page ([fd3c7cc](https://github.com/mudrockdev/postal/commit/fd3c7ccdf6dc4ee0a76c9523cbd735159e4b8000))
+
 ## [3.3.4](https://github.com/postalserver/postal/compare/3.3.3...3.3.4) (2024-06-20)
 
 
