@@ -37,6 +37,13 @@ describe QueryString do
     expect(qs.hash["to"][1]).to eq "another@example.com"
   end
 
+  if to_value.include?('%') || to_value.include?('*')
+  like_value = to_value.tr('*', '%')
+  messages = messages.where('to_address LIKE ?', like_value)
+else
+  messages = messages.where(to_address: to_value)
+end
+
   it "works with a z in the string" do
     qs = described_class.new("to: testaz@example.com")
     expect(qs.hash["to"]).to eq "testaz@example.com"
