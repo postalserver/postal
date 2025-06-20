@@ -44,6 +44,7 @@ module LegacyAPI
           size: message.size,
           bounce: message.bounce,
           bounce_for_id: message.bounce_for_id,
+          bounce_type: message.bounce_type,
           tag: message.tag,
           received_with_ssl: message.received_with_ssl
         }
