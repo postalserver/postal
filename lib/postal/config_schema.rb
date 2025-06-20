@@ -589,6 +589,18 @@ module Postal
         description "The JWKS endpoint on the authorization server (only used when discovery is false)"
       end
     end
+
+    group :listmonk do
+      string :api_user do
+        description "The api username of listmonk"
+        default ""
+      end
+
+      string :api_key do
+        description "The api key of the listmonk user"
+        default ""
+      end
+    end
   end
 
   class << self

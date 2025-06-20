@@ -24,16 +24,27 @@
           webhook deliveries, they will still be completed even if disabled.
 
     .fieldSet__field
+      = f.label :output_style, 'Output Style', :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.select :output_style, [["Postal - Standard Postal webhook format", "postal"], ["Listmonk - Listmonk compatible format", "listmonk"]], {}, :class => 'input input--select js-output-style-select'
+        %p.fieldSet__text
+          Choose the format for webhook payloads. Postal format provides full event details, while Listmonk format
+          is compatible with Listmonk's webhook expectations for bounce handling.
+        %p.fieldSet__text.js-listmonk-notice{:style => "display: none; color: #856404; background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 8px; border-radius: 4px; margin-top: 8px;"}
+          %strong Note:
+          When Listmonk format is selected, only the MessageBounced event is supported. Other events will be automatically disabled.
+
+    .fieldSet__field
       = f.label :all_events, 'Events', :class => 'fieldSet__label'
       .fieldSet__input
         = hidden_field_tag 'webhook[events][]'
-        = f.select :all_events, [["Yes - send all events to this URL", true], ["No - I'll choose which requests to send", false]], {},:class => 'input input--select fieldSet__checkboxListAfter js-checkbox-list-toggle'
+        = f.select :all_events, [["Yes - send all events to this URL", true], ["No - I'll choose which requests to send", false]], {},:class => 'input input--select fieldSet__checkboxListAfter js-checkbox-list-toggle js-all-events-select'
         %ul.checkboxList{:class => [@webhook.all_events? ? 'is-hidden' : '']}
           - for event in WebhookEvent::EVENTS
-            %li.checkboxList__item
-              .checkboxList__checkbox= check_box_tag "webhook[events][]", event, @webhook.events.include?(event), :id => "event_#{event}"
+            %li.checkboxList__item{:class => (event != 'MessageBounced' ? 'js-non-bounce-event' : '')}
+              .checkboxList__checkbox= check_box_tag "webhook[events][]", event, @webhook.events.include?(event), :id => "event_#{event}", :class => 'js-event-checkbox', :data => {:event => event}
               .checkboxList__label
-                = label_tag "event_#{event}", event, :class => 'checkboxList__actualLabel checkboxList__devEvent'
+                = label_tag "event_#{event}", event, :class => 'checkboxList__actualLabel checkboxList__devEvent js-event-label'
                 %p.checkBoxList__text= t("webhook_events.#{event.underscore}")
 
   .fieldSetSubmit.buttonSet
@@ -41,4 +52,3 @@
     .fieldSetSubmit__delete
       - if f.object.persisted?
         = link_to "Delete Webhook", [organization, @server, @webhook], :remote => true, :class => 'button button--danger', :method => :delete, :data => {:confirm => "Are you sure you wish to delete this webhook?"}
-
