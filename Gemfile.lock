@@ -286,7 +286,7 @@ GEM
     rainbow (3.1.1)
     rake (13.1.0)
     regexp_parser (2.7.0)
-    resolv (0.3.0)
+    resolv (0.3.1)
     rexml (3.2.5)
     rouge (4.2.0)
     rspec (3.12.0)
