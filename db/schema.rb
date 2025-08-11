@@ -357,6 +357,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.string "locked_by"
     t.datetime "locked_at", precision: nil
     t.index ["locked_by"], name: "index_webhook_requests_on_locked_by"
+    t.index ["uuid"], name: "index_webhook_requests_on_uuid"
   end
 
   create_table "webhooks", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
