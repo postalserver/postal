@@ -7,6 +7,29 @@ Rails.application.routes.draw do
   match "/api/v1/messages/message" => "legacy_api/messages#message", via: [:get, :post, :patch, :put]
   match "/api/v1/messages/deliveries" => "legacy_api/messages#deliveries", via: [:get, :post, :patch, :put]
 
+  # New API v1 Resource Management Routes
+  # Domains
+  match "/api/v1/domains" => "legacy_api/domains#index", via: [:get]
+  match "/api/v1/domains" => "legacy_api/domains#create", via: [:post]
+  match "/api/v1/domains/:id" => "legacy_api/domains#show", via: [:get]
+  match "/api/v1/domains/:id" => "legacy_api/domains#update", via: [:put, :patch]
+  match "/api/v1/domains/:id" => "legacy_api/domains#destroy", via: [:delete]
+  match "/api/v1/domains/:id/verify" => "legacy_api/domains#verify", via: [:post]
+
+  # Credentials (API Keys)
+  match "/api/v1/credentials" => "legacy_api/credentials#index", via: [:get]
+  match "/api/v1/credentials" => "legacy_api/credentials#create", via: [:post]
+  match "/api/v1/credentials/:id" => "legacy_api/credentials#show", via: [:get]
+  match "/api/v1/credentials/:id" => "legacy_api/credentials#update", via: [:put, :patch]
+  match "/api/v1/credentials/:id" => "legacy_api/credentials#destroy", via: [:delete]
+
+  # Users
+  match "/api/v1/users" => "legacy_api/users#index", via: [:get]
+  match "/api/v1/users" => "legacy_api/users#create", via: [:post]
+  match "/api/v1/users/:id" => "legacy_api/users#show", via: [:get]
+  match "/api/v1/users/:id" => "legacy_api/users#update", via: [:put, :patch]
+  match "/api/v1/users/:id" => "legacy_api/users#destroy", via: [:delete]
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]
