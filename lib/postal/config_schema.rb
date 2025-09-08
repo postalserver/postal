@@ -78,11 +78,26 @@ module Postal
         transform do |value|
           uri = URI.parse(value)
           query = uri.query ? CGI.parse(uri.query) : {}
-          {
+          result = {
             host: uri.host,
             port: uri.port || 25,
-            ssl_mode: query["ssl_mode"]&.first || "Auto"
+            ssl_mode: query["ssl_mode"]&.first || "Auto",
+            username: uri.user,
+            password: uri.password,
+            authentication: query["authentication"]&.first # ex: "login" ou "plain"
           }
+
+          # Debug
+          warn "=== SMTP Relay Parsed ==="
+          warn "host: #{result[:host]}"
+          warn "port: #{result[:port]}"
+          warn "ssl_mode: #{result[:ssl_mode]}"
+          warn "username: #{result[:username].inspect}"
+          warn "password: #{result[:password] ? '****' : nil}"
+          warn "authentication: #{result[:authentication].inspect}"
+          warn "========================="
+
+          result
         end
       end
 
