@@ -249,6 +249,16 @@ class SMTPSender < BaseSender
       relays = relays.filter_map do |relay|
         next unless relay.host.present?
 
+      puts "=== SMTPSender -> SMTPSender::smtp_relays ==="
+      puts "hostname: #{relay.host}"
+      puts "port: #{relay.port || 25}"
+      puts "ssl_mode: #{relay.ssl_mode}"
+      puts "username: #{relay.username.inspect}"
+      puts "username decoded: #{relay.username ? CGI.unescape(relay.username) : nil}"
+      puts "password: #{relay.password.nil? ? '****' : '****'}"
+      puts "authentication: #{relay.authentication.inspect}"
+      puts "======================================="
+        
       SMTPClient::Server.new(
         relay.host,
         port: relay.port,
