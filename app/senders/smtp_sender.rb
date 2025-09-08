@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'cgi'
+
 class SMTPSender < BaseSender
 
   attr_reader :endpoints
@@ -247,7 +249,14 @@ class SMTPSender < BaseSender
       relays = relays.filter_map do |relay|
         next unless relay.host.present?
 
-        SMTPClient::Server.new(relay.host, port: relay.port, ssl_mode: relay.ssl_mode)
+      SMTPClient::Server.new(
+        relay.host,
+        port: relay.port,
+        ssl_mode: relay.ssl_mode,
+        username: relay.username ? CGI.unescape(relay.username) : nil,
+        password: relay.password ? CGI.unescape(relay.password) : nil,
+        authentication: relay.authentication ? relay.authentication : nil
+      )
       end
 
       @smtp_relays = relays.empty? ? nil : relays
