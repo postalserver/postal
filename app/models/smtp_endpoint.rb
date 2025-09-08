@@ -49,17 +49,17 @@ class SMTPEndpoint < ApplicationRecord
 
   def to_smtp_client_server
     puts "=== SMTPEndpoint -> SMTPClient::Server ==="
-    puts "hostname: #{hostname}"
-    puts "port: #{port || 25}"
-    puts "ssl_mode: #{ssl_mode}"
-    puts "username: #{username.inspect}"
+    puts "hostname: #{relay.hostname}"
+    puts "port: #{relay.port || 25}"
+    puts "ssl_mode: #{relay.ssl_mode}"
+    puts "username: #{relay.username.inspect}"
     puts "username decoded: #{relay.username ? CGI.unescape(relay.username) : nil}"
-    puts "password: #{password.nil? ? '****' : '****'}"
-    puts "authentication: #{authentication.inspect}"
+    puts "password: #{relay.password? ? '****' : ''}"
+    puts "authentication: #{relay.authentication.inspect}"
     puts "======================================="
 
     SMTPClient::Server.new(
-     relay.host,
+     relay.hostname,
      port: relay.port,
      ssl_mode: relay.ssl_mode,
      username: relay.username ? CGI.unescape(relay.username) : nil,
