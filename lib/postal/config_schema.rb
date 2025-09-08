@@ -87,7 +87,7 @@ module Postal
             authentication: query["authentication"]&.first # ex: "login" ou "plain"
           }
 
-          # Debug
+          # Debug temporaire pour vérifier ce qui est lu
           warn "=== SMTP Relay Parsed ==="
           warn "host: #{result[:host]}"
           warn "port: #{result[:port]}"
