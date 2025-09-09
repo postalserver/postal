@@ -82,7 +82,24 @@ module SMTPClient
         @smtp_client.disable_tls
       end
 
-      @smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
+      Postal.logger.debug "=== DEBUG: starting SMTP session ==="
+      Postal.logger.debug "  ip_address: #{@ip_address}"
+      Postal.logger.debug "  port: #{@server.port}"
+      Postal.logger.debug "  helo: #{@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname}"
+      Postal.logger.debug "  username: #{@server.respond_to?(:username) ? @server.username.inspect : 'nil'}"
+      Postal.logger.debug "  password: #{@server.respond_to?(:password) && @server.password ? '[FILTERED]' : nil}"
+      Postal.logger.debug "  ssl_mode: #{@server.ssl_mode}"
+
+      # @smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
+      helo = @source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname
+
+      @smtp_client.start(
+        helo,
+        @server.username,
+        @server.password,
+        @server.authentication&.to_sym # :login, :plain, :cram_md5, etc.
+      )
+
 
       @smtp_client
     end
