@@ -40,14 +40,18 @@ module Worker
       end
 
       # Obtain a queued message from the database for processing
+      # Messages are prioritized based on the server's priority (higher priority first)
+      # and then by the message ID (ascending order).
       #
       # @return [void]
       def lock_message_for_processing
-        QueuedMessage.where(ip_address_id: [nil, @ip_addresses])
-                     .where(locked_by: nil, locked_at: nil)
-                     .ready_with_delayed_retry
-                     .limit(1)
-                     .update_all(locked_by: @locker, locked_at: @lock_time)
+        QueuedMessage.joins(:server)
+                    .where(ip_address_id: [nil, @ip_addresses])
+                    .where(locked_by: nil, locked_at: nil)
+                    .ready_with_delayed_retry
+                    .order("servers.priority DESC, queued_messages.id ASC")
+                    .limit(1)
+                    .update_all(locked_by: @locker, locked_at: @lock_time)
       end
 
       # Get a full list of all messages which we can process (i.e. those which have just
