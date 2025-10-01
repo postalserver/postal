@@ -115,7 +115,7 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0)
     database_cleaner-core (2.0.1)
-    date (3.3.4)
+    date (3.4.1)
     diff-lcs (1.6.2)
     domain_name (0.6.20240107)
     dotenv (3.0.2)
@@ -189,7 +189,7 @@ GEM
     konfig-config (3.0.0)
       hashie
     logger (1.7.0)
-    loofah (2.22.0)
+    loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     mail (2.8.1)
@@ -204,7 +204,7 @@ GEM
     mysql2 (0.5.6)
     net-http (0.4.1)
       uri
-    net-imap (0.4.10)
+    net-imap (0.5.11)
       date
       net-protocol
     net-pop (0.1.2)
@@ -217,7 +217,7 @@ GEM
     nilify_blanks (1.4.0)
       activerecord (>= 4.0.0)
       activesupport (>= 4.0.0)
-    nio4r (2.7.0)
+    nio4r (2.7.4)
     nokogiri (1.18.10-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.18.10-arm64-darwin)
@@ -261,7 +261,7 @@ GEM
       date
       stringio
     public_suffix (5.0.4)
-    puma (6.4.2)
+    puma (7.0.4)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.1)
@@ -301,9 +301,9 @@ GEM
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.6.0)
+    rails-html-sanitizer (1.6.2)
       loofah (~> 2.21)
-      nokogiri (~> 1.14)
+      nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
     railties (7.1.5.2)
       actionpack (= 7.1.5.2)
       activesupport (= 7.1.5.2)
@@ -321,7 +321,7 @@ GEM
     reline (0.6.2)
       io-console (~> 0.5)
     resolv (0.3.0)
-    rexml (3.2.5)
+    rexml (3.4.4)
     rouge (4.2.0)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
@@ -418,7 +418,7 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.8.1)
+    webrick (1.9.1)
     websocket-driver (0.8.0)
       base64
       websocket-extensions (>= 0.1.0)
