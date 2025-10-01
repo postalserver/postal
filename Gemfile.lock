@@ -466,6 +466,7 @@ DEPENDENCIES
   ostruct
   prometheus-client
   puma
+  rackup
   rails (= 7.1.5.2)
   resolv
   rspec
