@@ -406,7 +406,7 @@ GEM
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
     unicode-display_width (2.4.2)
-    uri (0.13.0)
+    uri (0.13.2)
     validate_url (1.0.15)
       activemodel (>= 3.0.0)
       public_suffix
