@@ -180,17 +180,14 @@ class MessagesController < ApplicationController
             options[:where].delete(:spam)
             options[:where].delete(:scope)
           end
-          if qs[:subject]
-            options[:where][:subject] = {}
-            options[:where][:subject][:like] = qs[:subject]
-          end
-          if qs[:to]
-            options[:where][:rcpt_to] = {}
-            options[:where][:rcpt_to][:like] = qs[:to]
-          end
-          if qs[:from]
-            options[:where][:mail_from] = {}
-            options[:where][:mail_from][:like] = qs[:from]
+          [[:subject, :subject], [:to, :rcpt_to], [:from, :mail_from]].each do |qs_key, where_key|
+            if qs[qs_key]
+              if qs[qs_key].include?('%')
+                options[:where][where_key] = { like: qs[qs_key] }
+              else
+                options[:where][where_key] = qs[qs_key]
+              end
+            end
           end
           options[:where][:tag] = qs[:tag] if qs[:tag]
           options[:where][:id] = qs[:id] if qs[:id]
