@@ -320,7 +320,7 @@ GEM
     regexp_parser (2.7.0)
     reline (0.6.2)
       io-console (~> 0.5)
-    resolv (0.3.0)
+    resolv (0.3.1)
     rexml (3.4.4)
     rouge (4.2.0)
     rspec (3.13.1)
@@ -468,7 +468,7 @@ DEPENDENCIES
   puma
   rackup
   rails (= 7.1.5.2)
-  resolv
+  resolv (~> 0.3.1)
   rspec
   rspec-rails
   rubocop
