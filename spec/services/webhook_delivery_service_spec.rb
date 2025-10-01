@@ -59,8 +59,11 @@ RSpec.describe WebhookDeliveryService do
       end
 
       it "updates the last used at time on the webhook" do
-        service.call
-        expect(webhook.reload.last_used_at).to be_within(1.second).of(Time.current)
+        frozen_time = Time.current.change(usec: 0)
+        Timecop.freeze(frozen_time) do
+          service.call
+          expect(webhook.reload.last_used_at).to eq(frozen_time)
+        end
       end
     end
 

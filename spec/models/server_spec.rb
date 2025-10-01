@@ -120,6 +120,8 @@ describe Server do
   end
 
   describe "deletion" do
+    let(:server) { create(:server) }
+
     it "removes the database" do
       expect(server.message_db.provisioner).to receive(:drop).once
       server.provision_database = true
