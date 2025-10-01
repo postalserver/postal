@@ -1,18 +1,25 @@
-FROM ruby:3.4.6-bookworm AS base
+FROM ruby:3.4.6-slim-bookworm AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y curl \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
 RUN (curl -sL https://deb.nodesource.com/setup_20.x | bash -)
 
 # Install main dependencies
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
-  build-essential  \
-  netcat-openbsd \
-  curl \
-  libmariadb-dev \
-  libcap2-bin \
-  nano \
-  nodejs
+    build-essential  \
+    netcat-openbsd \
+    libmariadb-dev \
+    libcap2-bin \
+    nano \
+    libyaml-dev \
+    nodejs \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
 
