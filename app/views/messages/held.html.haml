@@ -4,7 +4,7 @@
 = render 'servers/sidebar', :active_server => @server
 = render 'servers/header', :active_nav => :messages
 = render 'header', :active_nav => :held
-- if @messages.empty? && !@queried
+- if @messages[:records].empty? && !@queried
   .pageContent--compact
     .noData.noData--clean
       %h2.noData__title You haven't got any held messages.
@@ -12,5 +12,7 @@
         You haven't sent any messages through this mail server yet. Not to worry though
         they'll start appearing here as soon as you start sending them.
 - else
+  .pageContent
+    %div{style: "text-align: right; padding: 10px 20px 0;"}
+      = link_to "Release All Held Messages", release_all_held_organization_server_messages_path(organization, @server), :class => "button button--positive", :remote => true, :method => :post, :data => { :confirm => "Are you sure you want to release all held messages?" }
   = render 'index'
-

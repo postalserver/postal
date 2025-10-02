@@ -33,6 +33,7 @@ Rails.application.routes.draw do
         get :incoming, on: :collection
         get :outgoing, on: :collection
         get :held, on: :collection
+        post :release_all_held, on: :collection
         get :activity, on: :member
         get :plain, on: :member
         get :html, on: :member
