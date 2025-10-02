@@ -27,4 +27,6 @@
               Expires #{Time.zone.at(suppression['keep_until']).to_fs(:long)}
               - if suppression['keep_until'] < Time.now.to_f
                 %span.u-red expired
+            %p.suppressionList__actions
+              = link_to "Remove", remove_suppression_organization_server_messages_path(organization, @server, address: suppression['address'], type: suppression['type']), :class => "button button--small button--danger", :remote => true, :method => :delete, :data => { :confirm => "Are you sure you want to remove #{suppression['address']} from the suppression list?" }
     = render 'shared/message_db_pagination', :data => @suppressions, :name => "suppression"

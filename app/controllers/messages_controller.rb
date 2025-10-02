@@ -169,6 +169,21 @@ class MessagesController < ApplicationController
     @suppressions = @server.message_db.suppression_list.all_with_pagination(params[:page])
   end
 
+  def remove_suppression
+    type = params[:type]&.to_sym || :recipient
+    address = params[:address]
+
+    if address.blank?
+      flash[:alert] = "Address is required to remove from suppression list."
+    elsif @server.message_db.suppression_list.remove(type, address)
+      flash[:notice] = "#{address} has been removed from the suppression list."
+    else
+      flash[:alert] = "Unable to remove #{address} from the suppression list."
+    end
+
+    redirect_to_with_json suppressions_organization_server_messages_path(organization, @server)
+  end
+
   def activity
     @entries = @message.activity_entries
   end
