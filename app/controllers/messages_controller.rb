@@ -136,6 +136,28 @@ class MessagesController < ApplicationController
     redirect_to_with_json organization_server_message_path(organization, @server, @message.id)
   end
 
+  def release_all_held
+    held_messages = @server.message_db.messages(where: { held: true })
+    released_count = 0
+
+    held_messages.each do |message|
+      if message.raw_message?
+        message.add_to_message_queue(manual: true)
+        released_count += 1
+      end
+    end
+
+    flash[:notice] = if released_count == 1
+                       "1 held message has been released and will be delivered shortly."
+                     elsif released_count.positive?
+                       "#{released_count} held messages have been released and will be delivered shortly."
+                     else
+                       "No held messages were found to release."
+                     end
+
+    redirect_to_with_json held_organization_server_messages_path(organization, @server)
+  end
+
   def remove_from_queue
     if @message.queued_message && !@message.queued_message.locked?
       @message.queued_message.destroy
@@ -145,6 +167,21 @@ class MessagesController < ApplicationController
 
   def suppressions
     @suppressions = @server.message_db.suppression_list.all_with_pagination(params[:page])
+  end
+
+  def remove_suppression
+    type = params[:type]&.to_sym || :recipient
+    address = params[:address]
+
+    if address.blank?
+      flash[:alert] = "Address is required to remove from suppression list."
+    elsif @server.message_db.suppression_list.remove(type, address)
+      flash[:notice] = "#{address} has been removed from the suppression list."
+    else
+      flash[:alert] = "Unable to remove #{address} from the suppression list."
+    end
+
+    redirect_to_with_json suppressions_organization_server_messages_path(organization, @server)
   end
 
   def activity

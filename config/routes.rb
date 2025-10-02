@@ -33,6 +33,7 @@ Rails.application.routes.draw do
         get :incoming, on: :collection
         get :outgoing, on: :collection
         get :held, on: :collection
+        post :release_all_held, on: :collection
         get :activity, on: :member
         get :plain, on: :member
         get :html, on: :member
@@ -45,6 +46,7 @@ Rails.application.routes.draw do
         post :retry, on: :member
         post :cancel_hold, on: :member
         get :suppressions, on: :collection
+        delete :remove_suppression, on: :collection
         delete :remove_from_queue, on: :member
         get :deliveries, on: :member
       end
