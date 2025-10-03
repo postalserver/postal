@@ -2,6 +2,32 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.5](https://github.com/postalserver/postal/compare/3.3.4...3.3.5) (2025-10-03)
+
+
+### Bug Fixes
+
+* **health_server:** use rackup handler instead of rack handler ([7c47422](https://github.com/postalserver/postal/commit/7c47422c865e738c4d6af0fed1cca4405288341f))
+* oidc scopes are invalid when concatenated ([#3332](https://github.com/postalserver/postal/issues/3332)) ([9c5f96a](https://github.com/postalserver/postal/commit/9c5f96ae90cf06dcd5db776806865752f667bd95))
+* typo in process logging ([#3212](https://github.com/postalserver/postal/issues/3212)) ([b7e5232](https://github.com/postalserver/postal/commit/b7e5232e077b3c9b7a999dcb6676fba0ec61458e))
+* typo in the credentials page ([fd3c7cc](https://github.com/postalserver/postal/commit/fd3c7ccdf6dc4ee0a76c9523cbd735159e4b8000))
+* update url for v2 config ([#3225](https://github.com/postalserver/postal/issues/3225)) ([e00098b](https://github.com/postalserver/postal/commit/e00098b8003cf37f2708f536871b3ade377aed2d))
+
+
+### Documentation
+
+* **process.rb:** add help about time unit used by metric ([#3339](https://github.com/postalserver/postal/issues/3339)) ([f5325c4](https://github.com/postalserver/postal/commit/f5325c49ff1152ad53eaaec98717ad3412d379ae))
+
+
+### Miscellaneous Chores
+
+* **deps:** upgrade puma, net-imap and other deps ([c03c44b](https://github.com/postalserver/postal/commit/c03c44b442a29aa9881c1e1aae60bead9776a6b6))
+* **dockerfile:** reduce container size ([86de372](https://github.com/postalserver/postal/commit/86de372382bd62bdd5d1372254f8817b0360bd56))
+* remove version from docker-compose.yml ([c78000c](https://github.com/postalserver/postal/commit/c78000ca8f2998aa04648f465060768db6467de6))
+* upgrade resolv to 0.6.2 ([d00d978](https://github.com/postalserver/postal/commit/d00d978872a96369544303d08f6a9d11cdf56b62))
+* upgrade to rails 7.1 and ruby 3.4 ([#3457](https://github.com/postalserver/postal/issues/3457)) ([ab6d443](https://github.com/postalserver/postal/commit/ab6d4430baa33a05f1aa66e776cc2a5bcaa0ede8))
+* upgrade uri gem to 1.0.3 ([f193b8e](https://github.com/postalserver/postal/commit/f193b8e77fc096382ab7aaa6a2c29641b4cb12df))
+
 ## [3.3.4](https://github.com/postalserver/postal/compare/3.3.3...3.3.4) (2024-06-20)
 
 
