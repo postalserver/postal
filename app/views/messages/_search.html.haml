@@ -13,11 +13,14 @@
         as shown opposite into the box above and press enter.
     .messageSearch__right
       %dl.messageSearch__definition
-        %dt to: rachel@example.com
-        %dd Returns all mail addressed to the address provided.
+        %dt to: rachel@example.com or to: %rachel%
+        %dd Returns all mail addressed to the address provided. Use % as wildcard anywhere.
       %dl.messageSearch__definition
-        %dt from: tom@example.com
-        %dd Returns all mail sent from to the address provided.
+        %dt from: tom@example.com or from: %@example.com
+        %dd Returns all mail sent from to the address provided. Use % as wildcard anywhere.
+      %dl.messageSearch__definition
+        %dt subject: "any string" or subject: "%any string%"
+        %dd Returns all mail which subject contains the substring provided. Use % as wildcard anywhere.
       %dl.messageSearch__definition
         %dt status: pending
         %dd Returns all messages with the status provided. The suitable statuses are: <code>pending</code>, <code>sent</code>, <code>held</code>, <code>softfail</code>, <code>hardfail</code> and <code>bounced</code>.
