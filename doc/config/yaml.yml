@@ -256,4 +256,10 @@ oidc:
   # The user info endpoint on the authorization server (only used when discovery is false)
   userinfo_endpoint: 
   # The JWKS endpoint on the authorization server (only used when discovery is false)
-  jwks_uri: 
+  jwks_uri:
+
+listmonk:
+  # Listmonk api username
+  api_user:
+  # Listmonk api key
+  api_key:

@@ -17,6 +17,159 @@ RSpec.describe WebhookDeliveryService do
   end
 
   describe "#call" do
+    context "with postal output style" do
+      it "sends a request to the webhook's url with postal format" do
+        service.call
+        expect(WebMock).to have_requested(:post, webhook.url).with({
+          body: {
+            event: webhook_request.event,
+            timestamp: webhook_request.created_at.to_f,
+            payload: webhook_request.payload,
+            uuid: webhook_request.uuid
+          }.to_json,
+          headers: {
+            "Content-Type" => "application/json",
+            "X-Postal-Signature" => /\A[a-z0-9\/+]+=*\z/i,
+            "X-Postal-Signature-256" => /\A[a-z0-9\/+]+=*\z/i,
+            "X-Postal-Signature-KID" => /\A[a-f0-9\/+]{64}\z/i
+          }
+        })
+      end
+    end
+
+    context "with listmonk output style" do
+      let(:webhook) { create(:webhook, server: server, output_style: "listmonk") }
+
+      context "for MessageBounced event" do
+        let(:webhook_request) do
+          create(:webhook_request, :locked, webhook: webhook, event: "MessageBounced", payload: {
+            bounce: { bounce_type: "hard" },
+            original_message: { to: "test@example.com" }
+          })
+        end
+
+        it "sends a request with listmonk bounce format" do
+          service.call
+          expect(WebMock).to have_requested(:post, webhook.url).with({
+            body: {
+              email: "test@example.com",
+              source: "postal",
+              type: "hard"
+            }.to_json,
+            headers: {
+              "Content-Type" => "application/json",
+              "X-Postal-Signature" => /\A[a-z0-9\/+]+=*\z/i,
+              "X-Postal-Signature-256" => /\A[a-z0-9\/+]+=*\z/i,
+              "X-Postal-Signature-KID" => /\A[a-f0-9\/+]{64}\z/i
+            }
+          })
+        end
+
+        context "with soft bounce" do
+          let(:webhook_request) do
+            create(:webhook_request, :locked, webhook: webhook, event: "MessageBounced", payload: {
+              bounce: { bounce_type: "soft" },
+              original_message: { to: "soft-bounce@example.com" }
+            })
+          end
+
+          it "sends a request with type 'soft'" do
+            service.call
+            expect(WebMock).to have_requested(:post, webhook.url).with({
+              body: {
+                email: "soft-bounce@example.com",
+                source: "postal",
+                type: "soft"
+              }.to_json,
+              headers: {
+                "Content-Type" => "application/json",
+                "X-Postal-Signature" => /\A[a-z0-9\/+]+=*\z/i,
+                "X-Postal-Signature-256" => /\A[a-z0-9\/+]+=*\z/i,
+                "X-Postal-Signature-KID" => /\A[a-f0-9\/+]{64}\z/i
+              }
+            })
+          end
+        end
+
+        context "with string keys in payload" do
+          let(:webhook_request) do
+            create(:webhook_request, :locked, webhook: webhook, event: "MessageBounced", payload: {
+              "bounce" => { "bounce_type" => "hard" },
+              "original_message" => { "to" => "string-keys@example.com" }
+            })
+          end
+
+          it "handles string keys correctly" do
+            service.call
+            expect(WebMock).to have_requested(:post, webhook.url).with({
+              body: {
+                email: "string-keys@example.com",
+                source: "postal",
+                type: "hard"
+              }.to_json,
+              headers: {
+                "Content-Type" => "application/json",
+                "X-Postal-Signature" => /\A[a-z0-9\/+]+=*\z/i,
+                "X-Postal-Signature-256" => /\A[a-z0-9\/+]+=*\z/i,
+                "X-Postal-Signature-KID" => /\A[a-f0-9\/+]{64}\z/i
+              }
+            })
+          end
+        end
+
+        context "with unknown bounce type" do
+          let(:webhook_request) do
+            create(:webhook_request, :locked, webhook: webhook, event: "MessageBounced", payload: {
+              bounce: { bounce_type: "unknown" },
+              original_message: { to: "unknown-bounce@example.com" }
+            })
+          end
+
+          it "defaults to 'hard' type for unknown bounce types" do
+            service.call
+            expect(WebMock).to have_requested(:post, webhook.url).with({
+              body: {
+                email: "unknown-bounce@example.com",
+                source: "postal",
+                type: "hard"
+              }.to_json,
+              headers: {
+                "Content-Type" => "application/json",
+                "X-Postal-Signature" => /\A[a-z0-9\/+]+=*\z/i,
+                "X-Postal-Signature-256" => /\A[a-z0-9\/+]+=*\z/i,
+                "X-Postal-Signature-KID" => /\A[a-f0-9\/+]{64}\z/i
+              }
+            })
+          end
+        end
+      end
+
+      context "for unsupported event" do
+        let(:webhook_request) do
+          create(:webhook_request, :locked, webhook: webhook, event: "UnsupportedEvent", payload: {})
+        end
+
+        it "raises an error for unsupported events" do
+          expect { service.call }.to raise_error(Postal::Error, "Unsupported event 'UnsupportedEvent' for output style 'listmonk'")
+        end
+
+        it "does not send a request" do
+          expect { service.call }.to raise_error(Postal::Error)
+          expect(WebMock).not_to have_requested(:post, webhook.url)
+        end
+
+        it "does not create any webhook records" do
+          expect { service.call }.to raise_error(Postal::Error)
+          expect(server.message_db.webhooks.list(1)[:total]).to eq(0)
+        end
+
+        it "does not delete the webhook request" do
+          expect { service.call }.to raise_error(Postal::Error)
+          expect { webhook_request.reload }.not_to raise_error
+        end
+      end
+    end
+
     it "sends a request to the webhook's url" do
       service.call
       expect(WebMock).to have_requested(:post, webhook.url).with({
