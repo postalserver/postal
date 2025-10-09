@@ -1,5 +1,5 @@
 GEM
-  remote: https://rubygems.org/
+  remote: https://gem.coop
   specs:
     abbrev (0.1.2)
     actioncable (7.1.5.2)
