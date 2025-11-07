@@ -159,6 +159,7 @@ class User < ApplicationRecord
       user.password = nil
       user.save!
       logger&.info "OIDC auto user creation succeeded for #{oidc_email_address} (user ID: #{user.id}) with Firstname: #{first_name}, Lastname: #{last_name}"
+      auto_create_organization_for(user, config, logger) if config.auto_create_organization?
       user
     rescue ActiveRecord::RecordInvalid => e
       logger&.error "OIDC auto user creation failed for #{oidc_email_address}: #{e.message}"
@@ -178,6 +179,18 @@ class User < ApplicationRecord
       first_name = first_name.presence || "OIDC"
       last_name = last_name.presence || first_name
       [first_name, last_name]
+    end
+
+    def auto_create_organization_for(user, config, logger)
+      organization_name = config.auto_created_organization_name.presence || "My organization"
+      organization = Organization.new(name: organization_name, owner: user)
+      organization.save!
+      organization.organization_users.create!(user: user, admin: true, all_servers: true)
+      logger&.info "OIDC auto organization creation succeeded for user #{user.id} (organization ID: #{organization.id})"
+      organization
+    rescue ActiveRecord::RecordInvalid => e
+      logger&.error "OIDC auto organization creation failed for user #{user.id}: #{e.message}"
+      nil
     end
 
   end

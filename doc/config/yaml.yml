@@ -231,6 +231,10 @@ oidc:
   local_authentication_enabled: true
   # Automatically create a user record when a valid OIDC login is received but no user exists
   auto_create_users: false
+  # Automatically create a default organization for auto-created users
+  auto_create_organization: false
+  # The name to use for automatically created organizations
+  auto_created_organization_name: My organization
   # The name of the OIDC provider as shown in the UI
   name: OIDC Provider
   # The OIDC issuer URL

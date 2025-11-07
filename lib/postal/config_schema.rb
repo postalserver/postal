@@ -535,6 +535,16 @@ module Postal
         default false
       end
 
+      boolean :auto_create_organization do
+        description "Automatically create a default organization for auto-created OIDC users"
+        default false
+      end
+
+      string :auto_created_organization_name do
+        description "The name to use for automatically created organizations"
+        default "My organization"
+      end
+
       string :name do
         description "The name of the OIDC provider as shown in the UI"
         default "OIDC Provider"

@@ -27,6 +27,8 @@ RSpec.describe User do
       allow(Postal::Config.oidc).to receive(:uid_field).and_return("sub")
       allow(Postal::Config.oidc).to receive(:name_field).and_return("name")
       allow(Postal::Config.oidc).to receive(:auto_create_users?).and_return(false)
+      allow(Postal::Config.oidc).to receive(:auto_create_organization?).and_return(false)
+      allow(Postal::Config.oidc).to receive(:auto_created_organization_name).and_return("My organization")
     end
 
     let(:uid) { "abcdef" }
@@ -160,6 +162,25 @@ RSpec.describe User do
             it "cannot create a user" do
               expect(result).to be_nil
               expect(logger).to have_logged(/no e-mail address provided/)
+            end
+          end
+
+          context "when organization auto creation is enabled" do
+            let(:organization_name) { "My organization" }
+
+            before do
+              allow(Postal::Config.oidc).to receive(:auto_create_organization?).and_return(true)
+              allow(Postal::Config.oidc).to receive(:auto_created_organization_name).and_return(organization_name)
+            end
+
+            it "creates an organization owned by the new user" do
+              expect { result }.to change(Organization, :count).by(1)
+              organization = Organization.last
+              expect(organization.name).to eq organization_name
+              expect(organization.owner).to eq result
+              expect(result.organizations).to include(organization)
+              expect(organization.organization_users.first.user).to eq result
+              expect(organization.organization_users.first.admin).to be true
             end
           end
         end

@@ -102,6 +102,8 @@ This document contains all the environment variables which are available for thi
 | `OIDC_ENABLED` | Boolean | Enable OIDC authentication | false |
 | `OIDC_LOCAL_AUTHENTICATION_ENABLED` | Boolean | When enabled, users with passwords will still be able to login locally. If disable, only OpenID Connect will be available. | true |
 | `OIDC_AUTO_CREATE_USERS` | Boolean | Automatically create a user record when a valid OIDC login is received but no matching user exists | false |
+| `OIDC_AUTO_CREATE_ORGANIZATION` | Boolean | Automatically create a default organization for auto-created OIDC users | false |
+| `OIDC_AUTO_CREATED_ORGANIZATION_NAME` | String | Name to assign to automatically created organizations | My organization |
 | `OIDC_NAME` | String | The name of the OIDC provider as shown in the UI | OIDC Provider |
 | `OIDC_ISSUER` | String | The OIDC issuer URL |  |
 | `OIDC_IDENTIFIER` | String | The client ID for OIDC |  |
