@@ -530,6 +530,11 @@ module Postal
         default true
       end
 
+      boolean :auto_create_users do
+        description "Automatically create a user record when a valid OIDC login is received but no matching user exists"
+        default false
+      end
+
       string :name do
         description "The name of the OIDC provider as shown in the UI"
         default "OIDC Provider"

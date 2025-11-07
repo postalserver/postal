@@ -2,6 +2,12 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [Unreleased]
+
+### Features
+
+* **oidc:** add optional auto-creation of users during OIDC login when enabled via `OIDC_AUTO_CREATE_USERS`
+
 ## [3.3.4](https://github.com/postalserver/postal/compare/3.3.3...3.3.4) (2024-06-20)
 
 
