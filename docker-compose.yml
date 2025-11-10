@@ -1,0 +1,28 @@
+services:
+  postal:
+    image: ${POSTAL_IMAGE}
+    depends_on:
+      - mariadb
+    entrypoint: ["/docker-entrypoint.sh"]
+    volumes:
+      - "./docker/ci-config:/config"
+    environment:
+      POSTAL_SIGNING_KEY_PATH: /config/signing.key
+      MAIN_DB_HOST: mariadb
+      MAIN_DB_USERNAME: root
+      MESSAGE_DB_HOST: mariadb
+      MESSAGE_DB_USERNAME: root
+      LOGGING_ENABLED: "false"
+      RAILS_ENVIRONMENT: test
+      RAILS_LOG_ENABLED: "false"
+      WAIT_FOR_TIMEOUT: 90
+      WAIT_FOR_TARGETS: |-
+        mariadb:3306
+
+  mariadb:
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_DATABASE: postal
+      MARIADB_ALLOW_EMPTY_PASSWORD: 'yes'
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
