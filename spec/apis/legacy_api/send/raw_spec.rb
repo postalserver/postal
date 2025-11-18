@@ -117,8 +117,8 @@ RSpec.describe "Legacy Send API", type: :request do
           expect(parsed_body["data"]["message_id"]).to be_a String
           expect(parsed_body["data"]["messages"]).to be_a Hash
           expect(parsed_body["data"]["messages"]).to match({
-            "test1@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/ },
-            "test2@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/ }
+            "test1@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/, "message_id" => kind_of(String) },
+            "test2@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/, "message_id" => kind_of(String) }
           })
         end
 
@@ -157,8 +157,8 @@ RSpec.describe "Legacy Send API", type: :request do
             expect(parsed_body["data"]["message_id"]).to be_a String
             expect(parsed_body["data"]["messages"]).to be_a Hash
             expect(parsed_body["data"]["messages"]).to match({
-              "test1@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/ },
-              "test2@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/ }
+              "test1@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/, "message_id" => kind_of(String) },
+              "test2@example.com" => { "id" => kind_of(Integer), "token" => /\A[a-zA-Z0-9]{16}\z/, "message_id" => kind_of(String) }
             })
           end
         end
