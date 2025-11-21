@@ -502,6 +502,17 @@ module Postal
       end
     end
 
+    group :management_api do
+      boolean :enabled do
+        description "Enable the Management API for programmatic server administration"
+        default true
+      end
+
+      string :key do
+        description "The secret key for authenticating to the Management API. Can also be set via POSTAL_MANAGEMENT_API_KEY env var."
+      end
+    end
+
     group :migration_waiter do
       boolean :enabled do
         description "Wait for all migrations to run before starting a process"

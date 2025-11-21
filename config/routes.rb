@@ -7,6 +7,42 @@ Rails.application.routes.draw do
   match "/api/v1/messages/message" => "legacy_api/messages#message", via: [:get, :post, :patch, :put]
   match "/api/v1/messages/deliveries" => "legacy_api/messages#deliveries", via: [:get, :post, :patch, :put]
 
+  # Management API Routes - Full administrative control
+  namespace :management_api, path: "management/api/v1" do
+    # IP Pools
+    resources :ip_pools, only: [:index, :show]
+
+    # Organizations
+    resources :organizations, only: [:index, :show, :create, :update, :destroy] do
+      member do
+        post :suspend
+        post :unsuspend
+      end
+      # IP pools for specific organization
+      get "ip_pools", to: "ip_pools#for_organization"
+    end
+
+    # Servers (can be listed globally or per organization)
+    resources :servers, only: [:index, :show, :create, :update, :destroy] do
+      member do
+        post :suspend
+        post :unsuspend
+      end
+
+      # Nested resources under server
+      resources :domains, only: [:index, :show, :create, :destroy] do
+        member do
+          post :verify
+          post :check_dns
+          get :dns_records
+        end
+      end
+
+      resources :credentials, only: [:index, :show, :create, :update, :destroy]
+      resources :webhooks, only: [:index, :show, :create, :update, :destroy]
+    end
+  end
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]
