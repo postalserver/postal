@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ManagementApi
+module ManagementAPI
   # Management API v2 - RESTful API for full Postal management automation.
   #
   # Features:

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ManagementApi
+module ManagementAPI
   class SystemController < BaseController
 
     skip_before_action :authenticate, only: [:health]

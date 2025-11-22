@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ManagementApi
+module ManagementAPI
   class CredentialsController < BaseController
 
     before_action :set_server
