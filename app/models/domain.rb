@@ -128,7 +128,7 @@ class Domain < ApplicationRecord
   end
 
   def return_path_domain
-    "#{name}"
+    "#{Postal::Config.dns.custom_return_path_prefix}.#{name}"
   end
 
   # Returns a DNSResolver instance that can be used to perform DNS lookups needed for
