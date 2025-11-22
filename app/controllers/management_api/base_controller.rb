@@ -54,7 +54,7 @@ module ManagementAPI
         return
       end
 
-      @current_api_key = ManagementApiKey.authenticate(key)
+      @current_api_key = ManagementAPIKey.authenticate(key)
 
       if @current_api_key.nil?
         render_error("InvalidApiKey", "The provided API key is invalid or has expired.", 401)
