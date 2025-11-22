@@ -8,7 +8,7 @@ namespace :management_api do
     puts "Creating Management API key..."
     puts ""
 
-    api_key = ManagementApiKey.new(
+    api_key = ManagementAPIKey.new(
       name: name,
       super_admin: true,
       description: "Created via rake task on #{Time.current}"
@@ -52,7 +52,7 @@ namespace :management_api do
 
     name = args[:name] || "API Key for #{org.name}"
 
-    api_key = ManagementApiKey.new(
+    api_key = ManagementAPIKey.new(
       name: name,
       organization: org,
       super_admin: false,
@@ -85,7 +85,7 @@ namespace :management_api do
 
   desc "List all Management API keys"
   task list_keys: :environment do
-    keys = ManagementApiKey.order(created_at: :desc)
+    keys = ManagementAPIKey.order(created_at: :desc)
 
     if keys.empty?
       puts "No Management API keys found."
@@ -120,7 +120,7 @@ namespace :management_api do
       exit 1
     end
 
-    key = ManagementApiKey.find_by(uuid: args[:uuid])
+    key = ManagementAPIKey.find_by(uuid: args[:uuid])
     unless key
       puts "API key not found: #{args[:uuid]}"
       exit 1
@@ -137,7 +137,7 @@ namespace :management_api do
       exit 1
     end
 
-    key = ManagementApiKey.find_by(uuid: args[:uuid])
+    key = ManagementAPIKey.find_by(uuid: args[:uuid])
     unless key
       puts "API key not found: #{args[:uuid]}"
       exit 1
@@ -154,7 +154,7 @@ namespace :management_api do
       exit 1
     end
 
-    key = ManagementApiKey.find_by(uuid: args[:uuid])
+    key = ManagementAPIKey.find_by(uuid: args[:uuid])
     unless key
       puts "API key not found: #{args[:uuid]}"
       exit 1

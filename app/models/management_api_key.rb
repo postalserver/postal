@@ -21,7 +21,7 @@
 #  updated_at      :datetime
 #
 
-class ManagementApiKey < ApplicationRecord
+class ManagementAPIKey < ApplicationRecord
 
   include HasUUID
 

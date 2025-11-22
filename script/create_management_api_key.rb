@@ -25,7 +25,7 @@ if org_permalink
   end
 end
 
-api_key = ManagementApiKey.new(
+api_key = ManagementAPIKey.new(
   name: name,
   super_admin: super_admin || org_permalink.nil?,
   organization: organization,

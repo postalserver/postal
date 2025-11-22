@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ManagementApi
+module ManagementAPI
   class UsersController < BaseController
 
     before_action :set_user, only: [:show, :update, :destroy]

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ManagementApi
+module ManagementAPI
   class ServersController < BaseController
 
     before_action :set_organization, only: [:index, :create]

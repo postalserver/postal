@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ManagementApi
+module ManagementAPI
   class SystemController < BaseController
 
     skip_before_action :authenticate, only: [:health]
@@ -44,7 +44,7 @@ module ManagementApi
         users: User.count,
         credentials: Credential.count,
         queued_messages: QueuedMessage.count,
-        api_keys: ManagementApiKey.where(enabled: true).count
+        api_keys: ManagementAPIKey.where(enabled: true).count
       })
     end
 
@@ -52,7 +52,7 @@ module ManagementApi
     def create_api_key
       require_super_admin!
 
-      api_key = ManagementApiKey.new(
+      api_key = ManagementAPIKey.new(
         name: api_params[:name],
         description: api_params[:description],
         super_admin: api_params[:super_admin] || false,
@@ -98,7 +98,7 @@ module ManagementApi
     def list_api_keys
       require_super_admin!
 
-      scope = ManagementApiKey.order(created_at: :desc)
+      scope = ManagementAPIKey.order(created_at: :desc)
       scope = scope.where(enabled: true) if api_params[:enabled] == "true"
       scope = scope.where(enabled: false) if api_params[:enabled] == "false"
 
@@ -110,7 +110,7 @@ module ManagementApi
     def destroy_api_key
       require_super_admin!
 
-      api_key = ManagementApiKey.find_by!(uuid: params[:id])
+      api_key = ManagementAPIKey.find_by!(uuid: params[:id])
 
       if api_key == current_api_key
         render_error("CannotDeleteSelf", "Cannot delete the API key currently in use", 400)

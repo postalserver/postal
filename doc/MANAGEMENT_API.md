@@ -68,7 +68,7 @@ postal console
 В консоли Rails:
 
 ```ruby
-key = ManagementApiKey.create!(
+key = ManagementAPIKey.create!(
   name: "My Management Key",
   super_admin: true,
   description: "Main automation key"
@@ -136,7 +136,7 @@ postal console
 
 ```ruby
 # Супер-админ ключ
-key = ManagementApiKey.create!(
+key = ManagementAPIKey.create!(
   name: "Automation Key",
   super_admin: true
 )
@@ -144,7 +144,7 @@ puts key.key
 
 # Ключ для конкретной организации
 org = Organization.find_by(permalink: "my-org")
-key = ManagementApiKey.create!(
+key = ManagementAPIKey.create!(
   name: "Org API Key",
   organization: org,
   super_admin: false
