@@ -15,8 +15,8 @@ module ManagementAPI
   #
   class BaseController < ActionController::Base
 
-    skip_before_action :set_browser_id
-    skip_before_action :verify_authenticity_token
+    skip_before_action :set_browser_id, raise: false
+    skip_before_action :verify_authenticity_token, raise: false
 
     before_action :start_timer
     before_action :authenticate_management_api
