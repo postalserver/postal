@@ -7,6 +7,53 @@ Rails.application.routes.draw do
   match "/api/v1/messages/message" => "legacy_api/messages#message", via: [:get, :post, :patch, :put]
   match "/api/v1/messages/deliveries" => "legacy_api/messages#deliveries", via: [:get, :post, :patch, :put]
 
+  # Management API v2 Routes
+  namespace :management_api, path: "api/v2/management" do
+    # System endpoints
+    get "system/health", to: "system#health"
+    get "system/status", to: "system#status"
+    get "system/stats", to: "system#stats"
+    post "system/api_keys", to: "system#create_api_key"
+    get "system/api_keys", to: "system#list_api_keys"
+    delete "system/api_keys/:id", to: "system#destroy_api_key"
+
+    # Organizations
+    resources :organizations do
+      post :suspend, on: :member
+      post :unsuspend, on: :member
+
+      # Nested servers under organizations
+      resources :servers, only: [:index, :create]
+    end
+
+    # Users (super admin only)
+    resources :users
+
+    # Servers (direct access)
+    resources :servers, only: [:index, :show, :update, :destroy] do
+      post :suspend, on: :member
+      post :unsuspend, on: :member
+      get :stats, on: :member
+
+      # Nested resources under servers
+      resources :domains do
+        post :verify, on: :member
+        post :check_dns, on: :member
+      end
+      resources :credentials
+      resources :routes
+      resources :webhooks do
+        post :test, on: :member
+      end
+      resources :messages, only: [:index, :show] do
+        get :deliveries, on: :member
+        post :retry, on: :member
+        post :cancel_hold, on: :member
+      end
+      get :queue, to: "messages#queue"
+    end
+  end
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]
