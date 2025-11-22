@@ -85,7 +85,7 @@ jobs:
           REF="${GITHUB_REF#refs/heads/}"
           if [ -z "$REF" ]; then exit 1; fi
 
-          VER="$(git describe --tags 2>/dev/null)"
+          VER="$(git describe --tags 2>/dev/null || echo "dev-${GITHUB_SHA:0:7}")"
           echo "version=${VER}" >> "$GITHUB_OUTPUT"
           echo "branch=${REF}" >> "$GITHUB_OUTPUT"
 
