@@ -2,6 +2,19 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.1.0](https://github.com/wsdexe/postal/compare/3.0.0...3.1.0) (2025-11-23)
+
+
+### Features
+
+* add base64 decoding for html_body in send message API ([159f999](https://github.com/wsdexe/postal/commit/159f999058841f8d739dec562f22917557ce4cce))
+
+
+### Bug Fixes
+
+* rename ManagementApiKey to ManagementAPIKey for Zeitwerk ([9047054](https://github.com/wsdexe/postal/commit/90470546379873c480b9388b0f025a7b0cc69bf7))
+* use ManagementAPI module name to match Zeitwerk inflection rules ([00b0a9d](https://github.com/wsdexe/postal/commit/00b0a9da14be8871fcf925b446fd49faa1424db3))
+
 ## [3.0.0](https://github.com/wsdexe/postal/compare/v3.3.4...3.0.0) (2025-11-22)
 
 
