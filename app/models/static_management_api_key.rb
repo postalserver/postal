@@ -38,4 +38,20 @@ class StaticManagementAPIKey
     0
   end
 
+  def accessible_organizations
+    if super_admin?
+      Organization.present
+    else
+      Organization.none
+    end
+  end
+
+  def accessible_servers
+    if super_admin?
+      Server.joins(:organization).where(organizations: { deleted_at: nil })
+    else
+      Server.none
+    end
+  end
+
 end
