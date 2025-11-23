@@ -46,7 +46,7 @@ module LegacyAPI
       attributes[:subject] = api_params["subject"]
       attributes[:reply_to] = api_params["reply_to"]
       attributes[:plain_body] = api_params["plain_body"]
-      attributes[:html_body] = api_params["html_body"]
+      attributes[:html_body] = api_params["html_body"].present? ? Base64.decode64(api_params["html_body"]) : nil
       attributes[:bounce] = api_params["bounce"] ? true : false
       attributes[:tag] = api_params["tag"]
       attributes[:custom_headers] = api_params["headers"] if api_params["headers"]
