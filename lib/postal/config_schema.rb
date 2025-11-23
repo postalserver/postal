@@ -519,6 +519,17 @@ module Postal
       end
     end
 
+    group :management_api do
+      string :key do
+        description "Static Management API key (alternative to database-stored keys)"
+      end
+
+      boolean :super_admin do
+        description "Whether the static API key has super admin privileges"
+        default true
+      end
+    end
+
     group :oidc do
       boolean :enabled do
         description "Enable OIDC authentication"
