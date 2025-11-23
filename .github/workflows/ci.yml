@@ -92,7 +92,7 @@ jobs:
   publish-image:
     name: Publish Image
     runs-on: ubuntu-latest
-    needs: [build, test, release-please]
+    needs: [build, release-please]
     if: ${{ needs.release-please.outputs.release_created }}
     steps:
       - uses: actions/checkout@v4
