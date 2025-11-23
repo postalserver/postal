@@ -2,6 +2,13 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.1.1](https://github.com/wsdexe/postal/compare/3.1.0...3.1.1) (2025-11-23)
+
+
+### Bug Fixes
+
+* update schema.rb to include management_api_keys table ([9fe06c2](https://github.com/wsdexe/postal/commit/9fe06c2f6d53d8141f5076f89a314889bd663563))
+
 ## [3.1.0](https://github.com/wsdexe/postal/compare/3.0.0...3.1.0) (2025-11-23)
 
 
