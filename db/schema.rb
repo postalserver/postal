@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
+ActiveRecord::Schema[7.0].define(version: 2025_11_22_000001) do
   create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
@@ -148,6 +148,27 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.datetime "updated_at"
     t.boolean "default", default: false
     t.index ["uuid"], name: "index_ip_pools_on_uuid", length: 8
+  end
+
+  create_table "management_api_keys", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "uuid", null: false
+    t.string "name", null: false
+    t.string "key", null: false
+    t.text "description"
+    t.boolean "super_admin", default: false
+    t.bigint "organization_id"
+    t.datetime "last_used_at"
+    t.string "last_used_ip"
+    t.integer "request_count", default: 0
+    t.boolean "enabled", default: true
+    t.json "permissions"
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["enabled"], name: "index_management_api_keys_on_enabled"
+    t.index ["key"], name: "index_management_api_keys_on_key", unique: true
+    t.index ["organization_id"], name: "index_management_api_keys_on_organization_id"
+    t.index ["uuid"], name: "index_management_api_keys_on_uuid", unique: true
   end
 
   create_table "organization_ip_pools", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
