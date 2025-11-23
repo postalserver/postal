@@ -2,6 +2,13 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.2.0](https://github.com/wsdexe/postal/compare/3.1.1...3.2.0) (2025-11-23)
+
+
+### Features
+
+* add static Management API key support in postal.yml ([c8e5e43](https://github.com/wsdexe/postal/commit/c8e5e43c1a5c2859be08ae857289ee5aaa720098))
+
 ## [3.1.1](https://github.com/wsdexe/postal/compare/3.1.0...3.1.1) (2025-11-23)
 
 
