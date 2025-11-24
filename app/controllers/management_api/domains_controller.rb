@@ -33,7 +33,6 @@ module ManagementAPI
 
       domain = @server.domains.new(domain_params)
       domain.owner = @server
-      domain.verification_method = api_params[:verification_method] || "DNS"
 
       if domain.save
         render_created(serialize_domain(domain, detailed: true))
@@ -135,6 +134,7 @@ module ManagementAPI
     def domain_params
       {
         name: api_params[:name],
+        verification_method: api_params[:verification_method] || "DNS",
         outgoing: api_params[:outgoing],
         incoming: api_params[:incoming],
         use_for_any: api_params[:use_for_any]
