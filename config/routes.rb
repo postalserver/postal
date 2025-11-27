@@ -125,7 +125,10 @@ Rails.application.routes.draw do
   resources :organizations, except: [:index]
   resources :users
   resources :ip_pools do
-    resources :ip_addresses
+    resources :ip_addresses do
+      post :test_proxy, on: :member
+      post :install_proxy, on: :member
+    end
   end
 
   get "settings" => "user#edit"

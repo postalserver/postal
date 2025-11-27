@@ -52,9 +52,13 @@ module SMTPClient
     #
     # @return [Net::SMTP]
     def start_smtp_session(source_ip_address: nil, allow_ssl: true)
-      # Use SOCKS proxy if configured
-      if Postal::Config.smtp_client.socks_proxy_host.present?
+      # Priority 1: Use proxy from IP address settings if configured
+      if source_ip_address&.respond_to?(:proxy_configured?) && source_ip_address.proxy_configured?
+        setup_smtp_with_ip_address_proxy(source_ip_address, allow_ssl)
+      # Priority 2: Use global SOCKS proxy if configured
+      elsif Postal::Config.smtp_client.socks_proxy_host.present?
         setup_smtp_with_socks_proxy(source_ip_address, allow_ssl)
+      # Priority 3: Direct connection
       else
         setup_smtp_direct(source_ip_address, allow_ssl)
       end
@@ -62,14 +66,40 @@ module SMTPClient
 
     private
 
-    # Setup SMTP connection through SOCKS5 proxy
+    # Setup SMTP connection through SOCKS5 proxy (from IP Address settings)
+    def setup_smtp_with_ip_address_proxy(source_ip_address, allow_ssl)
+      require "socksify"
+      require "socksify/http"
+
+      @source_ip_address = source_ip_address
+
+      # Configure SOCKS proxy from IP Address settings
+      TCPSocket.socks_server = source_ip_address.proxy_host
+      TCPSocket.socks_port = source_ip_address.proxy_port
+
+      if source_ip_address.proxy_username.present?
+        TCPSocket.socks_username = source_ip_address.proxy_username
+        TCPSocket.socks_password = source_ip_address.proxy_password
+      end
+
+      @smtp_client = Net::SMTP.new(@ip_address, @server.port)
+      @smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
+      @smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
+      @smtp_client.tls_hostname = @server.hostname
+
+      configure_ssl(@smtp_client, allow_ssl)
+      @smtp_client.start(@source_ip_address.hostname)
+      @smtp_client
+    end
+
+    # Setup SMTP connection through SOCKS5 proxy (global config)
     def setup_smtp_with_socks_proxy(source_ip_address, allow_ssl)
       require "socksify"
       require "socksify/http"
 
       @source_ip_address = source_ip_address if source_ip_address
 
-      # Configure SOCKS proxy
+      # Configure SOCKS proxy from global config
       TCPSocket.socks_server = Postal::Config.smtp_client.socks_proxy_host
       TCPSocket.socks_port = Postal::Config.smtp_client.socks_proxy_port
 

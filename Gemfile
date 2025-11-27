@@ -22,6 +22,7 @@ gem "logger"
 gem "mail"
 gem "mutex_m"
 gem "mysql2"
+gem "net-ssh"  # SSH connection for remote proxy installation
 gem "socksify"  # SOCKS5 proxy support for SMTP connections
 gem "nifty-utils"
 gem "nilify_blanks"
