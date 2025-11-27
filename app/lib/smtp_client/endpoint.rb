@@ -52,6 +52,44 @@ module SMTPClient
     #
     # @return [Net::SMTP]
     def start_smtp_session(source_ip_address: nil, allow_ssl: true)
+      # Use SOCKS proxy if configured
+      if Postal::Config.smtp_client.socks_proxy_host.present?
+        setup_smtp_with_socks_proxy(source_ip_address, allow_ssl)
+      else
+        setup_smtp_direct(source_ip_address, allow_ssl)
+      end
+    end
+
+    private
+
+    # Setup SMTP connection through SOCKS5 proxy
+    def setup_smtp_with_socks_proxy(source_ip_address, allow_ssl)
+      require "socksify"
+      require "socksify/http"
+
+      @source_ip_address = source_ip_address if source_ip_address
+
+      # Configure SOCKS proxy
+      TCPSocket.socks_server = Postal::Config.smtp_client.socks_proxy_host
+      TCPSocket.socks_port = Postal::Config.smtp_client.socks_proxy_port
+
+      if Postal::Config.smtp_client.socks_proxy_username.present?
+        TCPSocket.socks_username = Postal::Config.smtp_client.socks_proxy_username
+        TCPSocket.socks_password = Postal::Config.smtp_client.socks_proxy_password
+      end
+
+      @smtp_client = Net::SMTP.new(@ip_address, @server.port)
+      @smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
+      @smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
+      @smtp_client.tls_hostname = @server.hostname
+
+      configure_ssl(@smtp_client, allow_ssl)
+      @smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
+      @smtp_client
+    end
+
+    # Setup direct SMTP connection (original behavior)
+    def setup_smtp_direct(source_ip_address, allow_ssl)
       @smtp_client = Net::SMTP.new(@ip_address, @server.port)
       @smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
       @smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
@@ -65,27 +103,32 @@ module SMTPClient
         @smtp_client.source_address = ipv6? ? @source_ip_address.ipv6 : @source_ip_address.ipv4
       end
 
+      configure_ssl(@smtp_client, allow_ssl)
+      @smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
+      @smtp_client
+    end
+
+    # Configure SSL settings for SMTP client
+    def configure_ssl(smtp_client, allow_ssl)
       if allow_ssl
         case @server.ssl_mode
         when SSLModes::AUTO
-          @smtp_client.enable_starttls_auto(self.class.ssl_context_without_verify)
+          smtp_client.enable_starttls_auto(self.class.ssl_context_without_verify)
         when SSLModes::STARTTLS
-          @smtp_client.enable_starttls(self.class.ssl_context_with_verify)
+          smtp_client.enable_starttls(self.class.ssl_context_with_verify)
         when SSLModes::TLS
-          @smtp_client.enable_tls(self.class.ssl_context_with_verify)
+          smtp_client.enable_tls(self.class.ssl_context_with_verify)
         else
-          @smtp_client.disable_starttls
-          @smtp_client.disable_tls
+          smtp_client.disable_starttls
+          smtp_client.disable_tls
         end
       else
-        @smtp_client.disable_starttls
-        @smtp_client.disable_tls
+        smtp_client.disable_starttls
+        smtp_client.disable_tls
       end
-
-      @smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
-
-      @smtp_client
     end
+
+    public
 
     # Send a message to the current SMTP session (or create one if there isn't one for this endpoint).
     # If sending messsage encouters some connection errors, retry again after re-establishing the SMTP

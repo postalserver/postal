@@ -500,6 +500,26 @@ module Postal
         description "The read timeout for outgoing SMTP connections"
         default 30
       end
+
+      string :socks_proxy_host do
+        description "SOCKS5 proxy hostname for outgoing SMTP connections (optional)"
+        default nil
+      end
+
+      integer :socks_proxy_port do
+        description "SOCKS5 proxy port for outgoing SMTP connections"
+        default 1080
+      end
+
+      string :socks_proxy_username do
+        description "SOCKS5 proxy username (optional)"
+        default nil
+      end
+
+      string :socks_proxy_password do
+        description "SOCKS5 proxy password (optional)"
+        default nil
+      end
     end
 
     group :migration_waiter do
