@@ -55,7 +55,7 @@ module ManagementAPI
       end
 
       # First, check if key matches the static key from postal.yml config
-      static_key = Postal::Config.management_api[:key]
+      static_key = Postal::Config.management_api[:api_key]
       if static_key.present? && ActiveSupport::SecurityUtils.secure_compare(key, static_key)
         @current_api_key = StaticManagementAPIKey.new(Postal::Config.management_api[:super_admin])
         return
