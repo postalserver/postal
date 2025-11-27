@@ -60,31 +60,36 @@ docker compose exec postal postal upgrade
 
 ### Шаг 3: Создание API ключа
 
-```bash
-# Создать супер-админ ключ (доступ ко всем организациям)
-postal console
+**Способ 1: Через postal.yml (самый простой)**
+
+Откройте файл `/opt/postal/config/postal.yml` и добавьте секцию:
+
+```yaml
+management_api:
+  key: "ваш-случайный-ключ-здесь"  # Сгенерируйте: openssl rand -hex 32
+  super_admin: true
 ```
 
-В консоли Rails:
-
-```ruby
-key = ManagementAPIKey.create!(
-  name: "My Management Key",
-  super_admin: true,
-  description: "Main automation key"
-)
-puts "API Key: #{key.key}"
-```
-
-Или используйте rake task:
+**Способ 2: Через базу данных (для множественных ключей)**
 
 ```bash
-# Через postal CLI
+# Через rake task
 postal rake management_api:create_key["My Management Key"]
 
-# Или напрямую через docker
+# Через скрипт
+postal run script/create_management_api_key.rb "My Key" --super-admin
+
+# Через консоль Rails
+postal console
+# В консоли:
+# key = ManagementAPIKey.create!(name: "My Key", super_admin: true)
+# puts "API Key: #{key.key}"
+
+# Через Docker
 docker compose exec postal bundle exec rake management_api:create_key["My Management Key"]
 ```
+
+**Подробнее о всех способах создания ключей смотрите в разделе [Создание API ключа](#создание-api-ключа)**
 
 ### Шаг 4: Запуск Postal
 
@@ -99,8 +104,13 @@ postal start
 curl https://postal.yourdomain.com/api/v2/management/system/health
 
 # Проверить статус с аутентификацией
-curl -H "X-Management-API-Key: mgmt_YOUR_KEY_HERE" \
+# Используйте ключ из postal.yml или полученный при создании в БД
+curl -H "X-Management-API-Key: ваш-ключ-здесь" \
      https://postal.yourdomain.com/api/v2/management/system/status
+
+# Если использовали динамический ключ (из БД), он будет иметь префикс mgmt_
+# curl -H "X-Management-API-Key: mgmt_abc123..." \
+#      https://postal.yourdomain.com/api/v2/management/system/status
 ```
 
 ---
@@ -121,48 +131,115 @@ Authorization: Bearer mgmt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ### Типы ключей
 
+**По способу хранения:**
+1. **Статические ключи** (postal.yml) - задаются в конфигурации, не хранятся в БД
+2. **Динамические ключи** (база данных) - создаются и управляются через API/CLI
+
+**По уровню доступа:**
 1. **Super Admin** - полный доступ ко всем организациям и операциям
-2. **Organization-scoped** - доступ только к определенной организации
+2. **Organization-scoped** - доступ только к определенной организации (только для динамических ключей)
 
 ---
 
 ## Создание API ключа
 
-### Через консоль Rails
+Postal поддерживает два типа ключей Management API:
+
+1. **Динамические ключи** - хранятся в базе данных, можно управлять через API/UI
+2. **Статические ключи** - задаются в файле `postal.yml`, подходят для bootstrap и CI/CD
+
+### Быстрое сравнение методов
+
+| Характеристика | Статический ключ (postal.yml) | Динамический ключ (БД) |
+|----------------|------------------------------|----------------------|
+| **Простота создания** | ⭐⭐⭐ Очень просто | ⭐⭐ Требует команды |
+| **Требует БД** | ❌ Нет | ✅ Да |
+| **Множественные ключи** | ❌ Только один | ✅ Неограниченно |
+| **Ограничение по организации** | ❌ Только super_admin | ✅ Да |
+| **Статистика использования** | ❌ Нет | ✅ Да |
+| **Отключение без перезапуска** | ❌ Нет | ✅ Да |
+| **Срок действия** | ❌ Нет | ✅ Да |
+| **Идеально для** | Bootstrap, CI/CD, простые сценарии | Продакшн, multi-tenancy, аудит |
+
+**Рекомендация:** Начните со статического ключа для быстрого старта, затем создайте динамические ключи для production использования.
+
+### Способ 1: Статический ключ (через postal.yml) - РЕКОМЕНДУЕТСЯ
+
+Это самый простой способ для начала работы. Ключ задаётся в конфигурационном файле и всегда доступен.
+
+**1. Откройте файл конфигурации:**
 
 ```bash
-postal console
+# Обычно находится по адресу
+/opt/postal/config/postal.yml
 ```
 
-```ruby
-# Супер-админ ключ
-key = ManagementAPIKey.create!(
-  name: "Automation Key",
+**2. Добавьте секцию `management_api`:**
+
+```yaml
+management_api:
+  # Ваш секретный ключ (может быть любой строкой)
+  key: "your-secret-api-key-here-generate-random-string"
+  # super_admin даёт полный доступ ко всем организациям
   super_admin: true
-)
-puts key.key
-
-# Ключ для конкретной организации
-org = Organization.find_by(permalink: "my-org")
-key = ManagementAPIKey.create!(
-  name: "Org API Key",
-  organization: org,
-  super_admin: false
-)
-puts key.key
 ```
 
-### Через Rake tasks
+**3. Перезапустите Postal:**
 
 ```bash
+postal stop
+postal start
+```
+
+**4. Проверьте работу:**
+
+```bash
+curl -H "X-Management-API-Key: your-secret-api-key-here-generate-random-string" \
+     https://postal.yourdomain.com/api/v2/management/system/status
+```
+
+**Генерация случайного ключа:**
+
+```bash
+# Сгенерировать безопасный случайный ключ
+openssl rand -hex 32
+
+# Или через Ruby
+ruby -e "require 'securerandom'; puts SecureRandom.hex(32)"
+```
+
+**Преимущества статических ключей:**
+- ✅ Не требуют доступа к базе данных для создания
+- ✅ Можно добавить до запуска Postal
+- ✅ Идеально для автоматизации развертывания
+- ✅ Простое управление через Git/конфиг-менеджеры
+
+**Недостатки:**
+- ❌ Нельзя отключить без перезапуска
+- ❌ Не отслеживается статистика использования
+- ❌ Только super_admin режим (нельзя ограничить организацией)
+
+---
+
+### Способ 2: Динамический ключ (через базу данных)
+
+Используйте этот способ, если нужно:
+- Создавать несколько ключей с разными правами
+- Ограничивать доступ определённой организацией
+- Отслеживать статистику использования
+- Отключать/удалять ключи без перезапуска
+
+#### 2.1. Через Rake task (рекомендуется)
+
+```bash
+# Создать супер-админ ключ
+postal rake management_api:create_key["My Management Key"]
+
+# Создать ключ для конкретной организации
+postal rake management_api:create_org_key["Key Name","org-permalink"]
+
 # Список всех ключей
 postal rake management_api:list_keys
-
-# Создать супер-админ ключ
-postal rake management_api:create_key["My Key Name"]
-
-# Создать ключ для организации
-postal rake management_api:create_org_key["Key Name","org-permalink"]
 
 # Отключить ключ
 postal rake management_api:disable_key[uuid]
@@ -174,16 +251,84 @@ postal rake management_api:enable_key[uuid]
 postal rake management_api:delete_key[uuid]
 ```
 
-### Через API (только для super admin)
+**Пример вывода:**
+
+```
+============================================================
+Management API Key Created Successfully!
+============================================================
+
+Name:        My Management Key
+UUID:        a1b2c3d4-e5f6-7890-abcd-ef1234567890
+Super Admin: true
+
+API Key:     mgmt_abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
+
+============================================================
+IMPORTANT: Save this key securely. It cannot be retrieved later!
+============================================================
+```
+
+#### 2.2. Через скрипт
 
 ```bash
+# Супер-админ ключ
+postal run script/create_management_api_key.rb "My Key" --super-admin
+
+# Ключ для организации
+postal run script/create_management_api_key.rb "Org Key" --org=my-company
+
+# Через Docker
+docker compose exec postal bundle exec script/create_management_api_key.rb "My Key" --super-admin
+```
+
+#### 2.3. Через консоль Rails
+
+```bash
+postal console
+```
+
+```ruby
+# Супер-админ ключ
+key = ManagementAPIKey.create!(
+  name: "Automation Key",
+  super_admin: true,
+  description: "Main automation key"
+)
+puts "API Key: #{key.key}"
+
+# Ключ для конкретной организации
+org = Organization.find_by(permalink: "my-org")
+key = ManagementAPIKey.create!(
+  name: "Org API Key",
+  organization: org,
+  super_admin: false,
+  description: "Limited to my-org"
+)
+puts "API Key: #{key.key}"
+
+# Ключ с ограниченным сроком действия
+key = ManagementAPIKey.create!(
+  name: "Temporary Key",
+  super_admin: true,
+  expires_at: 30.days.from_now
+)
+puts "API Key: #{key.key}"
+puts "Expires: #{key.expires_at}"
+```
+
+#### 2.4. Через API (только для super admin)
+
+```bash
+# Требуется уже существующий супер-админ ключ
 curl -X POST https://postal.yourdomain.com/api/v2/management/system/api_keys \
   -H "X-Management-API-Key: mgmt_YOUR_SUPER_ADMIN_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "New API Key",
     "super_admin": false,
-    "organization_permalink": "my-org"
+    "organization_permalink": "my-org",
+    "description": "Created via API"
   }'
 ```
 
@@ -933,11 +1078,33 @@ print(f"Domain DNS records: {domain['data']}")
 
 ## Безопасность
 
-1. **Храните API ключи безопасно** - используйте переменные окружения или secret managers
+### Общие рекомендации
+
+1. **Храните API ключи безопасно**
+   - Для динамических ключей: используйте переменные окружения или secret managers
+   - Для статических ключей: защитите файл `postal.yml` (права доступа 600, не коммитьте в Git)
+
 2. **Используйте HTTPS** - никогда не отправляйте API ключи по HTTP
+
 3. **Ограничивайте права** - создавайте organization-scoped ключи когда не нужен полный доступ
-4. **Используйте срок действия** - устанавливайте `expires_at` для временных ключей
-5. **Мониторьте использование** - проверяйте `request_count` и `last_used_at`
+
+4. **Используйте срок действия** - устанавливайте `expires_at` для временных динамических ключей
+
+5. **Мониторьте использование** - для динамических ключей проверяйте `request_count` и `last_used_at`
+
+### Статические vs Динамические ключи
+
+**Используйте статические ключи (postal.yml) когда:**
+- ✅ Это первоначальная настройка системы
+- ✅ Нужен bootstrap-ключ для автоматизации развертывания
+- ✅ Используете управление конфигурацией (Ansible, Chef и т.д.)
+- ⚠️ **НО**: защитите файл postal.yml и не коммитьте его в публичные репозитории
+
+**Используйте динамические ключи (БД) когда:**
+- ✅ Нужно несколько ключей с разными правами
+- ✅ Требуется ограничение доступа по организациям
+- ✅ Важна аудиторская информация и статистика использования
+- ✅ Нужна возможность быстро отозвать доступ без перезапуска
 
 ---
 
