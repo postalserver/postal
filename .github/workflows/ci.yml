@@ -2,6 +2,10 @@
 name: CI
 on: [push]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -20,6 +24,7 @@ jobs:
   build:
     name: CI Image Build
     runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,7 +48,6 @@ jobs:
   release-branch:
     name: Release (branch)
     runs-on: ubuntu-latest
-    needs: [build]
     if: >-
       startsWith(github.ref, 'refs/heads/') &&
       startsWith(github.ref, 'refs/heads/release-please-') != true &&
