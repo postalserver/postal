@@ -46,7 +46,7 @@ class IPAddressesController < ApplicationController
 
   # Test proxy connection
   def test_proxy
-    result = ProxyTester.test(@ip_address)
+    result = ProxyManager::ProxyTester.test(@ip_address)
     render json: result
   end
 
@@ -54,7 +54,7 @@ class IPAddressesController < ApplicationController
   def install_proxy
     if @ip_address.proxy_needs_installation?
       @ip_address.update(proxy_status: "installing")
-      ProxyInstallerJob.perform_later(@ip_address.id)
+      ProxyInstallerService.install_async(@ip_address.id)
       render json: { success: true, message: "Proxy installation started. Check status in a moment." }
     else
       render json: { success: false, message: "Proxy installation requirements not met." }

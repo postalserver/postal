@@ -71,7 +71,7 @@ class IPAddress < ApplicationRecord
     return unless proxy_needs_installation?
     return if proxy_status == "installing"
 
-    ProxyInstallerJob.perform_later(id)
+    ProxyInstallerService.install_async(id)
   end
 
   class << self
