@@ -9,37 +9,46 @@ undefined method 'use_proxy' for an instance of IPAddress
 ## Причина
 Миграция базы данных для добавления полей прокси не была применена. Модель и форма уже обновлены, но в базе данных отсутствуют необходимые колонки.
 
+**Это произошло потому, что после обновления кода не была запущена команда `postal upgrade`.**
+
 ## Решение
 
-### Вариант 1: Использование Rails миграций (Рекомендуется)
+### ✅ Правильный способ (Рекомендуется)
 
-Выполните миграцию через Rails:
-
-```bash
-docker compose exec web bash -c "cd /opt/postal/app && bundle exec rails db:migrate"
-```
-
-Или если вы используете `postal` CLI:
+После любого обновления кода Postal из Git **ВСЕГДА** нужно запускать:
 
 ```bash
-postal db migrate
+postal upgrade
 ```
 
-### Вариант 2: Прямое выполнение SQL
+Эта команда автоматически применит все новые миграции базы данных.
 
-Если первый вариант не работает, выполните SQL скрипт напрямую в базе данных:
+Для текущей проблемы:
+
+```bash
+# Остановите Postal
+postal stop
+
+# Примените миграции
+postal upgrade
+
+# Запустите Postal
+postal start
+```
+
+### Вариант 2: Через Docker (если postal запущен в контейнерах)
+
+```bash
+docker compose exec web bash -c "cd /opt/postal/app && bundle exec rake postal:update"
+docker compose restart web
+```
+
+### Вариант 3: Прямое выполнение SQL (только если предыдущие способы не работают)
 
 ```bash
 docker compose exec db mysql -u root -ppassword postal-production < db/migrate/fix_proxy_fields.sql
+docker compose restart web
 ```
-
-### Вариант 3: Через MySQL CLI вручную
-
-```bash
-docker compose exec db mysql -u root -ppassword postal-production
-```
-
-Затем скопируйте и выполните SQL команды из файла `db/migrate/fix_proxy_fields.sql`.
 
 ## Проверка
 
