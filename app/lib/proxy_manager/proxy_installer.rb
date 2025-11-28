@@ -13,7 +13,7 @@ module ProxyManager
     end
 
     def install
-      @ip_address.update(proxy_status: "installing")
+      @ip_address.update_columns(proxy_status: "installing", updated_at: Time.current)
 
       log "Starting Dante SOCKS server installation..."
       log "Target server: #{@ip_address.proxy_ssh_host}:#{@ip_address.proxy_ssh_port}"
@@ -72,12 +72,14 @@ module ProxyManager
           log "Installation completed successfully!"
 
           # Update IP address record with proxy settings and auto-fill IPv4
-          @ip_address.update(
+          # Use update_columns to bypass callbacks and prevent re-triggering installation
+          @ip_address.update_columns(
             proxy_status: "installed",
             proxy_host: @ip_address.proxy_ssh_host,
             proxy_port: 1080,
             ipv4: @ip_address.proxy_ssh_host,  # Auto-fill IPv4 with proxy server IP
-            proxy_last_test_result: @log.join("\n")
+            proxy_last_test_result: @log.join("\n"),
+            updated_at: Time.current
           )
 
           {
@@ -89,34 +91,38 @@ module ProxyManager
       rescue Net::SSH::AuthenticationFailed
         error_msg = "SSH authentication failed. Check username and password."
         log "ERROR: #{error_msg}"
-        @ip_address.update(
+        @ip_address.update_columns(
           proxy_status: "failed",
-          proxy_last_test_result: @log.join("\n")
+          proxy_last_test_result: @log.join("\n"),
+          updated_at: Time.current
         )
         { success: false, message: error_msg, log: @log.join("\n") }
       rescue Net::SSH::ConnectionTimeout, Errno::ETIMEDOUT
         error_msg = "SSH connection timeout. Check IP address and firewall."
         log "ERROR: #{error_msg}"
-        @ip_address.update(
+        @ip_address.update_columns(
           proxy_status: "failed",
-          proxy_last_test_result: @log.join("\n")
+          proxy_last_test_result: @log.join("\n"),
+          updated_at: Time.current
         )
         { success: false, message: error_msg, log: @log.join("\n") }
       rescue Timeout::Error => e
         error_msg = "Installation timeout: #{e.message}. The package installation took too long (>5 minutes). This may be due to slow internet or repository issues on the proxy server."
         log "ERROR: #{error_msg}"
-        @ip_address.update(
+        @ip_address.update_columns(
           proxy_status: "failed",
-          proxy_last_test_result: @log.join("\n")
+          proxy_last_test_result: @log.join("\n"),
+          updated_at: Time.current
         )
         { success: false, message: error_msg, log: @log.join("\n") }
       rescue StandardError => e
         error_msg = "Installation failed: #{e.class} - #{e.message}"
         log "ERROR: #{error_msg}"
         log "Backtrace: #{e.backtrace.first(5).join("\n")}"
-        @ip_address.update(
+        @ip_address.update_columns(
           proxy_status: "failed",
-          proxy_last_test_result: @log.join("\n")
+          proxy_last_test_result: @log.join("\n"),
+          updated_at: Time.current
         )
         { success: false, message: error_msg, log: @log.join("\n") }
       end
@@ -134,6 +140,7 @@ module ProxyManager
       error_output = ""
       exit_code = nil
       timed_out = false
+      channel = nil
 
       # Create a thread to execute the command
       thread = Thread.new do
@@ -161,7 +168,24 @@ module ProxyManager
       # Wait for the thread with timeout
       unless thread.join(timeout_seconds)
         timed_out = true
+
+        # Try to close the channel gracefully
+        begin
+          channel&.close if channel
+        rescue StandardError => e
+          log "Warning: Could not close SSH channel: #{e.message}"
+        end
+
+        # Kill the thread
         thread.kill
+
+        # Try to kill the remote process
+        begin
+          ssh.exec!("pkill -9 -f '#{command.gsub("'", "'\\''")}' 2>/dev/null || true")
+        rescue StandardError => e
+          log "Warning: Could not kill remote process: #{e.message}"
+        end
+
         raise Timeout::Error, "Command timed out after #{timeout_seconds} seconds: #{command}"
       end
 

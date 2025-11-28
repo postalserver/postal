@@ -24,10 +24,39 @@ class ProxyIPAddressesController < ApplicationController
   end
 
   def install_proxy
+    # Check if there's already an installation in progress for this IP pool
+    existing_installation = @ip_pool.ip_addresses.find_by(
+      proxy_ssh_host: safe_params[:proxy_ssh_host],
+      proxy_status: "installing"
+    )
+
+    if existing_installation
+      render json: {
+        success: false,
+        errors: ["Installation already in progress for this server. Please wait..."]
+      }, status: :unprocessable_entity
+      return
+    end
+
+    # Check if this server is already installed
+    already_installed = @ip_pool.ip_addresses.find_by(
+      proxy_ssh_host: safe_params[:proxy_ssh_host],
+      proxy_status: ["installed", "active"]
+    )
+
+    if already_installed
+      render json: {
+        success: false,
+        errors: ["Proxy already installed on this server. Use the existing IP address."]
+      }, status: :unprocessable_entity
+      return
+    end
+
     @ip_address = @ip_pool.ip_addresses.build(safe_params.merge(use_proxy: true, proxy_auto_install: true))
     if @ip_address.save
       # Start the installation process
-      @ip_address.update(proxy_status: "installing")
+      # Use update_columns to bypass callbacks and prevent re-triggering
+      @ip_address.update_columns(proxy_status: "installing", updated_at: Time.current)
       ProxyInstallerService.install_async(@ip_address.id) if defined?(ProxyInstallerService)
 
       render json: { success: true, ip_address_id: @ip_address.id }

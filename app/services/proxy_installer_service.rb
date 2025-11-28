@@ -29,10 +29,10 @@ class ProxyInstallerService
 
       if test_result[:success]
         Rails.logger.info "[ProxyInstallerService] Proxy test successful for IP Address ##{ip_address.id}"
-        ip_address.update(proxy_status: "active")
+        ip_address.update_columns(proxy_status: "active", updated_at: Time.current)
       else
         Rails.logger.warn "[ProxyInstallerService] Proxy test failed for IP Address ##{ip_address.id}: #{test_result[:message]}"
-        ip_address.update(proxy_status: "installed")
+        ip_address.update_columns(proxy_status: "installed", updated_at: Time.current)
       end
     else
       Rails.logger.error "[ProxyInstallerService] Installation failed for IP Address ##{ip_address.id}: #{result[:message]}"
@@ -42,9 +42,10 @@ class ProxyInstallerService
     Rails.logger.error e.backtrace.first(10).join("\n")
 
     if ip_address
-      ip_address.update(
+      ip_address.update_columns(
         proxy_status: "failed",
-        proxy_last_test_result: "Installation error: #{e.message}"
+        proxy_last_test_result: "Installation error: #{e.message}",
+        updated_at: Time.current
       )
     end
   end
