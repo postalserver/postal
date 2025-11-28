@@ -52,14 +52,29 @@ module SMTPClient
     #
     # @return [Net::SMTP]
     def start_smtp_session(source_ip_address: nil, allow_ssl: true)
+      # Debug logging for proxy configuration
+      if source_ip_address
+        Rails.logger.info "[PROXY DEBUG] Source IP address: #{source_ip_address.inspect}"
+        Rails.logger.info "[PROXY DEBUG] IP address ID: #{source_ip_address.id}"
+        Rails.logger.info "[PROXY DEBUG] use_proxy: #{source_ip_address.use_proxy.inspect}"
+        Rails.logger.info "[PROXY DEBUG] proxy_host: #{source_ip_address.proxy_host.inspect}"
+        Rails.logger.info "[PROXY DEBUG] proxy_port: #{source_ip_address.proxy_port.inspect}"
+        Rails.logger.info "[PROXY DEBUG] proxy_configured?: #{source_ip_address.respond_to?(:proxy_configured?) ? source_ip_address.proxy_configured? : 'N/A'}"
+      else
+        Rails.logger.info "[PROXY DEBUG] No source IP address provided"
+      end
+
       # Priority 1: Use proxy from IP address settings if configured
       if source_ip_address&.respond_to?(:proxy_configured?) && source_ip_address.proxy_configured?
+        Rails.logger.info "[PROXY DEBUG] Using IP address proxy: #{source_ip_address.proxy_host}:#{source_ip_address.proxy_port}"
         setup_smtp_with_ip_address_proxy(source_ip_address, allow_ssl)
       # Priority 2: Use global SOCKS proxy if configured
       elsif Postal::Config.smtp_client.socks_proxy_host.present?
+        Rails.logger.info "[PROXY DEBUG] Using global SOCKS proxy: #{Postal::Config.smtp_client.socks_proxy_host}"
         setup_smtp_with_socks_proxy(source_ip_address, allow_ssl)
       # Priority 3: Direct connection
       else
+        Rails.logger.info "[PROXY DEBUG] Using direct connection (no proxy)"
         setup_smtp_direct(source_ip_address, allow_ssl)
       end
     end
