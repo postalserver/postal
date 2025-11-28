@@ -20,6 +20,7 @@ module ProxyManager
 
       begin
         require "net/ssh"
+        require "timeout"
 
         Net::SSH.start(
           @ip_address.proxy_ssh_host,
@@ -36,12 +37,15 @@ module ProxyManager
 
           # Step 2: Update package list
           log "Updating package list..."
-          ssh.exec!("apt-get update -qq || yum update -y -q")
+          update_result = exec_with_timeout(ssh, "apt-get update -qq || yum update -y -q", 180)
+          log "Update result: #{update_result&.strip&.lines&.last(3)&.join}"
 
           # Step 3: Install Dante
-          log "Installing Dante SOCKS server..."
-          result = ssh.exec!("DEBIAN_FRONTEND=noninteractive apt-get install -y dante-server || yum install -y dante-server")
-          log "Installation result: #{result&.strip}"
+          log "Installing Dante SOCKS server (this may take 2-3 minutes)..."
+          # Use --force-confnew to automatically overwrite config files without prompting
+          install_cmd = 'DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg::Options::="--force-confnew" dante-server || yum install -y dante-server'
+          result = exec_with_timeout(ssh, install_cmd, 300)
+          log "Installation result: #{result&.strip&.lines&.last(5)&.join}"
 
           # Step 4: Configure Dante
           log "Configuring Dante..."
@@ -98,6 +102,14 @@ module ProxyManager
           proxy_last_test_result: @log.join("\n")
         )
         { success: false, message: error_msg, log: @log.join("\n") }
+      rescue Timeout::Error => e
+        error_msg = "Installation timeout: #{e.message}. The package installation took too long (>5 minutes). This may be due to slow internet or repository issues on the proxy server."
+        log "ERROR: #{error_msg}"
+        @ip_address.update(
+          proxy_status: "failed",
+          proxy_last_test_result: @log.join("\n")
+        )
+        { success: false, message: error_msg, log: @log.join("\n") }
       rescue StandardError => e
         error_msg = "Installation failed: #{e.class} - #{e.message}"
         log "ERROR: #{error_msg}"
@@ -115,6 +127,52 @@ module ProxyManager
     def log(message)
       @log << "[#{Time.now.strftime('%H:%M:%S')}] #{message}"
       Rails.logger.info "[ProxyInstaller] #{message}"
+    end
+
+    def exec_with_timeout(ssh, command, timeout_seconds)
+      output = ""
+      error_output = ""
+      exit_code = nil
+      timed_out = false
+
+      # Create a thread to execute the command
+      thread = Thread.new do
+        channel = ssh.open_channel do |ch|
+          ch.exec(command) do |ch, success|
+            raise "Command execution failed" unless success
+
+            ch.on_data do |_, data|
+              output += data
+            end
+
+            ch.on_extended_data do |_, type, data|
+              error_output += data if type == 1
+            end
+
+            ch.on_request("exit-status") do |_, data|
+              exit_code = data.read_long
+            end
+          end
+        end
+
+        channel.wait
+      end
+
+      # Wait for the thread with timeout
+      unless thread.join(timeout_seconds)
+        timed_out = true
+        thread.kill
+        raise Timeout::Error, "Command timed out after #{timeout_seconds} seconds: #{command}"
+      end
+
+      # Return combined output
+      result = output + error_output
+      raise "Command failed with exit code #{exit_code}: #{result}" if exit_code && exit_code != 0
+
+      result
+    rescue Timeout::Error => e
+      log "ERROR: #{e.message}"
+      raise
     end
 
     def generate_dante_config
