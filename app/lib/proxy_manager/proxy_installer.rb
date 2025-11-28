@@ -42,7 +42,9 @@ module ProxyManager
 
           # Step 3: Install Dante
           log "Installing Dante SOCKS server (this may take 2-3 minutes)..."
-          result = exec_with_timeout(ssh, "DEBIAN_FRONTEND=noninteractive apt-get install -y dante-server || yum install -y dante-server", 300)
+          # Use --force-confnew to automatically overwrite config files without prompting
+          install_cmd = 'DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg::Options::="--force-confnew" dante-server || yum install -y dante-server'
+          result = exec_with_timeout(ssh, install_cmd, 300)
           log "Installation result: #{result&.strip&.lines&.last(5)&.join}"
 
           # Step 4: Configure Dante
