@@ -1,23 +1,18 @@
 $ ->
-  # IP Address form proxy settings handlers
+  # IP Address form handlers
   # These need to be wrapped in turbolinks:load to work properly with Turbolinks
 
   $(document).on 'turbolinks:load', ->
-    # Toggle proxy settings visibility when checkbox changes
-    $('#use-proxy-checkbox').off('change').on 'change', ->
-      if $(this).is(':checked')
-        $('#proxy-settings').slideDown()
-      else
-        $('#proxy-settings').slideUp()
-
-    # Toggle auto-install vs manual settings
-    $('#auto-install-checkbox').off('change').on 'change', ->
-      if $(this).is(':checked')
-        $('#manual-proxy-settings').slideUp()
-        $('#auto-install-settings').slideDown()
-      else
-        $('#auto-install-settings').slideUp()
-        $('#manual-proxy-settings').slideDown()
+    # Toggle between Local IP and Proxy settings based on radio button selection
+    $('input[name="ip_type"]').off('change').on 'change', ->
+      if $(this).val() == 'local'
+        $('#proxy-ip-settings').slideUp()
+        $('#local-ip-settings').slideDown()
+        $('#use-proxy-hidden').val('0')
+      else if $(this).val() == 'proxy'
+        $('#local-ip-settings').slideUp()
+        $('#proxy-ip-settings').slideDown()
+        $('#use-proxy-hidden').val('1')
 
   # Use delegated event handlers for buttons (works with Turbolinks)
   # Test proxy connection

@@ -1,85 +1,79 @@
 = form_for [@ip_pool, @ip_address], :remote => true, :html => { :id => 'ip-address-form' } do |f|
   = f.error_messages
-  %fieldset.fieldSet
-    %h3 IP Address Settings
-    .fieldSet__field
-      = f.label :ipv4, :class => 'fieldSet__label'
-      .fieldSet__input= f.text_field :ipv4, :autofocus => true, :class => 'input input--text'
-    .fieldSet__field
-      = f.label :ipv6, :class => 'fieldSet__label'
-      .fieldSet__input= f.text_field :ipv6, :class => 'input input--text'
-    .fieldSet__field
-      = f.label :hostname, :class => 'fieldSet__label'
-      .fieldSet__input= f.text_field :hostname, :class => 'input input--text'
-    .fieldSet__field
-      = f.label :priority, :class => 'fieldSet__label'
-      .fieldSet__input
-        = f.text_field :priority, :class => 'input input--text', placeholder: '100'
-        %p.fieldSet__text
-          This priority will determine the likelihood of this IP address being selected
-          for use when sending a message. The higher the number the more likely the IP
-          is to be chosen. By default, the priority is set to the maximum value of 100.
-          This can be used to warm up new IP addresses by adding them with a low priority.
-          To give an indication of how this works, if you have three IPs with 1, 50 and 100
-          as their priorities, and you send 100,000 emails, the priority 1 address will receive
-          a tiny percentage, the priority 50 will receive roughly one third of e-mails and the
-          priority 100 will receive roughly two thirds.
 
   %fieldset.fieldSet
-    %h3 🚀 Proxy Settings (Optional)
+    %h3 Choose IP Address Type
     .fieldSet__field
       .fieldSet__input
-        = f.label :use_proxy do
-          = f.check_box :use_proxy, :class => 'input input--checkbox', :id => 'use-proxy-checkbox'
-          Use SOCKS5 proxy for this IP address
-        %p.fieldSet__text
-          Enable this to send emails through a SOCKS5 proxy on another server. Recipients will see the proxy server's IP instead of this one.
+        %label{:style => 'display: block; margin-bottom: 15px;'}
+          = radio_button_tag 'ip_type', 'local', !@ip_address.use_proxy, :id => 'ip-type-local', :class => 'input input--radio'
+          %strong Local IP Address
+          %p.fieldSet__text{:style => 'margin-left: 25px; margin-top: 5px;'}
+            Use a local IP address configured on this server
+        %label{:style => 'display: block;'}
+          = radio_button_tag 'ip_type', 'proxy', @ip_address.use_proxy, :id => 'ip-type-proxy', :class => 'input input--radio'
+          %strong SOCKS5 Proxy
+          %p.fieldSet__text{:style => 'margin-left: 25px; margin-top: 5px;'}
+            Install and use a proxy server on a remote server
 
-    #proxy-settings{:style => (@ip_address.use_proxy ? '' : 'display: none;')}
+  #local-ip-settings{:style => (@ip_address.use_proxy ? 'display: none;' : '')}
+    %fieldset.fieldSet
+      %h3 IP Address Settings
       .fieldSet__field
-        = f.label :proxy_auto_install, "Auto-install proxy?", :class => 'fieldSet__label'
+        = f.label :ipv4, :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :ipv4, :autofocus => true, :class => 'input input--text'
+      .fieldSet__field
+        = f.label :ipv6, :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :ipv6, :class => 'input input--text'
+      .fieldSet__field
+        = f.label :hostname, :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :hostname, :class => 'input input--text'
+      .fieldSet__field
+        = f.label :priority, :class => 'fieldSet__label'
         .fieldSet__input
-          = f.label :proxy_auto_install do
-            = f.check_box :proxy_auto_install, :class => 'input input--checkbox', :id => 'auto-install-checkbox'
-            Automatically install Dante SOCKS server on remote server
+          = f.text_field :priority, :class => 'input input--text', placeholder: '100'
           %p.fieldSet__text
-            Enable this to automatically install and configure Dante SOCKS5 server via SSH. You'll need to provide SSH credentials below.
+            This priority will determine the likelihood of this IP address being selected
+            for use when sending a message. The higher the number the more likely the IP
+            is to be chosen. By default, the priority is set to the maximum value of 100.
 
-      #manual-proxy-settings{:style => (@ip_address.proxy_auto_install ? 'display: none;' : '')}
-        .fieldSet__field
-          = f.label :proxy_host, "Proxy Host", :class => 'fieldSet__label'
-          .fieldSet__input= f.text_field :proxy_host, :class => 'input input--text', placeholder: '127.0.0.1 or remote IP'
-        .fieldSet__field
-          = f.label :proxy_port, "Proxy Port", :class => 'fieldSet__label'
-          .fieldSet__input= f.text_field :proxy_port, :class => 'input input--text', placeholder: '1080'
-        .fieldSet__field
-          = f.label :proxy_username, "Proxy Username (optional)", :class => 'fieldSet__label'
-          .fieldSet__input= f.text_field :proxy_username, :class => 'input input--text'
-        .fieldSet__field
-          = f.label :proxy_password, "Proxy Password (optional)", :class => 'fieldSet__label'
-          .fieldSet__input= f.password_field :proxy_password, :class => 'input input--text'
+  #proxy-ip-settings{:style => (@ip_address.use_proxy ? '' : 'display: none;')}
+    = f.hidden_field :use_proxy, :value => '1', :id => 'use-proxy-hidden'
+    = f.hidden_field :proxy_auto_install, :value => '1'
 
-      #auto-install-settings{:style => (@ip_address.proxy_auto_install ? '' : 'display: none;')}
-        .fieldSet__field
-          = f.label :proxy_ssh_host, "Remote Server IP", :class => 'fieldSet__label'
-          .fieldSet__input
-            = f.text_field :proxy_ssh_host, :class => 'input input--text', placeholder: 'IP address of server to install proxy'
-            %p.fieldSet__text
-              This is the IP address of the server where Dante SOCKS proxy will be installed. Emails will appear to come from this IP.
-        .fieldSet__field
-          = f.label :proxy_ssh_port, "SSH Port", :class => 'fieldSet__label'
-          .fieldSet__input= f.text_field :proxy_ssh_port, :class => 'input input--text', placeholder: '22'
-        .fieldSet__field
-          = f.label :proxy_ssh_username, "SSH Username", :class => 'fieldSet__label'
-          .fieldSet__input= f.text_field :proxy_ssh_username, :class => 'input input--text', placeholder: 'root'
-        .fieldSet__field
-          = f.label :proxy_ssh_password, "SSH Password", :class => 'fieldSet__label'
-          .fieldSet__input
-            = f.password_field :proxy_ssh_password, :class => 'input input--text'
-            %p.fieldSet__text
-              ⚠️ Password will be encrypted. SSH key authentication support coming soon.
+    %fieldset.fieldSet
+      %h3 🚀 Proxy Server Settings
+      .fieldSet__field
+        = f.label :proxy_ssh_host, "Remote Server IP", :class => 'fieldSet__label'
+        .fieldSet__input
+          = f.text_field :proxy_ssh_host, :class => 'input input--text', :placeholder => 'e.g., 45.144.234.199', :autofocus => true
+          %p.fieldSet__text
+            IP address of the server where SOCKS5 proxy will be installed. Emails will appear to come from this IP.
 
-      - if @ip_address.persisted?
+      .fieldSet__field
+        = f.label :proxy_ssh_port, "SSH Port", :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :proxy_ssh_port, :class => 'input input--text', :placeholder => '22', :value => (@ip_address.proxy_ssh_port || '22')
+
+      .fieldSet__field
+        = f.label :proxy_ssh_username, "SSH Username", :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :proxy_ssh_username, :class => 'input input--text', :placeholder => 'root', :value => (@ip_address.proxy_ssh_username || 'root')
+
+      .fieldSet__field
+        = f.label :proxy_ssh_password, "SSH Password", :class => 'fieldSet__label'
+        .fieldSet__input
+          = f.password_field :proxy_ssh_password, :class => 'input input--text'
+          %p.fieldSet__text
+            ⚠️ Password will be encrypted. SSH key authentication support coming soon.
+
+      .fieldSet__field
+        = f.label :hostname, "Hostname (optional)", :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :hostname, :class => 'input input--text', :placeholder => 'Optional hostname for this IP'
+
+      .fieldSet__field
+        = f.label :priority, :class => 'fieldSet__label'
+        .fieldSet__input= f.text_field :priority, :class => 'input input--text', :placeholder => '100'
+
+      - if @ip_address.persisted? && @ip_address.use_proxy
         .fieldSet__field
           %label.fieldSet__label Proxy Status
           .fieldSet__input
@@ -94,11 +88,10 @@
 
         .fieldSet__field
           .fieldSet__input
-            %button.button.button--secondary{:type => 'button', :id => 'test-proxy-btn', :data => {:ip_address_id => @ip_address.id, :ip_pool_id => @ip_pool.uuid}}
+            %button.button.button--secondary{:type => 'button', :id => 'install-proxy-btn', :data => {:ip_address_id => @ip_address.id, :ip_pool_id => @ip_pool.uuid}}
+              📦 Install Proxy Now
+            %button.button.button--secondary{:type => 'button', :id => 'test-proxy-btn', :data => {:ip_address_id => @ip_address.id, :ip_pool_id => @ip_pool.uuid}, :style => 'margin-left: 10px;'}
               🧪 Test Proxy Connection
-            - if @ip_address.proxy_auto_install && @ip_address.proxy_ssh_host.present?
-              %button.button.button--secondary{:type => 'button', :id => 'install-proxy-btn', :data => {:ip_address_id => @ip_address.id, :ip_pool_id => @ip_pool.uuid}, :style => 'margin-left: 10px;'}
-                📦 Install Proxy Now
             %span#proxy-test-result{:style => 'margin-left: 15px;'}
 
   .fieldSetSubmit.buttonSet
