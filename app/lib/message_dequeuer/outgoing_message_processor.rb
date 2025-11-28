@@ -135,6 +135,14 @@ module MessageDequeuer
       @result = @state.send_result
       return if @result
 
+      # Debug logging for IP address allocation
+      if queued_message.ip_address
+        Rails.logger.info "[PROXY DEBUG] QueuedMessage #{queued_message.id} using IP address: #{queued_message.ip_address.id}"
+        Rails.logger.info "[PROXY DEBUG] IP address details: use_proxy=#{queued_message.ip_address.use_proxy}, proxy_host=#{queued_message.ip_address.proxy_host}, proxy_configured?=#{queued_message.ip_address.proxy_configured?}"
+      else
+        Rails.logger.info "[PROXY DEBUG] QueuedMessage #{queued_message.id} has NO IP address allocated"
+      end
+
       sender = @state.sender_for(SMTPSender,
                                  queued_message.message.recipient_domain,
                                  queued_message.ip_address)

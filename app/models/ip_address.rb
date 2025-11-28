@@ -78,6 +78,21 @@ class IPAddress < ApplicationRecord
     if hostname.blank?
       self.hostname = "proxy-#{proxy_ssh_host.gsub('.', '-')}"
     end
+
+    # Auto-fill proxy connection details from SSH host
+    # This is critical - without proxy_host and proxy_port, proxy_configured? returns false
+    if proxy_host.blank?
+      self.proxy_host = proxy_ssh_host
+    end
+
+    if proxy_port.blank? || proxy_port == 0
+      self.proxy_port = 1080  # Default SOCKS5 port for Dante
+    end
+
+    # Set default proxy type if not specified
+    if proxy_type.blank?
+      self.proxy_type = "socks5"
+    end
   end
 
   def install_proxy_if_needed

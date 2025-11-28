@@ -88,7 +88,9 @@ class ProxyIPAddressesController < ApplicationController
     params.require(:ip_address).permit(
       :hostname, :priority,
       :proxy_ssh_host, :proxy_ssh_port,
-      :proxy_ssh_username, :proxy_ssh_password
+      :proxy_ssh_username, :proxy_ssh_password,
+      :proxy_host, :proxy_port, :proxy_type,
+      :proxy_username, :proxy_password
     )
   end
 
