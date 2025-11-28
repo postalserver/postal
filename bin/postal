@@ -12,6 +12,8 @@ cd $ROOT_DIR
 # Run the right command
 case "$1" in
     web-server)
+        echo "Checking for pending migrations..."
+        run "bundle exec rake db:migrate"
         run "bundle exec puma -C config/puma.rb"
         ;;
 
@@ -20,6 +22,8 @@ case "$1" in
         ;;
 
     worker)
+        echo "Checking for pending migrations..."
+        run "bundle exec rake db:migrate"
         run "bundle exec ruby script/worker.rb"
         ;;
 
