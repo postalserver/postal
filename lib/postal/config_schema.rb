@@ -540,7 +540,7 @@ module Postal
     end
 
     group :management_api do
-      string :key do
+      string :api_key do
         description "Static Management API key (alternative to database-stored keys)"
       end
 

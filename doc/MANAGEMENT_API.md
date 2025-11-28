@@ -66,7 +66,7 @@ docker compose exec postal postal upgrade
 
 ```yaml
 management_api:
-  key: "ваш-случайный-ключ-здесь"  # Сгенерируйте: openssl rand -hex 32
+  api_key: "ваш-случайный-ключ-здесь"  # Сгенерируйте: openssl rand -hex 32
   super_admin: true
 ```
 
@@ -179,7 +179,7 @@ Postal поддерживает два типа ключей Management API:
 ```yaml
 management_api:
   # Ваш секретный ключ (может быть любой строкой)
-  key: "your-secret-api-key-here-generate-random-string"
+  api_key: "your-secret-api-key-here-generate-random-string"
   # super_admin даёт полный доступ ко всем организациям
   super_admin: true
 ```

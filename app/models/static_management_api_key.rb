@@ -5,7 +5,7 @@
 #
 # Usage in postal.yml:
 #   management_api:
-#     key: "your-secret-api-key-here"
+#     api_key: "your-secret-api-key-here"
 #     super_admin: true
 #
 class StaticManagementAPIKey
