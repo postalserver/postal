@@ -129,6 +129,13 @@ Rails.application.routes.draw do
       post :test_proxy, on: :member
       post :install_proxy, on: :member
     end
+    resources :proxy_ip_addresses, only: [] do
+      get :new_proxy, on: :collection
+      post :create_proxy, on: :collection
+      get :new_install, on: :collection
+      post :install_proxy, on: :collection
+      get :installation_status, on: :collection
+    end
   end
 
   get "settings" => "user#edit"

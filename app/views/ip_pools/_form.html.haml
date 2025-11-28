@@ -25,7 +25,12 @@
               %td{:width => "35%"}= ip.ipv6
               %td{:width => "35%"}= ip.hostname
               %td{:width => "10%"}= ip.priority
-    %p= link_to "Add an IP address to pool", [:new, @ip_pool, :ip_address], :class => "u-link"
+    %p
+      = link_to "Add local IP", [:new, @ip_pool, :ip_address], :class => "u-link"
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      = link_to "Add Proxy IP", new_proxy_ip_pool_proxy_ip_addresses_path(@ip_pool), :class => "u-link"
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      = link_to "Install Proxy on other server", new_install_ip_pool_proxy_ip_addresses_path(@ip_pool), :class => "u-link"
 
 
   .fieldSetSubmit.buttonSet

@@ -1,0 +1,94 @@
+= form_for @ip_address, :url => install_proxy_ip_pool_proxy_ip_addresses_path(@ip_pool), :remote => true, :html => { :id => 'proxy-install-form' } do |f|
+  = f.error_messages
+
+  %fieldset.fieldSet
+    %h3 Remote Server Details
+    %p.fieldSet__text
+      Provide SSH credentials for the remote server. A SOCKS5 proxy will be automatically installed and configured.
+
+    .fieldSet__field
+      = f.label :proxy_ssh_host, "Remote Server IP", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :proxy_ssh_host, :class => 'input input--text', :placeholder => 'e.g., 45.144.234.199', :autofocus => true
+        %p.fieldSet__text
+          IP address of the server where SOCKS5 proxy will be installed. Emails will appear to come from this IP.
+
+    .fieldSet__field
+      = f.label :proxy_ssh_port, "SSH Port", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :proxy_ssh_port, :class => 'input input--text', :placeholder => '22', :value => (@ip_address.proxy_ssh_port || '22')
+
+    .fieldSet__field
+      = f.label :proxy_ssh_username, "SSH Username", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :proxy_ssh_username, :class => 'input input--text', :placeholder => 'root', :value => (@ip_address.proxy_ssh_username || 'root')
+
+    .fieldSet__field
+      = f.label :proxy_ssh_password, "SSH Password", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.password_field :proxy_ssh_password, :class => 'input input--text'
+        %p.fieldSet__text
+          Password will be encrypted. SSH key authentication support coming soon.
+
+  %fieldset.fieldSet
+    %h3 Optional Settings
+    .fieldSet__field
+      = f.label :hostname, "Hostname (optional)", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :hostname, :class => 'input input--text', :placeholder => 'Optional hostname for this IP'
+
+    .fieldSet__field
+      = f.label :priority, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :priority, :class => 'input input--text', :placeholder => '100'
+        %p.fieldSet__text
+          Priority for IP selection. Higher numbers have higher priority (default: 100).
+
+  .fieldSetSubmit.buttonSet
+    = f.submit "Install", :class => 'button button--positive js-form-submit', :id => 'install-submit-btn'
+    = link_to "Cancel", [:edit, @ip_pool], :class => 'button'
+
+#installation-status{:style => 'display: none; margin-top: 20px;'}
+  .fieldSet
+    %h3 Installation Progress
+    %p#status-message Installing proxy server, please wait...
+    .progress-indicator
+      %div{:style => 'text-align: center; padding: 20px;'}
+        %span{:style => 'font-size: 24px;'} ⏳
+
+:javascript
+  $(document).ready(function() {
+    $('#proxy-install-form').on('ajax:success', function(event) {
+      var data = event.detail[0];
+
+      // Show installation status
+      $('#installation-status').slideDown();
+      $('#install-submit-btn').prop('disabled', true).text('Installing...');
+
+      // Poll for installation status
+      var checkInterval = setInterval(function() {
+        $.ajax({
+          url: '/ip_pools/#{@ip_pool.uuid}/proxy_ip_addresses/installation_status',
+          method: 'GET',
+          success: function(statusData) {
+            if (statusData.complete) {
+              clearInterval(checkInterval);
+              $('#status-message').text('Installation complete! Redirecting...').css('color', 'green');
+              setTimeout(function() {
+                window.location.href = '/ip_pools/#{@ip_pool.uuid}/edit';
+              }, 1500);
+            } else if (statusData.error) {
+              clearInterval(checkInterval);
+              $('#status-message').text('Installation failed: ' + statusData.message).css('color', 'red');
+              $('#install-submit-btn').prop('disabled', false).text('Retry Installation');
+            }
+          }
+        });
+      }, 3000); // Check every 3 seconds
+    });
+
+    $('#proxy-install-form').on('ajax:error', function(event) {
+      var errors = event.detail[0];
+      alert('Installation failed: ' + (errors.error || 'Unknown error'));
+    });
+  });
