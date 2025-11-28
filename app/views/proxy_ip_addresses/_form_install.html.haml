@@ -58,12 +58,22 @@
 
 :javascript
   $(document).ready(function() {
+    var isSubmitting = false;
+
+    // Prevent double submission
+    $('#proxy-install-form').on('ajax:before', function() {
+      if (isSubmitting) {
+        return false; // Cancel if already submitting
+      }
+      isSubmitting = true;
+      $('#install-submit-btn').prop('disabled', true).text('Installing...');
+    });
+
     $('#proxy-install-form').on('ajax:success', function(event) {
       var data = event.detail[0];
 
       // Show installation status
       $('#installation-status').slideDown();
-      $('#install-submit-btn').prop('disabled', true).text('Installing...');
 
       // Poll for installation status
       var checkInterval = setInterval(function() {
@@ -81,6 +91,7 @@
               clearInterval(checkInterval);
               $('#status-message').text('Installation failed: ' + statusData.message).css('color', 'red');
               $('#install-submit-btn').prop('disabled', false).text('Retry Installation');
+              isSubmitting = false;
             }
           }
         });
@@ -88,7 +99,17 @@
     });
 
     $('#proxy-install-form').on('ajax:error', function(event) {
-      var errors = event.detail[0];
-      alert('Installation failed: ' + (errors.error || 'Unknown error'));
+      var response = event.detail[0];
+      var errorMsg = 'Installation failed: ';
+
+      if (response && response.errors) {
+        errorMsg += response.errors.join(', ');
+      } else {
+        errorMsg += 'Unknown error';
+      }
+
+      alert(errorMsg);
+      $('#install-submit-btn').prop('disabled', false).text('Install');
+      isSubmitting = false;
     });
   });

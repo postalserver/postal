@@ -52,6 +52,12 @@ class IPAddressesController < ApplicationController
 
   # Install proxy on remote server
   def install_proxy
+    # Prevent duplicate installations
+    if @ip_address.proxy_status == "installing"
+      render json: { success: false, message: "Installation already in progress. Please wait..." }
+      return
+    end
+
     if @ip_address.proxy_needs_installation?
       @ip_address.update(proxy_status: "installing")
       ProxyInstallerService.install_async(@ip_address.id)
