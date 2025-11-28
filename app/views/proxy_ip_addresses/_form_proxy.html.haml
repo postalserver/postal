@@ -1,0 +1,52 @@
+= form_for @ip_address, :url => create_proxy_ip_pool_proxy_ip_addresses_path(@ip_pool), :remote => true do |f|
+  = f.error_messages
+
+  %fieldset.fieldSet
+    %h3 Proxy Server Settings
+    %p.fieldSet__text
+      Add a proxy IP address that will be used for sending emails. The proxy should already be configured on the remote server.
+
+    .fieldSet__field
+      = f.label :proxy_ssh_host, "Proxy Server IP", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :proxy_ssh_host, :class => 'input input--text', :placeholder => 'e.g., 45.144.234.199', :autofocus => true
+        %p.fieldSet__text
+          IP address of the server with an existing SOCKS5 proxy. Emails will appear to come from this IP.
+
+    .fieldSet__field
+      = f.label :hostname, "Hostname (optional)", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :hostname, :class => 'input input--text', :placeholder => 'Optional hostname for this IP'
+
+    .fieldSet__field
+      = f.label :priority, :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :priority, :class => 'input input--text', :placeholder => '100'
+        %p.fieldSet__text
+          This priority will determine the likelihood of this IP address being selected
+          for use when sending a message. The higher the number the more likely the IP
+          is to be chosen. By default, the priority is set to the maximum value of 100.
+
+  %fieldset.fieldSet
+    %h3 Proxy Connection Details
+    .fieldSet__field
+      = f.label :proxy_ssh_port, "Proxy Port", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :proxy_ssh_port, :class => 'input input--text', :placeholder => '1080', :value => (@ip_address.proxy_ssh_port || '1080')
+        %p.fieldSet__text
+          SOCKS5 proxy port (typically 1080)
+
+    .fieldSet__field
+      = f.label :proxy_ssh_username, "Proxy Username (if required)", :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :proxy_ssh_username, :class => 'input input--text', :placeholder => 'Leave empty if not required'
+
+    .fieldSet__field
+      = f.label :proxy_ssh_password, "Proxy Password (if required)", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.password_field :proxy_ssh_password, :class => 'input input--text'
+        %p.fieldSet__text
+          Leave empty if proxy doesn't require authentication
+
+  .fieldSetSubmit.buttonSet
+    = f.submit "Add Proxy IP", :class => 'button button--positive js-form-submit'
+    = link_to "Cancel", [:edit, @ip_pool], :class => 'button'

@@ -1,98 +1,24 @@
-= form_for [@ip_pool, @ip_address], :remote => true, :html => { :id => 'ip-address-form' } do |f|
+= form_for [@ip_pool, @ip_address], :remote => true do |f|
   = f.error_messages
-
   %fieldset.fieldSet
-    %h3 Choose IP Address Type
+    %h3 IP Address Settings
     .fieldSet__field
+      = f.label :ipv4, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :ipv4, :autofocus => true, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :ipv6, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :ipv6, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :hostname, :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :hostname, :class => 'input input--text'
+    .fieldSet__field
+      = f.label :priority, :class => 'fieldSet__label'
       .fieldSet__input
-        %label{:style => 'display: block; margin-bottom: 15px;'}
-          = radio_button_tag 'ip_type', 'local', !@ip_address.use_proxy, :id => 'ip-type-local', :class => 'input input--radio'
-          %strong Local IP Address
-          %p.fieldSet__text{:style => 'margin-left: 25px; margin-top: 5px;'}
-            Use a local IP address configured on this server
-        %label{:style => 'display: block;'}
-          = radio_button_tag 'ip_type', 'proxy', @ip_address.use_proxy, :id => 'ip-type-proxy', :class => 'input input--radio'
-          %strong SOCKS5 Proxy
-          %p.fieldSet__text{:style => 'margin-left: 25px; margin-top: 5px;'}
-            Install and use a proxy server on a remote server
-
-  #local-ip-settings{:style => (@ip_address.use_proxy ? 'display: none;' : '')}
-    %fieldset.fieldSet
-      %h3 IP Address Settings
-      .fieldSet__field
-        = f.label :ipv4, :class => 'fieldSet__label'
-        .fieldSet__input= f.text_field :ipv4, :autofocus => true, :class => 'input input--text'
-      .fieldSet__field
-        = f.label :ipv6, :class => 'fieldSet__label'
-        .fieldSet__input= f.text_field :ipv6, :class => 'input input--text'
-      .fieldSet__field
-        = f.label :hostname, :class => 'fieldSet__label'
-        .fieldSet__input= f.text_field :hostname, :class => 'input input--text'
-      .fieldSet__field
-        = f.label :priority, :class => 'fieldSet__label'
-        .fieldSet__input
-          = f.text_field :priority, :class => 'input input--text', placeholder: '100'
-          %p.fieldSet__text
-            This priority will determine the likelihood of this IP address being selected
-            for use when sending a message. The higher the number the more likely the IP
-            is to be chosen. By default, the priority is set to the maximum value of 100.
-
-  #proxy-ip-settings{:style => (@ip_address.use_proxy ? '' : 'display: none;')}
-    = f.hidden_field :use_proxy, :value => '1', :id => 'use-proxy-hidden'
-    = f.hidden_field :proxy_auto_install, :value => '1'
-
-    %fieldset.fieldSet
-      %h3 🚀 Proxy Server Settings
-      .fieldSet__field
-        = f.label :proxy_ssh_host, "Remote Server IP", :class => 'fieldSet__label'
-        .fieldSet__input
-          = f.text_field :proxy_ssh_host, :class => 'input input--text', :placeholder => 'e.g., 45.144.234.199', :autofocus => true
-          %p.fieldSet__text
-            IP address of the server where SOCKS5 proxy will be installed. Emails will appear to come from this IP.
-
-      .fieldSet__field
-        = f.label :proxy_ssh_port, "SSH Port", :class => 'fieldSet__label'
-        .fieldSet__input= f.text_field :proxy_ssh_port, :class => 'input input--text', :placeholder => '22', :value => (@ip_address.proxy_ssh_port || '22')
-
-      .fieldSet__field
-        = f.label :proxy_ssh_username, "SSH Username", :class => 'fieldSet__label'
-        .fieldSet__input= f.text_field :proxy_ssh_username, :class => 'input input--text', :placeholder => 'root', :value => (@ip_address.proxy_ssh_username || 'root')
-
-      .fieldSet__field
-        = f.label :proxy_ssh_password, "SSH Password", :class => 'fieldSet__label'
-        .fieldSet__input
-          = f.password_field :proxy_ssh_password, :class => 'input input--text'
-          %p.fieldSet__text
-            ⚠️ Password will be encrypted. SSH key authentication support coming soon.
-
-      .fieldSet__field
-        = f.label :hostname, "Hostname (optional)", :class => 'fieldSet__label'
-        .fieldSet__input= f.text_field :hostname, :class => 'input input--text', :placeholder => 'Optional hostname for this IP'
-
-      .fieldSet__field
-        = f.label :priority, :class => 'fieldSet__label'
-        .fieldSet__input= f.text_field :priority, :class => 'input input--text', :placeholder => '100'
-
-      - if @ip_address.persisted? && @ip_address.use_proxy
-        .fieldSet__field
-          %label.fieldSet__label Proxy Status
-          .fieldSet__input
-            %p
-              %strong= @ip_address.proxy_status.humanize
-              - if @ip_address.proxy_last_tested_at
-                %br
-                Last tested: #{time_ago_in_words(@ip_address.proxy_last_tested_at)} ago
-              - if @ip_address.proxy_last_test_result.present?
-                %br
-                %code= @ip_address.proxy_last_test_result
-
-        .fieldSet__field
-          .fieldSet__input
-            %button.button.button--secondary{:type => 'button', :id => 'install-proxy-btn', :data => {:ip_address_id => @ip_address.id, :ip_pool_id => @ip_pool.uuid}}
-              📦 Install Proxy Now
-            %button.button.button--secondary{:type => 'button', :id => 'test-proxy-btn', :data => {:ip_address_id => @ip_address.id, :ip_pool_id => @ip_pool.uuid}, :style => 'margin-left: 10px;'}
-              🧪 Test Proxy Connection
-            %span#proxy-test-result{:style => 'margin-left: 15px;'}
+        = f.text_field :priority, :class => 'input input--text', placeholder: '100'
+        %p.fieldSet__text
+          This priority will determine the likelihood of this IP address being selected
+          for use when sending a message. The higher the number the more likely the IP
+          is to be chosen. By default, the priority is set to the maximum value of 100.
 
   .fieldSetSubmit.buttonSet
     = f.submit :class => 'button button--positive js-form-submit'
