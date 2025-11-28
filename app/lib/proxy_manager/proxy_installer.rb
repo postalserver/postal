@@ -47,22 +47,27 @@ module ProxyManager
           result = exec_with_timeout(ssh, install_cmd, 300)
           log "Installation result: #{result&.strip&.lines&.last(5)&.join}"
 
-          # Step 4: Configure Dante
+          # Step 4: Detect network interface
+          log "Detecting network interface..."
+          network_interface = detect_network_interface(ssh)
+          log "Using network interface: #{network_interface}"
+
+          # Step 5: Configure Dante
           log "Configuring Dante..."
-          dante_config = generate_dante_config
+          dante_config = generate_dante_config(network_interface)
           ssh.exec!("cat > /etc/danted.conf << 'DANTE_EOF'\n#{dante_config}\nDANTE_EOF")
 
-          # Step 5: Enable and start Dante
+          # Step 6: Enable and start Dante
           log "Starting Dante service..."
           ssh.exec!("systemctl enable danted || chkconfig danted on")
           ssh.exec!("systemctl restart danted || service danted restart")
 
-          # Step 6: Check if Dante is running
+          # Step 7: Check if Dante is running
           log "Checking Dante status..."
           status = ssh.exec!("systemctl status danted || service danted status")
           log "Service status: #{status}"
 
-          # Step 7: Configure firewall if present
+          # Step 8: Configure firewall if present
           log "Configuring firewall..."
           postal_ip = get_postal_server_ip
           ssh.exec!("ufw allow from #{postal_ip} to any port 1080 2>/dev/null || true")
@@ -199,7 +204,29 @@ module ProxyManager
       raise
     end
 
-    def generate_dante_config
+    def detect_network_interface(ssh)
+      # Try to get the interface with default route
+      interface = ssh.exec!("ip route | grep default | awk '{print $5}' | head -n 1").strip
+
+      # If not found, try to get first non-loopback interface
+      if interface.nil? || interface.empty?
+        log "Default route interface not found, trying alternative method..."
+        interface = ssh.exec!("ip link show | grep -E '^[0-9]+:' | grep -v lo | awk -F': ' '{print $2}' | head -n 1").strip
+      end
+
+      # If still not found, use eth0 as fallback
+      if interface.nil? || interface.empty?
+        log "Could not detect network interface, using eth0 as fallback"
+        interface = "eth0"
+      end
+
+      interface
+    rescue StandardError => e
+      log "Error detecting network interface: #{e.message}, using eth0 as fallback"
+      "eth0"
+    end
+
+    def generate_dante_config(network_interface = "eth0")
       postal_ip = get_postal_server_ip
 
       <<~DANTE_CONFIG
@@ -212,7 +239,7 @@ module ProxyManager
         internal: 0.0.0.0 port = 1080
 
         # External interface (for outgoing connections)
-        external: eth0
+        external: #{network_interface}
 
         # Authentication methods
         clientmethod: none
