@@ -3,6 +3,9 @@
 module ProxyManager
   class ProxyTester
 
+    # Mutex to synchronize SOCKS proxy configuration (global state in TCPSocket)
+    SOCKS_MUTEX = Mutex.new
+
     def self.test(ip_address)
       new(ip_address).test
     end
@@ -48,73 +51,75 @@ module ProxyManager
       require "socket"
       require "timeout"
 
-      # Configure SOCKS proxy
-      TCPSocket.socks_server = @ip_address.proxy_host
-      TCPSocket.socks_port = @ip_address.proxy_port
+      # Use mutex to prevent race conditions when multiple threads test proxies
+      # TCPSocket.socks_* are global settings that affect all TCP connections
+      SOCKS_MUTEX.synchronize do
+        begin
+          # Configure SOCKS proxy
+          TCPSocket.socks_server = @ip_address.proxy_host
+          TCPSocket.socks_port = @ip_address.proxy_port
 
-      if @ip_address.proxy_username.present?
-        TCPSocket.socks_username = @ip_address.proxy_username
-        TCPSocket.socks_password = @ip_address.proxy_password
+          if @ip_address.proxy_username.present?
+            TCPSocket.socks_username = @ip_address.proxy_username
+            TCPSocket.socks_password = @ip_address.proxy_password
+          end
+
+          # Test 1: Basic connectivity
+          Timeout.timeout(10) do
+            socket = TCPSocket.new(@ip_address.proxy_host, @ip_address.proxy_port)
+            socket.close
+          end
+
+          # Test 2: Try to connect through SOCKS to a test server
+          Timeout.timeout(15) do
+            test_socket = TCPSocket.new("google.com", 80)
+            test_socket.close
+          end
+
+          # Test 3: Get external IP через прокси
+          external_ip = get_external_ip_through_proxy
+
+          {
+            success: true,
+            message: "Proxy connection successful! External IP: #{external_ip}",
+            external_ip: external_ip
+          }
+        rescue Errno::ECONNREFUSED
+          {
+            success: false,
+            message: "Connection refused. Is the proxy server running on #{@ip_address.proxy_host}:#{@ip_address.proxy_port}?"
+          }
+        rescue Errno::ETIMEDOUT, Timeout::Error
+          {
+            success: false,
+            message: "Connection timeout. Check firewall and network connectivity."
+          }
+        rescue SocketError => e
+          {
+            success: false,
+            message: "DNS or network error: #{e.message}"
+          }
+        rescue StandardError => e
+          {
+            success: false,
+            message: "Error: #{e.class} - #{e.message}"
+          }
+        ensure
+          # Always reset SOCKS settings to prevent affecting other connections
+          TCPSocket.socks_server = nil
+          TCPSocket.socks_port = nil
+          TCPSocket.socks_username = nil
+          TCPSocket.socks_password = nil
+        end
       end
-
-      # Test 1: Basic connectivity
-      Timeout.timeout(10) do
-        socket = TCPSocket.new(@ip_address.proxy_host, @ip_address.proxy_port)
-        socket.close
-      end
-
-      # Test 2: Try to connect through SOCKS to a test server
-      Timeout.timeout(15) do
-        test_socket = TCPSocket.new("google.com", 80)
-        test_socket.close
-      end
-
-      # Test 3: Get external IP через прокси
-      external_ip = get_external_ip_through_proxy
-
-      {
-        success: true,
-        message: "Proxy connection successful! External IP: #{external_ip}",
-        external_ip: external_ip
-      }
-    rescue Errno::ECONNREFUSED
-      {
-        success: false,
-        message: "Connection refused. Is the proxy server running on #{@ip_address.proxy_host}:#{@ip_address.proxy_port}?"
-      }
-    rescue Errno::ETIMEDOUT, Timeout::Error
-      {
-        success: false,
-        message: "Connection timeout. Check firewall and network connectivity."
-      }
-    rescue SocketError => e
-      {
-        success: false,
-        message: "DNS or network error: #{e.message}"
-      }
-    rescue StandardError => e
-      {
-        success: false,
-        message: "Error: #{e.class} - #{e.message}"
-      }
-    ensure
-      # Reset SOCKS settings
-      TCPSocket.socks_server = nil
-      TCPSocket.socks_port = nil
     end
 
     def get_external_ip_through_proxy
       require "net/http"
       require "socksify/http"
 
-      TCPSocket.socks_server = @ip_address.proxy_host
-      TCPSocket.socks_port = @ip_address.proxy_port
-
-      if @ip_address.proxy_username.present?
-        TCPSocket.socks_username = @ip_address.proxy_username
-        TCPSocket.socks_password = @ip_address.proxy_password
-      end
-
+      # Note: This method is called within SOCKS_MUTEX.synchronize block,
+      # so we don't need another mutex here. SOCKS settings are already configured.
       uri = URI("http://ifconfig.me/ip")
       http = Net::HTTP.new(uri.host, uri.port)
       http.open_timeout = 10
@@ -130,9 +135,6 @@ module ProxyManager
       end
     rescue StandardError
       "unknown"
-    ensure
-      TCPSocket.socks_server = nil
-      TCPSocket.socks_port = nil
     end
 
   end

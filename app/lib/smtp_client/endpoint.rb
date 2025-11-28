@@ -6,6 +6,9 @@ module SMTPClient
     class SMTPSessionNotStartedError < StandardError
     end
 
+    # Mutex to synchronize SOCKS proxy configuration (global state in TCPSocket)
+    SOCKS_MUTEX = Mutex.new
+
     attr_reader :server
     attr_reader :ip_address
     attr_accessor :smtp_client
@@ -88,22 +91,35 @@ module SMTPClient
 
       @source_ip_address = source_ip_address
 
-      # Configure SOCKS proxy from IP Address settings
-      TCPSocket.socks_server = source_ip_address.proxy_host
-      TCPSocket.socks_port = source_ip_address.proxy_port
+      # Use mutex to prevent race conditions when multiple threads configure SOCKS
+      # TCPSocket.socks_* are global settings that affect all TCP connections
+      SOCKS_MUTEX.synchronize do
+        begin
+          # Configure SOCKS proxy from IP Address settings
+          TCPSocket.socks_server = source_ip_address.proxy_host
+          TCPSocket.socks_port = source_ip_address.proxy_port
 
-      if source_ip_address.proxy_username.present?
-        TCPSocket.socks_username = source_ip_address.proxy_username
-        TCPSocket.socks_password = source_ip_address.proxy_password
+          if source_ip_address.proxy_username.present?
+            TCPSocket.socks_username = source_ip_address.proxy_username
+            TCPSocket.socks_password = source_ip_address.proxy_password
+          end
+
+          @smtp_client = Net::SMTP.new(@ip_address, @server.port)
+          @smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
+          @smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
+          @smtp_client.tls_hostname = @server.hostname
+
+          configure_ssl(@smtp_client, allow_ssl)
+          @smtp_client.start(@source_ip_address.hostname)
+        ensure
+          # Always reset SOCKS settings to prevent affecting other connections
+          TCPSocket.socks_server = nil
+          TCPSocket.socks_port = nil
+          TCPSocket.socks_username = nil
+          TCPSocket.socks_password = nil
+        end
       end
 
-      @smtp_client = Net::SMTP.new(@ip_address, @server.port)
-      @smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
-      @smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
-      @smtp_client.tls_hostname = @server.hostname
-
-      configure_ssl(@smtp_client, allow_ssl)
-      @smtp_client.start(@source_ip_address.hostname)
       @smtp_client
     end
 
@@ -114,22 +130,35 @@ module SMTPClient
 
       @source_ip_address = source_ip_address if source_ip_address
 
-      # Configure SOCKS proxy from global config
-      TCPSocket.socks_server = Postal::Config.smtp_client.socks_proxy_host
-      TCPSocket.socks_port = Postal::Config.smtp_client.socks_proxy_port
+      # Use mutex to prevent race conditions when multiple threads configure SOCKS
+      # TCPSocket.socks_* are global settings that affect all TCP connections
+      SOCKS_MUTEX.synchronize do
+        begin
+          # Configure SOCKS proxy from global config
+          TCPSocket.socks_server = Postal::Config.smtp_client.socks_proxy_host
+          TCPSocket.socks_port = Postal::Config.smtp_client.socks_proxy_port
 
-      if Postal::Config.smtp_client.socks_proxy_username.present?
-        TCPSocket.socks_username = Postal::Config.smtp_client.socks_proxy_username
-        TCPSocket.socks_password = Postal::Config.smtp_client.socks_proxy_password
+          if Postal::Config.smtp_client.socks_proxy_username.present?
+            TCPSocket.socks_username = Postal::Config.smtp_client.socks_proxy_username
+            TCPSocket.socks_password = Postal::Config.smtp_client.socks_proxy_password
+          end
+
+          @smtp_client = Net::SMTP.new(@ip_address, @server.port)
+          @smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
+          @smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
+          @smtp_client.tls_hostname = @server.hostname
+
+          configure_ssl(@smtp_client, allow_ssl)
+          @smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
+        ensure
+          # Always reset SOCKS settings to prevent affecting other connections
+          TCPSocket.socks_server = nil
+          TCPSocket.socks_port = nil
+          TCPSocket.socks_username = nil
+          TCPSocket.socks_password = nil
+        end
       end
 
-      @smtp_client = Net::SMTP.new(@ip_address, @server.port)
-      @smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
-      @smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
-      @smtp_client.tls_hostname = @server.hostname
-
-      configure_ssl(@smtp_client, allow_ssl)
-      @smtp_client.start(@source_ip_address ? @source_ip_address.hostname : self.class.default_helo_hostname)
       @smtp_client
     end
 

@@ -7,9 +7,9 @@
       Add a proxy IP address that will be used for sending emails. The proxy should already be configured on the remote server.
 
     .fieldSet__field
-      = f.label :proxy_ssh_host, "Proxy Server IP", :class => 'fieldSet__label'
+      = f.label :proxy_host, "Proxy Server IP", :class => 'fieldSet__label'
       .fieldSet__input
-        = f.text_field :proxy_ssh_host, :class => 'input input--text', :placeholder => 'e.g., 45.144.234.199', :autofocus => true
+        = f.text_field :proxy_host, :class => 'input input--text', :placeholder => 'e.g., 45.144.234.199', :autofocus => true
         %p.fieldSet__text
           IP address of the server with an existing SOCKS5 proxy. Emails will appear to come from this IP.
 
@@ -30,20 +30,20 @@
   %fieldset.fieldSet
     %h3 Proxy Connection Details
     .fieldSet__field
-      = f.label :proxy_ssh_port, "Proxy Port", :class => 'fieldSet__label'
+      = f.label :proxy_port, "Proxy Port", :class => 'fieldSet__label'
       .fieldSet__input
-        = f.text_field :proxy_ssh_port, :class => 'input input--text', :placeholder => '1080', :value => (@ip_address.proxy_ssh_port || '1080')
+        = f.text_field :proxy_port, :class => 'input input--text', :placeholder => '1080', :value => (@ip_address.proxy_port || '1080')
         %p.fieldSet__text
           SOCKS5 proxy port (typically 1080)
 
     .fieldSet__field
-      = f.label :proxy_ssh_username, "Proxy Username (if required)", :class => 'fieldSet__label'
-      .fieldSet__input= f.text_field :proxy_ssh_username, :class => 'input input--text', :placeholder => 'Leave empty if not required'
+      = f.label :proxy_username, "Proxy Username (if required)", :class => 'fieldSet__label'
+      .fieldSet__input= f.text_field :proxy_username, :class => 'input input--text', :placeholder => 'Leave empty if not required'
 
     .fieldSet__field
-      = f.label :proxy_ssh_password, "Proxy Password (if required)", :class => 'fieldSet__label'
+      = f.label :proxy_password, "Proxy Password (if required)", :class => 'fieldSet__label'
       .fieldSet__input
-        = f.password_field :proxy_ssh_password, :class => 'input input--text'
+        = f.password_field :proxy_password, :class => 'input input--text'
         %p.fieldSet__text
           Leave empty if proxy doesn't require authentication
 

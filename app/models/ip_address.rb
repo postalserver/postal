@@ -69,24 +69,38 @@ class IPAddress < ApplicationRecord
   end
 
   def auto_fill_proxy_fields
-    return unless use_proxy && proxy_ssh_host.present?
+    return unless use_proxy
 
-    # Auto-fill IPv4 from proxy SSH host
-    self.ipv4 = proxy_ssh_host if ipv4.blank?
+    # For auto-install mode: copy SSH host to proxy connection fields
+    if proxy_auto_install && proxy_ssh_host.present?
+      # Auto-fill IPv4 from proxy SSH host
+      self.ipv4 = proxy_ssh_host if ipv4.blank?
 
-    # Auto-fill hostname from proxy SSH host if not provided
-    if hostname.blank?
-      self.hostname = "proxy-#{proxy_ssh_host.gsub('.', '-')}"
+      # Auto-fill hostname from proxy SSH host if not provided
+      if hostname.blank?
+        self.hostname = "proxy-#{proxy_ssh_host.gsub('.', '-')}"
+      end
+
+      # Auto-fill proxy connection details from SSH host
+      # This is critical - without proxy_host and proxy_port, proxy_configured? returns false
+      if proxy_host.blank?
+        self.proxy_host = proxy_ssh_host
+      end
+
+      if proxy_port.blank? || proxy_port == 0
+        self.proxy_port = 1080  # Default SOCKS5 port for Dante
+      end
     end
 
-    # Auto-fill proxy connection details from SSH host
-    # This is critical - without proxy_host and proxy_port, proxy_configured? returns false
-    if proxy_host.blank?
-      self.proxy_host = proxy_ssh_host
-    end
+    # For manual mode: use proxy_host as IPv4 if not provided
+    if !proxy_auto_install && proxy_host.present?
+      # Auto-fill IPv4 from proxy host
+      self.ipv4 = proxy_host if ipv4.blank?
 
-    if proxy_port.blank? || proxy_port == 0
-      self.proxy_port = 1080  # Default SOCKS5 port for Dante
+      # Auto-fill hostname from proxy host if not provided
+      if hostname.blank?
+        self.hostname = "proxy-#{proxy_host.gsub('.', '-')}"
+      end
     end
 
     # Set default proxy type if not specified

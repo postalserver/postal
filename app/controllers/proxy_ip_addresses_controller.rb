@@ -7,7 +7,7 @@ class ProxyIPAddressesController < ApplicationController
   before_action { params[:id] && @ip_address = @ip_pool.ip_addresses.find(params[:id]) }
 
   def new_proxy
-    @ip_address = @ip_pool.ip_addresses.build(use_proxy: true, proxy_auto_install: true)
+    @ip_address = @ip_pool.ip_addresses.build(use_proxy: true, proxy_auto_install: false)
   end
 
   def new_install
@@ -15,7 +15,7 @@ class ProxyIPAddressesController < ApplicationController
   end
 
   def create_proxy
-    @ip_address = @ip_pool.ip_addresses.build(safe_params.merge(use_proxy: true, proxy_auto_install: true))
+    @ip_address = @ip_pool.ip_addresses.build(safe_params.merge(use_proxy: true, proxy_auto_install: false, proxy_status: 'not_configured'))
     if @ip_address.save
       redirect_to_with_json [:edit, @ip_pool], notice: "Proxy IP has been added successfully."
     else
