@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddProxyFieldsToIpAddresses < ActiveRecord::Migration[7.1]
+class AddProxyFieldsToIPAddresses < ActiveRecord::Migration[7.1]
   def change
     add_column :ip_addresses, :use_proxy, :boolean, default: false
     add_column :ip_addresses, :proxy_type, :string, default: "socks5"
