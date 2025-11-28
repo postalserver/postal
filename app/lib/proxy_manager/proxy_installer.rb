@@ -67,11 +67,12 @@ module ProxyManager
 
           log "Installation completed successfully!"
 
-          # Update IP address record
+          # Update IP address record with proxy settings and auto-fill IPv4
           @ip_address.update(
             proxy_status: "installed",
             proxy_host: @ip_address.proxy_ssh_host,
             proxy_port: 1080,
+            ipv4: @ip_address.proxy_ssh_host,  # Auto-fill IPv4 with proxy server IP
             proxy_last_test_result: @log.join("\n")
           )
 

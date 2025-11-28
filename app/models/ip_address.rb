@@ -40,6 +40,7 @@ class IPAddress < ApplicationRecord
   scope :order_by_priority, -> { order(priority: :desc) }
 
   before_validation :set_default_priority
+  before_validation :auto_fill_proxy_fields
   after_save :install_proxy_if_needed
 
   # Proxy status states
@@ -65,6 +66,18 @@ class IPAddress < ApplicationRecord
     return if priority.present?
 
     self.priority = 100
+  end
+
+  def auto_fill_proxy_fields
+    return unless use_proxy && proxy_ssh_host.present?
+
+    # Auto-fill IPv4 from proxy SSH host
+    self.ipv4 = proxy_ssh_host if ipv4.blank?
+
+    # Auto-fill hostname from proxy SSH host if not provided
+    if hostname.blank?
+      self.hostname = "proxy-#{proxy_ssh_host.gsub('.', '-')}"
+    end
   end
 
   def install_proxy_if_needed
