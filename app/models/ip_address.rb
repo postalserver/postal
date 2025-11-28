@@ -84,6 +84,12 @@ class IPAddress < ApplicationRecord
     return unless proxy_needs_installation?
     return if proxy_status == "installing"
 
+    # Prevent duplicate installations - check if one is already running
+    return if self.class.exists?(
+      proxy_ssh_host: proxy_ssh_host,
+      proxy_status: "installing"
+    )
+
     ProxyInstallerService.install_async(id)
   end
 

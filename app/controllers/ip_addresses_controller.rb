@@ -59,7 +59,8 @@ class IPAddressesController < ApplicationController
     end
 
     if @ip_address.proxy_needs_installation?
-      @ip_address.update(proxy_status: "installing")
+      # Use update_columns to bypass callbacks and prevent re-triggering
+      @ip_address.update_columns(proxy_status: "installing", updated_at: Time.current)
       ProxyInstallerService.install_async(@ip_address.id)
       render json: { success: true, message: "Proxy installation started. Check status in a moment." }
     else

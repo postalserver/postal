@@ -55,7 +55,8 @@ class ProxyIPAddressesController < ApplicationController
     @ip_address = @ip_pool.ip_addresses.build(safe_params.merge(use_proxy: true, proxy_auto_install: true))
     if @ip_address.save
       # Start the installation process
-      @ip_address.update(proxy_status: "installing")
+      # Use update_columns to bypass callbacks and prevent re-triggering
+      @ip_address.update_columns(proxy_status: "installing", updated_at: Time.current)
       ProxyInstallerService.install_async(@ip_address.id) if defined?(ProxyInstallerService)
 
       render json: { success: true, ip_address_id: @ip_address.id }
