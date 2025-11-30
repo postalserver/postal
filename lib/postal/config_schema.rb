@@ -589,6 +589,12 @@ module Postal
         description "The JWKS endpoint on the authorization server (only used when discovery is false)"
       end
     end
+
+    group :management_api do
+      string :api_key do
+        description "A static API key for Management API authentication. When set, this key can be used in addition to database-stored keys. Useful for initial setup and automation."
+      end
+    end
   end
 
   class << self

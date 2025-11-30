@@ -92,6 +92,13 @@ module ManagementAPI
           return
         end
 
+        # Check config-based API key first
+        if config_api_key_valid?(key_value)
+          @current_api_key = ConfigBasedApiKey.new
+          return
+        end
+
+        # Check database-stored API keys
         @current_api_key = ManagementAPIKey.authenticate(key_value)
         if @current_api_key.nil?
           render_error("InvalidApiKey", "The provided API key is invalid or has expired", status: :unauthorized)
@@ -99,6 +106,40 @@ module ManagementAPI
         end
 
         @current_api_key.use!(request.remote_ip)
+      end
+
+      def config_api_key_valid?(key_value)
+        config_key = Postal::Config.management_api&.api_key
+        return false if config_key.blank?
+
+        ActiveSupport::SecurityUtils.secure_compare(config_key, key_value)
+      end
+
+      # Virtual API key class for config-based authentication
+      class ConfigBasedApiKey
+        def uuid
+          "config-api-key"
+        end
+
+        def name
+          "Config API Key"
+        end
+
+        def super_admin?
+          true
+        end
+
+        def can_access_organization?(_org)
+          true
+        end
+
+        def accessible_organizations
+          Organization.present
+        end
+
+        def use!(_ip = nil)
+          # No-op for config-based keys
+        end
       end
 
       def extract_api_key
