@@ -7,6 +7,71 @@ Rails.application.routes.draw do
   match "/api/v1/messages/message" => "legacy_api/messages#message", via: [:get, :post, :patch, :put]
   match "/api/v1/messages/deliveries" => "legacy_api/messages#deliveries", via: [:get, :post, :patch, :put]
 
+  # Management API v2
+  scope "/api/v2/management", module: "management_api/v2" do
+    # System endpoints
+    get "system/health" => "system#health"
+    get "system/status" => "system#status"
+    get "system/stats" => "system#stats"
+    get "system/api_keys" => "system#api_keys_index"
+    post "system/api_keys" => "system#api_keys_create"
+    delete "system/api_keys/:uuid" => "system#api_keys_destroy"
+
+    # Users (super admin only)
+    resources :users, param: :uuid
+
+    # Organizations
+    resources :organizations, param: :permalink do
+      member do
+        post :suspend
+        post :unsuspend
+      end
+
+      # Servers within organization
+      resources :servers, only: [:index, :create], param: :uuid, controller: "servers"
+    end
+
+    # Servers (global access)
+    resources :servers, only: [:index, :show, :update, :destroy], param: :uuid do
+      member do
+        post :suspend
+        post :unsuspend
+        get :stats
+      end
+
+      # Domains
+      resources :domains, only: [:index, :show, :create, :destroy], param: :uuid do
+        member do
+          post :verify
+          post :check_dns
+        end
+      end
+
+      # Credentials
+      resources :credentials, only: [:index, :show, :create, :update, :destroy], param: :uuid
+
+      # Routes
+      resources :routes, only: [:index, :show, :create, :update, :destroy], param: :uuid
+
+      # Webhooks
+      resources :webhooks, only: [:index, :show, :create, :update, :destroy], param: :uuid do
+        post :test, on: :member
+      end
+
+      # Messages
+      resources :messages, only: [:index, :show], param: :id do
+        member do
+          get :deliveries
+          post :retry
+          post :cancel_hold
+        end
+      end
+
+      # Queue
+      get :queue => "messages#queue"
+    end
+  end
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]
