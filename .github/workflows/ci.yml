@@ -62,7 +62,7 @@ jobs:
   release-branch:
     name: Release (branch)
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build, test]
     if: >-
       startsWith(github.ref, 'refs/heads/') &&
       startsWith(github.ref, 'refs/heads/release-please-') != true &&
