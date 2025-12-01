@@ -2,6 +2,10 @@
 name: CI
 on: [push]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-latest:
     name: Build Latest Package
