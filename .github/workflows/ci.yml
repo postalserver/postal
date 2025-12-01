@@ -27,10 +27,11 @@ jobs:
         run: |
           VER="$(git describe --tags 2>/dev/null || echo '0.0.0')"
           echo "version=${VER}" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}:latest" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ${{ steps.info.outputs.image }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
