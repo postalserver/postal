@@ -1,6 +1,9 @@
 ---
 name: CI
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -10,10 +13,6 @@ jobs:
   build-latest:
     name: Build Latest Package
     runs-on: ubuntu-latest
-    if: >-
-      startsWith(github.ref, 'refs/heads/') &&
-      startsWith(github.ref, 'refs/heads/release-please-') != true &&
-      startsWith(github.ref, 'refs/heads/dependabot/') != true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,24 +25,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - id: info
         run: |
-          IMAGE=ghcr.io/${{ github.repository }}
-          REF="${GITHUB_REF#refs/heads/}"
           VER="$(git describe --tags 2>/dev/null || echo '0.0.0')"
           echo "version=${VER}" >> "$GITHUB_OUTPUT"
-          echo "branch=${REF}" >> "$GITHUB_OUTPUT"
-          if [[ "$REF" == "main" ]]; then
-            echo "tags=${IMAGE}:latest" >> "$GITHUB_OUTPUT"
-          else
-            echo "tags=${IMAGE}:branch-${REF}" >> "$GITHUB_OUTPUT"
-          fi
       - uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${{ steps.info.outputs.tags }}
+          tags: ghcr.io/${{ github.repository }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: full
           platforms: linux/amd64
           build-args: |
             VERSION=${{ steps.info.outputs.version }}
-            BRANCH=${{ steps.info.outputs.branch }}
+            BRANCH=main
