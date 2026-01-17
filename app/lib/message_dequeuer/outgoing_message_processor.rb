@@ -22,6 +22,7 @@ module MessageDequeuer
         remove_recipient_from_suppression_list_on_success
         log_sender_result
         finish_processing
+        cleanup_raw_message
       end
     rescue StandardError => e
       handle_exception(e)
@@ -184,6 +185,12 @@ module MessageDequeuer
 
       log "message processing complete"
       remove_from_queue
+    end
+
+    def cleanup_raw_message
+      return if queued_message.server.raw_message_retention_days.to_i > 0 && queued_message.server.raw_message_retention_size.to_i > 0
+      queued_message.message.delete_raw_message
+      log "raw message removed due to retention settings"
     end
 
   end
