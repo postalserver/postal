@@ -89,6 +89,8 @@ logging:
   enabled: true
   # Enable highlighting of log lines
   highlighting_enabled: false
+  # Enable JSON formatting for log output
+  json: false
 
 gelf:
   # GELF-capable host to send logs to
