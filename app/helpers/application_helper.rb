@@ -3,6 +3,7 @@
 module ApplicationHelper
 
   def format_delivery_details(server, text)
+    text = h(text)
     text.gsub!(/<msg:(\d+)>/) do
       id = ::Regexp.last_match(1).to_i
       link_to("message ##{id}", organization_server_message_path(server.organization, server, id), class: "u-link")
