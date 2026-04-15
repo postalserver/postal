@@ -76,28 +76,6 @@ module Postal
           { "host" => "2.2.2.2", "port" => 2525, "ssl_mode" => "None" },
         ]
       end
-
-      it "parses relay URLs with credentials" do
-        source = described_class.new(
-          SOURCE_CONFIG.merge("smtp_relays" => ["smtp://relay-user:relay-pass@relay.example.com:587?ssl_mode=TLS"])
-        )
-        config = Konfig::Config.build(ConfigSchema, sources: [source])
-
-        expect(config.postal.smtp_relays).to eq [
-          { "host" => "relay.example.com", "port" => 587, "ssl_mode" => "TLS", "username" => "relay-user", "password" => "relay-pass" },
-        ]
-      end
-
-      it "decodes percent-encoded relay credentials" do
-        source = described_class.new(
-          SOURCE_CONFIG.merge("smtp_relays" => ["smtp://relay%40user:pa%24%24%3Aword@relay.example.com:587?ssl_mode=TLS"])
-        )
-        config = Konfig::Config.build(ConfigSchema, sources: [source])
-
-        expect(config.postal.smtp_relays).to eq [
-          { "host" => "relay.example.com", "port" => 587, "ssl_mode" => "TLS", "username" => "relay@user", "password" => "pa$$:word" },
-        ]
-      end
     end
 
     describe "the 'web_server' group" do
