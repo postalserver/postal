@@ -33,7 +33,7 @@ module ApplicationHelper
         s << "<optgroup label='Server Domains'>"
         server_domains.each do |domain|
           selected = domain == selected_domain ? "selected='selected'" : ""
-          s << "<option value='#{domain.id}' #{selected}>#{domain.name}</option>"
+          s << "<option value='#{h(domain.id)}' #{selected}>#{h(domain.name)}</option>"
         end
         s << "</optgroup>"
       end
@@ -43,7 +43,7 @@ module ApplicationHelper
         s << "<optgroup label='Organization Domains'>"
         organization_domains.each do |domain|
           selected = domain == selected_domain ? "selected='selected'" : ""
-          s << "<option value='#{domain.id}' #{selected}>#{domain.name}</option>"
+          s << "<option value='#{h(domain.id)}' #{selected}>#{h(domain.name)}</option>"
         end
         s << "</optgroup>"
       end
@@ -60,7 +60,7 @@ module ApplicationHelper
         http_endpoints.each do |endpoint|
           value = "#{endpoint.class}##{endpoint.uuid}"
           selected = value == selected_value ? "selected='selected'" : ""
-          s << "<option value='#{value}' #{selected}>#{endpoint.description}</option>"
+          s << "<option value='#{h(value)}' #{selected}>#{h(endpoint.description)}</option>"
         end
         s << "</optgroup>"
       end
@@ -71,7 +71,7 @@ module ApplicationHelper
         smtp_endpoints.each do |endpoint|
           value = "#{endpoint.class}##{endpoint.uuid}"
           selected = value == selected_value ? "selected='selected'" : ""
-          s << "<option value='#{value}' #{selected}>#{endpoint.description}</option>"
+          s << "<option value='#{h(value)}' #{selected}>#{h(endpoint.description)}</option>"
         end
         s << "</optgroup>"
       end
@@ -82,7 +82,7 @@ module ApplicationHelper
         address_endpoints.each do |endpoint|
           value = "#{endpoint.class}##{endpoint.uuid}"
           selected = value == selected_value ? "selected='selected'" : ""
-          s << "<option value='#{value}' #{selected}>#{endpoint.address}</option>"
+          s << "<option value='#{h(value)}' #{selected}>#{h(endpoint.address)}</option>"
         end
         s << "</optgroup>"
       end
@@ -94,7 +94,7 @@ module ApplicationHelper
 
           selected = (selected_value == mode ? "selected='selected'" : "")
           text = t("route_modes.#{mode.underscore}")
-          s << "<option value='#{mode}' #{selected}>#{text}</option>"
+          s << "<option value='#{h(mode)}' #{selected}>#{h(text)}</option>"
         end
         s << "</optgroup>"
       end
