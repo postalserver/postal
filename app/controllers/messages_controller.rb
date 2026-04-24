@@ -89,6 +89,18 @@ class MessagesController < ApplicationController
   end
 
   def html_raw
+    override_content_security_policy_directives(
+      default_src: %w('none'),
+      script_src: %w('none'),
+      style_src: %w('unsafe-inline'),
+      img_src: %w(* data:),
+      font_src: %w(*),
+      frame_ancestors: %w('self'),
+      form_action: %w('none'),
+      base_uri: %w('none')
+    )
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "no-referrer"
     render html: @message.html_body_without_tracking_image.html_safe
   end
 
