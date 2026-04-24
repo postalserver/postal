@@ -48,25 +48,11 @@ class TrackingMiddleware
       Sentry.capture_exception(e) if defined?(Sentry)
     end
 
-    source_image = request.params["src"]
-    case source_image
-    when nil
+    if request.params["src"].nil?
       headers = {}
       headers["Content-Type"] = "image/png"
       headers["Content-Length"] = TRACKING_PIXEL.bytesize.to_s
       [200, headers, [TRACKING_PIXEL]]
-    when /\Ahttps?:\/\//
-      response = Postal::HTTP.get(source_image, timeout: 3)
-      return [404, {}, ["Not found"]] unless response[:code] == 200
-
-      headers = {}
-      headers["Content-Type"] = response[:headers]["content-type"]&.first
-      headers["Last-Modified"] = response[:headers]["last-modified"]&.first
-      headers["Cache-Control"] = response[:headers]["cache-control"]&.first
-      headers["Etag"] = response[:headers]["etag"]&.first
-      headers["Content-Length"] = response[:body].bytesize.to_s
-      [200, headers, [response[:body]]]
-
     else
       [400, {}, ["Invalid/missing source image"]]
     end
