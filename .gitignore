@@ -34,3 +34,6 @@ BRANCH
 .rubocop-https*
 .env*
 
+node_modules
+yarn.lock
+
