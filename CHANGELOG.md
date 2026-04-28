@@ -2,6 +2,25 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.6](https://github.com/postalserver/postal/compare/3.3.5...3.3.6) (2026-04-28)
+
+
+### Bug Fixes
+
+* **messages:** sandbox rendered email HTML as extra XSS defence ([cad2aa6](https://github.com/postalserver/postal/commit/cad2aa6808519a3ff25215f09f4966d9fa3bb372))
+
+
+### Miscellaneous Chores
+
+* ignore node modules and yarn.lock ([b611d57](https://github.com/postalserver/postal/commit/b611d577af79b8e1e75b6d47fa04d1ba03e34eec))
+
+
+### Code Refactoring
+
+* **auth:** tighten return_to validation ([84f4e20](https://github.com/postalserver/postal/commit/84f4e20f05db2d11b0144f95960c956f8221e657))
+* **helpers:** escape interpolated values in select options ([9243524](https://github.com/postalserver/postal/commit/924352403553dcfcc569876ca76c219493fac9d6))
+* **tracking:** remove unused src image proxy ([dca7f90](https://github.com/postalserver/postal/commit/dca7f90b9046247c0d953567be35921167e79d87))
+
 ## [3.3.5](https://github.com/postalserver/postal/compare/3.3.4...3.3.5) (2026-02-01)
 
 
