@@ -419,6 +419,10 @@ module SMTPServer
       received_header = ReceivedHeader.generate(@credential&.server, @helo_name, @ip_address, :smtp)
                                       .force_encoding("BINARY")
 
+      envelope_header = "<#{@mail_from}>"
+      @data << "X-Envelope-From: #{envelope_header}\r\n"
+      @headers["x-envelope-from"] = [envelope_header]
+
       @data << "Received: #{received_header}\r\n"
       @headers["received"] = [received_header]
 

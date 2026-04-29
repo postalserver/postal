@@ -75,6 +75,7 @@ module SMTPServer
             client.handle("This is some content for the message.")
             client.handle("It will keep going.")
             expect(client.instance_variable_get("@data")).to eq <<~DATA
+              X-Envelope-From: <test@test.com>\r
               Received: from test.example.com (1.2.3.4 [1.2.3.4]) by #{Postal::Config.postal.smtp_hostname} with SMTP; #{Time.now.utc.rfc2822}\r
               Subject: Test\r
               \r
