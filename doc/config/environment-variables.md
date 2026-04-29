@@ -16,7 +16,7 @@ This document contains all the environment variables which are available for thi
 | `POSTAL_USE_LOCAL_NS_FOR_DOMAIN_VERIFICATION` | Boolean | Domain verification and checking usually checks with a domain's nameserver. Enable this to check with the server's local nameservers. | false |
 | `POSTAL_USE_RESENT_SENDER_HEADER` | Boolean | Append a Resend-Sender header to all outgoing e-mails | true |
 | `POSTAL_SIGNING_KEY_PATH` | String | Path to the private key used for signing | $config-file-root/signing.key |
-| `POSTAL_SMTP_RELAYS` | Array of strings | An array of SMTP relays in the format of smtp://host:port | [] |
+| `POSTAL_SMTP_RELAYS` | Array of strings | An array of SMTP relays in the format of smtp://host:port or smtp://username:password@host:port | [] |
 | `POSTAL_TRUSTED_PROXIES` | Array of strings | An array of IP addresses to trust for proxying requests to Postal (in addition to localhost addresses) | [] |
 | `POSTAL_QUEUED_MESSAGE_LOCK_STALE_DAYS` | Integer | The number of days after which to consider a lock as stale. Messages with stale locks will be removed and not retried. | 1 |
 | `POSTAL_BATCH_QUEUED_MESSAGES` | Boolean | When enabled queued messages will be de-queued in batches based on their destination | true |
