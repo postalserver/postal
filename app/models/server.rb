@@ -203,6 +203,16 @@ class Server < ApplicationRecord
     send_volume >= send_limit
   end
 
+  def priority_subject_keywords
+    (priority_subjects || "").split("\n").map(&:strip).reject(&:blank?)
+  end
+
+  def priority_subject_bypass?(subject)
+    return false if priority_subjects.blank?
+
+    priority_subject_keywords.any? { |keyword| subject.to_s.downcase.include?(keyword.downcase) }
+  end
+
   def send_limit_warning(type)
     if organization.notification_addresses.present?
       AppMailer.send("server_send_limit_#{type}", self).deliver
