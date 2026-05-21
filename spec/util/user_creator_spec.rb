@@ -72,6 +72,24 @@ describe UserCreator do
         }.to raise_error(SystemExit)
       end
     end
+
+    # The User model declares case-insensitive uniqueness on email_address.
+    # We rely on the underlying DB collation matching — if a future change
+    # switches to a case-sensitive collation, this upsert would silently
+    # create a duplicate (which the unique constraint then rejects), so we
+    # pin the behaviour with a test.
+    context "when the existing user's email differs only in case" do
+      let!(:existing) do
+        create(:user, email_address: "First-Admin@Example.com", first_name: "Old")
+      end
+
+      it "updates the existing user, not a new one" do
+        # env email is "first-admin@example.com" (lowercase)
+        expect { described_class.start }.not_to change(User, :count)
+        existing.reload
+        expect(existing.first_name).to eq("First")
+      end
+    end
   end
 
   describe ".start (interactive mode)" do
@@ -85,6 +103,22 @@ describe UserCreator do
       allow_any_instance_of(HighLine).to receive(:ask).and_return("ignored")
       # We expect the save to fail because the email is "ignored", but that's
       # fine — the assertion is that we entered the interactive code path.
+      described_class.start
+    end
+
+    # Pin the contract that EMAIL alone gates the mode — even if FIRST_NAME /
+    # LAST_NAME / PASSWORD are set. Without this guard, a future refactor
+    # could start triggering non-interactive mode from any of the four vars,
+    # which would surprise operators who set partial config.
+    it "falls through to interactive even if other POSTAL_INITIAL_USER_* vars are set" do
+      stub_const("ENV", ENV.to_hash.merge(
+        "POSTAL_INITIAL_USER_FIRST_NAME" => "First",
+        "POSTAL_INITIAL_USER_LAST_NAME" => "Admin",
+        "POSTAL_INITIAL_USER_PASSWORD" => "x"
+        # POSTAL_INITIAL_USER_EMAIL intentionally not set
+      ))
+      expect(HighLine).to receive(:new).and_call_original
+      allow_any_instance_of(HighLine).to receive(:ask).and_return("ignored")
       described_class.start
     end
   end
