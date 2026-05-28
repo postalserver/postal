@@ -4,7 +4,7 @@ class SMTPSender < BaseSender
 
   attr_reader :endpoints
 
-  # @param domain [String] the domain to send mesages to
+  # @param domain [String] the domain to send messages to
   # @param source_ip_address [IPAddress] the IP address to send messages from
   # @param log_id [String] an ID to use when logging requests
   def initialize(domain, source_ip_address = nil, servers: nil, log_id: nil, rcpt_to: nil)
@@ -15,7 +15,7 @@ class SMTPSender < BaseSender
 
     # An array of servers to forcefully send the message to
     @servers = servers
-    # Stores all connection errors which we have seen during this send sesssion.
+    # Stores all connection errors which we have seen during this send session.
     @connection_errors = []
     # Stores all endpoints that we have attempted to deliver mail to
     @endpoints = []
@@ -57,7 +57,7 @@ class SMTPSender < BaseSender
     mail_from = determine_mail_from_for_message(message)
     raw_message = message.raw_message
 
-    # Append the Resent-Sender header to the mesage to include the
+    # Append the Resent-Sender header to the message to include the
     # MAIL FROM if the installation is configured to use that?
     if Postal::Config.postal.use_resent_sender_header?
       raw_message = "Resent-Sender: #{mail_from}\r\n" + raw_message
@@ -168,7 +168,7 @@ class SMTPSender < BaseSender
     hostnames.map { |hostname| SMTPClient::Server.new(hostname) }
   end
 
-  # Attempt to begin an SMTP sesssion for the given endpoint. If successful, this endpoint
+  # Attempt to begin an SMTP session for the given endpoint. If successful, this endpoint
   # becomes the current endpoints for the SMTP sender.
   #
   # Returns true if the session was established.

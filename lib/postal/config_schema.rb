@@ -105,12 +105,12 @@ module Postal
 
     group :web_server do
       integer :default_port do
-        description "The default port the web server should listen on unless overriden by the PORT environment variable"
+        description "The default port the web server should listen on unless overridden by the PORT environment variable"
         default 5000
       end
 
       string :default_bind_address do
-        description "The default bind address the web server should listen on unless overriden by the BIND_ADDRESS environment variable"
+        description "The default bind address the web server should listen on unless overridden by the BIND_ADDRESS environment variable"
         default "127.0.0.1"
       end
 
@@ -243,12 +243,12 @@ module Postal
 
     group :smtp_server do
       integer :default_port do
-        description "The default port the SMTP server should listen on unless overriden by the PORT environment variable"
+        description "The default port the SMTP server should listen on unless overridden by the PORT environment variable"
         default 25
       end
 
       string :default_bind_address do
-        description "The default bind address the SMTP server should listen on unless overriden by the BIND_ADDRESS environment variable"
+        description "The default bind address the SMTP server should listen on unless overridden by the BIND_ADDRESS environment variable"
         default "::"
       end
 

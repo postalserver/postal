@@ -51,7 +51,7 @@ Layout/EmptyLinesAroundModuleBody:
 
 # Space is required following -> when writing a lambda:
 #
-#    somethign = -> (var) { block }
+#    something = -> (var) { block }
 Layout/SpaceInLambdaLiteral:
   EnforcedStyle: require_space
 
@@ -115,7 +115,7 @@ Lint/BooleanSymbol:
 Style/SymbolProc:
   Enabled: false
 
-# Allow a maxmium of 5 arguments and don't include keyword arguments
+# Allow a maximum of 5 arguments and don't include keyword arguments
 Metrics/ParameterLists:
   Max: 5
   CountKeywordArgs: false

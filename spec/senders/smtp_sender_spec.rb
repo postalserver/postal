@@ -356,7 +356,7 @@ RSpec.describe SMTPSender do
           )
         end
 
-        it "resets the endpoint SMTP sesssion" do
+        it "resets the endpoint SMTP session" do
           sender.send_message(message)
           expect(sender.endpoints.last).to have_received(:reset_smtp_session)
         end
@@ -400,7 +400,7 @@ RSpec.describe SMTPSender do
           )
         end
 
-        it "resets the endpoint SMTP sesssion" do
+        it "resets the endpoint SMTP session" do
           sender.send_message(message)
           expect(sender.endpoints.last).to have_received(:reset_smtp_session)
         end
@@ -418,7 +418,7 @@ RSpec.describe SMTPSender do
           )
         end
 
-        it "resets the endpoint SMTP sesssion" do
+        it "resets the endpoint SMTP session" do
           sender.send_message(message)
           expect(sender.endpoints.last).to have_received(:reset_smtp_session)
         end
@@ -437,7 +437,7 @@ RSpec.describe SMTPSender do
           )
         end
 
-        it "resets the endpoint SMTP sesssion" do
+        it "resets the endpoint SMTP session" do
           sender.send_message(message)
           expect(sender.endpoints.last).to have_received(:reset_smtp_session)
         end
@@ -456,7 +456,7 @@ RSpec.describe SMTPSender do
           )
         end
 
-        it "resets the endpoint SMTP sesssion" do
+        it "resets the endpoint SMTP session" do
           sender.send_message(message)
           expect(sender.endpoints.last).to have_received(:reset_smtp_session)
         end
@@ -475,7 +475,7 @@ RSpec.describe SMTPSender do
           )
         end
 
-        it "resets the endpoint SMTP sesssion" do
+        it "resets the endpoint SMTP session" do
           sender.send_message(message)
           expect(sender.endpoints.last).to have_received(:reset_smtp_session)
         end
@@ -494,7 +494,7 @@ RSpec.describe SMTPSender do
           )
         end
 
-        it "resets the endpoint SMTP sesssion" do
+        it "resets the endpoint SMTP session" do
           sender.send_message(message)
           expect(sender.endpoints.last).to have_received(:reset_smtp_session)
         end

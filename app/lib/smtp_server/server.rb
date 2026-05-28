@@ -308,7 +308,7 @@ module SMTPServer
                                   labels: [:type, :error]
 
       register_prometheus_counter :postal_smtp_server_tls_connections_total,
-                                  docstring: "The number of successfuly TLS connections established"
+                                  docstring: "The number of successfully TLS connections established"
 
       Client.register_prometheus_metrics
     end

@@ -35,9 +35,9 @@ postal:
   batch_queued_messages: true
 
 web_server:
-  # The default port the web server should listen on unless overriden by the PORT environment variable
+  # The default port the web server should listen on unless overridden by the PORT environment variable
   default_port: 5000
-  # The default bind address the web server should listen on unless overriden by the BIND_ADDRESS environment variable
+  # The default bind address the web server should listen on unless overridden by the BIND_ADDRESS environment variable
   default_bind_address: 127.0.0.1
   # The maximum number of threads which can be used by the web server
   max_threads: 5
@@ -99,9 +99,9 @@ gelf:
   facility: postal
 
 smtp_server:
-  # The default port the SMTP server should listen on unless overriden by the PORT environment variable
+  # The default port the SMTP server should listen on unless overridden by the PORT environment variable
   default_port: 25
-  # The default bind address the SMTP server should listen on unless overriden by the BIND_ADDRESS environment variable
+  # The default bind address the SMTP server should listen on unless overridden by the BIND_ADDRESS environment variable
   default_bind_address: ::
   # The default port for the SMTP server health server to listen on
   default_health_server_port: 9091

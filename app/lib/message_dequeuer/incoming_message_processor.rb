@@ -82,7 +82,7 @@ module MessageDequeuer
     def fail_if_spam
       return if queued_message.message.spam_score < queued_message.server.spam_failure_threshold
 
-      log "message has a spam score higher than the server's maxmimum, hard failing", server_threshold: queued_message.server.spam_failure_threshold
+      log "message has a spam score higher than the server's maximum, hard failing", server_threshold: queued_message.server.spam_failure_threshold
       create_delivery "HardFail",
                       details: "Message's spam score is higher than the failure threshold for this server. " \
                                "Threshold is currently #{queued_message.server.spam_failure_threshold}."
