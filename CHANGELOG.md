@@ -2,6 +2,21 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.3.7](https://github.com/postalserver/postal/compare/3.3.6...3.3.7) (2026-06-03)
+
+
+### Bug Fixes
+
+* **http:** prevent SSRF in outbound webhook and HTTP endpoint requests ([11c9814](https://github.com/postalserver/postal/commit/11c9814474f956619da35e8385ef7fab9f304de0))
+* **message-db:** prevent SQL injection via condition keys (GHSA-x2hq-rfpg-3xr5) ([4314a6e](https://github.com/postalserver/postal/commit/4314a6ec1e2812daa67dd20effd1db1769c1f8e8))
+* **specs:** stub IPv6 support in address guard IPv6 literal spec ([029bfe0](https://github.com/postalserver/postal/commit/029bfe098d9b8c0b5cafc49eac33e767f5748cd3))
+
+
+### Miscellaneous Chores
+
+* **deps:** upgrade rack & rails ([0445e5c](https://github.com/postalserver/postal/commit/0445e5c509870dfe9c16366c53dee3fc02ad3904))
+* update security vulnerability reporting instructions ([8be1e27](https://github.com/postalserver/postal/commit/8be1e27fec489ab659ef5e909f705932028b1694))
+
 ## [3.3.6](https://github.com/postalserver/postal/compare/3.3.5...3.3.6) (2026-04-28)
 
 
