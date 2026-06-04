@@ -51,6 +51,8 @@ worker:
   default_health_server_bind_address: 127.0.0.1
   # The number of threads to execute within each worker
   threads: 2
+  # The number of seconds after which a queued message processing lock can be recovered
+  queued_message_lock_timeout: 300
 
 main_db:
   # Hostname for the main MariaDB server
@@ -217,6 +219,14 @@ smtp_client:
   open_timeout: 30
   # The read timeout for outgoing SMTP connections
   read_timeout: 30
+  # The write timeout for outgoing SMTP connections
+  write_timeout: 30
+  # The hard timeout for a single outgoing SMTP connection attempt, including greeting and STARTTLS
+  connection_timeout: 10
+  # The hard timeout for finding a usable outgoing SMTP endpoint for one message
+  start_timeout: 60
+  # The hard timeout for an outgoing SMTP MAIL/RCPT/DATA transaction
+  transaction_timeout: 60
 
 migration_waiter:
   # Wait for all migrations to run before starting a process

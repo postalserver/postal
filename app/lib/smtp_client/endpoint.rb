@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module SMTPClient
+  class TimeoutError < StandardError
+  end
+
   class Endpoint
 
     class SMTPSessionNotStartedError < StandardError
@@ -55,6 +58,7 @@ module SMTPClient
       @smtp_client = Net::SMTP.new(@ip_address, @server.port)
       @smtp_client.open_timeout = Postal::Config.smtp_client.open_timeout
       @smtp_client.read_timeout = Postal::Config.smtp_client.read_timeout
+      @smtp_client.write_timeout = Postal::Config.smtp_client.write_timeout if @smtp_client.respond_to?(:write_timeout=)
       @smtp_client.tls_hostname = @server.hostname
 
       if source_ip_address
@@ -127,6 +131,16 @@ module SMTPClient
     # @return [void]
     def finish_smtp_session
       @smtp_client&.finish
+    rescue StandardError
+      nil
+    ensure
+      @smtp_client = nil
+    end
+
+    # Close the underlying socket without sending SMTP commands. This is used after
+    # hard timeouts where RSET/QUIT may block on the same stuck connection.
+    def abort_smtp_session
+      @smtp_client&.instance_variable_get(:@socket)&.close
     rescue StandardError
       nil
     ensure

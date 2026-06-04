@@ -143,6 +143,11 @@ module Postal
         description "The number of threads to execute within each worker"
         default 2
       end
+
+      integer :queued_message_lock_timeout do
+        description "The number of seconds after which a queued message processing lock can be recovered"
+        default 300
+      end
     end
 
     group :main_db do
@@ -507,6 +512,26 @@ module Postal
       integer :read_timeout do
         description "The read timeout for outgoing SMTP connections"
         default 30
+      end
+
+      integer :write_timeout do
+        description "The write timeout for outgoing SMTP connections"
+        default 30
+      end
+
+      integer :connection_timeout do
+        description "The hard timeout for a single outgoing SMTP connection attempt, including greeting and STARTTLS"
+        default 10
+      end
+
+      integer :start_timeout do
+        description "The hard timeout for finding a usable outgoing SMTP endpoint for one message"
+        default 60
+      end
+
+      integer :transaction_timeout do
+        description "The hard timeout for an outgoing SMTP MAIL/RCPT/DATA transaction"
+        default 60
       end
     end
 
