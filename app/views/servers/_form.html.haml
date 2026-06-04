@@ -20,6 +20,15 @@
           e-mail will be routed normally to the intended recipients. When in <b>Development</b> mode,
           outgoing & incoming mail will be held and only visible in the web interface and will not be
           sent to any recipients or HTTP endpoints.
+    .fieldSet__field
+      = f.label :priority, "Sending Priority", :class => 'fieldSet__label'
+      .fieldSet__input
+        = f.text_field :priority,
+                       :class => 'input input--text',
+                       :placeholder => "e.g. 10"
+        %p.fieldSet__text
+          Set a priority for this server's outgoing mail. Messages from servers with a higher number will be sent first.
+          The default is <b>0</b>.
 
     - if Postal.ip_pools?
       .fieldSet__field

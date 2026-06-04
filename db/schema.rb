@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
+ActiveRecord::Schema[7.0].define(version: 2025_09_15_065902) do
   create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
@@ -255,6 +255,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.index ["permalink"], name: "index_servers_on_permalink", length: 6
     t.index ["token"], name: "index_servers_on_token", length: 6
     t.index ["uuid"], name: "index_servers_on_uuid", length: 8
+    t.integer "priority", limit: 2, default: 0, unsigned: true
   end
 
   create_table "smtp_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
