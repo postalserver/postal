@@ -18,6 +18,7 @@ class OutgoingMessagePrototype
   attr_accessor :tag
   attr_accessor :credential
   attr_accessor :bounce
+  attr_accessor :message_ids
 
   def initialize(server, ip, source_type, attributes)
     @server = server
@@ -76,7 +77,19 @@ class OutgoingMessagePrototype
     if valid?
       all_addresses.each_with_object({}) do |address, hash|
         if address = Postal::Helpers.strip_name_from_address(address)
-          hash[address] = create_message(address)
+          # Check for existing message if message_ids provided
+          message_id = @message_ids.is_a?(Hash) ? @message_ids[address] : nil
+          if message_id
+            # Strip angle brackets if present
+            message_id = message_id.gsub(/^<|>$/, '')
+            # Check for duplicate
+            existing = @server.message_db.select(:messages, fields: [:id, :token, :message_id], where: { message_id: message_id }).first
+            if existing
+              hash[address] = { id: existing["id"], token: existing["token"], message_id: existing["message_id"], existing: true }
+              next
+            end
+          end
+          hash[address] = create_message(address, message_id)
         end
       end
     else
@@ -104,6 +117,14 @@ class OutgoingMessagePrototype
     end
   end
   # rubocop:enable Lint/DuplicateMethods
+
+  def valid_message_id_format?(message_id)
+    return false if message_id.blank?
+    # Strip angle brackets if present for validation
+    id = message_id.gsub(/^<|>$/, '')
+    # RFC 5322: local-part@domain (must have @ and both parts non-empty, no spaces)
+    id.match?(/\A[^@\s]+@[^@\s]+\z/)
+  end
 
   def validate
     @errors = []
@@ -145,57 +166,76 @@ class OutgoingMessagePrototype
         end
       end
     end
+
+    if @message_ids.is_a?(Hash)
+      @message_ids.each do |recipient, message_id|
+        unless valid_message_id_format?(message_id)
+          @errors << "InvalidMessageID" unless @errors.include?("InvalidMessageID")
+          break
+        end
+      end
+    end
     @errors
   end
 
   def raw_message
-    @raw_message ||= begin
-      mail = Mail.new
-      if @custom_headers.is_a?(Hash)
-        @custom_headers.each { |key, value| mail[key.to_s] = value.to_s }
-      end
-      mail.to = to_addresses.join(", ") if to_addresses.present?
-      mail.cc = cc_addresses.join(", ") if cc_addresses.present?
-      mail.from = @from
-      mail.sender = @sender
-      mail.subject = @subject
-      mail.reply_to = @reply_to
-      mail.part content_type: "multipart/alternative" do |p|
-        if @plain_body.present?
-          p.text_part = Mail::Part.new
-          p.text_part.body = @plain_body
-        end
-        if @html_body.present?
-          p.html_part = Mail::Part.new
-          p.html_part.content_type = "text/html; charset=UTF-8"
-          p.html_part.body = @html_body
-        end
-      end
-      attachments.each do |attachment|
-        mail.attachments[attachment[:name]] = {
-          mime_type: attachment[:content_type],
-          content: attachment[:data]
-        }
-      end
-      mail.header["Received"] = ReceivedHeader.generate(@server, @source_type, @ip, :http)
-      mail.message_id = "<#{@message_id}>"
-      mail.to_s
-    end
+    @raw_message ||= raw_message_for_recipient(nil, @message_id)
   end
 
-  def create_message(address)
+  def raw_message_for_recipient(address, message_id)
+    mail = Mail.new
+    if @custom_headers.is_a?(Hash)
+      @custom_headers.each { |key, value| mail[key.to_s] = value.to_s }
+    end
+    mail.to = to_addresses.join(", ") if to_addresses.present?
+    mail.cc = cc_addresses.join(", ") if cc_addresses.present?
+    mail.from = @from
+    mail.sender = @sender
+    mail.subject = @subject
+    mail.reply_to = @reply_to
+    mail.part content_type: "multipart/alternative" do |p|
+      if @plain_body.present?
+        p.text_part = Mail::Part.new
+        p.text_part.body = @plain_body
+      end
+      if @html_body.present?
+        p.html_part = Mail::Part.new
+        p.html_part.content_type = "text/html; charset=UTF-8"
+        p.html_part.body = @html_body
+      end
+    end
+    attachments.each do |attachment|
+      mail.attachments[attachment[:name]] = {
+        mime_type: attachment[:content_type],
+        content: attachment[:data]
+      }
+    end
+    mail.header["Received"] = ReceivedHeader.generate(@server, @source_type, @ip, :http)
+    mail.message_id = "<#{message_id}>"
+    mail.to_s
+  end
+
+  def create_message(address, message_id = nil)
+    # Use provided message_id or generate one
+    msg_id = message_id || "#{SecureRandom.uuid}@#{Postal::Config.dns.return_path_domain}"
+    
     message = @server.message_db.new_message
     message.scope = "outgoing"
     message.rcpt_to = address
     message.mail_from = from_address
     message.domain_id = domain.id
-    message.raw_message = raw_message
+    message.raw_message = raw_message_for_recipient(address, msg_id)
     message.tag = tag
     message.credential_id = credential&.id
     message.received_with_ssl = true
     message.bounce = @bounce
     message.save
-    { id: message.id, token: message.token }
+    # Include message_id in response only if message_ids parameter was provided
+    if @message_ids.is_a?(Hash)
+      { id: message.id, token: message.token, message_id: message.message_id }
+    else
+      { id: message.id, token: message.token }
+    end
   end
 
 end
