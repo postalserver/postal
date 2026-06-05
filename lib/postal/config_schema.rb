@@ -231,6 +231,11 @@ module Postal
         description "Enable highlighting of log lines"
         default false
       end
+
+      boolean :json do
+        description "Enable JSON formatting for log output"
+        default false
+      end
     end
 
     group :gelf do
