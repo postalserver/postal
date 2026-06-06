@@ -60,6 +60,8 @@ Rails.application.routes.draw do
       get "help/outgoing" => "help#outgoing"
       get "help/incoming" => "help#incoming"
       get :advanced, on: :member
+      post :add_priority_subject, on: :member
+      delete :remove_priority_subject, on: :member
       post :suspend, on: :member
       post :unsuspend, on: :member
     end

@@ -4,7 +4,7 @@ class ServersController < ApplicationController
 
   include WithinOrganization
 
-  before_action :admin_required, only: [:advanced, :suspend, :unsuspend]
+  before_action :admin_required, only: [:advanced, :add_priority_subject, :remove_priority_subject, :suspend, :unsuspend]
   before_action { params[:id] && @server = organization.servers.present.find_by_permalink!(params[:id]) }
 
   def index
@@ -47,6 +47,7 @@ class ServersController < ApplicationController
     if current_user.admin?
       extra_params += [
         :send_limit,
+        :send_limit_retry_interval,
         :allow_sender,
         :privacy_mode,
         :log_smtp_data,
@@ -81,6 +82,24 @@ class ServersController < ApplicationController
   def queue
     @messages = @server.queued_messages.order(id: :desc).page(params[:page]).includes(:ip_address)
     @messages_with_message = @messages.include_message
+  end
+
+  def add_priority_subject
+    keyword = params[:keyword].to_s.strip
+    if keyword.present?
+      existing = (@server.priority_subjects || "").split("\n").map(&:strip).reject(&:blank?)
+      unless existing.include?(keyword)
+        @server.update!(priority_subjects: (existing + [keyword]).join("\n"))
+      end
+    end
+    redirect_to advanced_organization_server_path(organization, @server)
+  end
+
+  def remove_priority_subject
+    keyword = params[:keyword].to_s.strip
+    existing = (@server.priority_subjects || "").split("\n").map(&:strip).reject(&:blank?)
+    @server.update!(priority_subjects: existing.reject { |k| k == keyword }.join("\n"))
+    redirect_to advanced_organization_server_path(organization, @server)
   end
 
   def suspend
