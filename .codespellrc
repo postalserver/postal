@@ -1,0 +1,7 @@
+[codespell]
+# Ref: https://github.com/codespell-project/codespell#using-a-config-file
+skip = .git,.gitignore,.gitattributes,*.svg,vendor,*.lock,.codespellrc,CHANGELOG.md,*/dkim_signing/*,*/postfix-bounce.msg,*/signing.key
+check-hidden = true
+# ignore-regex =
+# checkin - method name in connection_pool.rb (not "checking"/"check in")
+ignore-words-list = checkin

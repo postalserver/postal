@@ -21,8 +21,8 @@ This document contains all the environment variables which are available for thi
 | `POSTAL_ALLOWED_REQUEST_DESTINATIONS` | Array of strings | Hostnames or IP/CIDR ranges that outbound webhook and HTTP endpoint requests are permitted to reach even when they resolve to a private, loopback, link-local or otherwise reserved address. All other such destinations are blocked to prevent SSRF. | [] |
 | `POSTAL_QUEUED_MESSAGE_LOCK_STALE_DAYS` | Integer | The number of days after which to consider a lock as stale. Messages with stale locks will be removed and not retried. | 1 |
 | `POSTAL_BATCH_QUEUED_MESSAGES` | Boolean | When enabled queued messages will be de-queued in batches based on their destination | true |
-| `WEB_SERVER_DEFAULT_PORT` | Integer | The default port the web server should listen on unless overriden by the PORT environment variable | 5000 |
-| `WEB_SERVER_DEFAULT_BIND_ADDRESS` | String | The default bind address the web server should listen on unless overriden by the BIND_ADDRESS environment variable | 127.0.0.1 |
+| `WEB_SERVER_DEFAULT_PORT` | Integer | The default port the web server should listen on unless overridden by the PORT environment variable | 5000 |
+| `WEB_SERVER_DEFAULT_BIND_ADDRESS` | String | The default bind address the web server should listen on unless overridden by the BIND_ADDRESS environment variable | 127.0.0.1 |
 | `WEB_SERVER_MAX_THREADS` | Integer | The maximum number of threads which can be used by the web server | 5 |
 | `WORKER_DEFAULT_HEALTH_SERVER_PORT` | Integer | The default port for the worker health server to listen on | 9090 |
 | `WORKER_DEFAULT_HEALTH_SERVER_BIND_ADDRESS` | String | The default bind address for the worker health server to listen on | 127.0.0.1 |
@@ -47,8 +47,8 @@ This document contains all the environment variables which are available for thi
 | `GELF_HOST` | String | GELF-capable host to send logs to |  |
 | `GELF_PORT` | Integer | GELF port to send logs to | 12201 |
 | `GELF_FACILITY` | String | The facility name to add to all log entries sent to GELF | postal |
-| `SMTP_SERVER_DEFAULT_PORT` | Integer | The default port the SMTP server should listen on unless overriden by the PORT environment variable | 25 |
-| `SMTP_SERVER_DEFAULT_BIND_ADDRESS` | String | The default bind address the SMTP server should listen on unless overriden by the BIND_ADDRESS environment variable | :: |
+| `SMTP_SERVER_DEFAULT_PORT` | Integer | The default port the SMTP server should listen on unless overridden by the PORT environment variable | 25 |
+| `SMTP_SERVER_DEFAULT_BIND_ADDRESS` | String | The default bind address the SMTP server should listen on unless overridden by the BIND_ADDRESS environment variable | :: |
 | `SMTP_SERVER_DEFAULT_HEALTH_SERVER_PORT` | Integer | The default port for the SMTP server health server to listen on | 9091 |
 | `SMTP_SERVER_DEFAULT_HEALTH_SERVER_BIND_ADDRESS` | String | The default bind address for the SMTP server health server to listen on | 127.0.0.1 |
 | `SMTP_SERVER_TLS_ENABLED` | Boolean | Enable TLS for the SMTP server (requires certificate) | false |

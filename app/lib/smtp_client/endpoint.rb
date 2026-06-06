@@ -88,7 +88,7 @@ module SMTPClient
     end
 
     # Send a message to the current SMTP session (or create one if there isn't one for this endpoint).
-    # If sending messsage encouters some connection errors, retry again after re-establishing the SMTP
+    # If sending message encounters some connection errors, retry again after re-establishing the SMTP
     # session.
     #
     # @param raw_message [String] the raw message to send

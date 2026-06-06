@@ -508,7 +508,7 @@ module Postal
       end
 
       #
-      # Was thsi message sent to a return path?
+      # Was this message sent to a return path?
       #
       def rcpt_to_return_path?
         !!(rcpt_to =~ /@#{Regexp.escape(Postal::Config.dns.custom_return_path_prefix)}\./)
@@ -552,7 +552,7 @@ module Postal
       def parse_content
         parse_result = Postal::MessageParser.new(self)
         if parse_result.actioned?
-          # Somethign was changed, update the raw message
+          # Something was changed, update the raw message
           @database.update(raw_table, { data: parse_result.new_body }, where: { id: raw_body_id })
           @database.update(raw_table, { data: parse_result.new_headers }, where: { id: raw_headers_id })
           @raw = parse_result.new_body
