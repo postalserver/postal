@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_16_160443) do
   create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
@@ -370,6 +370,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.boolean "sign", default: true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "output_style", default: "postal"
     t.index ["server_id"], name: "index_webhooks_on_server_id"
   end
 

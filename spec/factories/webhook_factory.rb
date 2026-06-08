@@ -9,6 +9,7 @@
 #  enabled      :boolean          default(TRUE)
 #  last_used_at :datetime
 #  name         :string(255)
+#  output_style :string(255)      default("postal")
 #  sign         :boolean          default(TRUE)
 #  url          :string(255)
 #  uuid         :string(255)
@@ -26,5 +27,6 @@ FactoryBot.define do
     name { "Example Webhook" }
     url { "https://example.com" }
     all_events { true }
+    output_style { "postal" }
   end
 end

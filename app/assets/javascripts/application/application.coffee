@@ -70,3 +70,58 @@ $ ->
     credentialTypeInput = $('select#credential_type')
     if credentialTypeInput.length
       toggleCredentialInputs(credentialTypeInput.val())
+
+  handleWebhookOutputStyle = ->
+    $outputStyleSelect = $('.js-output-style-select')
+    $allEventsSelect = $('.js-all-events-select')
+    $allEventsField = $allEventsSelect.closest('.fieldSet__field')
+    $checkboxes = $('.js-event-checkbox')
+    $nonBounceEvents = $('.js-non-bounce-event')
+    $listmonkNotice = $('.js-listmonk-notice')
+
+    return unless $outputStyleSelect.length
+
+    updateForOutputStyle = ->
+      isListmonk = $outputStyleSelect.val() == 'listmonk'
+
+      if isListmonk
+        $listmonkNotice.show()
+        $allEventsSelect.hide()
+        $allEventsSelect.val('false').trigger('change')
+
+        # Disable all events except MessageBounced and ensure MessageBounced is checked
+        $checkboxes.each ->
+          $checkbox = $(this)
+          eventType = $checkbox.data('event')
+          if eventType != 'MessageBounced'
+            $checkbox.prop('disabled', true).prop('checked', false)
+          else
+            $checkbox.prop('checked', true)
+
+        # Gray out non-bounce event items
+        $nonBounceEvents.addClass('is-disabled').css
+          'opacity': '0.5'
+          'pointer-events': 'none'
+      else
+        $listmonkNotice.hide()
+        $allEventsSelect.show()
+        $checkboxes.prop('disabled', false)
+
+        $nonBounceEvents.removeClass('is-disabled').css
+          'opacity': '1'
+          'pointer-events': 'auto'
+
+    updateForOutputStyle()
+    $outputStyleSelect.on('change', updateForOutputStyle)
+
+    # Prevent form submission if listmonk is selected but no MessageBounced event
+    $('form').on 'submit', (e) ->
+      if $outputStyleSelect.val() == 'listmonk'
+        messageBounceChecked = $('input[data-event="MessageBounced"]').is(':checked')
+        unless messageBounceChecked
+          alert('Listmonk output style requires the MessageBounced event to be selected.')
+          e.preventDefault()
+          return false
+
+  $(document).on 'turbolinks:load', ->
+    handleWebhookOutputStyle()
