@@ -101,8 +101,12 @@ Done on branch `chore/merge-upstream-3.3.7` → [PR #3](https://github.com/Edify
 passing on GitHub runners (2 IPv6 `DNSResolver#aaaa` tests fail only in local Docker for lack of
 IPv6 egress).
 
-**Still open in Phase 2:** manual smoke of high-risk Edify mods (logic is spec-covered:
-ampersand_fix_spec + webhook_delivery_service_spec pass; smoke adds branding render + live redirect).
+**Manual smoke (decided):** performed **on e1 post-deploy** (not pre-merge) — Edify deploys
+manually to that box anyway, and the mod logic is already spec-covered (ampersand_fix_spec +
+webhook_delivery_service_spec pass). Smoke checklist on e1: ampersand/IIS `&`-in-URL redirect,
+webhook delivery (HashWithIndifferentAccess YAML under Psych 5), branding render, queue round-robin.
+
+**Paused after Phase 2** for human review of PR #3 before Phase 3 (release) / Phase 4 (domains API).
 
 **Flagged, not done (out of this PR's scope):** two dead artifacts from the scan-cache removal
 remain — `deploy_multi_hash_migration.sh` and `PERFORMANCE_FIX_PLAN.md` (the latter may hold
