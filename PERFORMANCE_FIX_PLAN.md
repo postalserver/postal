@@ -11,8 +11,6 @@ The Postal mail server experiences periodic slowdowns where messages take 5+ min
 
 2. **No fairness in queue selection**: The current `process_queued_messages_job.rb` selects messages with NO ORDER BY clause, meaning MySQL returns them by insertion order (primary key). If Server A queues 50 messages rapidly (IDs 1000-1050), they all get processed before Server B's message (ID 1051).
 
-3. **Failed cache experiment**: We attempted to add scan result caching with content hashing, but it never worked properly and needs to be removed.
-
 ## Root Cause
 
 From `app/lib/worker/jobs/process_queued_messages_job.rb` line 46-50:
@@ -28,47 +26,9 @@ end
 
 No ORDER BY = no fairness = head-of-line blocking.
 
-## Solution: 4-Part Fix
+## Solution: 3-Part Fix
 
-### 1. Remove Hash and Cache Functionality
-**Goal**: Clean up the failed scan cache experiment that added complexity without benefit.
-
-**Files to DELETE:**
-- `lib/postal/scan_cache_manager.rb`
-- `app/models/scan_result_cache.rb`
-- `spec/lib/postal/scan_cache_manager_spec.rb`
-- `test_normalization.rb`
-- `doc/scan-result-caching/` (entire directory)
-
-**Files to MODIFY:**
-
-**A. `lib/postal/message_db/message.rb`**
-- Remove any calls to `ScanCacheManager` or cache lookups in `inspect_message` method
-- Remove hash computation code
-- Simplify to just call scanners directly
-
-**B. `lib/postal/config_schema.rb`**
-- Remove the entire `message_inspection` group (around line 493-506)
-
-**C. Create migration: `db/migrate/YYYYMMDDHHMMSS_remove_scan_result_cache.rb`**
-```ruby
-class RemoveScanResultCache < ActiveRecord::Migration[7.0]
-  def up
-    drop_table :scan_result_cache if table_exists?(:scan_result_cache)
-  end
-  
-  def down
-    raise ActiveRecord::IrreversibleMigration
-  end
-end
-```
-
-**D. User's `/opt/postal/config/postal.yml`**
-- Remove the `message_inspection:` section (lines 1770-1776)
-
----
-
-### 2. Implement Round-Robin Server Selection
+### 1. Implement Round-Robin Server Selection
 **Goal**: Ensure fair distribution of worker threads across all servers to prevent head-of-line blocking.
 
 **File to modify:** `app/lib/worker/jobs/process_queued_messages_job.rb`
@@ -136,7 +96,7 @@ end
 
 ---
 
-### 3. Add Timing Instrumentation
+### 2. Add Timing Instrumentation
 **Goal**: Add forensic timing data to logs so we can analyze performance issues retroactively.
 
 **File to modify:** `app/lib/message_dequeuer/outgoing_message_processor.rb`
@@ -221,7 +181,7 @@ end
 
 ---
 
-### 4. Increase Worker Threads
+### 3. Increase Worker Threads
 **Goal**: Give the system more parallelism to handle bursts and reduce queueing delays.
 
 **File to modify:** User's `/opt/postal/config/postal.yml` on server
@@ -253,19 +213,13 @@ docker-compose restart worker
 ## Execution Order
 
 ### Phase 1: Code Changes (Local)
-1. **Remove cache functionality** (Task 1)
-   - Delete files
-   - Modify message.rb and config_schema.rb
-   - Create rollback migration
-   - Test that messages still process
-
-2. **Add timing instrumentation** (Task 3)
-   - Modify outgoing_message_processor.rb
-   - Test that logs contain [TIMING] entries
-
-3. **Implement round-robin selection** (Task 2)
+1. **Implement round-robin selection** (Task 1)
    - Modify process_queued_messages_job.rb
    - Test with multiple servers to verify fair distribution
+
+2. **Add timing instrumentation** (Task 2)
+   - Modify outgoing_message_processor.rb
+   - Test that logs contain [TIMING] entries
 
 ### Phase 2: Testing
 4. **Local testing**
@@ -338,13 +292,12 @@ If issues occur:
      threads: 2  # Back to default
    ```
 
-3. **Database is safe** - we only dropped the unused scan_result_cache table
+3. **Database is safe** - none of these changes alter the schema
 
 ---
 
 ## Notes for Future Context
 
-- The scan cache experiment was abandoned because it never worked reliably
 - The core issue is NOT DKIM signing speed or attachment size (those are fast)
 - The core issue IS queue selection fairness with limited worker threads
 - With 41 servers on 2 worker threads, even low volume can cause delays
