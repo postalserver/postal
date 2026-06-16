@@ -79,6 +79,35 @@ Steps:
 - Merge `chore/merge-upstream-3.3.7` → `main`; build/push image; deploy e1.
 - **Gate:** features (Phase 4) start only after the baseline is green at e1.
 
+## Execution log — Phases 1–2 (actuals, 2026-06-16)
+
+Done on branch `chore/merge-upstream-3.3.7` → [PR #3](https://github.com/EdifyPress/edify-postal/pull/3):
+
+1. `dee6131` docs (CLAUDE.md + this plan).
+2. `1805924` merge upstream 3.3.7 — 3 conflicts, all resolved to upstream as planned.
+3. `6ef1456` **CI registry fix** — inherited `ci.yml` pushed to `ghcr.io/postalserver/postal`
+   (upstream namespace, `permission_denied`); CI had never passed on the fork and the
+   Test Suite job never ran. Repointed to `ghcr.io/edifypress/edify-postal` + `packages: write`.
+4. `a447a61` **qualify fixes** — pre-existing fork breakage surfaced once the suite ran:
+   - `db/schema.rb` was stuck at `2024_03_11_205229` while 4 scan-cache migrations existed →
+     `check_pending_migrations` aborted every spec. Regenerated via migrate+dump → version
+     `2026_01_09_000000`, **zero structural diff** (the scan-cache migrations net to nothing).
+   - Removed orphans from the incomplete scan-cache removal: `spec/models/scan_result_cache_spec.rb`
+     (referenced deleted `ScanResultCache`), `lib/postal/cached_scan_result.rb` (dead, unreferenced).
+5. `c566274` **CI tag fix** — `Release (branch)` job built an invalid Docker tag for `/`-containing
+   branch names; sanitised `/`→`-`.
+
+**Result: CI fully green** (CI Image Build + Test Suite + Release branch). Suite = 826 examples
+passing on GitHub runners (2 IPv6 `DNSResolver#aaaa` tests fail only in local Docker for lack of
+IPv6 egress).
+
+**Still open in Phase 2:** manual smoke of high-risk Edify mods (logic is spec-covered:
+ampersand_fix_spec + webhook_delivery_service_spec pass; smoke adds branding render + live redirect).
+
+**Flagged, not done (out of this PR's scope):** two dead artifacts from the scan-cache removal
+remain — `deploy_multi_hash_migration.sh` and `PERFORMANCE_FIX_PLAN.md` (the latter may hold
+non-scan-cache notes; review before deleting).
+
 ## Phase 4 — Feature: JSON `api/v1/domains` controller (Issue #1, required)
 
 **Additive — surfaces Postal's existing Domain state as JSON. Never re-derives.**
