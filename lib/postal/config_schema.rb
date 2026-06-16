@@ -92,6 +92,14 @@ module Postal
         transform { |ip| IPAddr.new(ip) }
       end
 
+      string :allowed_request_destinations do
+        array
+        description "Hostnames or IP/CIDR ranges that outbound webhook and HTTP " \
+                    "endpoint requests are permitted to reach even when they resolve " \
+                    "to a private, loopback, link-local or otherwise reserved address. " \
+                    "All other such destinations are blocked to prevent SSRF."
+      end
+
       integer :queued_message_lock_stale_days do
         description "The number of days after which to consider a lock as stale. Messages with stale locks will be removed and not retried."
         default 1

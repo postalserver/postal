@@ -13,6 +13,7 @@ RSpec.describe WebhookDeliveryService do
   let(:response_body) { "OK" }
 
   before do
+    allow(Resolv).to receive(:getaddresses).with("example.com").and_return(["93.184.216.34"])
     stub_request(:post, webhook.url).to_return(status: response_status, body: response_body)
   end
 
@@ -114,6 +115,27 @@ RSpec.describe WebhookDeliveryService do
       it "deletes the webhook request" do
         service.call
         expect { webhook_request.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context "when the webhook URL resolves to a blocked (private) address" do
+      let(:webhook_request) do
+        create(:webhook_request, :locked, webhook: webhook, url: "http://internal.example.com/hook")
+      end
+
+      before do
+        allow(Resolv).to receive(:getaddresses).with("internal.example.com").and_return(["127.0.0.1"])
+      end
+
+      it "does not make a request to the destination" do
+        service.call
+        expect(WebMock).not_to have_requested(:post, "http://internal.example.com/hook")
+      end
+
+      it "records the failure and schedules a retry" do
+        service.call
+        expect(webhook_request.reload.attempts).to eq(1)
+        expect(webhook_request.retry_after).to be_present
       end
     end
   end
