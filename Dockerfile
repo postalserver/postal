@@ -1,4 +1,4 @@
-FROM ruby:3.4.6-slim-bookworm AS base
+FROM docker.io/ruby:3.4.6-slim-bookworm AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \

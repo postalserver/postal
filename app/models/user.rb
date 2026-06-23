@@ -116,20 +116,81 @@ class User < ApplicationRecord
         end
       end
 
-      # now, if we still don't have a user, we're not going to create one so we'll just
-      # return nil (we might auto create users in the future but not right now)
-      return if user.nil?
+      # If we still don't have a user and auto creation is enabled, create one from the OIDC details.
+      if user.nil?
+        if config.auto_create_users?
+          user = auto_create_user_from_oidc(uid, config, oidc_name, oidc_email_address, logger)
+        else
+          logger&.debug "OIDC auto user creation disabled; not creating user for #{oidc_email_address || uid}"
+        end
+        return if user.nil?
+      end
 
       # otherwise, let's update our user as appropriate
       user.oidc_uid = uid
       user.oidc_issuer = config.issuer
       user.email_address = oidc_email_address if oidc_email_address.present?
-      user.first_name, user.last_name = oidc_name.split(/\s+/, 2) if oidc_name.present?
+      if oidc_name.present?
+        user.first_name, user.last_name = derive_user_names_from_oidc(oidc_name, user.email_address)
+      end
       user.password = nil
       user.save!
 
       # return the user
       user
+    end
+
+    private
+
+    def auto_create_user_from_oidc(uid, config, oidc_name, oidc_email_address, logger)
+      unless oidc_email_address.present?
+        logger&.warn "OIDC auto user creation failed for UID #{uid}: no e-mail address provided"
+        return nil
+      end
+
+      first_name, last_name = derive_user_names_from_oidc(oidc_name, oidc_email_address)
+      user = new(
+        email_address: oidc_email_address,
+        first_name: first_name,
+        last_name: last_name
+      )
+      user.oidc_uid = uid
+      user.oidc_issuer = config.issuer
+      user.password = nil
+      user.save!
+      logger&.info "OIDC auto user creation succeeded for #{oidc_email_address} (user ID: #{user.id}) with Firstname: #{first_name}, Lastname: #{last_name}"
+      auto_create_organization_for(user, config, logger) if config.auto_create_organization?
+      user
+    rescue ActiveRecord::RecordInvalid => e
+      logger&.error "OIDC auto user creation failed for #{oidc_email_address}: #{e.message}"
+      nil
+    end
+
+    def derive_user_names_from_oidc(oidc_name, oidc_email_address)
+      raw_name = oidc_name.to_s.strip
+      if raw_name.present?
+        first_name, last_name = raw_name.split(/\s+/, 2)
+      else
+        local_part = oidc_email_address.to_s.split("@", 2).first.to_s
+        fallback_name = local_part.tr("._-", " ").strip
+        first_name, last_name = fallback_name.split(/\s+/, 2)
+      end
+
+      first_name = first_name.presence || "OIDC"
+      last_name = last_name.presence || first_name
+      [first_name, last_name]
+    end
+
+    def auto_create_organization_for(user, config, logger)
+      organization_name = config.auto_created_organization_name.presence || "My organization"
+      organization = Organization.new(name: organization_name, owner: user)
+      organization.save!
+      organization.organization_users.create!(user: user, admin: true, all_servers: true)
+      logger&.info "OIDC auto organization creation succeeded for user #{user.id} (organization ID: #{organization.id})"
+      organization
+    rescue ActiveRecord::RecordInvalid => e
+      logger&.error "OIDC auto organization creation failed for user #{user.id}: #{e.message}"
+      nil
     end
 
   end

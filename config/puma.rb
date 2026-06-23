@@ -6,6 +6,9 @@ threads_count = Postal::Config.web_server.max_threads
 threads         threads_count, threads_count
 bind_address  = ENV.fetch("BIND_ADDRESS", Postal::Config.web_server.default_bind_address)
 bind_port     = ENV.fetch("PORT", Postal::Config.web_server.default_port)
+if bind_address.include?(":") && !bind_address.start_with?("[")
+  bind_address = "[#{bind_address}]"
+end
 bind            "tcp://#{bind_address}:#{bind_port}"
 environment     Postal::Config.rails.environment || "development"
 prune_bundler
