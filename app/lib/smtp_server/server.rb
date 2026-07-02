@@ -129,7 +129,12 @@ module SMTPServer
                 end
                 # We know who the client is, welcome them.
                 client.logger&.debug "Client identified as #{client_ip_address}"
-                new_io.print("220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{client.trace_id}")
+                # Write the greeting line and its terminating CRLF in a single write. Using
+                # #print emits the string and the "$\" output record separator ("\r\n") as two
+                # separate writes, which can be sent as two TCP segments. Some clients read the
+                # greeting text before the CRLF arrives, issue EHLO early, and then mis-handle the
+                # stray CRLF prepended to the EHLO reply. Sending the line atomically avoids this.
+                new_io.write("220 #{Postal::Config.postal.smtp_hostname} ESMTP Postal/#{client.trace_id}\r\n")
               end
               # Register the client and its socket with nio4r
               monitor = @io_selector.register(new_io, :r)
