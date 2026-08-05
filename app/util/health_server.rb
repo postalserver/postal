@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "socket"
-require "rack/handler/webrick"
+require "rackup/handler/webrick"
 require "prometheus/client/formats/text"
 
 class HealthServer
@@ -55,11 +55,11 @@ class HealthServer
       port = ENV.fetch("HEALTH_SERVER_PORT", default_port)
       bind_address = ENV.fetch("HEALTH_SERVER_BIND_ADDRESS", default_bind_address)
 
-      Rack::Handler::WEBrick.run(new(**options),
-                                 Port: port,
-                                 BindAddress: bind_address,
-                                 AccessLog: [],
-                                 Logger: LoggerProxy.new)
+      Rackup::Handler::WEBrick.run(new(**options),
+                                   Port: port,
+                                   BindAddress: bind_address,
+                                   AccessLog: [],
+                                   Logger: LoggerProxy.new)
     rescue Errno::EADDRINUSE
       Postal.logger.info "health server port (#{bind_address}:#{port}) is already " \
                          "in use, not starting health server"
@@ -95,7 +95,7 @@ class HealthServer
         Postal.logger.info "stopped health server", component: "health-server"
       when /\AWEBrick [\d.]+/,
            /\Aruby ([\d.]+)/,
-           /\ARack::Handler::WEBrick is mounted/,
+           /\ARackup::Handler::WEBrick is mounted/,
            /\Aclose TCPSocket/,
            /\Agoing to shutdown/
         # Don't actually print routine messages to avoid too much

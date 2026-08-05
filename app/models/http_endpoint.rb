@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "uri"
+
 # == Schema Information
 #
 # Table name: http_endpoints
@@ -38,6 +40,7 @@ class HTTPEndpoint < ApplicationRecord
 
   validates :name, presence: true
   validates :url, presence: true
+  validate :url_must_be_http_or_https
   validates :encoding, inclusion: { in: ENCODINGS }
   validates :format, inclusion: { in: FORMATS }
   validates :timeout, numericality: { greater_than_or_equal_to: 5, less_than_or_equal_to: 60 }
@@ -54,6 +57,19 @@ class HTTPEndpoint < ApplicationRecord
 
   def update_routes
     routes.each { |r| r.update(endpoint: nil, mode: "Reject") }
+  end
+
+  private
+
+  def url_must_be_http_or_https
+    return if url.blank?
+
+    uri = URI.parse(url)
+    return if uri.is_a?(URI::HTTP) && uri.host.present?
+
+    errors.add(:url, "must be an HTTP or HTTPS URL")
+  rescue URI::InvalidURIError
+    errors.add(:url, "must be a valid HTTP or HTTPS URL")
   end
 
 end

@@ -70,7 +70,7 @@ module Postal
       # Return the total size of all stored messages
       #
       def total_size
-        query("SELECT SUM(size) AS size FROM `#{database_name}`.`raw_message_sizes`").first["size"] || 0
+        query("SELECT SUM(size) AS size FROM #{escape_identifier(database_name)}.`raw_message_sizes`").first["size"] || 0
       end
 
       #
@@ -151,11 +151,11 @@ module Postal
         if options[:count]
           sql_query << " COUNT(id) AS count"
         elsif options[:fields]
-          sql_query << (" " + options[:fields].map { |f| "`#{f}`" }.join(", "))
+          sql_query << (" " + options[:fields].map { |f| escape_identifier(f) }.join(", "))
         else
           sql_query << " *"
         end
-        sql_query << " FROM `#{database_name}`.`#{table}`"
+        sql_query << " FROM #{escape_identifier(database_name)}.#{escape_identifier(table)}"
         if options[:where].present?
           sql_query << (" " + build_where_string(options[:where], " AND "))
         end
@@ -163,7 +163,7 @@ module Postal
           direction = (options[:direction] || "ASC").upcase
           raise Postal::Error, "Invalid direction #{options[:direction]}" unless %w[ASC DESC].include?(direction)
 
-          sql_query << " ORDER BY `#{options[:order]}` #{direction}"
+          sql_query << " ORDER BY #{escape_identifier(options[:order])} #{direction}"
         end
 
         if options[:limit]
@@ -211,7 +211,7 @@ module Postal
       # Will return the total number of affected rows.
       #
       def update(table, attributes, options = {})
-        sql_query = "UPDATE `#{database_name}`.`#{table}` SET"
+        sql_query = "UPDATE #{escape_identifier(database_name)}.#{escape_identifier(table)} SET"
         sql_query << " #{hash_to_sql(attributes)}"
         if options[:where]
           sql_query << (" " + build_where_string(options[:where]))
@@ -227,8 +227,8 @@ module Postal
       # Will return the ID of the new item.
       #
       def insert(table, attributes)
-        sql_query = "INSERT INTO `#{database_name}`.`#{table}`"
-        sql_query << (" (" + attributes.keys.map { |k| "`#{k}`" }.join(", ") + ")")
+        sql_query = "INSERT INTO #{escape_identifier(database_name)}.#{escape_identifier(table)}"
+        sql_query << (" (" + attributes.keys.map { |k| escape_identifier(k) }.join(", ") + ")")
         sql_query << (" VALUES (" + attributes.values.map { |v| escape(v) }.join(", ") + ")")
         with_mysql do |mysql|
           query_on_connection(mysql, sql_query)
@@ -243,8 +243,8 @@ module Postal
         if values.empty?
           nil
         else
-          sql_query = "INSERT INTO `#{database_name}`.`#{table}`"
-          sql_query << (" (" + keys.map { |k| "`#{k}`" }.join(", ") + ")")
+          sql_query = "INSERT INTO #{escape_identifier(database_name)}.#{escape_identifier(table)}"
+          sql_query << (" (" + keys.map { |k| escape_identifier(k) }.join(", ") + ")")
           sql_query << " VALUES "
           sql_query << values.map { |v| "(" + v.map { |r| escape(r) }.join(", ") + ")" }.join(", ")
           query(sql_query)
@@ -260,7 +260,7 @@ module Postal
       # Will return the total number of affected rows.
       #
       def delete(table, options = {})
-        sql_query = "DELETE FROM `#{database_name}`.`#{table}`"
+        sql_query = "DELETE FROM #{escape_identifier(database_name)}.#{escape_identifier(table)}"
         sql_query << (" " + build_where_string(options[:where], " AND "))
         with_mysql do |mysql|
           query_on_connection(mysql, sql_query)
@@ -351,30 +351,39 @@ module Postal
 
       def hash_to_sql(hash, joiner = ", ")
         hash.map do |key, value|
+          column = escape_identifier(key)
           if value.is_a?(Array) && value.all? { |v| v.is_a?(Integer) }
-            "`#{key}` IN (#{value.join(', ')})"
+            "#{column} IN (#{value.join(', ')})"
           elsif value.is_a?(Array)
             escaped_values = value.map { |v| escape(v) }.join(", ")
-            "`#{key}` IN (#{escaped_values})"
+            "#{column} IN (#{escaped_values})"
           elsif value.is_a?(Hash)
             sql = []
             value.each do |operator, inner_value|
               case operator
               when :less_than
-                sql << "`#{key}` < #{escape(inner_value)}"
+                sql << "#{column} < #{escape(inner_value)}"
               when :greater_than
-                sql << "`#{key}` > #{escape(inner_value)}"
+                sql << "#{column} > #{escape(inner_value)}"
               when :less_than_or_equal_to
-                sql << "`#{key}` <= #{escape(inner_value)}"
+                sql << "#{column} <= #{escape(inner_value)}"
               when :greater_than_or_equal_to
-                sql << "`#{key}` >= #{escape(inner_value)}"
+                sql << "#{column} >= #{escape(inner_value)}"
               end
             end
             sql.empty? ? "1=1" : sql.join(joiner)
           else
-            "`#{key}` = #{escape(value)}"
+            "#{column} = #{escape(value)}"
           end
         end.join(joiner)
+      end
+
+      # Escape a value for safe use as a MySQL identifier (e.g. a column or
+      # table name). Identifiers are wrapped in backticks and any backtick
+      # within the identifier is doubled so it cannot break out of the quoting
+      # and inject arbitrary SQL.
+      def escape_identifier(identifier)
+        "`" + identifier.to_s.gsub("`", "``") + "`"
       end
 
     end

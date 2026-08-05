@@ -1,22 +1,25 @@
-FROM ruby:3.2.2-bullseye AS base
+FROM ruby:3.4.6-slim-bookworm AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-      software-properties-common dirmngr apt-transport-https \
-  && (curl -sL https://deb.nodesource.com/setup_20.x | bash -) \
+  && apt-get install --no-install-recommends -y curl \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
+RUN (curl -sL https://deb.nodesource.com/setup_20.x | bash -)
 
 # Install main dependencies
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
-  build-essential  \
-  netcat \
-  curl \
-  libmariadb-dev \
-  libcap2-bin \
-  nano \
-  nodejs
+    build-essential  \
+    netcat-openbsd \
+    libmariadb-dev \
+    libcap2-bin \
+    nano \
+    libyaml-dev \
+    nodejs \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN setcap 'cap_net_bind_service=+ep' /usr/local/bin/ruby
 
@@ -31,7 +34,7 @@ RUN mkdir -p /opt/postal/app /opt/postal/config
 WORKDIR /opt/postal/app
 
 # Install bundler
-RUN gem install bundler -v 2.5.6 --no-doc
+RUN gem install bundler -v 2.7.2 --no-doc
 
 # Install the latest and active gem dependencies and re-run
 # the appropriate commands to handle installs.
