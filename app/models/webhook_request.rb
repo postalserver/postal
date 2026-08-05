@@ -34,7 +34,7 @@ class WebhookRequest < ApplicationRecord
   validates :url, presence: true
   validates :event, presence: true
 
-  serialize :payload, Hash
+  serialize :payload, type: Hash
 
   class << self
 
