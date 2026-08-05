@@ -63,6 +63,56 @@ RSpec.describe "Legacy Messages API", type: :request do
         end
       end
 
+      # Regression tests for GHSA-x2hq-rfpg-3xr5. The request body is parsed as
+      # JSON, so a JSON object/array supplied for `id` would otherwise arrive as
+      # a Ruby Hash/Array and be passed straight through to the message database
+      # as a raw set of SQL conditions (blind SQL injection). These must be
+      # rejected before reaching the database.
+      context "when the message ID is a JSON object (SQL injection attempt)" do
+        it "rejects it with a parameter error and never reaches the database" do
+          expect_any_instance_of(Server).not_to receive(:message)
+          post "/api/v1/messages/message",
+               headers: { "x-server-api-key" => credential.key,
+                          "content-type" => "application/json" },
+               params: { id: { "id`=0 OR SLEEP(5)#" => "x" } }.to_json
+          expect(response.status).to eq 200
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body["status"]).to eq "parameter-error"
+          expect(parsed_body["data"]["message"]).to match(/must be a string or integer/)
+        end
+      end
+
+      context "when the message ID is a JSON array" do
+        it "rejects it with a parameter error" do
+          post "/api/v1/messages/message",
+               headers: { "x-server-api-key" => credential.key,
+                          "content-type" => "application/json" },
+               params: { id: [1, 2, 3] }.to_json
+          expect(response.status).to eq 200
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body["status"]).to eq "parameter-error"
+          expect(parsed_body["data"]["message"]).to match(/must be a string or integer/)
+        end
+      end
+
+      context "when the message ID is provided as a numeric string" do
+        let(:message) { MessageFactory.outgoing(server) }
+
+        it "is coerced to an integer and looks the message up" do
+          post "/api/v1/messages/message",
+               headers: { "x-server-api-key" => credential.key,
+                          "content-type" => "application/json" },
+               params: { id: message.id.to_s }.to_json
+          expect(response.status).to eq 200
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body["status"]).to eq "success"
+          expect(parsed_body["data"]).to match({
+            "id" => message.id,
+            "token" => message.token
+          })
+        end
+      end
+
       context "when the message ID exists" do
         let(:server) { create(:server) }
         let(:credential) { create(:credential, server: server) }

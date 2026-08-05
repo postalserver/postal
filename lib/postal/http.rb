@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "net/https"
+require "resolv"
 require "uri"
 
 module Postal
@@ -47,19 +48,24 @@ module Postal
 
       request["User-Agent"] = options[:user_agent] || "Postal/#{Postal.version}"
 
-      connection = Net::HTTP.new(uri.host, uri.port)
-
-      if uri.scheme == "https"
-        connection.use_ssl = true
-        connection.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        ssl = true
-      else
-        ssl = false
-      end
+      timeout = options[:timeout] || 60
+      ssl = uri.scheme == "https"
 
       begin
-        timeout = options[:timeout] || 60
         Timeout.timeout(timeout) do
+          connect_address = AddressGuard.safe_connect_address(uri.host)
+
+          connection = Net::HTTP.new(uri.host, uri.port)
+          # Pin the connection to the address we validated above so that the socket
+          # cannot be redirected to a different (e.g. internal) address via a DNS
+          # rebinding race between the check and the connection.
+          connection.ipaddr = connect_address
+
+          if uri.scheme == "https"
+            connection.use_ssl = true
+            connection.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          end
+
           result = connection.request(request)
           {
             code: result.code.to_i,
@@ -68,6 +74,13 @@ module Postal
             secure: ssl
           }
         end
+      rescue BlockedDestinationError => e
+        {
+          code: -4,
+          body: e.message,
+          headers: {},
+          secure: ssl
+        }
       rescue OpenSSL::SSL::SSLError
         {
           code: -3,
@@ -75,7 +88,7 @@ module Postal
           headers: {},
           secure: ssl
         }
-      rescue SocketError, Errno::ECONNRESET, EOFError, Errno::EINVAL, Errno::ENETUNREACH, Errno::EHOSTUNREACH, Errno::ECONNREFUSED => e
+      rescue Resolv::ResolvError, SocketError, SystemCallError, EOFError => e
         {
           code: -2,
           body: e.message,

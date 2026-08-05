@@ -15,12 +15,9 @@ module LegacyAPI
     #                   OR an error if the message does not exist.
     #
     def message
-      if api_params["id"].blank?
-        render_parameter_error "`id` parameter is required but is missing"
-        return
-      end
+      message = find_message
+      return if performed?
 
-      message = @current_credential.server.message(api_params["id"])
       message_hash = { id: message.id, token: message.token }
       expansions = api_params["_expansions"]
 
@@ -111,12 +108,9 @@ module LegacyAPI
     #                   OR an error if the message does not exist.
     #
     def deliveries
-      if api_params["id"].blank?
-        render_parameter_error "`id` parameter is required but is missing"
-        return
-      end
+      message = find_message
+      return if performed?
 
-      message = @current_credential.server.message(api_params["id"])
       deliveries = message.deliveries.map do |d|
         {
           id: d.id,
@@ -134,6 +128,38 @@ module LegacyAPI
       render_error "MessageNotFound",
                    message: "No message found matching provided ID",
                    id: api_params["id"]
+    end
+
+    private
+
+    # Look up the message referenced by the request's `id` parameter.
+    #
+    # The legacy API only ever identifies a message by its integer ID. The
+    # request body is parsed as JSON, so without validation a JSON object or
+    # array supplied for `id` would arrive as a Ruby Hash/Array and be passed
+    # straight through to the message database as a raw set of SQL conditions.
+    # We therefore reject anything that is not a simple scalar before it can
+    # reach the database and coerce the value to an integer ID.
+    #
+    # Renders an error and returns nil when the parameter is missing or is not
+    # a scalar; otherwise returns the matched message (raising NotFound when no
+    # message matches, which the actions rescue).
+    #
+    # @return [Postal::MessageDB::Message, nil]
+    def find_message
+      id = api_params["id"]
+
+      if id.blank?
+        render_parameter_error "`id` parameter is required but is missing"
+        return
+      end
+
+      unless id.is_a?(String) || id.is_a?(Integer)
+        render_parameter_error "`id` parameter must be a string or integer"
+        return
+      end
+
+      @current_credential.server.message(id.to_i)
     end
 
   end
