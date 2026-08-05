@@ -62,10 +62,13 @@ class ApplicationController < ActionController::Base
   end
 
   def url_with_return_to(url)
-    if params[:return_to].blank? || !params[:return_to].starts_with?("/")
+    return_to = params[:return_to]
+    if return_to.blank? ||
+       !return_to.start_with?("/") ||
+       return_to.start_with?("//", "/\\")
       url_for(url)
     else
-      params[:return_to]
+      return_to
     end
   end
 

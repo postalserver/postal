@@ -11,5 +11,5 @@ We only support updates to the 3.x versions of Postal.
 
 ## Reporting a Vulnerability
 
-If you discover a vulnerability in Postal, please do not post an issue on GitHub. Instead you should send an
-e-mail to security@postalserver.io with details. We will get back to you directly.
+If you discover a vulnerability in Postal, please do not post an issue on GitHub. Please,
+instead, [create a new security advisory through GitHub](https://github.com/postalserver/postal/security/advisories/new).
