@@ -41,6 +41,22 @@ class User < ApplicationRecord
   has_many :organization_users, dependent: :destroy, as: :user
   has_many :organizations, through: :organization_users
 
+  after_save :apply_organization_role_assignments, if: -> { @organization_role_assignments.present? }
+
+  def organization_role_assignments=(assignments)
+    @organization_role_assignments = assignments.to_h
+  end
+
+  def organization_membership(organization)
+    organization.user_assignment(self)
+  end
+
+  def can_write_to_organization?(organization)
+    return true if admin?
+
+    organization_membership(organization)&.can_write?
+  end
+
   def organizations_scope
     if admin?
       @organizations_scope ||= Organization.present
@@ -132,6 +148,18 @@ class User < ApplicationRecord
       user
     end
 
+  end
+
+  private
+
+  def apply_organization_role_assignments
+    @organization_role_assignments.each do |organization_id, role|
+      next if organization_id.blank?
+
+      membership = organization_users.find_by(organization_id: organization_id)
+      membership&.apply_role!(role.presence || "member")
+    end
+    @organization_role_assignments = nil
   end
 
 end

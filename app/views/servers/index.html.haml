@@ -11,11 +11,14 @@
   - if @servers.empty?
     .noData.noData--clean
       %p.noData__title There are no mail servers for this organization yet.
-      %p.noData__text
-        Great - you've got an organization, now you need to provision a mail server.
-        Once you've got a mail server, you can start sending & receiving messages.
-      %p.noData__button.buttonSet.buttonSet--center
-        = link_to "Build your first mail server", [:new, organization, :server], :class => 'button button--positive'
+      - if organization_write_access?
+        %p.noData__text
+          Great - you've got an organization, now you need to provision a mail server.
+          Once you've got a mail server, you can start sending & receiving messages.
+        %p.noData__button.buttonSet.buttonSet--center
+          = link_to "Build your first mail server", [:new, organization, :server], :class => 'button button--positive write-action'
+      - else
+        %p.noData__text No mail servers are available in this organization.
   - else
     .js-searchable
       %p.messageSearch= text_field_tag 'query', params[:query], :class => 'messageSearch__input js-searchable__input js-focus-on-s', :placeholder => "Find a server..."
@@ -32,4 +35,5 @@
           %p.noData__title No servers were found...
           %p.noData__text
             There were no servers found matching what you've typed it.
-    %p.u-center= link_to "Build a new mail server", [:new, organization, :server], :class => 'button button--positive'
+    - if organization_write_access?
+      %p.u-center= link_to "Build a new mail server", [:new, organization, :server], :class => 'button button--positive write-action'
