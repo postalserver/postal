@@ -43,9 +43,11 @@ jobs:
           push: false
           load: true
           tags: postal-readonly:ci
-          target: ci
+          target: full
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ env.VERSION }}
       - name: Run specs
         run: docker compose run --rm postal bundle exec rspec spec/models/organization_user_spec.rb spec/requests/readonly_organization_access_spec.rb
         env:
