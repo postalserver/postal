@@ -17,7 +17,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(params.require(:user).permit(:email_address, :first_name, :last_name, :password, :password_confirmation, :admin, organization_ids: []))
+    @user = User.new(params.require(:user).permit(:email_address, :first_name, :last_name, :password, :password_confirmation, :admin, organization_ids: [], organization_role_assignments: {}))
     if @user.save
       redirect_to_with_json :users, notice: "#{@user.name} has been created successfully."
     else
@@ -26,7 +26,7 @@ class UsersController < ApplicationController
   end
 
   def update
-    @user.attributes = params.require(:user).permit(:email_address, :first_name, :last_name, :admin, organization_ids: [])
+    @user.attributes = params.require(:user).permit(:email_address, :first_name, :last_name, :admin, organization_ids: [], organization_role_assignments: {})
 
     if @user == current_user && !@user.admin?
       respond_to do |wants|

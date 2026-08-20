@@ -39,7 +39,7 @@
       What level of access do you wish to grant?
     .fieldSet__titleSubText
       Admin users have full access to all organizations and settings. Non-admin users will only
-      have access to the organizations that you select here.
+      have access to the organizations that you select here. Choose a role for each organization.
     .fieldSet__field
       .fieldSet__label Admin?
       .fieldSet__input
@@ -47,10 +47,13 @@
         = f.select :admin, [["Yes - grant admin access", true], ["No - do not grant admin access", false]], {},:class => 'input input--select fieldSet__checkboxListAfter js-checkbox-list-toggle'
         %ul.checkboxList{:class => [@user.admin? ? 'is-hidden' : '']}
           - for org in Organization.order(:name).to_a
+            - membership = @user.organization_users.find { |ou| ou.organization_id == org.id }
+            - current_role = membership&.role || "member"
             %li.checkboxList__item
               .checkboxList__checkbox= check_box_tag "user[organization_ids][]", org.id, @user.organizations.include?(org), :id => "org_#{org.id}"
               .checkboxList__label
                 = label_tag "org_#{org.id}", org.name, :class => 'checkboxList__actualLabel'
+                = select_tag "user[organization_role_assignments][#{org.id}]", options_for_select([["Read only", "readonly"], ["Member", "member"], ["Organization admin", "admin"]], current_role), :class => 'input input--select', :style => 'margin-top: 8px;'
 
   .fieldSetSubmit.buttonSet
     = submit_tag @user.new_record? ? "Add User" : "Save User", :class => 'button button--positive js-form-submit'

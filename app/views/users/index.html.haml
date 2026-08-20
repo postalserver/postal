@@ -19,6 +19,10 @@
                 %span.userList__tag.label.label--orange Pending
               
           %p.userList__email= user.email_address
+          - unless user.admin?
+            %p.userList__roles
+              - user.organization_users.includes(:organization).each do |membership|
+                %span.userList__tag.label.label--neutral= "#{membership.organization.name}: #{membership.role}"
         %ul.userList__actions
           %li= link_to "Edit user", [:edit, user]
           %li= link_to "Delete user", user, :method => :delete, :data => {:confirm => "Are you sure you wish to revoke #{user.name}'s access?", :disable_with => "Deleting..."}, :remote => true, :class => 'userList__revoke'

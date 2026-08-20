@@ -77,7 +77,7 @@ class Organization < ApplicationRecord
   end
 
   def make_owner(new_owner)
-    user_assignment(new_owner).update(admin: true, all_servers: true)
+    user_assignment(new_owner).update(admin: true, all_servers: true, read_only: false)
     update(owner: new_owner)
   end
 
