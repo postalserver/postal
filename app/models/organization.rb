@@ -35,6 +35,9 @@ class Organization < ApplicationRecord
   validates :name, presence: true
   validates :permalink, presence: true, format: { with: /\A[a-z0-9-]*\z/ }, uniqueness: { case_sensitive: false }, exclusion: { in: RESERVED_PERMALINKS }
   validates :time_zone, presence: true
+  validates :quota_action, inclusion: { in: %w[monitor hold suspend] }, allow_nil: true
+  validates :quota_warning_percent, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 100 }, allow_nil: true
+  validates :monthly_outbound_limit, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
 
   default_value :time_zone, -> { "UTC" }
   default_value :permalink, -> { Organization.find_unique_permalink(name) if name }
@@ -69,6 +72,14 @@ class Organization < ApplicationRecord
 
   def suspended?
     suspended_at.present?
+  end
+
+  def suspend(reason)
+    update!(suspended_at: Time.current, suspension_reason: reason)
+  end
+
+  def unsuspend
+    update!(suspended_at: nil, suspension_reason: nil)
   end
 
   def user_assignment(user)

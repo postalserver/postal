@@ -487,6 +487,17 @@ module SMTPServer
         end
       end
 
+      credential_recipients = @recipients.select { |recipient| recipient.first == :credential }
+      if credential_recipients.any?
+        @quota_decision = ControlPlane::OutboundQuota.reserve!(@credential.server, count: credential_recipients.size)
+        if @quota_decision.suspend?
+          transaction_reset
+          @state = :welcomed
+          increment_error_count("organization-monthly-quota-exceeded")
+          return "552 Organization monthly outbound quota has been reached"
+        end
+      end
+
       @recipients.each do |recipient|
         type, rcpt_to, server, options = recipient
 
@@ -503,7 +514,12 @@ module SMTPServer
           message.scope = "outgoing"
           message.domain_id = authenticated_domain&.id
           message.credential_id = @credential.id
-          message.save
+          if @quota_decision&.hold?
+            message.save(queue_on_create: false)
+            message.create_delivery("Held", details: "Organization monthly outbound quota (#{@quota_decision.limit}) has been reached.")
+          else
+            message.save
+          end
 
         when :bounce
           increment_message_count("bounce")

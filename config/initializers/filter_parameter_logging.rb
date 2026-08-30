@@ -7,4 +7,5 @@
 # notations and behaviors.
 Rails.application.config.filter_parameters += [
   :passw, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn,
+  :authorization, :credential, :key, :dkim_private_key,
 ]
