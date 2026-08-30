@@ -45,6 +45,7 @@ class Route < ApplicationRecord
   validate :validate_name_uniqueness
   validate :validate_return_path_route_endpoints
   validate :validate_no_additional_routes_on_non_endpoint_route
+  validate :validate_no_local_loop
 
   after_save :save_additional_route_endpoints
 
@@ -58,8 +59,21 @@ class Route < ApplicationRecord
     if return_path?
       "Return Path"
     else
-      "#{name}@#{domain.name}"
+      incoming_address
     end
+  end
+
+  def incoming_address
+    return if return_path? || domain.blank? || name.blank?
+
+    "#{name}@#{domain.name}"
+  end
+
+  def local_loop_with?(address)
+    incoming = incoming_address
+    return false if incoming.blank? || address.blank?
+
+    incoming.casecmp?(address.to_s)
   end
 
   def _endpoint
@@ -217,6 +231,13 @@ class Route < ApplicationRecord
     return unless mode != "Endpoint" && !additional_route_endpoints_array.empty?
 
     errors.add :base, "Additional routes are not permitted unless the primary route is an actual endpoint"
+  end
+
+  def validate_no_local_loop
+    return unless mode == "Endpoint" && endpoint.is_a?(AddressEndpoint)
+    return unless local_loop_with?(endpoint.address)
+
+    errors.add :endpoint, "cannot deliver mail back to this route's own address"
   end
 
   class << self
