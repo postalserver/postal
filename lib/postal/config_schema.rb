@@ -232,6 +232,7 @@ module Postal
         default "INFO"
         transform do |value|
           normalized = value.to_s.strip.downcase
+          normalized = "info" if normalized.empty?
           unless %w[debug info warn error fatal].include?(normalized)
             raise ArgumentError, "logging.level must be one of: debug, info, warn, error, fatal (got #{value.inspect})"
           end
