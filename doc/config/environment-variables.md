@@ -43,6 +43,7 @@ This document contains all the environment variables which are available for thi
 | `LOGGING_RAILS_LOG_ENABLED` | Boolean | Enable the default Rails logger | false |
 | `LOGGING_SENTRY_DSN` | String | A DSN which should be used to report exceptions to Sentry |  |
 | `LOGGING_ENABLED` | Boolean | Enable the Postal logger to log to STDOUT | true |
+| `LOGGING_LEVEL` | String | The minimum log level for the Postal logger (debug, info, warn, error, fatal) | INFO |
 | `LOGGING_HIGHLIGHTING_ENABLED` | Boolean | Enable highlighting of log lines | false |
 | `GELF_HOST` | String | GELF-capable host to send logs to |  |
 | `GELF_PORT` | Integer | GELF port to send logs to | 12201 |
