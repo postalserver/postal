@@ -11,6 +11,7 @@ require "konfig/sources/environment"
 require "konfig/sources/yaml"
 require "dotenv"
 require "klogger"
+require "securerandom"
 
 require_relative "error"
 require_relative "config_schema"
@@ -87,11 +88,15 @@ module Postal
       end
     end
 
+    def process_identity
+      @process_identity ||= SecureRandom.hex(8)
+    end
+
     def process_name
       @process_name ||= begin
-        "host:#{Socket.gethostname} pid:#{Process.pid}"
+        "host:#{Socket.gethostname} pid:#{Process.pid} id:#{process_identity}"
       rescue StandardError
-        "pid:#{Process.pid}"
+        "pid:#{Process.pid} id:#{process_identity}"
       end
     end
 
