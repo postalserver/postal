@@ -82,6 +82,7 @@ module Postal
     def logger
       @logger ||= begin
         k = Klogger.new(nil, destination: Config.logging.enabled? ? $stdout : "/dev/null", highlight: Config.logging.highlighting_enabled?)
+        k.level = Config.logging.level
         k.add_destination(graylog_logging_destination) if Config.gelf.host.present?
         k
       end

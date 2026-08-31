@@ -227,6 +227,18 @@ module Postal
         default true
       end
 
+      string :level do
+        description "The minimum log level for the Postal logger (debug, info, warn, error, fatal)"
+        default "INFO"
+        transform do |value|
+          normalized = value.to_s.strip.downcase
+          unless %w[debug info warn error fatal].include?(normalized)
+            raise ArgumentError, "logging.level must be one of: debug, info, warn, error, fatal (got #{value.inspect})"
+          end
+          normalized
+        end
+      end
+
       boolean :highlighting_enabled do
         description "Enable highlighting of log lines"
         default false

@@ -89,6 +89,8 @@ logging:
   sentry_dsn: 
   # Enable the Postal logger to log to STDOUT
   enabled: true
+  # The minimum log level for the Postal logger (debug, info, warn, error, fatal)
+  level: INFO
   # Enable highlighting of log lines
   highlighting_enabled: false
 
