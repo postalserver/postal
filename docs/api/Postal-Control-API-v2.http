@@ -1,0 +1,269 @@
+@base_url = https://v2postal.t4gc.in
+# Paste a control-plane bearer key here. Never commit a real key.
+@control_api_key = postal_cp_lGXn2sfa_yBoFoLNKr6OKTiYnnGPsYnXzyejON_REOs
+# Use a disposable domain that you control when checking DNS verification.
+@test_domain = example.test
+# Replace with an HTTPS endpoint you control, such as a webhook.site URL.
+@webhook_url = https://webhook.site/replace-with-your-uuid
+
+###
+# Postal Control API v2 — VS Code REST Client
+#
+# Install the "REST Client" VS Code extension, set the three variables above,
+# then click "Send Request" on each request in order. Create responses save
+# their UUIDs below for subsequent requests. Run the Cleanup section last.
+#
+# Expected success statuses: GET/PATCH/lifecycle actions = 200, create = 201,
+# cleanup DELETE = 204. If Create server returns 422 provisioning_failed, stop:
+# server-scoped requests cannot run until message database provisioning is fixed.
+
+### Control API health
+GET {{base_url}}/api/v2/health
+Authorization: Bearer {{control_api_key}}
+
+### Create organization
+# @name createOrganization
+POST {{base_url}}/api/v2/organizations
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "name": "VS Code Test Organization",
+  "permalink": "vscode-test-org-{{$guid}}",
+  "time_zone": "Asia/Kolkata",
+  "external_customer_id": "vscode-{{$guid}}",
+  "plan_code": "test",
+  "monthly_outbound_limit": 1000,
+  "quota_warning_percent": 80,
+  "quota_action": "monitor",
+  "owner": {
+    "email_address": "vscode-owner-{{$guid}}@example.test",
+    "first_name": "VS Code",
+    "last_name": "Tester"
+  }
+}
+
+@organization_uuid = {{createOrganization.response.body.$.data.uuid}}
+
+### List organizations
+GET {{base_url}}/api/v2/organizations?page=1&per_page=25
+Authorization: Bearer {{control_api_key}}
+
+### Get organization
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}
+Authorization: Bearer {{control_api_key}}
+
+### Update organization quota
+PATCH {{base_url}}/api/v2/organizations/{{organization_uuid}}
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+
+{
+  "plan_code": "vscode-test",
+  "monthly_outbound_limit": 2000,
+  "quota_warning_percent": 75,
+  "quota_action": "monitor"
+}
+
+### Suspend organization
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/suspend
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "reason": "VS Code lifecycle test"
+}
+
+### Unsuspend organization
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/unsuspend
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}
+
+### Create server
+# @name createServer
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "name": "VS Code Test Server",
+  "permalink": "vscode-test-server-{{$guid}}",
+  "mode": "Live",
+  "send_limit": 100,
+  "message_retention_days": 30,
+  "raw_message_retention_days": 7,
+  "allow_sender": true,
+  "privacy_mode": false
+}
+
+@server_uuid = {{createServer.response.body.$.data.uuid}}
+
+### List servers
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers
+Authorization: Bearer {{control_api_key}}
+
+### Get server
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}
+Authorization: Bearer {{control_api_key}}
+
+### Update server
+PATCH {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+
+{
+  "send_limit": 120,
+  "privacy_mode": true
+}
+
+### Suspend server
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/suspend
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "reason": "VS Code lifecycle test"
+}
+
+### Unsuspend server
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/unsuspend
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}
+
+### Add sending domain
+# @name createDomain
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "name": "{{test_domain}}",
+  "verification_method": "DNS",
+  "outgoing": true,
+  "incoming": false,
+  "use_for_any": true
+}
+
+@domain_uuid = {{createDomain.response.body.$.data.uuid}}
+
+### List domains
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains
+Authorization: Bearer {{control_api_key}}
+
+### Get domain and DNS instructions
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains/{{domain_uuid}}
+Authorization: Bearer {{control_api_key}}
+
+### Verify domain ownership
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains/{{domain_uuid}}/verify
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}
+
+### Check domain DNS
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains/{{domain_uuid}}/check-dns
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}
+
+### Create SMTP credential
+# @name createCredential
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/credentials
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "type": "SMTP",
+  "name": "VS Code test SMTP credential",
+  "hold": false
+}
+
+@credential_uuid = {{createCredential.response.body.$.data.uuid}}
+@credential_key = {{createCredential.response.body.$.data.key}}
+
+### List credentials (keys are masked)
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/credentials
+Authorization: Bearer {{control_api_key}}
+
+### Rotate credential
+# @name rotateCredential
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/credentials/{{credential_uuid}}/rotate
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}
+
+@credential_uuid = {{rotateCredential.response.body.$.data.uuid}}
+@credential_key = {{rotateCredential.response.body.$.data.key}}
+
+### Create webhook
+# @name createWebhook
+POST {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "name": "VS Code test webhook",
+  "url": "{{webhook_url}}",
+  "all_events": true,
+  "enabled": true
+}
+
+@webhook_uuid = {{createWebhook.response.body.$.data.uuid}}
+
+### List webhooks
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks
+Authorization: Bearer {{control_api_key}}
+
+### Get webhook
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks/{{webhook_uuid}}
+Authorization: Bearer {{control_api_key}}
+
+### Update webhook
+PATCH {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks/{{webhook_uuid}}
+Authorization: Bearer {{control_api_key}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "enabled": false
+}
+
+### Organization usage
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/usage?granularity=daily
+Authorization: Bearer {{control_api_key}}
+
+### Server usage
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/usage?granularity=hourly
+Authorization: Bearer {{control_api_key}}
+
+### Server health
+GET {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/health
+Authorization: Bearer {{control_api_key}}
+
+### Cleanup: revoke the credential
+DELETE {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/credentials/{{credential_uuid}}
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}
+
+### Cleanup: delete webhook
+DELETE {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks/{{webhook_uuid}}
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}
+
+### Cleanup: delete domain
+DELETE {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains/{{domain_uuid}}
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}
+
+### Cleanup: delete server
+DELETE {{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}
+Authorization: Bearer {{control_api_key}}
+
+### Cleanup: delete organization
+DELETE {{base_url}}/api/v2/organizations/{{organization_uuid}}
+Authorization: Bearer {{control_api_key}}
+Idempotency-Key: {{$guid}}

@@ -1,0 +1,102 @@
+openapi: 3.1.0
+info:
+  title: Postal Control API
+  version: v2
+  description: Management control plane for Postal organizations, servers, domains, credentials, webhooks, and usage.
+servers:
+  - url: https://postal.example
+security:
+  - bearerAuth: []
+paths:
+  /api/v2/organizations:
+    get:
+      summary: List organizations
+      responses: { '200': { $ref: '#/components/responses/Envelope' } }
+    post:
+      summary: Create an organization and owner
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationInput' } } } }
+      responses: { '201': { $ref: '#/components/responses/Envelope' }, '422': { $ref: '#/components/responses/Error' } }
+  /api/v2/organizations/{uuid}:
+    parameters: [{ $ref: '#/components/parameters/OrganizationUuid' }]
+    get: { summary: Get an organization, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    patch: { summary: Update an organization, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    delete: { summary: Soft-delete an organization, responses: { '204': { description: Deleted } } }
+  /api/v2/organizations/{uuid}/suspend:
+    post: { summary: Suspend organization, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{uuid}/unsuspend:
+    post: { summary: Reactivate organization, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers:
+    parameters: [{ $ref: '#/components/parameters/OrganizationUuidNested' }]
+    get: { summary: List servers, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    post: { summary: Provision server synchronously, responses: { '201': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers/{uuid}:
+    parameters: [{ $ref: '#/components/parameters/OrganizationUuidNested' }, { $ref: '#/components/parameters/ResourceUuid' }]
+    get: { summary: Get server, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    patch: { summary: Update server, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    delete: { summary: Soft-delete server, responses: { '204': { description: Deleted } } }
+  /api/v2/organizations/{organization_uuid}/servers/{server_uuid}/domains:
+    get: { summary: List sending domains, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    post: { summary: Add sending domain, responses: { '201': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers/{server_uuid}/domains/{uuid}:
+    get: { summary: Get domain DNS instructions, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    delete: { summary: Delete domain, responses: { '204': { description: Deleted } } }
+  /api/v2/organizations/{organization_uuid}/servers/{server_uuid}/domains/{uuid}/verify:
+    post: { summary: Verify DNS ownership, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers/{server_uuid}/domains/{uuid}/check-dns:
+    post: { summary: Check SPF, DKIM, MX and return-path DNS, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers/{server_uuid}/credentials:
+    get: { summary: List masked credential metadata, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    post: { summary: Create credential; secret returned once, responses: { '201': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers/{server_uuid}/credentials/{uuid}:
+    delete: { summary: Revoke credential, responses: { '204': { description: Revoked } } }
+  /api/v2/organizations/{organization_uuid}/servers/{server_uuid}/credentials/{uuid}/rotate:
+    post: { summary: Rotate credential; replacement secret returned once, responses: { '201': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers/{server_uuid}/webhooks:
+    get: { summary: List webhooks, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+    post: { summary: Create HTTPS webhook, responses: { '201': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/usage:
+    get: { summary: Get aggregate organization usage, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers/{uuid}/usage:
+    get: { summary: Get server usage, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+  /api/v2/organizations/{organization_uuid}/servers/{uuid}/health:
+    get: { summary: Get server queue and domain health, responses: { '200': { $ref: '#/components/responses/Envelope' } } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: ControlApiKey }
+  parameters:
+    OrganizationUuid: { name: uuid, in: path, required: true, schema: { type: string } }
+    OrganizationUuidNested: { name: organization_uuid, in: path, required: true, schema: { type: string } }
+    ResourceUuid: { name: uuid, in: path, required: true, schema: { type: string } }
+  schemas:
+    OrganizationInput:
+      type: object
+      required: [name, owner]
+      properties:
+        name: { type: string }
+        permalink: { type: string }
+        time_zone: { type: string }
+        external_customer_id: { type: string }
+        plan_code: { type: string }
+        owner:
+          type: object
+          required: [email_address, first_name, last_name]
+          properties:
+            email_address: { type: string, format: email }
+            first_name: { type: string }
+            last_name: { type: string }
+    Envelope:
+      type: object
+      required: [data, error]
+      properties: { data: {}, meta: {}, error: { type: [object, 'null'] } }
+    Error:
+      type: object
+      properties:
+        data: { type: 'null' }
+        error: { type: object, required: [code, message], properties: { code: { type: string }, message: { type: string }, details: { type: object } } }
+  responses:
+    Envelope:
+      description: Successful response envelope
+      content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } }
+    Error:
+      description: Error envelope
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
