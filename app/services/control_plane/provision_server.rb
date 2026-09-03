@@ -18,9 +18,12 @@ module ControlPlane
       Server.transaction { server.save! }
       begin
         server.message_db.provisioner.provision
-      rescue StandardError => _e
+      rescue StandardError => e
         cleanup(server)
-        raise ProvisioningError, "Mail server provisioning failed"
+        Rails.logger.error(
+          "Message database provisioning failed for server #{server.uuid}: #{e.class}: #{e.message}"
+        )
+        raise ProvisioningError, "Mail server provisioning failed", cause: e
       end
       server
     end

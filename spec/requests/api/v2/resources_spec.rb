@@ -19,6 +19,18 @@ RSpec.describe "Control API v2 resources", type: :request do
     expect(response.body).not_to include(Domain.last.dkim_private_key)
   end
 
+  it "checks the verification TXT record before reporting DNS status" do
+    domain = create(:domain, owner: server, verification_method: "DNS", verified_at: nil)
+    expect_any_instance_of(Domain).to receive(:verify_with_dns)
+    allow_any_instance_of(Domain).to receive(:check_dns)
+    allow_any_instance_of(Domain).to receive(:resolver).and_return(instance_double(DNSResolver, txt: []))
+
+    post "#{base_path}/domains/#{domain.uuid}/check-dns", headers: headers
+
+    expect(response).to have_http_status(:ok)
+    expect(JSON.parse(response.body).dig("data", "dns_status", "dmarc", "status")).to eq("Missing")
+  end
+
   it "replays an idempotent domain create" do
     idempotency_headers = headers.merge("Idempotency-Key" => "domain-create-1")
     payload = { name: "idempotent.example.org" }.to_json
@@ -142,6 +154,29 @@ RSpec.describe "Control API v2 resources", type: :request do
 
     expect(response).to have_http_status(:created)
     expect(JSON.parse(response.body).dig("data", "all_events")).to be(true)
+  end
+
+  it "enables incoming mail by creating an address endpoint and route" do
+    domain = create(:domain, owner: server, verified_at: Time.current, incoming: false)
+
+    post "#{base_path}/incoming-routes", params: { domain_uuid: domain.uuid, name: "hello", destination: { type: "address", address: "inbox@example.net" } }.to_json, headers: headers
+
+    expect(response).to have_http_status(:created)
+    route = server.routes.last
+    expect(route).to have_attributes(name: "hello", domain: domain, mode: "Endpoint")
+    expect(route.endpoint).to be_a(AddressEndpoint)
+    expect(route.endpoint.address).to eq("inbox@example.net")
+    expect(domain.reload.incoming).to be(true)
+  end
+
+  it "does not enable incoming mail for an unverified domain" do
+    domain = create(:domain, owner: server, verified_at: nil)
+
+    post "#{base_path}/incoming-routes", params: { domain_uuid: domain.uuid, name: "hello", destination: { type: "address", address: "inbox@example.net" } }.to_json, headers: headers
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(JSON.parse(response.body).dig("error", "code")).to eq("domain_not_verified")
+    expect(server.routes).to be_empty
   end
 
   it "returns a validation error when the webhook host is unreachable" do

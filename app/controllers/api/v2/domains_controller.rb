@@ -63,9 +63,11 @@ module API
         return if performed? || @domain.nil?
 
         with_idempotency do
+          @domain.verify_with_dns unless @domain.verified?
           @domain.check_dns(:manual)
-          audit!(organization: @organization, resource: @domain, action: "domain.dns_checked", after: serialize(@domain))
-          render_data(serialize(@domain))
+          dmarc = dmarc_status(@domain)
+          audit!(organization: @organization, resource: @domain, action: "domain.dns_checked", after: serialize(@domain, dmarc: dmarc))
+          render_data(serialize(@domain, dmarc: dmarc))
         end
       end
 
@@ -77,22 +79,35 @@ module API
         end
       end
 
-      def serialize(domain)
+      def serialize(domain, dmarc: nil)
         {
-          uuid: domain.uuid, name: domain.name, verified: domain.verified?, verification_method: domain.verification_method,
+          uuid: domain.uuid, name: domain.name, verified: domain.verified?, use_for_any: domain.use_for_any?, verification_method: domain.verification_method,
           dns_records: {
             verification: { type: "TXT", name: domain.name, value: domain.dns_verification_string },
             spf: { type: "TXT", name: domain.name, value: domain.spf_record },
             dkim: { type: "TXT", name: "#{domain.dkim_record_name}.#{domain.name}", value: domain.dkim_record },
+            dmarc: { type: "TXT", name: "_dmarc.#{domain.name}", value: "v=DMARC1; p=none; adkim=s; aspf=s" },
             return_path: { type: "CNAME", name: domain.return_path_domain, value: Postal::Config.dns.return_path_domain },
             mx: Array(Postal::Config.dns.mx_records)
           },
-          dns_status: { checked_at: domain.dns_checked_at, spf: status(domain, :spf), dkim: status(domain, :dkim), mx: status(domain, :mx), return_path: status(domain, :return_path) }
+          dns_status: { checked_at: domain.dns_checked_at, spf: status(domain, :spf), dkim: status(domain, :dkim), dmarc: dmarc || { status: "Pending", error: "Run Check DNS to verify the DMARC record." }, mx: status(domain, :mx), return_path: status(domain, :return_path) }
         }
       end
 
       def status(domain, type)
         { status: domain.public_send("#{type}_status"), error: domain.public_send("#{type}_error") }
+      end
+
+      def dmarc_status(domain)
+        records = domain.resolver.txt("_dmarc.#{domain.name}")
+        record = records.find { |value| value.match?(/\Av=DMARC1(?:;|\s|$)/i) }
+        return { status: "Missing", error: "No DMARC record exists for this domain." } if record.nil?
+
+        return { status: "Invalid", error: "The DMARC record must include a valid p= policy." } unless record.match?(/(?:\A|;)\s*p=(?:none|quarantine|reject)(?:;|\s|$)/i)
+
+        { status: "OK", error: nil }
+      rescue DNSResolver::LocalResolversUnavailableError, Resolv::ResolvError
+        { status: "Pending", error: "Unable to check DMARC right now. Try again shortly." }
       end
 
     end

@@ -21,6 +21,7 @@ Rails.application.routes.draw do
             post :rotate, on: :member
           end
           resources :webhooks, param: :uuid, controller: "webhooks", only: [:create, :index, :show, :update, :destroy]
+          resources :incoming_routes, path: "incoming-routes", controller: "incoming_routes", only: [:create, :index]
         end
       end
     end
