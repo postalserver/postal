@@ -71,6 +71,7 @@ module SMTPClient
           client = endpoint.start_smtp_session
           expect(client.open_timeout).to eq Postal::Config.smtp_client.open_timeout
           expect(client.read_timeout).to eq Postal::Config.smtp_client.read_timeout
+          expect(client.write_timeout).to eq Postal::Config.smtp_client.write_timeout if client.respond_to?(:write_timeout)
         end
 
         it "does not set a source address" do
