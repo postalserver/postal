@@ -283,7 +283,7 @@ class Server < ApplicationRecord
   end
 
   def ip_pool_for_message(message)
-    return unless message.scope == "outgoing"
+    return unless message.scope == "outgoing" || message.endpoint.is_a?(AddressEndpoint)
 
     [self, organization].each do |scope|
       rules = scope.ip_pool_rules.order(created_at: :desc)
