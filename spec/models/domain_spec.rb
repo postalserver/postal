@@ -4,31 +4,33 @@
 #
 # Table name: domains
 #
-#  id                     :integer          not null, primary key
-#  dkim_error             :string(255)
-#  dkim_identifier_string :string(255)
-#  dkim_private_key       :text(65535)
-#  dkim_status            :string(255)
-#  dns_checked_at         :datetime
-#  incoming               :boolean          default(TRUE)
-#  mx_error               :string(255)
-#  mx_status              :string(255)
-#  name                   :string(255)
-#  outgoing               :boolean          default(TRUE)
-#  owner_type             :string(255)
-#  return_path_error      :string(255)
-#  return_path_status     :string(255)
-#  spf_error              :string(255)
-#  spf_status             :string(255)
-#  use_for_any            :boolean
-#  uuid                   :string(255)
-#  verification_method    :string(255)
-#  verification_token     :string(255)
-#  verified_at            :datetime
-#  created_at             :datetime
-#  updated_at             :datetime
-#  owner_id               :integer
-#  server_id              :integer
+#  id                             :integer          not null, primary key
+#  dkim_error                     :string(255)
+#  dkim_identifier_string         :string(255)
+#  dkim_private_key               :text(65535)
+#  dkim_status                    :string(255)
+#  dns_checked_at                 :datetime
+#  incoming                       :boolean          default(TRUE)
+#  mx_error                       :string(255)
+#  mx_status                      :string(255)
+#  name                           :string(255)
+#  outgoing                       :boolean          default(TRUE)
+#  owner_type                     :string(255)
+#  pending_dkim_identifier_string :string(255)
+#  pending_dkim_private_key       :text(65535)
+#  return_path_error              :string(255)
+#  return_path_status             :string(255)
+#  spf_error                      :string(255)
+#  spf_status                     :string(255)
+#  use_for_any                    :boolean
+#  uuid                           :string(255)
+#  verification_method            :string(255)
+#  verification_token             :string(255)
+#  verified_at                    :datetime
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  owner_id                       :integer
+#  server_id                      :integer
 #
 # Indexes
 #
@@ -162,6 +164,22 @@ describe Domain do
     it "generates a new dkim key" do
       expect { domain.generate_dkim_key }.to change { domain.dkim_private_key }.from(nil).to(match(/\A-+BEGIN RSA PRIVATE KEY-+/))
     end
+
+    it "generates a key of the configured size" do
+      domain.generate_dkim_key
+      expect(OpenSSL::PKey::RSA.new(domain.dkim_private_key).n.num_bits).to eq Postal::Config.dns.dkim_key_size
+    end
+
+    context "when a different key size is configured" do
+      before do
+        allow(Postal::Config.dns).to receive(:dkim_key_size).and_return(1024)
+      end
+
+      it "generates a key of that size" do
+        domain.generate_dkim_key
+        expect(OpenSSL::PKey::RSA.new(domain.dkim_private_key).n.num_bits).to eq 1024
+      end
+    end
   end
 
   describe "#dkim_key" do
@@ -180,6 +198,138 @@ describe Domain do
       it "returns nil" do
         expect(domain.dkim_key).to be_nil
       end
+    end
+  end
+
+  describe "#pending_dkim_key" do
+    context "when the domain has a pending DKIM key" do
+      let(:domain) { create(:domain, dkim_status: "OK") }
+
+      before do
+        domain.regenerate_dkim_key!
+      end
+
+      it "returns the pending dkim key as a OpenSSL::PKey::RSA" do
+        expect(domain.pending_dkim_key).to be_a OpenSSL::PKey::RSA
+        expect(domain.pending_dkim_key.to_s).to eq domain.pending_dkim_private_key
+      end
+    end
+
+    context "when the domain has no pending DKIM key" do
+      let(:domain) { create(:domain) }
+
+      it "returns nil" do
+        expect(domain.pending_dkim_key).to be_nil
+      end
+    end
+  end
+
+  describe "#regenerate_dkim_key!" do
+    context "when the current DKIM record is verified" do
+      let(:domain) { create(:domain, dkim_status: "OK") }
+
+      it "stores the new key as a pending key with a new identifier" do
+        domain.regenerate_dkim_key!
+        expect(domain.pending_dkim_private_key).to match(/\A-+BEGIN RSA PRIVATE KEY-+/)
+        expect(domain.pending_dkim_identifier_string).to be_present
+        expect(domain.pending_dkim_identifier_string).to_not eq domain.dkim_identifier_string
+      end
+
+      it "does not change the active key or status" do
+        expect { domain.regenerate_dkim_key! }.to_not(change { domain.reload.dkim_private_key })
+        expect(domain.dkim_status).to eq "OK"
+      end
+    end
+
+    context "when the current DKIM record is not verified" do
+      let(:domain) { create(:domain, dkim_status: "Missing", dkim_error: "No TXT records") }
+
+      it "replaces the active key immediately without creating a pending key" do
+        original_key = domain.dkim_key.to_s
+        domain.regenerate_dkim_key!
+        expect(domain.reload.dkim_private_key).to_not eq original_key
+        expect(domain.pending_dkim_private_key).to be_nil
+        expect(domain.dkim_key.to_s).to eq domain.dkim_private_key
+      end
+
+      it "resets the DKIM status" do
+        domain.regenerate_dkim_key!
+        expect(domain.dkim_status).to be_nil
+        expect(domain.dkim_error).to be_nil
+      end
+
+      context "when a key change was already in progress" do
+        # This happens when the active record breaks (so the status is no longer
+        # "OK") while a pending key is waiting to be activated. The immediate
+        # replacement supersedes the in-flight change, so the stale pending key
+        # must not be left behind to be activated later.
+        let(:domain) { create(:domain, dkim_status: "OK") }
+
+        before do
+          domain.regenerate_dkim_key!
+          domain.update!(dkim_status: "Missing", dkim_error: "No TXT records")
+        end
+
+        it "abandons the pending key" do
+          expect(domain.pending_dkim_private_key).to_not be_nil
+          domain.regenerate_dkim_key!
+          expect(domain.reload.pending_dkim_private_key).to be_nil
+          expect(domain.pending_dkim_identifier_string).to be_nil
+          expect(domain.pending_dkim_key).to be_nil
+        end
+
+        it "replaces the active key rather than promoting the pending one" do
+          stale_pending_key = domain.pending_dkim_private_key
+          original_key = domain.dkim_private_key
+          domain.regenerate_dkim_key!
+          expect(domain.reload.dkim_private_key).to_not eq original_key
+          expect(domain.dkim_private_key).to_not eq stale_pending_key
+        end
+      end
+    end
+  end
+
+  describe "#activate_pending_dkim_key" do
+    context "when there is no pending key" do
+      let(:domain) { create(:domain) }
+
+      it "does nothing" do
+        expect { domain.activate_pending_dkim_key }.to_not(change { domain.dkim_private_key })
+      end
+    end
+
+    context "when there is a pending key" do
+      let(:domain) { create(:domain, dkim_status: "OK") }
+
+      before do
+        domain.regenerate_dkim_key!
+      end
+
+      it "promotes the pending key and identifier and clears the pending values" do
+        pending_key = domain.pending_dkim_private_key
+        pending_identifier = domain.pending_dkim_identifier_string
+        domain.activate_pending_dkim_key
+        expect(domain.dkim_private_key).to eq pending_key
+        expect(domain.dkim_identifier_string).to eq pending_identifier
+        expect(domain.pending_dkim_private_key).to be_nil
+        expect(domain.pending_dkim_identifier_string).to be_nil
+        expect(domain.dkim_key.to_s).to eq pending_key
+        expect(domain.pending_dkim_key).to be_nil
+      end
+    end
+  end
+
+  describe "#cancel_pending_dkim_key!" do
+    let(:domain) { create(:domain, dkim_status: "OK") }
+
+    before do
+      domain.regenerate_dkim_key!
+    end
+
+    it "discards the pending key without changing the active key" do
+      expect { domain.cancel_pending_dkim_key! }.to_not(change { domain.reload.dkim_private_key })
+      expect(domain.pending_dkim_private_key).to be_nil
+      expect(domain.pending_dkim_identifier_string).to be_nil
     end
   end
 
@@ -270,6 +420,131 @@ describe Domain do
 
       it "returns the DKIM identifier" do
         expect(domain.dkim_record_name).to eq "#{Postal::Config.dns.dkim_identifier}-#{domain.dkim_identifier_string}._domainkey"
+      end
+    end
+  end
+
+  describe "#pending_dkim_record" do
+    context "when the domain has no pending DKIM key" do
+      it "returns nil" do
+        expect(domain.pending_dkim_record).to be_nil
+      end
+    end
+
+    context "when the domain has a pending DKIM key" do
+      let(:domain) { create(:domain, dkim_status: "OK") }
+
+      before do
+        domain.regenerate_dkim_key!
+      end
+
+      it "returns the DKIM record for the pending key" do
+        expect(domain.pending_dkim_record).to match(/\Av=DKIM1; t=s; h=sha256; p=.*;\z/)
+        expect(domain.pending_dkim_record).to_not eq domain.dkim_record
+      end
+
+      it "returns a record name using the pending identifier" do
+        expect(domain.pending_dkim_record_name).to eq "#{Postal::Config.dns.dkim_identifier}-#{domain.pending_dkim_identifier_string}._domainkey"
+      end
+    end
+  end
+
+  describe "#check_dkim_record" do
+    let(:domain) { create(:domain, dkim_status: "OK") }
+    let(:resolver) { instance_double(DNSResolver) }
+
+    before do
+      allow(domain).to receive(:resolver).and_return(resolver)
+    end
+
+    context "when there is a pending DKIM key" do
+      before do
+        domain.regenerate_dkim_key!
+      end
+
+      context "when the pending record has been published" do
+        it "activates and verifies the pending key from a single DNS response" do
+          responses = [[domain.pending_dkim_record], []]
+          allow(resolver).to receive(:txt).with("#{domain.pending_dkim_record_name}.#{domain.name}") { responses.shift }
+
+          pending_key = domain.pending_dkim_private_key
+          domain.check_dkim_record
+          expect(domain.dkim_private_key).to eq pending_key
+          expect(domain.pending_dkim_private_key).to be_nil
+          expect(domain.dkim_status).to eq "OK"
+          expect(domain.dkim_error).to be_nil
+          expect(responses).to eq([[]])
+        end
+      end
+
+      context "when multiple pending records have been published" do
+        before do
+          allow(resolver).to receive(:txt).with("#{domain.pending_dkim_record_name}.#{domain.name}").and_return([domain.pending_dkim_record, domain.pending_dkim_record])
+          allow(resolver).to receive(:txt).with("#{domain.dkim_record_name}.#{domain.name}").and_return([domain.dkim_record])
+        end
+
+        it "keeps the current key active and retains the pending key" do
+          original_key = domain.dkim_private_key
+          domain.check_dkim_record
+          expect(domain.dkim_private_key).to eq original_key
+          expect(domain.pending_dkim_private_key).to_not be_nil
+          expect(domain.dkim_status).to eq "OK"
+        end
+      end
+
+      context "when the pending record has not been published" do
+        before do
+          allow(resolver).to receive(:txt).with("#{domain.pending_dkim_record_name}.#{domain.name}").and_return([])
+          allow(resolver).to receive(:txt).with("#{domain.dkim_record_name}.#{domain.name}").and_return([domain.dkim_record])
+        end
+
+        it "keeps the current key active and retains the pending key" do
+          original_key = domain.dkim_private_key
+          domain.check_dkim_record
+          expect(domain.dkim_private_key).to eq original_key
+          expect(domain.pending_dkim_private_key).to_not be_nil
+          expect(domain.dkim_status).to eq "OK"
+        end
+      end
+
+      context "when the pending record does not match" do
+        before do
+          allow(resolver).to receive(:txt).with("#{domain.pending_dkim_record_name}.#{domain.name}").and_return(["v=DKIM1; t=s; h=sha256; p=something;"])
+          allow(resolver).to receive(:txt).with("#{domain.dkim_record_name}.#{domain.name}").and_return([domain.dkim_record])
+        end
+
+        it "keeps the current key active and retains the pending key" do
+          original_key = domain.dkim_private_key
+          domain.check_dkim_record
+          expect(domain.dkim_private_key).to eq original_key
+          expect(domain.pending_dkim_private_key).to_not be_nil
+          expect(domain.dkim_status).to eq "OK"
+        end
+      end
+    end
+
+    context "when there is no pending DKIM key" do
+      context "when the record is published" do
+        before do
+          allow(resolver).to receive(:txt).with("#{domain.dkim_record_name}.#{domain.name}").and_return([domain.dkim_record])
+        end
+
+        it "marks the record as OK" do
+          domain.check_dkim_record
+          expect(domain.dkim_status).to eq "OK"
+          expect(domain.dkim_error).to be_nil
+        end
+      end
+
+      context "when the record is missing" do
+        before do
+          allow(resolver).to receive(:txt).with("#{domain.dkim_record_name}.#{domain.name}").and_return([])
+        end
+
+        it "marks the record as missing" do
+          domain.check_dkim_record
+          expect(domain.dkim_status).to eq "Missing"
+        end
       end
     end
   end

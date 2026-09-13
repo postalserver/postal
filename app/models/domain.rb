@@ -4,31 +4,33 @@
 #
 # Table name: domains
 #
-#  id                     :integer          not null, primary key
-#  server_id              :integer
-#  uuid                   :string(255)
-#  name                   :string(255)
-#  verification_token     :string(255)
-#  verification_method    :string(255)
-#  verified_at            :datetime
-#  dkim_private_key       :text(65535)
-#  created_at             :datetime
-#  updated_at             :datetime
-#  dns_checked_at         :datetime
-#  spf_status             :string(255)
-#  spf_error              :string(255)
-#  dkim_status            :string(255)
-#  dkim_error             :string(255)
-#  mx_status              :string(255)
-#  mx_error               :string(255)
-#  return_path_status     :string(255)
-#  return_path_error      :string(255)
-#  outgoing               :boolean          default(TRUE)
-#  incoming               :boolean          default(TRUE)
-#  owner_type             :string(255)
-#  owner_id               :integer
-#  dkim_identifier_string :string(255)
-#  use_for_any            :boolean
+#  id                             :integer          not null, primary key
+#  dkim_error                     :string(255)
+#  dkim_identifier_string         :string(255)
+#  dkim_private_key               :text(65535)
+#  dkim_status                    :string(255)
+#  dns_checked_at                 :datetime
+#  incoming                       :boolean          default(TRUE)
+#  mx_error                       :string(255)
+#  mx_status                      :string(255)
+#  name                           :string(255)
+#  outgoing                       :boolean          default(TRUE)
+#  owner_type                     :string(255)
+#  pending_dkim_identifier_string :string(255)
+#  pending_dkim_private_key       :text(65535)
+#  return_path_error              :string(255)
+#  return_path_status             :string(255)
+#  spf_error                      :string(255)
+#  spf_status                     :string(255)
+#  use_for_any                    :boolean
+#  uuid                           :string(255)
+#  verification_method            :string(255)
+#  verification_token             :string(255)
+#  verified_at                    :datetime
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  owner_id                       :integer
+#  server_id                      :integer
 #
 # Indexes
 #
@@ -82,13 +84,64 @@ class Domain < ApplicationRecord
   end
 
   def generate_dkim_key
-    self.dkim_private_key = OpenSSL::PKey::RSA.new(1024).to_s
+    self.dkim_private_key = OpenSSL::PKey::RSA.new(Postal::Config.dns.dkim_key_size).to_s
   end
 
   def dkim_key
     return nil unless dkim_private_key
 
     @dkim_key ||= OpenSSL::PKey::RSA.new(dkim_private_key)
+  end
+
+  def pending_dkim_key
+    return nil unless pending_dkim_private_key
+
+    @pending_dkim_key ||= OpenSSL::PKey::RSA.new(pending_dkim_private_key)
+  end
+
+  def pending_dkim_key?
+    pending_dkim_private_key.present?
+  end
+
+  # Generate a new DKIM key for this domain. If the current key is verified and
+  # in use for signing, the new key is stored as a pending key under a new
+  # identifier so that signing continues with the current key until the new
+  # key's DNS record has been published and verified. Otherwise, the key is
+  # replaced immediately and any in-flight key change is abandoned, since the
+  # new key supersedes it.
+  def regenerate_dkim_key!
+    if dkim_status == "OK"
+      self.pending_dkim_private_key = OpenSSL::PKey::RSA.new(Postal::Config.dns.dkim_key_size).to_s
+      self.pending_dkim_identifier_string = generate_unique_dkim_identifier_string
+    else
+      generate_dkim_key
+      self.dkim_status = nil
+      self.dkim_error = nil
+      self.pending_dkim_private_key = nil
+      self.pending_dkim_identifier_string = nil
+      @dkim_key = nil
+    end
+    @pending_dkim_key = nil
+    save!
+  end
+
+  # Promote the pending DKIM key to be the active key. Does not save the record.
+  def activate_pending_dkim_key
+    return unless pending_dkim_key?
+
+    self.dkim_private_key = pending_dkim_private_key
+    self.dkim_identifier_string = pending_dkim_identifier_string
+    self.pending_dkim_private_key = nil
+    self.pending_dkim_identifier_string = nil
+    @dkim_key = nil
+    @pending_dkim_key = nil
+  end
+
+  def cancel_pending_dkim_key!
+    self.pending_dkim_private_key = nil
+    self.pending_dkim_identifier_string = nil
+    @pending_dkim_key = nil
+    save!
   end
 
   def to_param
@@ -108,23 +161,27 @@ class Domain < ApplicationRecord
   end
 
   def dkim_record
-    return if dkim_key.nil?
-
-    public_key = dkim_key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
-    "v=DKIM1; t=s; h=sha256; p=#{public_key};"
+    build_dkim_record(dkim_key)
   end
 
   def dkim_identifier
-    return nil unless dkim_identifier_string
-
-    Postal::Config.dns.dkim_identifier + "-#{dkim_identifier_string}"
+    build_dkim_identifier(dkim_identifier_string)
   end
 
   def dkim_record_name
-    identifier = dkim_identifier
-    return if identifier.nil?
+    build_dkim_record_name(dkim_identifier)
+  end
 
-    "#{identifier}._domainkey"
+  def pending_dkim_record
+    build_dkim_record(pending_dkim_key)
+  end
+
+  def pending_dkim_identifier
+    build_dkim_identifier(pending_dkim_identifier_string)
+  end
+
+  def pending_dkim_record_name
+    build_dkim_record_name(pending_dkim_identifier)
   end
 
   def return_path_domain
@@ -159,6 +216,36 @@ class Domain < ApplicationRecord
   end
 
   private
+
+  def build_dkim_record(key)
+    return if key.nil?
+
+    public_key = key.public_key.to_s.gsub(/-+[A-Z ]+-+\n/, "").gsub(/\n/, "")
+    "v=DKIM1; t=s; h=sha256; p=#{public_key};"
+  end
+
+  def build_dkim_identifier(identifier_string)
+    return nil unless identifier_string
+
+    Postal::Config.dns.dkim_identifier + "-#{identifier_string}"
+  end
+
+  def build_dkim_record_name(identifier)
+    return if identifier.nil?
+
+    "#{identifier}._domainkey"
+  end
+
+  # Generates a random identifier string in the same format as the
+  # `random_string :dkim_identifier_string` declaration, unique across both the
+  # active and pending identifier columns.
+  def generate_unique_dkim_identifier_string
+    loop do
+      string = Nifty::Utils::RandomString.generate(length: 6, upper_letters_only: true)
+      scope = self.class.where(dkim_identifier_string: string).or(self.class.where(pending_dkim_identifier_string: string))
+      return string unless scope.exists?
+    end
+  end
 
   def update_verification_token_on_method_change
     return unless verification_method_changed?

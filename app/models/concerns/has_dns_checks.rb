@@ -72,6 +72,17 @@ module HasDNSChecks
   #
 
   def check_dkim_record
+    # If a new DKIM key is waiting to be activated, promote it to be the active
+    # key as soon as its DNS record is in place. The matching DNS response has
+    # already verified the key, so avoid a second lookup which could return a
+    # different answer while DNS changes are propagating.
+    if pending_dkim_key? && pending_dkim_record_live?
+      activate_pending_dkim_key
+      self.dkim_status = "OK"
+      self.dkim_error = nil
+      return true
+    end
+
     domain = "#{dkim_record_name}.#{name}"
     records = resolver.txt(domain)
     if records.empty?
@@ -96,6 +107,16 @@ module HasDNSChecks
   def check_dkim_record!
     check_dkim_record
     save!
+  end
+
+  # Returns true if the DNS record for the pending DKIM key has been published
+  # correctly.
+  def pending_dkim_record_live?
+    records = resolver.txt("#{pending_dkim_record_name}.#{name}")
+    return false unless records.size == 1
+
+    sanitised_record = records.first.strip.ends_with?(";") ? records.first.strip : "#{records.first.strip};"
+    sanitised_record == pending_dkim_record
   end
 
   #

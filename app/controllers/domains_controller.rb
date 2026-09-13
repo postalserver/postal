@@ -98,9 +98,48 @@ class DomainsController < ApplicationController
     redirect_to [:verify, organization, @server, @domain], alert: "You can't set up DNS for this domain until it has been verified."
   end
 
+  def regenerate_dkim
+    if @domain.pending_dkim_key?
+      redirect_to_with_json [:setup, organization, @server, @domain],
+                            alert: "A DKIM key change is already in progress for #{@domain.name}. Publish the new " \
+                                   "record shown below, or cancel the change, before generating another key."
+      return
+    end
+
+    was_verified = @domain.dkim_status == "OK"
+    @domain.regenerate_dkim_key!
+    if was_verified
+      redirect_to_with_json [:setup, organization, @server, @domain],
+                            notice: "A new DKIM key has been generated for #{@domain.name}. Add the new DNS record below — " \
+                                    "your existing key will remain active until the new record has been verified. Keep the " \
+                                    "old DNS record published afterward while messages signed with it may still be queued, " \
+                                    "held, or available for redelivery."
+    else
+      redirect_to_with_json [:setup, organization, @server, @domain], notice: "A new DKIM key has been generated for #{@domain.name}. Update your DKIM DNS record with the new value below."
+    end
+  end
+
+  def cancel_dkim_regeneration
+    @domain.cancel_pending_dkim_key!
+    redirect_to_with_json [:setup, organization, @server, @domain], notice: "The pending DKIM key for #{@domain.name} has been discarded. Your existing key remains active."
+  end
+
   def check
+    had_pending_dkim_key = @domain.pending_dkim_key?
+    previous_dkim_record_name = @domain.dkim_record_name
     if @domain.check_dns(:manual)
-      redirect_to_with_json [organization, @server, :domains], notice: "Your DNS records for #{@domain.name} look good!"
+      if had_pending_dkim_key && !@domain.pending_dkim_key?
+        redirect_to_with_json [:setup, organization, @server, @domain],
+                              notice: "Your DNS records for #{@domain.name} look good! Your new DKIM key is now active. " \
+                                      "Keep the old record at #{previous_dkim_record_name} published while messages " \
+                                      "signed with the old key may still be queued, held, or available for redelivery."
+      elsif @domain.pending_dkim_key?
+        redirect_to_with_json [:setup, organization, @server, @domain],
+                              alert: "We couldn't verify the record for your new DKIM key yet. Your existing key remains " \
+                                     "active. Check below for the expected record details."
+      else
+        redirect_to_with_json [organization, @server, :domains], notice: "Your DNS records for #{@domain.name} look good!"
+      end
     else
       redirect_to_with_json [:setup, organization, @server, @domain], alert: "There seems to be something wrong with your DNS records. Check below for information."
     end

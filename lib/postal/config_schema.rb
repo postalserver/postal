@@ -352,6 +352,20 @@ module Postal
         default "postal"
       end
 
+      integer :dkim_key_size do
+        description "The size (in bits) of RSA key to generate for DKIM signing (one of 1024, 2048, 3072 or 4096). " \
+                    "Note that records for 2048-bit and larger keys exceed 255 characters and must be " \
+                    "published as a split (multi-string) TXT record."
+        default 2048
+        transform do |value|
+          unless value.nil? || [1024, 2048, 3072, 4096].include?(value)
+            raise Konfig::Error, "dns.dkim_key_size must be one of 1024, 2048, 3072 or 4096 (got #{value})"
+          end
+
+          value
+        end
+      end
+
       string :domain_verify_prefix do
         description "The prefix to add before TXT record verification string"
         default "postal-verification"

@@ -145,6 +145,8 @@ dns:
   helo_hostname: 
   # The identifier to use for DKIM keys in DNS records
   dkim_identifier: postal
+  # The size (in bits) of RSA key to generate for DKIM signing (one of 1024, 2048, 3072 or 4096). Note that records for 2048-bit and larger keys exceed 255 characters and must be published as a split (multi-string) TXT record.
+  dkim_key_size: 2048
   # The prefix to add before TXT record verification string
   domain_verify_prefix: postal-verification
   # The domain to use on external domains which points to the Postal return path domain
