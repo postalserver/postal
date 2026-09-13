@@ -20,6 +20,7 @@ class AdditionalRouteEndpoint < ApplicationRecord
   validate :validate_endpoint_belongs_to_server
   validate :validate_wildcard
   validate :validate_uniqueness
+  validate :validate_no_local_loop
 
   def self.find_by_endpoint(endpoint)
     class_name, id = endpoint.split("#", 2)
@@ -68,6 +69,13 @@ class AdditionalRouteEndpoint < ApplicationRecord
     return unless endpoint_type == "SMTPEndpoint" || endpoint_type == "AddressEndpoint"
 
     errors.add :base, "SMTP or address endpoints are not permitted on wildcard routes"
+  end
+
+  def validate_no_local_loop
+    return unless endpoint.is_a?(AddressEndpoint)
+    return unless route&.local_loop_with?(endpoint.address)
+
+    errors.add :base, "cannot deliver mail back to this route's own address"
   end
 
 end
