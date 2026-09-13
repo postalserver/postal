@@ -2,6 +2,18 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.4.0](https://github.com/postalserver/postal/compare/3.3.7...3.4.0) (2026-09-13)
+
+
+### Features
+
+* add configurable Postal logger level defaulting to INFO ([#3626](https://github.com/postalserver/postal/issues/3626)) ([ced77a3](https://github.com/postalserver/postal/commit/ced77a3860c23779889aec8dacd2642f20d10cea))
+
+
+### Bug Fixes
+
+* give each worker process a unique locker identity ([#3628](https://github.com/postalserver/postal/issues/3628)) ([3be663d](https://github.com/postalserver/postal/commit/3be663dc8931bd731516bafd6edff6b0fbd03df2))
+
 ## [3.3.7](https://github.com/postalserver/postal/compare/3.3.6...3.3.7) (2026-06-03)
 
 
