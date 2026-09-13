@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
+ActiveRecord::Schema[7.0].define(version: 2026_08_30_000005) do
   create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
@@ -26,6 +26,23 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.datetime "last_used_at", precision: nil
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "audit_events", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.string "actor_uuid"
+    t.string "organization_uuid"
+    t.string "resource_type", null: false
+    t.string "resource_uuid"
+    t.string "action", null: false
+    t.string "request_id"
+    t.string "source_ip"
+    t.text "before_metadata"
+    t.text "after_metadata"
+    t.datetime "occurred_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_uuid", "occurred_at"], name: "index_audit_events_on_organization_uuid_and_occurred_at"
+    t.index ["request_id"], name: "index_audit_events_on_request_id"
   end
 
   create_table "authie_sessions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -72,6 +89,22 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.datetime "updated_at"
     t.boolean "hold", default: false
     t.string "uuid"
+  end
+
+  create_table "control_api_keys", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.string "uuid", null: false
+    t.string "name", null: false
+    t.string "token_digest", null: false
+    t.text "scopes", null: false
+    t.integer "organization_id"
+    t.datetime "last_used_at"
+    t.datetime "expires_at"
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id"], name: "index_control_api_keys_on_organization_id"
+    t.index ["token_digest"], name: "index_control_api_keys_on_token_digest", unique: true
+    t.index ["uuid"], name: "index_control_api_keys_on_uuid", unique: true
   end
 
   create_table "domains", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -130,6 +163,20 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.integer "priority"
   end
 
+  create_table "idempotency_records", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.bigint "control_api_key_id", null: false
+    t.string "key", null: false
+    t.string "request_method", null: false
+    t.string "request_path", null: false
+    t.string "payload_digest", null: false
+    t.integer "response_status"
+    t.text "response_body"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["control_api_key_id", "key"], name: "index_idempotency_records_on_key_and_control_api_key", unique: true
+    t.index ["control_api_key_id"], name: "index_idempotency_records_on_control_api_key_id"
+  end
+
   create_table "ip_pool_rules", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "uuid"
     t.string "owner_type"
@@ -178,6 +225,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.datetime "deleted_at"
     t.datetime "suspended_at"
     t.string "suspension_reason"
+    t.string "external_customer_id"
+    t.string "plan_code"
+    t.bigint "monthly_outbound_limit"
+    t.integer "quota_warning_percent", default: 80, null: false
+    t.string "quota_action", default: "monitor", null: false
+    t.index ["external_customer_id"], name: "index_organizations_on_external_customer_id"
     t.index ["permalink"], name: "index_organizations_on_permalink", length: 8
     t.index ["uuid"], name: "index_organizations_on_uuid", length: 8
   end
@@ -316,6 +369,19 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.index ["uuid"], name: "index_user_invites_on_uuid", length: 12
   end
 
+  create_table "usage_rollups", charset: "utf8mb4", collation: "utf8mb4_uca1400_ai_ci", force: :cascade do |t|
+    t.integer "organization_id", null: false
+    t.integer "server_id", default: 0, null: false
+    t.date "period_start", null: false
+    t.string "granularity", null: false
+    t.string "metric", null: false
+    t.bigint "value", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "server_id", "period_start", "granularity", "metric"], name: "index_usage_rollups_on_metric_period", unique: true
+    t.index ["organization_id"], name: "index_usage_rollups_on_organization_id"
+  end
+
   create_table "users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "uuid"
     t.string "first_name"
@@ -332,7 +398,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.boolean "admin", default: false
     t.string "oidc_uid"
     t.string "oidc_issuer"
-    t.index ["email_address"], name: "index_users_on_email_address", length: 8
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true, length: 255
     t.index ["uuid"], name: "index_users_on_uuid", length: 8
   end
 

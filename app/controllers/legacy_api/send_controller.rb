@@ -62,7 +62,11 @@ module LegacyAPI
       message.credential = @current_credential
       if message.valid?
         result = message.create_messages
-        render_success message_id: message.message_id, messages: result
+        if result
+          render_success message_id: message.message_id, messages: result
+        else
+          render_error "OrganizationMonthlyQuotaExceeded", message: "The organization monthly outbound quota has been reached"
+        end
       else
         render_error message.errors.first, message: ERROR_MESSAGES[message.errors.first]
       end
@@ -113,7 +117,16 @@ module LegacyAPI
       # Store the result ready to return
       result = { message_id: nil, messages: {} }
       if api_params["rcpt_to"].is_a?(Array)
-        api_params["rcpt_to"].uniq.each do |rcpt_to|
+        recipients = api_params["rcpt_to"].uniq
+        quota_decision = nil
+        if recipients.any?
+          quota_decision = ControlPlane::OutboundQuota.reserve!(@current_credential.server, count: recipients.size)
+          if quota_decision.suspend?
+            render_error "OrganizationMonthlyQuotaExceeded", message: "The organization monthly outbound quota has been reached"
+            return
+          end
+        end
+        recipients.each do |rcpt_to|
           message = @current_credential.server.message_db.new_message
           message.rcpt_to = rcpt_to
           message.mail_from = api_params["mail_from"]
@@ -123,7 +136,12 @@ module LegacyAPI
           message.domain_id = authenticated_domain.id
           message.credential_id = @current_credential.id
           message.bounce = api_params["bounce"] ? true : false
-          message.save
+          if quota_decision&.hold?
+            message.save(queue_on_create: false)
+            message.create_delivery("Held", details: "Organization monthly outbound quota (#{quota_decision.limit}) has been reached.")
+          else
+            message.save
+          end
           result[:message_id] = message.message_id if result[:message_id].nil?
           result[:messages][rcpt_to] = { id: message.id, token: message.token }
         end

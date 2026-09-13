@@ -1,6 +1,32 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  namespace :api do
+    namespace :v2 do
+      get "health", to: "health#show"
+      resources :organizations, param: :uuid, only: [:create, :index, :show, :update, :destroy] do
+        post :suspend, on: :member
+        post :unsuspend, on: :member
+        get :usage, on: :member, controller: "usage", action: :organization
+        resources :servers, param: :uuid, controller: "servers", only: [:create, :index, :show, :update, :destroy] do
+          post :suspend, on: :member
+          post :unsuspend, on: :member
+          get :usage, on: :member, controller: "usage", action: :server
+          get :health, on: :member, controller: "health", action: :server
+          resources :domains, param: :uuid, controller: "domains", only: [:create, :index, :show, :destroy] do
+            post :verify, on: :member
+            post "check-dns", on: :member, action: :check_dns
+          end
+          resources :credentials, param: :uuid, controller: "credentials", only: [:create, :index, :destroy] do
+            post :rotate, on: :member
+          end
+          resources :webhooks, param: :uuid, controller: "webhooks", only: [:create, :index, :show, :update, :destroy]
+          resources :incoming_routes, path: "incoming-routes", controller: "incoming_routes", only: [:create, :index]
+        end
+      end
+    end
+  end
+
   # Legacy API Routes
   match "/api/v1/send/message" => "legacy_api/send#message", via: [:get, :post, :patch, :put]
   match "/api/v1/send/raw" => "legacy_api/send#raw", via: [:get, :post, :patch, :put]

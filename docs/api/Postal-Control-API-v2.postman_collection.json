@@ -1,0 +1,131 @@
+{
+  "info": {
+    "_postman_id": "c2f2d2f9-5310-470e-b503-0a5bc8f83023",
+    "name": "Postal Control API v2",
+    "description": "Import this collection into Postman, set `base_url` and `control_api_key`, then run the folders in order. Creation requests save UUIDs to collection variables for subsequent requests. The key must be a control-plane bearer key, not an existing /api/v1 credential.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://v2postal.t4gc.in", "type": "string" },
+    { "key": "control_api_key", "value": "", "type": "string" },
+    { "key": "organization_uuid", "value": "", "type": "string" },
+    { "key": "server_uuid", "value": "", "type": "string" },
+    { "key": "domain_uuid", "value": "", "type": "string" },
+    { "key": "credential_uuid", "value": "", "type": "string" },
+    { "key": "webhook_uuid", "value": "", "type": "string" },
+    { "key": "test_domain", "value": "example.com", "type": "string" },
+    { "key": "webhook_url", "value": "https://webhook.site/replace-with-your-uuid", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Control API health",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/health" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('returns 200', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }]
+        }
+      ]
+    },
+    {
+      "name": "Organizations",
+      "item": [
+        {
+          "name": "Create organization",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Test Organization\",\n  \"permalink\": \"postman-test-{{$randomUUID}}\",\n  \"time_zone\": \"Asia/Kolkata\",\n  \"external_customer_id\": \"postman-{{$guid}}\",\n  \"plan_code\": \"test\",\n  \"monthly_outbound_limit\": 1000,\n  \"quota_warning_percent\": 80,\n  \"quota_action\": \"monitor\",\n  \"owner\": {\n    \"email_address\": \"postman-{{$randomUUID}}@example.test\",\n    \"first_name\": \"Postman\",\n    \"last_name\": \"Tester\"\n  }\n}" },
+            "url": "{{base_url}}/api/v2/organizations"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('returns 201', () => pm.response.to.have.status(201));", "var body = pm.response.json();", "if (pm.response.code === 201 && body.data) { pm.collectionVariables.set('organization_uuid', body.data.uuid); } else { pm.test('returns structured error', () => pm.expect(body.error).to.be.an('object')); }"], "type": "text/javascript" } }]
+        },
+        { "name": "List organizations", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations?page=1&per_page=25" } },
+        { "name": "Get organization", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}" } },
+        {
+          "name": "Update organization quota",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"plan_code\": \"postman-test\",\n  \"monthly_outbound_limit\": 2000,\n  \"quota_warning_percent\": 75,\n  \"quota_action\": \"monitor\"\n}" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}" }
+        },
+        { "name": "Suspend organization", "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"reason\": \"Postman lifecycle test\" }" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/suspend" } },
+        { "name": "Unsuspend organization", "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/unsuspend" } }
+      ]
+    },
+    {
+      "name": "Servers",
+      "item": [
+        {
+          "name": "Create server",
+          "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Test Server\",\n  \"permalink\": \"postman-server-{{$randomUUID}}\",\n  \"mode\": \"Live\",\n  \"send_limit\": 100,\n  \"message_retention_days\": 30,\n  \"raw_message_retention_days\": 7,\n  \"allow_sender\": true,\n  \"privacy_mode\": false\n}" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('returns 201', () => pm.response.to.have.status(201));", "var body = pm.response.json();", "if (pm.response.code === 201 && body.data) { pm.collectionVariables.set('server_uuid', body.data.uuid); } else { pm.test('returns structured provisioning error', () => pm.expect(body.error).to.have.property('code', 'provisioning_failed')); }"], "type": "text/javascript" } }]
+        },
+        { "name": "List servers", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers" } },
+        { "name": "Get server", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}" } },
+        { "name": "Update server", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"send_limit\": 120, \"privacy_mode\": true }" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}" } },
+        { "name": "Suspend server", "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"reason\": \"Postman lifecycle test\" }" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/suspend" } },
+        { "name": "Unsuspend server", "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/unsuspend" } }
+      ]
+    },
+    {
+      "name": "Domains",
+      "item": [
+        {
+          "name": "Add sending domain",
+          "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"name\": \"{{test_domain}}\", \"verification_method\": \"DNS\", \"outgoing\": true, \"incoming\": false, \"use_for_any\": true }" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('returns 201', () => pm.response.to.have.status(201));", "var body = pm.response.json();", "if (pm.response.code === 201 && body.data) { pm.collectionVariables.set('domain_uuid', body.data.uuid); } else { pm.test('returns structured error', () => pm.expect(body.error).to.be.an('object')); }"], "type": "text/javascript" } }]
+        },
+        { "name": "List domains", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains" } },
+        { "name": "Get domain DNS instructions", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains/{{domain_uuid}}" } },
+        { "name": "Verify domain ownership", "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains/{{domain_uuid}}/verify" } },
+        { "name": "Check domain DNS", "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains/{{domain_uuid}}/check-dns" } }
+      ]
+    },
+    {
+      "name": "Credentials",
+      "item": [
+        {
+          "name": "Create SMTP credential",
+          "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"type\": \"SMTP\", \"name\": \"Postman SMTP credential\", \"hold\": false }" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/credentials" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('returns 201', () => pm.response.to.have.status(201));", "var body = pm.response.json();", "if (pm.response.code === 201 && body.data) { pm.collectionVariables.set('credential_uuid', body.data.uuid); pm.collectionVariables.set('new_credential_key', body.data.key); } else { pm.test('returns structured error', () => pm.expect(body.error).to.be.an('object')); }"], "type": "text/javascript" } }]
+        },
+        { "name": "List credentials (secrets masked)", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/credentials" } },
+        {
+          "name": "Rotate credential",
+          "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/credentials/{{credential_uuid}}/rotate" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('returns 201', () => pm.response.to.have.status(201));", "var body = pm.response.json();", "if (pm.response.code === 201 && body.data) { pm.collectionVariables.set('credential_uuid', body.data.uuid); pm.collectionVariables.set('new_credential_key', body.data.key); } else { pm.test('returns structured error', () => pm.expect(body.error).to.be.an('object')); }"], "type": "text/javascript" } }]
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Create webhook",
+          "request": { "method": "POST", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"name\": \"Postman test webhook\", \"url\": \"{{webhook_url}}\", \"all_events\": true, \"enabled\": true }" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('returns 201', () => pm.response.to.have.status(201));", "var body = pm.response.json();", "if (pm.response.code === 201 && body.data) { pm.collectionVariables.set('webhook_uuid', body.data.uuid); } else { pm.test('returns structured error', () => pm.expect(body.error).to.be.an('object')); }"], "type": "text/javascript" } }]
+        },
+        { "name": "List webhooks", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks" } },
+        { "name": "Get webhook", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks/{{webhook_uuid}}" } },
+        { "name": "Update webhook", "request": { "method": "PATCH", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"enabled\": false }" }, "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks/{{webhook_uuid}}" } }
+      ]
+    },
+    {
+      "name": "Usage and monitoring",
+      "item": [
+        { "name": "Organization usage", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/usage?granularity=daily" } },
+        { "name": "Server usage", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/usage?granularity=hourly" } },
+        { "name": "Server health", "request": { "method": "GET", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/health" } }
+      ]
+    },
+    {
+      "name": "Cleanup (run last)",
+      "item": [
+        { "name": "Revoke rotated credential", "request": { "method": "DELETE", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/credentials/{{credential_uuid}}" } },
+        { "name": "Delete webhook", "request": { "method": "DELETE", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/webhooks/{{webhook_uuid}}" } },
+        { "name": "Delete domain", "request": { "method": "DELETE", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}/domains/{{domain_uuid}}" } },
+        { "name": "Delete server", "request": { "method": "DELETE", "header": [], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}/servers/{{server_uuid}}" } },
+        { "name": "Delete organization", "request": { "method": "DELETE", "header": [{ "key": "Idempotency-Key", "value": "{{$guid}}" }], "url": "{{base_url}}/api/v2/organizations/{{organization_uuid}}" } }
+      ]
+    }
+  ],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{control_api_key}}", "type": "string" }] }
+}

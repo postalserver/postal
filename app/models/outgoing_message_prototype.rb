@@ -32,6 +32,7 @@ class OutgoingMessagePrototype
   end
 
   attr_reader :message_id
+  attr_reader :quota_decision
 
   def from_address
     Postal::Helpers.strip_name_from_address(@from)
@@ -74,9 +75,12 @@ class OutgoingMessagePrototype
 
   def create_messages
     if valid?
+      @quota_decision = ControlPlane::OutboundQuota.reserve!(@server, count: all_addresses.size)
+      return false if @quota_decision.suspend?
+
       all_addresses.each_with_object({}) do |address, hash|
         if address = Postal::Helpers.strip_name_from_address(address)
-          hash[address] = create_message(address)
+          hash[address] = create_message(address, quota_decision: @quota_decision)
         end
       end
     else
@@ -183,7 +187,7 @@ class OutgoingMessagePrototype
     end
   end
 
-  def create_message(address)
+  def create_message(address, quota_decision: nil)
     message = @server.message_db.new_message
     message.scope = "outgoing"
     message.rcpt_to = address
@@ -194,7 +198,12 @@ class OutgoingMessagePrototype
     message.credential_id = credential&.id
     message.received_with_ssl = true
     message.bounce = @bounce
-    message.save
+    if quota_decision&.hold?
+      message.save(queue_on_create: false)
+      message.create_delivery("Held", details: "Organization monthly outbound quota (#{quota_decision.limit}) has been reached.")
+    else
+      message.save
+    end
     { id: message.id, token: message.token }
   end
 
