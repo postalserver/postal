@@ -1,0 +1,162 @@
+---
+name: Readonly Postal Release
+
+on:
+  push:
+    branches:
+      - feature/organization-readonly-users
+      - main
+    tags:
+      - "v*-readonly"
+      - "readonly-*"
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: "Image version tag (e.g. 3.3.7-readonly)"
+        required: false
+        default: "3.3.7-readonly"
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/postal-readonly
+  VERSION: 3.3.7-readonly
+
+jobs:
+  test:
+    name: Test Suite
+    if: github.repository_owner != 'postalserver'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: postal-readonly:ci
+          target: full
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ env.VERSION }}
+      - name: Run specs
+        run: docker compose run --rm postal bundle exec rspec spec/models/organization_user_spec.rb spec/requests/readonly_organization_access_spec.rb
+        env:
+          POSTAL_IMAGE: postal-readonly:ci
+
+  build-and-push:
+    name: Build and Push Image
+    if: github.repository_owner != 'postalserver'
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      image_tags: ${{ steps.meta.outputs.tags }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        run: |
+          TAGS="${{ env.IMAGE }}:${{ env.VERSION }}"
+          TAGS="${TAGS},${{ env.IMAGE }}:latest"
+          TAGS="${TAGS},${{ env.IMAGE }}:sha-${GITHUB_SHA:0:7}"
+
+          if [[ "${GITHUB_REF}" == refs/heads/* ]]; then
+            BRANCH="${GITHUB_REF#refs/heads/}"
+            SLUG="$(echo "${BRANCH}" | tr '[:upper:]' '[:lower:]' | tr '/._' '-')"
+            TAGS="${TAGS},${{ env.IMAGE }}:branch-${SLUG}"
+          fi
+
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            GIT_TAG="${GITHUB_REF#refs/tags/}"
+            TAGS="${TAGS},${{ env.IMAGE }}:${GIT_TAG}"
+          fi
+
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            TAGS="${TAGS},${{ env.IMAGE }}:${{ github.event.inputs.version_tag }}"
+          fi
+
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          target: full
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ env.VERSION }}
+            BRANCH=${{ github.ref_name }}
+
+  release:
+    name: GitHub Release
+    if: github.repository_owner != 'postalserver' && startsWith(github.ref, 'refs/tags/')
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Organization read-only roles (Postal 3.3.7 custom build)
+          generate_release_notes: false
+          body: |
+            > **Not an official [postalserver/postal](https://github.com/postalserver/postal) release.** Custom build from `${{ github.repository }}` adding organization read-only user roles on Postal **3.3.7**.
+
+            ## Tag naming
+
+            | Tag | Meaning |
+            |-----|---------|
+            | Git tag `${{ github.ref_name }}` | Release identifier for this custom build |
+            | Image `${{ env.VERSION }}` | Docker tag `3.3.7-readonly` (Postal base + feature) |
+            | Image `${{ github.ref_name }}` | Same as Git tag |
+
+            Future releases will use clearer tags (e.g. `org-readonly-1.0.0`). The `-readonly` suffix here means **this feature build**, not that Postal is read-only.
+
+            ## Features
+
+            Per-organization roles: **readonly**, **member**, **admin**.
+
+            - Blocks write requests (POST/PATCH/PUT/DELETE) for read-only org members
+            - Role selector in user admin UI
+            - Database migration: `organization_users.read_only`
+
+            ## Pull
+
+            ```bash
+            docker pull ${{ env.IMAGE }}:${{ github.ref_name }}
+            docker pull ${{ env.IMAGE }}:${{ env.VERSION }}
+            docker pull ${{ env.IMAGE }}:latest
+            ```
+
+            ## Upgrade
+
+            Set the same image on all Postal services in compose, then:
+
+            ```bash
+            sudo postal stop
+            sudo docker compose -f /opt/postal/install/docker-compose.yml pull
+            sudo docker compose -f /opt/postal/install/docker-compose.yml --profile tools run --rm runner postal upgrade
+            sudo postal start
+            ```
+
+            Do **not** run host-level `postal upgrade` — it reverts compose to upstream `ghcr.io/postalserver/postal`.
+
+            Upstream PR: https://github.com/postalserver/postal/pull/3622

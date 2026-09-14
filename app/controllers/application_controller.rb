@@ -61,6 +61,15 @@ class ApplicationController < ActionController::Base
     payload[:user] = logged_in? ? current_user.id : nil
   end
 
+  def organization_readonly?
+    false
+  end
+
+  def organization_write_access?
+    true
+  end
+  helper_method :organization_readonly?, :organization_write_access?
+
   def url_with_return_to(url)
     return_to = params[:return_to]
     if return_to.blank? ||

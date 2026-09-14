@@ -5,7 +5,7 @@ on: [push]
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.repository == 'postalserver/postal' && github.ref == 'refs/heads/main'
     outputs:
       release_created: ${{ steps.release-please.outputs.release_created }}
       tag_name: ${{ steps.release-please.outputs.tag_name }} # e.g. v1.0.0
@@ -20,6 +20,7 @@ jobs:
   build:
     name: CI Image Build
     runs-on: ubuntu-latest
+    if: github.repository == 'postalserver/postal'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,6 +44,7 @@ jobs:
     name: Test Suite
     runs-on: ubuntu-latest
     needs: build
+    if: github.repository == 'postalserver/postal'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,6 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     if: >-
+      github.repository == 'postalserver/postal' &&
       startsWith(github.ref, 'refs/heads/') &&
       startsWith(github.ref, 'refs/heads/release-please-') != true &&
       startsWith(github.ref, 'refs/heads/dependabot/') != true
@@ -112,7 +115,7 @@ jobs:
     name: Publish Image
     runs-on: ubuntu-latest
     needs: [build, test, release-please]
-    if: ${{ needs.release-please.outputs.release_created }}
+    if: github.repository == 'postalserver/postal' && needs.release-please.outputs.release_created
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3

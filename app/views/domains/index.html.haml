@@ -20,10 +20,13 @@
   - if @domains.empty?
     .noData.noData--clean
       %h2.noData__title There are no domains for this server.
-      %p.noData__text
-        To send & receive messages you need to add & verify the domain you wish to send/receive
-        messages to/from. Add your domain below to get started.
-      %p.noData__button= link_to "Add your first domain", [:new, organization, @server, :domain], :class => "button button--positive"
+      - if organization_write_access?
+        %p.noData__text
+          To send & receive messages you need to add & verify the domain you wish to send/receive
+          messages to/from. Add your domain below to get started.
+        %p.noData__button= link_to "Add your first domain", [:new, organization, @server, :domain], :class => "button button--positive write-action"
+      - else
+        %p.noData__text No domains have been configured for this server.
 
   - else
     %ul.domainList.u-margin
@@ -69,6 +72,8 @@
             %li.domainList__links
               - if domain.verified?
                 = link_to "DNS setup", [:setup, organization, @server, domain]
-              = link_to "Delete", [organization, @server, domain], :remote => :delete, :method => :delete, :data => {:confirm => "Are you sure you wish to remove this domain?", :disable_with => "Deleting..."}, :class => 'domainList__delete'
+              - if organization_write_access?
+                = link_to "Delete", [organization, @server, domain], :remote => :delete, :method => :delete, :data => {:confirm => "Are you sure you wish to remove this domain?", :disable_with => "Deleting..."}, :class => 'domainList__delete write-action'
 
-    %p.u-center= link_to "Add new domain", [:new, organization, @server, :domain], :class => "button button--positive"
+    - if organization_write_access?
+      %p.u-center= link_to "Add new domain", [:new, organization, @server, :domain], :class => "button button--positive write-action"

@@ -2,7 +2,10 @@
 
 class OrganizationsController < ApplicationController
 
+  include OrganizationAuthorization
+
   before_action :admin_required, only: [:new, :create, :delete, :destroy]
+  before_action :require_organization_admin, only: [:update]
 
   def index
     if current_user.admin?
@@ -63,6 +66,6 @@ class OrganizationsController < ApplicationController
 
     @organization ||= params[:org_permalink] ? current_user.organizations_scope.find_by_permalink!(params[:org_permalink]) : nil
   end
-  helper_method :organization
+  helper_method :organization, :organization_readonly?
 
 end

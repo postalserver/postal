@@ -8,7 +8,7 @@
     %link{:href => asset_path('favicon.png'), :rel => 'shortcut icon'}
     <meta name="turbolinks-cache-control" content="no-cache">
     = yield :head
-  %body
+  %body{class: (organization_readonly? ? 'is-readonly-org' : nil)}
     = display_flash
     %header.siteHeader{'data-turbolinks-permanent' => true}
       - if flash[:remember_login] && !auth_session.persistent?
@@ -23,6 +23,8 @@
       .siteHeader__inside
         .siteHeader__logo= link_to "Postal", root_path
         %p.siteHeader__version The open source e-mail platform
+        - if defined?(organization) && organization && organization_readonly?
+          %span.siteHeader__readonlyBadge Read-only
         %ul.siteHeader__nav
           - if defined?(organization) && organization
             %li.siteHeader__navItem

@@ -3,6 +3,7 @@
 module WithinOrganization
 
   extend ActiveSupport::Concern
+  include OrganizationAuthorization
 
   included do
     helper_method :organization
