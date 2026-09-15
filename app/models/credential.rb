@@ -31,7 +31,7 @@ class Credential < ApplicationRecord
   validate :validate_key_cannot_be_changed
   validate :validate_key_for_smtp_ip
 
-  serialize :options, type: Hash
+  serialize :options, type: Hash, coder: YAML
 
   before_validation :generate_key
 
