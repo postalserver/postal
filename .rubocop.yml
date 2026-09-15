@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 3.4
   NewCops: enable
   Exclude:
     - "bin/*"
@@ -135,7 +135,7 @@ Style/FrozenStringLiteralComment:
   Enabled: true
   SafeAutoCorrect: true
 
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Enabled: false
 
 Layout/LineLength:
