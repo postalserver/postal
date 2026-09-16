@@ -96,7 +96,7 @@ class ServersController < ApplicationController
   private
 
   def safe_params(*extras)
-    params.require(:server).permit(:name, :mode, :ip_pool_id, *extras)
+    params.require(:server).permit(:name, :mode, :priority, :ip_pool_id, *extras)
   end
 
 end
