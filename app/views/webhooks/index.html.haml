@@ -23,6 +23,10 @@
                 %span.label.label--green Enabled
               - else
                 %span.label.label--red Disabled
+              - if webhook.output_style == 'listmonk'
+                %span.label.label--blue Listmonk
+              - else
+                %span.label.label--gray Postal
           .webhookList__bottom
             %p.webhookList__usageTime
               - if webhook.last_used_at

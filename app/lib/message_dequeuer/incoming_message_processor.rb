@@ -37,7 +37,7 @@ module MessageDequeuer
       original_messages = queued_message.message.original_messages
       unless original_messages.empty?
         queued_message.message.original_messages.each do |orig_msg|
-          queued_message.message.update(bounce_for_id: orig_msg.id, domain_id: orig_msg.domain_id)
+          queued_message.message.update(bounce_for_id: orig_msg.id, domain_id: orig_msg.domain_id, bounce_type: "soft")
           create_delivery "Processed", details: "This has been detected as a bounce message for <msg:#{orig_msg.id}>."
           orig_msg.bounce!(queued_message.message)
           log "bounce linked with message #{orig_msg.id}"
@@ -51,6 +51,7 @@ module MessageDequeuer
       # otherwise we'll drop at this point.
       return unless queued_message.message.route_id.nil?
 
+      queued_message.message.update(bounce_type: "hard")
       log "no source messages found, hard failing"
       create_delivery "HardFail", details: "This message was a bounce but we couldn't link it with any outgoing message and there was no route for it."
       remove_from_queue

@@ -6,6 +6,7 @@ class WebhookDeliveryService
 
   def initialize(webhook_request:)
     @webhook_request = webhook_request
+    @webhook = @webhook_request.webhook
   end
 
   def call
@@ -25,19 +26,36 @@ class WebhookDeliveryService
   private
 
   def generate_payload
-    @payload = {
-      event: @webhook_request.event,
-      timestamp: @webhook_request.created_at.to_f,
-      payload: @webhook_request.payload,
-      uuid: @webhook_request.uuid
-    }.to_json
+    case @webhook.output_style
+    when "listmonk"
+      payload_data = generate_listmonk_payload
+      if payload_data.nil?
+        raise Postal::Error, "Unsupported event '#{@webhook_request.event}' for output style 'listmonk'"
+      end
+      @payload = payload_data.to_json
+    else
+      @payload = {
+        event: @webhook_request.event,
+        timestamp: @webhook_request.created_at.to_f,
+        payload: @webhook_request.payload,
+        uuid: @webhook_request.uuid
+      }.to_json
+    end
   end
 
   def send_request
-    @http_result = Postal::HTTP.post(@webhook_request.url,
-                                     sign: true,
-                                     json: @payload,
-                                     timeout: 5)
+    options = {
+      sign: true,
+      json: @payload,
+      timeout: 5
+    }
+
+    if @webhook.output_style == 'listmonk'
+      options[:username] = Postal::Config.listmonk.api_user
+      options[:password] = Postal::Config.listmonk.api_key
+    end
+
+    @http_result = Postal::HTTP.post(@webhook_request.url, options)
 
     @success = (@http_result[:code] >= 200 && @http_result[:code] < 300)
   end
@@ -88,6 +106,26 @@ class WebhookDeliveryService
 
     logger.info "Have tried #{@webhook_request.attempts} times. Giving up."
     @webhook_request.destroy!
+  end
+
+  def generate_listmonk_payload
+    case @webhook_request.event
+    when "MessageBounced"
+      payload_data = @webhook_request.payload
+      bounce_data = payload_data[:bounce] || payload_data["bounce"]
+      original_data = payload_data[:original_message] || payload_data["original_message"]
+
+      bounce_type = bounce_data[:bounce_type] || bounce_data["bounce_type"]
+      email = original_data[:to] || original_data["to"]
+
+      {
+        email: email,
+        source: "postal",
+        type: bounce_type == "soft" ? "soft" : "hard"
+      }
+    else
+      nil
+    end
   end
 
   def logger
