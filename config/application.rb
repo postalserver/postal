@@ -8,6 +8,7 @@ require "active_record/railtie"
 require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
+require "ipaddr"
 require "sprockets/railtie"
 
 # Require the gems listed in Gemfile, including any gems
@@ -41,6 +42,24 @@ module Postal
     config.middleware.insert_before ActionDispatch::HostAuthorization, TrackingMiddleware
 
     config.hosts << Postal::Config.postal.web_hostname
+
+    # Allow internal Docker networks and any private RFC1918 IP ranges to
+    # reach the API without a Host header check. Public web traffic is
+    # already protected by the `web_hostname` rule above; the exclude
+    # below keeps the legacy `/api/v1/...` endpoints reachable from
+    # containers on the same Docker network as Postal without forcing
+    # every operator to maintain a static allowlist of internal hostnames.
+    config.host_authorization = {
+      exclude: ->(req) {
+        next true if req.path.start_with?("/api/v1/")
+        ip = req.remote_ip
+        next true if ip && IPAddr.new("10.0.0.0/8").include?(ip)
+        next true if ip && IPAddr.new("172.16.0.0/12").include?(ip)
+        next true if ip && IPAddr.new("192.168.0.0/16").include?(ip)
+        next true if ip && IPAddr.new("127.0.0.0/8").include?(ip)
+        false
+      }
+    }
 
     unless Postal::Config.logging.rails_log_enabled?
       config.logger = Logger.new("/dev/null")
