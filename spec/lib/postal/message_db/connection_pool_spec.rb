@@ -5,11 +5,26 @@ require "rails_helper"
 describe Postal::MessageDB::ConnectionPool do
   subject(:pool) { described_class.new }
 
+  # The pool is engine agnostic, so the assertions use whatever driver the
+  # configured adapter resolves to.
+  let(:dialect) { Postal::MessageDB::Dialects::Registry.for(Postal::Config.message_db.adapter) }
+  let(:client_class) do
+    case dialect.name
+    when "mysql" then Mysql2::Client
+    when "sqlite"
+      require "sqlite3"
+      SQLite3::Database
+    else
+      PG::Connection
+    end
+  end
+  let(:error_class) { dialect.error_class }
+
   describe "#use" do
     it "yields a connection" do
       counter = 0
       pool.use do |connection|
-        expect(connection).to be_a Mysql2::Client
+        expect(connection).to be_a client_class
         counter += 1
       end
       expect(counter).to eq 1
@@ -30,15 +45,15 @@ describe Postal::MessageDB::ConnectionPool do
           raise StandardError
         end
       end.to raise_error StandardError
-      expect(pool.connections).to match [kind_of(Mysql2::Client)]
+      expect(pool.connections).to match [kind_of(client_class)]
     end
 
     it "does not check in connections when there is a connection error" do
       expect do
         pool.use do
-          raise Mysql2::Error, "lost connection to server"
+          raise error_class, "lost connection to server"
         end
-      end.to raise_error Mysql2::Error
+      end.to raise_error error_class
       expect(pool.connections).to eq []
     end
 
@@ -47,9 +62,9 @@ describe Postal::MessageDB::ConnectionPool do
       expect do
         pool.use do |client|
           clients_seen << client
-          raise Mysql2::Error, "lost connection to server"
+          raise error_class, "lost connection to server"
         end
-      end.to raise_error Mysql2::Error
+      end.to raise_error error_class
       expect(clients_seen.uniq.size).to eq 2
     end
   end

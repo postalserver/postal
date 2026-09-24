@@ -3,7 +3,7 @@
   %h1.pageHeader__title
     My Settings
 .pageContent.pageContent--compact
-  = form_for @user, :url => settings_path, :remote => true do |f|
+  = form_with model: @user, url: settings_path, data: { remote: true } do |f|
     = f.error_messages
     %fieldset.fieldSet
       - if @user.password? && Postal::Config.oidc.local_authentication_enabled?

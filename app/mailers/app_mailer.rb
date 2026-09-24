@@ -30,6 +30,12 @@ class AppMailer < ApplicationMailer
     mail to: @server.organization.notification_addresses, subject: "[#{server.full_permalink}] Your mail server has been suspended"
   end
 
+  def domain_dkim_key_pending(domain)
+    @domain = domain
+    mail to: domain.notification_organization.notification_addresses,
+         subject: "A DKIM key change for #{@domain.name} is waiting to be published"
+  end
+
   def test_message(recipient)
     mail to: recipient, subject: "Postal SMTP Test Message"
   end

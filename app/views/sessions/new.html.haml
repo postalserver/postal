@@ -4,7 +4,7 @@
 = display_flash
 
 .subPageBox__content
-  = form_tag login_path, :class => 'loginForm' do
+  = form_with url: login_path, class: 'loginForm' do
     = hidden_field_tag 'return_to', params[:return_to]
 
     - if Postal::Config.oidc.enabled?

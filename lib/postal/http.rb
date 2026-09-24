@@ -2,6 +2,7 @@
 
 require "net/https"
 require "resolv"
+require "timeout"
 require "uri"
 
 module Postal

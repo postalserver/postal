@@ -19,7 +19,7 @@ module Worker
   # after it has completed any outstanding jobs which are already inflight.
   class Process
 
-    include HasPrometheusMetrics
+    include HasMetrics
 
     # An array of job classes that should be processed each time the worker ticks.
     #
@@ -36,10 +36,13 @@ module Worker
       ActionDeletionsScheduledTask,
       CheckAllDNSScheduledTask,
       CleanupAuthieSessionsScheduledTask,
+      DKIMKeyChangeScheduledTask,
       ExpireHeldMessagesScheduledTask,
       ProcessMessageRetentionScheduledTask,
       PruneSuppressionListsScheduledTask,
+      PruneTLSReportsScheduledTask,
       PruneWebhookRequestsScheduledTask,
+      RenewMTAStsCertificatesScheduledTask,
       SendNotificationsScheduledTask,
       TidyQueuedMessagesTask,
     ].freeze
@@ -54,7 +57,7 @@ module Worker
       @task_sleep_time = task_sleep_time
       @threads = []
 
-      setup_prometheus
+      setup_metrics
     end
 
     def run
@@ -163,7 +166,7 @@ module Worker
 
             time = Benchmark.realtime { job.call }
 
-            observe_prometheus_histogram :postal_worker_job_runtime,
+            observe_histogram :postal_worker_job_runtime,
                                          time,
                                          labels: {
                                           thread: thread,
@@ -172,7 +175,7 @@ module Worker
 
             if job.work_completed?
               completed_work += 1
-              increment_prometheus_counter :postal_worker_job_executions,
+              increment_counter :postal_worker_job_executions,
                                            labels: {
                                               thread: thread,
                                               job: job_class.to_s.split("::").last
@@ -257,7 +260,7 @@ module Worker
             task.new(logger: logger).call
           end
 
-          observe_prometheus_histogram :postal_worker_task_runtime,
+          observe_histogram :postal_worker_task_runtime,
                                        time,
                                        labels: {
                                         task: task.to_s.split("::").last
@@ -288,28 +291,28 @@ module Worker
       e.backtrace.each { |line| logger.error line }
       Sentry.capture_exception(e) if defined?(Sentry)
 
-      increment_prometheus_counter :postal_worker_errors,
+      increment_counter :postal_worker_errors,
                                    labels: { error: e.class.to_s }
     end
 
-    def setup_prometheus
-      register_prometheus_counter :postal_worker_job_executions,
+    def setup_metrics
+      register_counter :postal_worker_job_executions,
                                   docstring: "The number of jobs worked by a worker where work was completed",
                                   labels: [:thread, :job]
 
-      register_prometheus_histogram :postal_worker_job_runtime,
+      register_histogram :postal_worker_job_runtime,
                                     docstring: "The time taken to process jobs (in seconds)",
                                     labels: [:thread, :job]
 
-      register_prometheus_counter :postal_worker_errors,
+      register_counter :postal_worker_errors,
                                   docstring: "The number of errors encountered while processing jobs",
                                   labels: [:error]
 
-      register_prometheus_histogram :postal_worker_task_runtime,
+      register_histogram :postal_worker_task_runtime,
                                     docstring: "The time taken to process tasks (in seconds)",
                                     labels: [:task]
 
-      register_prometheus_histogram :postal_message_queue_latency,
+      register_histogram :postal_message_queue_latency,
                                     docstring: "The length of time between a message being queued and being dequeued (in seconds)"
     end
 

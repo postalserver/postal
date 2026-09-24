@@ -1,0 +1,17 @@
+Hello,
+
+A DKIM key change for one of the domains on your Postal installation is still
+waiting to be published in DNS.
+
+Domain: <%= @domain.name %>
+Record name: <%= @domain.pending_dkim_record_name %>
+Record value: <%= @domain.pending_dkim_record %>
+
+Until that record is published we will continue to sign your mail with the
+existing DKIM key. If you no longer wish to make this change you can cancel it
+from the DNS setup page for the domain.
+
+Thanks,
+
+<%= Postal::Config.smtp.from_name %>
+<%= Postal::Config.smtp.from_address %>

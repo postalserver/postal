@@ -27,6 +27,10 @@ spec/config/postal.local.yml
 public/assets
 vendor/bundle
 
+# Compiled Dart Sass output (rebuilt by dartsass:build during precompile).
+/app/assets/builds/*
+!/app/assets/builds/.keep
+
 Procfile.local
 VERSION
 BRANCH

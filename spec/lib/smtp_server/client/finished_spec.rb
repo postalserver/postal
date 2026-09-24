@@ -47,7 +47,7 @@ module SMTPServer
           client.handle("DATA")
           client.handle("a" * 1024 * 1024 * 10)
           client.handle("\r")
-          expect(client.handle(".\r")).to eq "552 Message too large (maximum size 1MB)"
+          expect(client.handle(".\r")).to eq "552 5.3.4 Message too large (maximum size 1MB)"
         end
       end
 
@@ -64,7 +64,7 @@ module SMTPServer
           client.handle("")
           client.handle("This is a test message")
           client.handle("\r")
-          expect(client.handle(".\r")).to eq "550 Loop detected"
+          expect(client.handle(".\r")).to eq "550 5.4.6 Loop detected"
         end
       end
 
@@ -77,7 +77,7 @@ module SMTPServer
           client.handle("")
           client.handle("This is a test message")
           client.handle("\r")
-          expect(client.handle(".\r")).to eq "530 From/Sender name is not valid"
+          expect(client.handle(".\r")).to eq "530 5.7.1 From/Sender name is not valid"
         end
       end
 
@@ -94,7 +94,7 @@ module SMTPServer
           client.handle("")
           client.handle("This is a test message")
           client.handle("\r")
-          expect(client.handle(".\r")).to eq "250 OK"
+          expect(client.handle(".\r")).to eq "250 2.0.0 OK"
           queued_message = QueuedMessage.first
           expect(queued_message).to have_attributes(
             domain: "example.com",
@@ -134,7 +134,7 @@ module SMTPServer
             client.handle("")
             client.handle("This is a test message")
             client.handle("\r")
-            expect(client.handle(".\r")).to eq "250 OK"
+            expect(client.handle(".\r")).to eq "250 2.0.0 OK"
 
             queued_message = QueuedMessage.first
             expect(queued_message).to have_attributes(
@@ -166,7 +166,7 @@ module SMTPServer
             client.handle("")
             client.handle("This is a test message")
             client.handle("\r")
-            expect(client.handle(".\r")).to eq "250 OK"
+            expect(client.handle(".\r")).to eq "250 2.0.0 OK"
 
             queued_message = QueuedMessage.first
             expect(queued_message).to have_attributes(
@@ -205,7 +205,7 @@ module SMTPServer
           client.handle("")
           client.handle("This is a test message")
           client.handle("\r")
-          expect(client.handle(".\r")).to eq "250 OK"
+          expect(client.handle(".\r")).to eq "250 2.0.0 OK"
 
           queued_message = QueuedMessage.first
           expect(queued_message).to have_attributes(

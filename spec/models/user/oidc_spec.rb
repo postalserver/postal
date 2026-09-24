@@ -30,7 +30,7 @@ RSpec.describe User do
     let(:oidc_name) { "John Smith" }
     let(:oidc_email) { "test@example.com" }
 
-    let(:auth) { { "sub" => uid, "email" => oidc_email, "name" => oidc_name } }
+    let(:auth) { { "sub" => uid, "email" => oidc_email, "email_verified" => true, "name" => oidc_name } }
     let(:logger) { TestLogger.new }
 
     subject(:result) { described_class.find_from_oidc(auth, logger: logger) }
@@ -108,6 +108,20 @@ RSpec.describe User do
           result
           expect(logger).to have_logged(/no user with UID abcdef/)
           expect(logger).to have_logged(/no user with e-mail address/)
+        end
+      end
+
+      context "when the provider does not say the email address is verified" do
+        let(:auth) { { "sub" => uid, "email" => oidc_email, "name" => oidc_name } }
+
+        before do
+          @existing_user = create(:user, first_name: "mary",
+                                         last_name: "apples", email_address: "test@example.com")
+        end
+
+        it "does not link the address to the user" do
+          expect(result).to be_nil
+          expect(@existing_user.reload.oidc_uid).to be_nil
         end
       end
     end

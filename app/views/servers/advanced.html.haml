@@ -6,7 +6,7 @@
 = render 'settings_header', :active_nav => :admin
 .pageContent.pageContent--compact
   .u-margin
-    = form_for [organization, @server], :remote => true do |f|
+    = form_with model: [organization, @server], data: { remote: true } do |f|
       = f.error_messages
       %fieldset.fieldSet.fieldSet--wide
         .fieldSet__field
@@ -62,12 +62,12 @@
         = f.submit "Save server", :class => 'button button--positive js-form-submit'
 
   - if @server.suspended_at
-    = form_tag [:unsuspend, organization, @server], :remote => true do
+    = form_with url: [:unsuspend, organization, @server], data: { remote: true } do
       .fieldSetSubmit.fieldSetSubmit--wide.buttonSet
         = submit_tag "Unsuspend server", :class => 'button button--danger js-form-submit'
 
   - else
-    = form_tag [:suspend, organization, @server], :remote => true do
+    = form_with url: [:suspend, organization, @server], data: { remote: true } do
       %fieldset.fieldSet.fieldSet--wide
         .fieldSet__field
           = label_tag :reason, 'Suspension Reason', :class => 'fieldSet__label'

@@ -1,4 +1,4 @@
-= form_for [organization, @server, @smtp_endpoint], :remote => true do |f|
+= form_with model: [organization, @server, @smtp_endpoint], data: { remote: true } do |f|
   = f.error_messages
   %fieldset.fieldSet
     .fieldSet__field

@@ -35,4 +35,4 @@
     %li.navBar__item= link_to "HTML", html_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :html ? 'is-active' : '']
     %li.navBar__item= link_to "Attachments", attachments_organization_server_message_path(organization, @server, @message.id), :class => ['navBar__link', active_nav == :attachments ? 'is-active' : '']
     - if @message.raw_message?
-      %li.navBar__item= link_to "Download", download_organization_server_message_path(organization, @server, @message.id), :data => {:turbolinks => 'false'}, :class =>'navBar__link'
+      %li.navBar__item= link_to "Download", download_organization_server_message_path(organization, @server, @message.id), :data => {:turbo => 'false'}, :class =>'navBar__link'

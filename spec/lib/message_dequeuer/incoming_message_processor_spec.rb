@@ -562,7 +562,7 @@ module MessageDequeuer
         end
 
         it "updates the queued message with a new retry time" do
-          Timecop.freeze do
+          travel_to Time.now do
             retry_time = 5.minutes.from_now.change(usec: 0)
             processor.process
             expect(queued_message.reload.retry_after).to eq retry_time
@@ -593,7 +593,7 @@ module MessageDequeuer
 
         it "marks the endpoint as used" do
           route.endpoint.update!(last_used_at: nil)
-          Timecop.freeze do
+          travel_to Time.now do
             expect { processor.process }.to change { route.endpoint.reload.last_used_at.to_i }.from(0).to(Time.now.to_i)
           end
         end

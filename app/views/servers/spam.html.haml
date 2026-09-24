@@ -9,7 +9,7 @@
     are assigned a score which represents how likely an e-mail is to be spam. From here
     you can choose at which level you'd like to identify messages as spam.
 
-  = form_for [organization, @server], :remote => true do |f|
+  = form_with model: [organization, @server], data: { remote: true } do |f|
     .u-margin
       %p.pageContent__subTitle Incoming Spam Threshold
       %p.pageContent__text.u-margin

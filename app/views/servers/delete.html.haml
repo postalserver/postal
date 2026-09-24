@@ -12,7 +12,7 @@
     %p.pageContent__text.u-margin
       To continue to remove this server, please enter the server name in the field below and press
       continue. <b class='u-red'>There will be no other confirmations.</b>
-    = form_tag [organization, @server], :remote => true, :method => :delete do
+    = form_with url: [organization, @server], data: { remote: true }, :method => :delete do
       = hidden_field_tag 'return_to', params[:return_to]
       %p.u-margin
         = text_field_tag "confirm_text", '', :class => 'input input--text input--danger'

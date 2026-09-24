@@ -1,4 +1,4 @@
-= form_for [@ip_pool, @ip_address], :remote => true do |f|
+= form_with model: [@ip_pool, @ip_address], data: { remote: true } do |f|
   = f.error_messages
   %fieldset.fieldSet
     .fieldSet__field

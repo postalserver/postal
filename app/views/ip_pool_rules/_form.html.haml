@@ -1,5 +1,5 @@
 .pageContent.pageContent--compact
-  = form_for [organization, @server, @ip_pool_rule], :remote => true do |f|
+  = form_with model: [organization, @server, @ip_pool_rule], data: { remote: true } do |f|
     = f.error_messages
     %fieldset.fieldSet
       %h2.fieldSet__title.fieldSet__title--noMargin Rule match conditions

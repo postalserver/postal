@@ -2,7 +2,7 @@
 
 class TrackingMiddleware
 
-  TRACKING_PIXEL = File.read(Rails.root.join("app", "assets", "images", "tracking_pixel.png"))
+  TRACKING_PIXEL = File.binread(Rails.root.join("app", "assets", "images", "tracking_pixel.png"))
 
   def initialize(app = nil)
     @app = app

@@ -42,6 +42,8 @@ RSpec.describe SMTPSender do
     # DNS lookups to avoid making requests to public servers.
     allow(DNSResolver.local).to receive(:aaaa).and_return([])
     allow(DNSResolver.local).to receive(:a).and_return([])
+    # No domain publishes an MTA-STS policy unless a test says otherwise.
+    allow(DNSResolver.local).to receive(:txt).and_return([])
   end
 
   describe "#start" do
@@ -59,6 +61,49 @@ RSpec.describe SMTPSender do
           expect(endpoint).to have_attributes(
             ip_address: "1.2.3.4",
             server: have_attributes(hostname: "mx1.example.com", port: 25, ssl_mode: SMTPClient::SSLModes::AUTO)
+          )
+        end
+      end
+
+      context "when the domain publishes an enforcing MTA-STS policy" do
+        before do
+          allow(DNSResolver.local).to receive(:mx).and_return([[5, "mx1.example.com"], [10, "mx2.example.com"]])
+          allow(DNSResolver.local).to receive(:a).with("mx1.example.com").and_return(["1.2.3.4"])
+          allow(DNSResolver.local).to receive(:a).with("mx2.example.com").and_return(["6.7.8.9"])
+          allow(SMTPClient::MTASts).to receive(:policy_for).with("example.com").and_return(
+            SMTPClient::MTASts::Policy.parse("version: STSv1\nmode: enforce\nmax_age: 86400\nmx: mx1.example.com\n")
+          )
+        end
+
+        it "requires verified TLS for the hosts the policy lists" do
+          endpoint = sender.start
+
+          expect(endpoint).to have_attributes(
+            ip_address: "1.2.3.4",
+            server: have_attributes(hostname: "mx1.example.com", ssl_mode: SMTPClient::SSLModes::STARTTLS)
+          )
+        end
+
+        it "does not deliver to a host the policy does not list" do
+          expect(sender.start.server.hostname).to eq "mx1.example.com"
+        end
+      end
+
+      context "when the domain publishes a testing MTA-STS policy" do
+        before do
+          allow(DNSResolver.local).to receive(:mx).and_return([[5, "mx1.example.com"]])
+          allow(DNSResolver.local).to receive(:a).with("mx1.example.com").and_return(["1.2.3.4"])
+          allow(SMTPClient::MTASts).to receive(:policy_for).with("example.com").and_return(
+            SMTPClient::MTASts::Policy.parse("version: STSv1\nmode: testing\nmax_age: 86400\nmx: mx9.example.com\n")
+          )
+        end
+
+        it "delivers opportunistically rather than refusing" do
+          endpoint = sender.start
+
+          expect(endpoint).to have_attributes(
+            ip_address: "1.2.3.4",
+            server: have_attributes(hostname: "mx1.example.com", ssl_mode: SMTPClient::SSLModes::AUTO)
           )
         end
       end
@@ -481,6 +526,31 @@ RSpec.describe SMTPSender do
         end
       end
 
+      context "when the message is larger than the server accepts" do
+        let(:smtp_send_message_error) do
+          proc do
+            SMTPClient::Endpoint::MessageTooLargeError.new(
+              "1.2.3.4:25 (mx1.example.com) accepts messages of up to 1024 bytes but this one is 4098 bytes"
+            )
+          end
+        end
+
+        it "returns a HardFail, because no retry makes a message smaller" do
+          result = sender.send_message(message)
+          expect(result).to be_a SendResult
+          expect(result).to have_attributes(
+            type: "HardFail",
+            details: /larger than the server accepts when sending/,
+            output: /up to 1024 bytes/
+          )
+        end
+
+        it "resets the endpoint SMTP sesssion" do
+          sender.send_message(message)
+          expect(sender.endpoints.last).to have_received(:reset_smtp_session)
+        end
+      end
+
       context "when there is an unexpected error" do
         let(:smtp_send_message_error) { proc { ZeroDivisionError.new("divided by 0") } }
 
@@ -548,6 +618,36 @@ RSpec.describe SMTPSender do
                                                                          Hashie::Mash.new(host: "test.example.com", port: 25, ssl_mode: "Auto"),
                                                                        ])
       expect(described_class.smtp_relays).to match [kind_of(SMTPClient::Server)]
+    end
+
+    it "carries the credentials and mechanism of a relay to the client" do
+      allow(Postal::Config.postal).to receive(:smtp_relays).and_return([
+                                                                         Hashie::Mash.new(host: "relay.example.com", port: 587,
+                                                                                          ssl_mode: "STARTTLS", username: "user",
+                                                                                          password: "p:ss+word", auth_mode: "login"),
+                                                                       ])
+
+      relay = described_class.smtp_relays.first
+
+      expect(relay).to have_attributes(
+        hostname: "relay.example.com",
+        port: 587,
+        username: "user",
+        password: "p:ss+word",
+        authentication: "login"
+      )
+      expect(relay.authenticate?).to be true
+    end
+
+    it "leaves a relay which names no credentials unauthenticated" do
+      allow(Postal::Config.postal).to receive(:smtp_relays).and_return([
+                                                                         Hashie::Mash.new(host: "relay.example.com", port: 25, ssl_mode: "Auto"),
+                                                                       ])
+
+      relay = described_class.smtp_relays.first
+
+      expect(relay.authentication).to be nil
+      expect(relay.authenticate?).to be false
     end
 
     it "returns relays with options" do

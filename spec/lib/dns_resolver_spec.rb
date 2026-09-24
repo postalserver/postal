@@ -5,6 +5,12 @@ require "rails_helper"
 RSpec.describe DNSResolver do
   subject(:resolver) { described_class.local }
 
+  after do
+    # Drop the memoized process-wide resolver so every example (including the
+    # stubbed resolv.conf ones below) starts clean with no cached answers.
+    described_class.instance_variable_set(:@local, nil)
+  end
+
   # Now, we could mock everything in here which would give us some comfort
   # but I do think that we'll benefit more from having a full E2E test here
   # so we'll test this using values which we know to be fairly static and
@@ -204,6 +210,61 @@ RSpec.describe DNSResolver do
     it "finds the effective nameservers for a given domain and returns them" do
       resolver = described_class.for_domain("dnstest.postalserver.io")
       expect(resolver.nameservers.sort).to eq ["151.252.1.100", "151.252.2.100"]
+    end
+  end
+
+  describe "the answer cache" do
+    subject(:resolver) { described_class.new(["1.2.3.4"]) }
+
+    let(:type) { Resolv::DNS::Resource::IN::A }
+    let(:resource) do
+      instance_double(Resolv::DNS::Resource::IN::A, ttl: 300, address: IPAddr.new("1.2.3.4"))
+    end
+    let(:dns) { instance_double(Resolv::DNS) }
+
+    before do
+      allow(Resolv::DNS).to receive(:open).and_yield(dns)
+      allow(dns).to receive(:timeouts=)
+    end
+
+    it "answers a repeated query without touching the network again" do
+      allow(dns).to receive(:getresources).once.and_return([resource])
+
+      expect(resolver.a("example.com")).to eq ["1.2.3.4"]
+      expect(resolver.a("example.com")).to eq ["1.2.3.4"]
+    end
+
+    it "keeps record types apart" do
+      txt_resource = instance_double(Resolv::DNS::Resource::IN::TXT, ttl: 300, data: "hello")
+      allow(dns).to receive(:getresources) do |_name, type|
+        type == Resolv::DNS::Resource::IN::A ? [resource] : [txt_resource]
+      end
+
+      resolver.a("example.com")
+      expect(resolver.txt("example.com")).to eq ["hello"]
+      expect(dns).to have_received(:getresources).twice
+    end
+
+    it "stretches a short TTL to the minimum so bursts do not re-query" do
+      allow(resource).to receive(:ttl).and_return(5)
+      allow(dns).to receive(:getresources).once.and_return([resource])
+
+      resolver.a("example.com")
+      travel_to(Time.now + 30) { resolver.a("example.com") }
+    end
+
+    it "re-queries once the remembered TTL has passed" do
+      allow(dns).to receive(:getresources).twice.and_return([resource])
+
+      resolver.a("example.com")
+      travel_to(Time.now + DNSResolver::MAX_TTL + 1) { resolver.a("example.com") }
+    end
+
+    it "remembers misses briefly so absent records are not re-queried per message" do
+      allow(dns).to receive(:getresources).once.and_return([])
+
+      expect(resolver.a("example.com")).to eq []
+      expect(resolver.a("example.com")).to eq []
     end
   end
 

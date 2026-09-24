@@ -22,6 +22,224 @@ module SMTPClient
 
     subject(:endpoint) { described_class.new(server, ip) }
 
+    describe "relay authentication" do
+      let(:server) do
+        Server.new("relay.example.com",
+                   port: 587,
+                   ssl_mode: SSLModes::STARTTLS,
+                   username: username,
+                   password: password,
+                   authentication: authentication)
+      end
+      let(:username) { "smtp-user" }
+      let(:password) { "p:ss+word" }
+      let(:authentication) { nil }
+      let(:encrypted) { true }
+      let(:cram_md5) { false }
+      let(:plain) { false }
+      let(:login) { false }
+
+      before do
+        allow(Net::SMTP).to receive(:new).and_wrap_original do |original_method, *args|
+          smtp = original_method.call(*args)
+          allow(smtp).to receive(:start)
+          allow(smtp).to receive(:started?).and_return(true)
+          allow(smtp).to receive(:finish)
+          allow(smtp).to receive(:authenticate)
+          allow(smtp).to receive(:tls?).and_return(encrypted)
+          allow(smtp).to receive(:capable_cram_md5_auth?).and_return(cram_md5)
+          allow(smtp).to receive(:capable_plain_auth?).and_return(plain)
+          allow(smtp).to receive(:capable_login_auth?).and_return(login)
+          smtp
+        end
+      end
+
+      def start_session
+        endpoint.start_smtp_session
+        endpoint.smtp_client
+      end
+
+      context "when the relay carries no credentials" do
+        let(:username) { nil }
+
+        it "does not authenticate" do
+          expect(start_session).not_to have_received(:authenticate)
+        end
+      end
+
+      context "when the relay offers CRAM-MD5 as well as PLAIN" do
+        let(:cram_md5) { true }
+        let(:plain) { true }
+
+        it "uses the mechanism which does not put the secret on the wire" do
+          expect(start_session).to have_received(:authenticate).with("smtp-user", "p:ss+word", :cram_md5)
+        end
+      end
+
+      context "when the relay offers only PLAIN" do
+        let(:plain) { true }
+
+        it "authenticates with PLAIN" do
+          expect(start_session).to have_received(:authenticate).with("smtp-user", "p:ss+word", :plain)
+        end
+      end
+
+      context "when the relay offers only the older LOGIN" do
+        let(:login) { true }
+
+        it "falls back to LOGIN rather than leaving the relay unreachable" do
+          expect(start_session).to have_received(:authenticate).with("smtp-user", "p:ss+word", :login)
+        end
+      end
+
+      context "when the relay advertises no mechanism at all" do
+        it "refuses rather than presenting the credential to an unknown peer" do
+          expect { endpoint.start_smtp_session }
+            .to raise_error(described_class::AuthenticationNotSupportedError, /does not advertise/)
+        end
+      end
+
+      context "when the relay names a mechanism" do
+        let(:authentication) { "login" }
+        let(:cram_md5) { true }
+
+        it "uses the named mechanism even when a stronger one is offered" do
+          expect(start_session).to have_received(:authenticate).with("smtp-user", "p:ss+word", :login)
+        end
+      end
+
+      context "when the relay names a mechanism which does not exist" do
+        let(:authentication) { "kerberos" }
+
+        it "raises with the mechanisms it accepts" do
+          expect { endpoint.start_smtp_session }.to raise_error(ArgumentError, /plain, login, cram_md5/)
+        end
+      end
+
+      context "when the session is not encrypted" do
+        let(:plain) { true }
+        let(:encrypted) { false }
+
+        it "authenticates but warns that the credential is readable on the wire" do
+          expect(Postal.logger).to receive(:warn).with(/unencrypted/)
+
+          expect(start_session).to have_received(:authenticate).with("smtp-user", "p:ss+word", :plain)
+        end
+      end
+    end
+
+    describe ".transmitted_size" do
+      it "counts a bare line ending as the CRLF the transfer sends" do
+        expect(described_class.transmitted_size("hello\n")).to eq 7
+      end
+
+      it "does not count a line ending twice when it is already CRLF" do
+        expect(described_class.transmitted_size("hello\r\n")).to eq 7
+      end
+
+      it "counts the dot that the transfer doubles on a line which starts with one" do
+        expect(described_class.transmitted_size(".hello\n")).to eq 9
+      end
+
+      it "counts a last line which has no line ending of its own" do
+        expect(described_class.transmitted_size("hello")).to eq 7
+      end
+
+      it "counts every line of a multi-line message" do
+        expect(described_class.transmitted_size("a\nb\nc\n")).to eq 9
+      end
+
+      it "returns zero for an empty message" do
+        expect(described_class.transmitted_size("")).to eq 0
+      end
+    end
+
+    describe "a message larger than the server accepts" do
+      let(:capabilities) { { "SIZE" => ["1024"] } }
+
+      before do
+        allow(Net::SMTP).to receive(:new).and_wrap_original do |original_method, *args|
+          smtp = original_method.call(*args)
+          allow(smtp).to receive(:start)
+          allow(smtp).to receive(:started?).and_return(true)
+          allow(smtp).to receive(:finish)
+          allow(smtp).to receive(:rset_errors)
+          allow(smtp).to receive(:send_message)
+          allow(smtp).to receive(:capabilities).and_return(capabilities)
+          smtp
+        end
+
+        endpoint.start_smtp_session
+      end
+
+      context "when the message fits" do
+        it "sends it" do
+          endpoint.send_message("a" * 100, "from@example.com", "to@example.com")
+
+          expect(endpoint.smtp_client).to have_received(:send_message)
+        end
+      end
+
+      context "when the message is exactly the size the server accepts" do
+        it "sends it, because the reply is a maximum and not a limit to stay under" do
+          endpoint.send_message("a" * 1022, "from@example.com", "to@example.com")
+
+          expect(endpoint.smtp_client).to have_received(:send_message)
+        end
+      end
+
+      context "when the message is larger than the server accepts" do
+        it "refuses it" do
+          expect { endpoint.send_message("a" * 4096, "from@example.com", "to@example.com") }
+            .to raise_error(described_class::MessageTooLargeError, /up to 1024 bytes but this one is 4098 bytes/)
+        end
+
+        it "refuses it without transferring any of it" do
+          expect { endpoint.send_message("a" * 4096, "from@example.com", "to@example.com") }
+            .to raise_error(described_class::MessageTooLargeError)
+
+          expect(endpoint.smtp_client).not_to have_received(:send_message)
+        end
+
+        it "measures the message as it would be transferred, not as it is stored" do
+          # Five hundred single-character lines are 999 bytes as stored but
+          # 1500 bytes on the wire once each has its CRLF.
+          expect { endpoint.send_message(Array.new(500, "a").join("\n"), "from@example.com", "to@example.com") }
+            .to raise_error(described_class::MessageTooLargeError, /this one is 1500 bytes/)
+        end
+      end
+
+      context "when the server advertises a size of zero, which publishes no limit" do
+        let(:capabilities) { { "SIZE" => ["0"] } }
+
+        it "sends the message" do
+          endpoint.send_message("a" * 4096, "from@example.com", "to@example.com")
+
+          expect(endpoint.smtp_client).to have_received(:send_message)
+        end
+      end
+
+      context "when the server advertises no size at all" do
+        let(:capabilities) { { "PIPELINING" => [] } }
+
+        it "sends the message" do
+          endpoint.send_message("a" * 4096, "from@example.com", "to@example.com")
+
+          expect(endpoint.smtp_client).to have_received(:send_message)
+        end
+      end
+
+      context "when the session was never handed any capabilities" do
+        let(:capabilities) { nil }
+
+        it "sends the message" do
+          endpoint.send_message("a" * 4096, "from@example.com", "to@example.com")
+
+          expect(endpoint.smtp_client).to have_received(:send_message)
+        end
+      end
+    end
+
     describe "#description" do
       it "returns a description for the endpoint" do
         expect(endpoint.description).to eq "1.2.3.4:25 (mx1.example.com)"
@@ -95,7 +313,7 @@ module SMTPClient
           end
         end
 
-        context "when the SSL mode is STARTLS" do
+        context "when the SSL mode is STARTTLS" do
           let(:ssl_mode) { SSLModes::STARTTLS }
 
           it "as starttls as always" do

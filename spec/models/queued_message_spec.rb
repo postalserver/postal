@@ -42,7 +42,7 @@ RSpec.describe QueuedMessage do
     end
 
     it "returns messages where retry after is less than 30 seconds from now" do
-      Timecop.freeze do
+      travel_to Time.now do
         message1 = create(:queued_message, retry_after: 45.seconds.ago)
         message2 = create(:queued_message, retry_after: 5.minutes.ago)
         create(:queued_message, retry_after: Time.now)

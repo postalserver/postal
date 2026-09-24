@@ -70,7 +70,10 @@ class DomainsController < ApplicationController
       end
     when "Email"
       if params[:code]
-        if @domain.verification_token == params[:code].to_s.strip
+        code = params[:code].to_s.strip
+        token = @domain.verification_token.to_s
+        if token.present? && code.bytesize == token.bytesize &&
+           ActiveSupport::SecurityUtils.secure_compare(token, code)
           @domain.mark_as_verified
           redirect_to_with_json [:setup, organization, @server, @domain], notice: "#{@domain.name} has been verified successfully. You now need to configure your DNS records."
         else
@@ -98,9 +101,86 @@ class DomainsController < ApplicationController
     redirect_to [:verify, organization, @server, @domain], alert: "You can't set up DNS for this domain until it has been verified."
   end
 
+  def regenerate_dkim
+    if @domain.pending_dkim_key?
+      redirect_to_with_json [:setup, organization, @server, @domain],
+                            alert: "A DKIM key change is already in progress for #{@domain.name}. Publish the new " \
+                                   "record shown below, or cancel the change, before generating another key."
+      return
+    end
+
+    if params.key?(:dkim_key_size)
+      size = params[:dkim_key_size].presence&.to_i
+      if size && !Domain::DKIM_KEY_SIZES.include?(size)
+        redirect_to_with_json [:setup, organization, @server, @domain],
+                              alert: "The DKIM key size must be one of #{Domain::DKIM_KEY_SIZES.to_sentence} bits."
+        return
+      end
+
+      @domain.dkim_key_size = size
+    end
+
+    was_verified = @domain.dkim_status == "OK"
+    @domain.regenerate_dkim_key!
+    if was_verified
+      redirect_to_with_json [:setup, organization, @server, @domain],
+                            notice: "A new DKIM key has been generated for #{@domain.name}. Add the new DNS record below — " \
+                                    "your existing key will remain active until the new record has been verified. Keep the " \
+                                    "old DNS record published afterward while messages signed with it may still be queued, " \
+                                    "held, or available for redelivery."
+    else
+      redirect_to_with_json [:setup, organization, @server, @domain], notice: "A new DKIM key has been generated for #{@domain.name}. Update your DKIM DNS record with the new value below."
+    end
+  end
+
+  def cancel_dkim_regeneration
+    @domain.cancel_pending_dkim_key!
+    redirect_to_with_json [:setup, organization, @server, @domain], notice: "The pending DKIM key for #{@domain.name} has been discarded. Your existing key remains active."
+  end
+
+  def update_mta_sts
+    @domain.mta_sts_mode = params[:mta_sts_mode] if params.key?(:mta_sts_mode)
+    @domain.mta_sts_max_age = params[:mta_sts_max_age] if params.key?(:mta_sts_max_age)
+
+    if @domain.save
+      redirect_to_with_json [:setup, organization, @server, @domain],
+                            notice: "The MTA-STS settings for #{@domain.name} have been updated."
+    else
+      redirect_to_with_json [:setup, organization, @server, @domain],
+                            alert: @domain.errors.full_messages.to_sentence
+    end
+  end
+
+  def request_mta_sts_certificate
+    @domain.issue_mta_sts_certificate!
+    redirect_to_with_json [:setup, organization, @server, @domain],
+                          notice: "A certificate for #{@domain.mta_sts_hostname} has been requested."
+  rescue StandardError => e
+    redirect_to_with_json [:setup, organization, @server, @domain],
+                          alert: "A certificate could not be requested: #{e.message}"
+  end
+
+  def tls_reports
+    @reports = TLSReport.recent_for(@domain).includes(:results)
+    @failure_counts = TLSReport.failure_totals_for(@domain)
+  end
+
   def check
+    had_pending_dkim_key = @domain.pending_dkim_key?
+    previous_dkim_record_name = @domain.dkim_record_name
     if @domain.check_dns(:manual)
-      redirect_to_with_json [organization, @server, :domains], notice: "Your DNS records for #{@domain.name} look good!"
+      if had_pending_dkim_key && !@domain.pending_dkim_key?
+        redirect_to_with_json [:setup, organization, @server, @domain],
+                              notice: "Your DNS records for #{@domain.name} look good! Your new DKIM key is now active. " \
+                                      "Keep the old record at #{previous_dkim_record_name} published while messages " \
+                                      "signed with the old key may still be queued, held, or available for redelivery."
+      elsif @domain.pending_dkim_key?
+        redirect_to_with_json [:setup, organization, @server, @domain],
+                              alert: "We couldn't verify the record for your new DKIM key yet. Your existing key remains " \
+                                     "active. Check below for the expected record details."
+      else
+        redirect_to_with_json [organization, @server, :domains], notice: "Your DNS records for #{@domain.name} look good!"
+      end
     else
       redirect_to_with_json [:setup, organization, @server, @domain], alert: "There seems to be something wrong with your DNS records. Check below for information."
     end

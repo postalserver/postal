@@ -1,4 +1,4 @@
-= form_tag request.fullpath, :method => :get, :remote => true, :class => 'messageSearch', :enforce_utf8 => false do
+= form_with url: request.fullpath, method: :get, data: { remote: true }, :class => 'messageSearch', :enforce_utf8 => false do
   %p
     = link_to "Need help with filtering?", '#', :class => 'messageSearch__help js-toggle-helpbox'
     = text_field_tag 'query', @query, :class => 'messageSearch__input js-focus-on-f js-form-submit', :placeholder => "Filter messages...", :data => {:disable_with => 'Searching...'}

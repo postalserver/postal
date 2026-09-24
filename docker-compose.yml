@@ -26,3 +26,61 @@ services:
       MARIADB_DATABASE: postal
       MARIADB_ALLOW_EMPTY_PASSWORD: 'yes'
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+
+  # Only started when the shared rate limit store or the live statistics store is
+  # under test, so its presence costs the default workflow nothing.
+  valkey:
+    image: valkey/valkey:8-alpine
+    restart: always
+
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: postal
+      POSTGRES_USER: postal
+      POSTGRES_PASSWORD: postal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postal"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    restart: always
+    environment:
+      CLICKHOUSE_DB: postal
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+
+  aerospike:
+    image: aerospike/aerospike-server:latest
+    restart: always
+    ulimits:
+      nofile:
+        soft: 15000
+        hard: 15000
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:latest
+    restart: always
+    command:
+      - -retentionPeriod=30d
+      - -selfScrapeInterval=0s
+      - -search.latencyOffset=0s
+
+  vector:
+    image: timberio/vector:latest-alpine
+    restart: always
+    volumes:
+      - "./docker/vector.toml:/etc/vector/vector.toml:ro"
+
+  minio:
+    image: minio/minio:latest
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: postal
+      MINIO_ROOT_PASSWORD: postal123

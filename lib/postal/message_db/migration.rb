@@ -37,7 +37,7 @@ module Postal
           klass = Postal::MessageDB::Migrations.const_get(klass_name)
           instance = klass.new(database)
           instance.up
-          database.insert(:migrations, version: version)
+          database.insert(:migrations, { version: version }, returning_id: false)
         end
       end
 

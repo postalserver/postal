@@ -18,6 +18,12 @@ class UserController < ApplicationController
   def create
     @user_invite = UserInvite.active.find_by!(uuid: params[:invite_token])
     @user = User.new(params.require(:user).permit(:first_name, :last_name, :email_address, :password, :password_confirmation))
+    unless @user.email_address.to_s.casecmp?(@user_invite.email_address.to_s)
+      @user.errors.add(:email_address, "does not match the address this invitation was sent to")
+      render "new", layout: "sub"
+      return
+    end
+
     @user.email_verified_at = Time.now
     if @user.save
       @user_invite.accept(@user)

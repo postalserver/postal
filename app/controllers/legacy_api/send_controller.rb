@@ -37,6 +37,8 @@ module LegacyAPI
     #                   OR an error if there is an issue sending the message
     #
     def message
+      return if api_quota_exceeded?
+
       attributes = {}
       attributes[:to] = api_params["to"]
       attributes[:cc] = api_params["cc"]
@@ -81,6 +83,8 @@ module LegacyAPI
     #                   OR an error if there is an issue sending the message
     #
     def raw
+      return if api_quota_exceeded?
+
       unless api_params["rcpt_to"].is_a?(Array)
         render_parameter_error "`rcpt_to` parameter is required but is missing"
         return

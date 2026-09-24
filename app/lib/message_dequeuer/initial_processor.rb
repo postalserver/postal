@@ -3,7 +3,7 @@
 module MessageDequeuer
   class InitialProcessor < Base
 
-    include HasPrometheusMetrics
+    include HasMetrics
 
     attr_accessor :send_result
 
@@ -34,7 +34,7 @@ module MessageDequeuer
     def increment_dequeue_metric
       time_in_queue = Time.now.to_f - @queued_message.created_at.to_f
       log "queue latency is #{time_in_queue}s"
-      observe_prometheus_histogram :postal_message_queue_latency,
+      observe_histogram :postal_message_queue_latency,
                                    time_in_queue
     end
 

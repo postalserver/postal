@@ -14,6 +14,7 @@
 
 # These inflection rules are supported but not enabled by default:
 ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.acronym "ACME"
   inflect.acronym "DKIM"
   inflect.acronym "HTTP"
   inflect.acronym "OIDC"
@@ -23,10 +24,18 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.acronym "API"
   inflect.acronym "DNS"
   inflect.acronym "SSL"
+  inflect.acronym "TLS"
   inflect.acronym "MySQL"
+  inflect.acronym "PostgreSQL"
+  inflect.acronym "DuckDB"
+  inflect.acronym "FoundationDB"
+  inflect.acronym "ClickHouse"
+  inflect.acronym "SQLite"
+  inflect.acronym "VictoriaMetrics"
 
   inflect.acronym "DB"
   inflect.acronym "IP"
   inflect.acronym "MQ"
+  inflect.acronym "MTA"
   inflect.acronym "MX"
 end

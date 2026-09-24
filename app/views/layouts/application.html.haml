@@ -3,14 +3,14 @@
   %head
     %title #{page_title.reverse.join(' - ')}
     = csrf_meta_tags
-    = stylesheet_link_tag 'application/application', 'data-turbolinks-track' => 'reload'
-    = javascript_include_tag 'application/application', 'data-turbolinks-track' => 'reload'
+    = stylesheet_link_tag 'application/application', 'data-turbo-track' => 'reload'
+    = javascript_include_tag 'application/application', 'data-turbo-track' => 'reload'
     %link{:href => asset_path('favicon.png'), :rel => 'shortcut icon'}
-    <meta name="turbolinks-cache-control" content="no-cache">
+    <meta name="turbo-cache-control" content="no-cache">
     = yield :head
   %body
     = display_flash
-    %header.siteHeader{'data-turbolinks-permanent' => true}
+    %header.siteHeader{'data-turbo-permanent' => true}
       - if flash[:remember_login] && !auth_session.persistent?
         .siteHeader__remember.js-remember
           .siteHeader__rememberText

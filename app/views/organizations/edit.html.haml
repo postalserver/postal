@@ -10,7 +10,7 @@
 = render 'nav', :active_nav => :settings
 
 .pageContent.pageContent--compact
-  = form_for @organization_obj, :url => organization_settings_path(@organization_obj), :remote => true do |f|
+  = form_with model: @organization_obj, url: organization_settings_path(@organization_obj), data: { remote: true } do |f|
     = f.error_messages
     %fieldset.fieldSet
       .fieldSet__field

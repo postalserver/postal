@@ -26,6 +26,14 @@ namespace :postal do
     puts Postal::HelmConfigExporter.new(Postal::ConfigSchema).export
   end
 
+  desc "Write an analytics extract for every server using the configured sink"
+  task analytics_extract: :environment do
+    Server.all.each do |server|
+      puts "Writing analytics extract for #{server.organization.permalink}/#{server.permalink}"
+      puts "  #{Postal::Analytics::Extract.new(server).write}"
+    end
+  end
+
   desc "Update the database"
   task update: :environment do
     mysql = ActiveRecord::Base.connection

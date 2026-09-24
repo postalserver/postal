@@ -34,6 +34,8 @@
               = link_to domain.name, [:setup, organization, @server, domain]
               - if domain.use_for_any?
                 %span.label.label--blue Any
+              - if domain.pending_dkim_key?
+                = link_to "New DKIM key pending", [:setup, organization, @server, domain], :class => "label label--orange", :title => "A new DKIM key is waiting for its DNS record to be published."
             %ul.domainList__checks
               - if domain.spf_status == 'OK'
                 %li.domainList__check.domainList__check--ok SPF
@@ -60,6 +62,27 @@
                 %li.domainList__check.domainList__check--neutral{:title => domain.return_path_error}= link_to "Return Path", [:setup, organization, @server, domain]
               - else
                 %li.domainList__check.domainList__check--warning{:title => domain.return_path_error}= link_to "Return Path", [:setup, organization, @server, domain]
+
+              - if domain.dmarc_status == 'OK'
+                %li.domainList__check.domainList__check--ok DMARC
+              - elsif domain.dmarc_status.nil?
+              - elsif domain.dmarc_status == 'Missing'
+                %li.domainList__check.domainList__check--neutral{:title => domain.dmarc_error}= link_to "DMARC", [:setup, organization, @server, domain]
+              - else
+                %li.domainList__check.domainList__check--warning{:title => domain.dmarc_error}= link_to "DMARC", [:setup, organization, @server, domain]
+
+              - if domain.mta_sts_enabled?
+                - if domain.mta_sts_status == 'OK'
+                  %li.domainList__check.domainList__check--ok MTA-STS
+                - elsif domain.mta_sts_status.nil?
+                - else
+                  %li.domainList__check.domainList__check--warning{:title => domain.mta_sts_error}= link_to "MTA-STS", [:setup, organization, @server, domain]
+
+              - if domain.tls_rpt_status == 'OK'
+                %li.domainList__check.domainList__check--ok TLS-RPT
+              - elsif domain.tls_rpt_status.nil?
+              - else
+                %li.domainList__check.domainList__check--warning{:title => domain.tls_rpt_error}= link_to "TLS-RPT", [:setup, organization, @server, domain]
 
           %ul.domainList__properties
             - if domain.verified?

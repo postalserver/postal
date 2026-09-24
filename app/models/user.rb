@@ -93,7 +93,7 @@ class User < ApplicationRecord
       oidc_name = auth[config.name_field]
       oidc_email_address = auth[config.email_address_field]
 
-      logger&.debug "got auth details from issuer: #{auth.inspect}"
+      logger&.debug "got auth details from issuer #{config.issuer} for UID #{uid}"
 
       # look for an existing user with the same UID and OIDC issuer. If we find one,
       # this is the user we'll want to use.
@@ -106,8 +106,10 @@ class User < ApplicationRecord
       end
 
       # if we don't have an existing user, we will look for users which have no OIDC
-      # credentials but with a matching e-mail address.
-      if user.nil? && oidc_email_address.present?
+      # credentials but with a matching e-mail address. The address is only
+      # trusted when the provider says it is verified: without that, any party
+      # able to assert an address could take over the account which owns it.
+      if user.nil? && oidc_email_address.present? && auth["email_verified"]
         user = where(oidc_uid: nil, email_address: oidc_email_address).first
         if user
           logger&.debug "found user with e-mail address #{oidc_email_address} (user ID: #{user.id})"

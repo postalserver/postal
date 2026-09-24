@@ -2,7 +2,7 @@
 
 = content_for :sidebar do
   .js-searchable
-    = form_tag '', :class => 'sidebar__search js-searchable__input' do
+    = form_with url: '', class: 'sidebar__search js-searchable__input' do
       = text_field_tag 'query', '', :class => 'sidebar__searchInput js-focus-on-s', :placeholder => "Filter servers..."
     %p.sidebar__placeholder.js-searchable__empty{:class => ("is-hidden" if servers.any?)}
       No servers found.

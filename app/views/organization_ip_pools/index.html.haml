@@ -17,7 +17,7 @@
       Choose which IP pools this organization will have access to send mail using. Organization
       users will be able to choose from any of the pools chosen below. Admins can override on a per
       server basis if required.
-    = form_tag [:assignments, @organization, :ip_pools], :method => :put do
+    = form_with url: [:assignments, @organization, :ip_pools], method: :put do
       %ul.checkboxList.u-margin
         - for ip_pool in IPPool.order(:name)
           %li.checkboxList__item

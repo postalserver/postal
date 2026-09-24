@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "timeout"
+
 module Postal
   module MessageInspectors
     class SpamAssassin < MessageInspector

@@ -3,6 +3,7 @@
 require "ipaddr"
 require "resolv"
 require "socket"
+require_relative "blocked_destination_error"
 
 module Postal
   module HTTP
@@ -99,7 +100,7 @@ module Postal
 
         addresses = resolve
         if addresses.empty?
-          raise BlockedDestinationError, "Could not resolve '#{@host}' to any IP address"
+          raise Postal::HTTP::UnresolvableError, "Could not resolve '#{@host}' to any IP address"
         end
 
         # Reject the whole request if *any* resolved address is blocked. This is

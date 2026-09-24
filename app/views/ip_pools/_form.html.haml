@@ -1,4 +1,4 @@
-= form_for @ip_pool, :remote => true do |f|
+= form_with model: @ip_pool, data: { remote: true } do |f|
   = f.error_messages
   %fieldset.fieldSet.u-margin
     .fieldSet__field

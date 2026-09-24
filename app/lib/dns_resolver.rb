@@ -7,11 +7,32 @@ class DNSResolver
   class LocalResolversUnavailableError < StandardError
   end
 
+  # Bounds for the answer cache. Record TTLs are honoured between these: a
+  # very short TTL is stretched to MIN_TTL so a burst of deliveries to one
+  # domain does not repeat the same query once per message, and a very long
+  # TTL is cut to MAX_TTL so a changed record is picked up within the hour.
+  # Misses (empty answers) are remembered briefly so a burst of deliveries to
+  # a domain with no record does not repeat the lookup each time either.
+  MIN_TTL = 60
+  MAX_TTL = 3600
+  NEGATIVE_TTL = 60
+
   attr_reader :nameservers
   attr_reader :timeout
 
   def initialize(nameservers)
     @nameservers = nameservers
+    @cache = {}
+    @cache_mutex = Mutex.new
+  end
+
+  #
+  # Forget every cached answer. Used by the specs.
+  #
+  # @return [void]
+  #
+  def clear_cache!
+    @cache_mutex.synchronize { @cache.clear }
   end
 
   # Return all A records for the given name
@@ -121,10 +142,23 @@ class DNSResolver
   end
 
   def get_resources(name, type, **options)
+    # Cached answers are returned whatever the timeout mode: a remembered
+    # answer is not a timeout, so error semantics are unchanged.
     encoded_name = DomainName::Punycode.encode_hostname(name)
-    dns(**options) do |dns|
+    key = [encoded_name, type.to_s]
+    cached = @cache_mutex.synchronize { @cache[key] }
+    return cached[:resources] if cached && cached[:expires_at] > Time.now
+
+    resources = dns(**options) do |dns|
       dns.getresources(encoded_name, type)
     end
+    ttl = clamp_ttl(resources.map(&:ttl).compact.min || NEGATIVE_TTL)
+    @cache_mutex.synchronize { @cache[key] = { resources: resources, expires_at: Time.now + ttl } }
+    resources
+  end
+
+  def clamp_ttl(ttl)
+    ttl.to_i.clamp(MIN_TTL, MAX_TTL)
   end
 
   class << self

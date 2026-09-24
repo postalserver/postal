@@ -17,7 +17,7 @@
       - if Postal.ip_pools? && @server.ip_pool
         %li Sending via #{@server.ip_pool.name}
 
-  .serverHeader__stats{"data-turbolinks-permanent" => true, :id => "serverStats-#{@server.uuid}"}
+  .serverHeader__stats{"data-turbo-permanent" => true, :id => "serverStats-#{@server.uuid}"}
     %ul.serverHeader__statsList
       %li.serverHeader__stat-held
         = link_to "#{pluralize @server.held_messages, 'message'} held", held_organization_server_messages_path(organization, @server), :class => 'js-held-count'
@@ -28,7 +28,7 @@
       %li.serverHeader__stat-size
         = link_to "#{number_to_human_size @server.message_db.total_size} used", [:retention, organization, @server], :class => 'js-disk-size'
 
-  .serverHeader__usage{"data-turbolinks-permanent" => true, :id => "serverUsage-#{@server.uuid}"}
+  .serverHeader__usage{"data-turbo-permanent" => true, :id => "serverUsage-#{@server.uuid}"}
     %p.serverHeader__usageTitle Message throughput &mdash; last 60 minutes
 
     .serverHeader__usageLine

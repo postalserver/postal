@@ -4,7 +4,7 @@ module SMTPClient
   module SSLModes
 
     AUTO = "Auto"
-    STARTTLS = "STARTLS"
+    STARTTLS = "STARTTLS"
     TLS = "TLS"
     NONE = "None"
 

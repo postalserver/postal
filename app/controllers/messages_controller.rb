@@ -26,11 +26,11 @@ class MessagesController < ApplicationController
   def create
     if params[:direction] == "incoming"
       session[:test_in_from] = params[:message][:from] if params[:message]
-      @message = IncomingMessagePrototype.new(@server, request.ip, "web-ui", params[:message])
+      @message = IncomingMessagePrototype.new(@server, request.ip, "web-ui", prototype_params)
       @message.attachments = [{ name: "test.txt", content_type: "text/plain", data: "Hello world!" }]
     else
       session[:test_out_to] = params[:message][:to] if params[:message]
-      @message = OutgoingMessagePrototype.new(@server, request.ip, "web-ui", params[:message])
+      @message = OutgoingMessagePrototype.new(@server, request.ip, "web-ui", prototype_params)
     end
     if result = @message.create_messages
       if result.size == 1
@@ -111,7 +111,9 @@ class MessagesController < ApplicationController
   def attachment
     if @message.attachments.size > params[:attachment].to_i
       attachment = @message.attachments[params[:attachment].to_i]
-      send_data attachment.body, content_type: attachment.mime_type, disposition: "download", filename: attachment.filename
+      filename = attachment.filename.to_s.gsub(/[\r\n"]/, "")[0, 255]
+      filename = "attachment" if filename.empty?
+      send_data attachment.body, content_type: attachment.mime_type, disposition: "download", filename: filename
     else
       redirect_to attachments_organization_server_message_path(organization, @server, @message.id), alert: "Attachment not found. Choose an attachment from the list below."
     end
@@ -240,6 +242,15 @@ class MessagesController < ApplicationController
     raise TimeUndetermined, "Couldn't determine a suitable time from '#{string}'" if time.nil?
 
     time
+  end
+
+  # Only the fields the compose form submits. The prototypes assign every key
+  # they are given to an instance variable, so passing params through unfiltered
+  # would let a caller set @server, @credential, @message_id and the like.
+  def prototype_params
+    return {} if params[:message].blank?
+
+    params.require(:message).permit(:to, :from, :subject, :plain_body).to_h
   end
 
 end

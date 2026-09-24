@@ -6,7 +6,8 @@ module Postal
       class AddIndexToMessageStatus < Postal::MessageDB::Migration
 
         def up
-          @database.query("ALTER TABLE `#{@database.database_name}`.`messages` ADD INDEX `on_status` (`status`(8)) USING BTREE")
+          sql = @database.dialect.add_index_sql(@database.database_name, :messages, :on_status, "`status`(8)")
+          @database.query(sql)
         end
 
       end

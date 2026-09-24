@@ -6,7 +6,8 @@ module Postal
       class IncreaseLinksUrlSize < Postal::MessageDB::Migration
 
         def up
-          @database.query("ALTER TABLE `#{@database.database_name}`.`links` MODIFY `url` TEXT")
+          sql = @database.dialect.change_column_type_sql(@database.database_name, :links, :url, "TEXT")
+          @database.query(sql)
         end
 
       end

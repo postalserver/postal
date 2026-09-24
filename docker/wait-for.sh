@@ -57,4 +57,31 @@ if [ -n "$WAIT_FOR_TARGETS" ]; then
   done
 fi
 
+if [ -n "$JEMALLOC_PROFILE" ]; then
+  jemalloc_eval="$(ruby -r/opt/postal/app/lib/postal/jemalloc.rb -e '
+begin
+  # Validate the profile first: nothing is written anywhere unless both the
+  # library and the profile check out.
+  conf = Postal::Jemalloc.malloc_conf_for(ENV.fetch("JEMALLOC_PROFILE", nil))
+  lib = Postal::Jemalloc.lib_path
+  abort "JEMALLOC_PROFILE is set but libjemalloc.so.2 is not installed" if lib.nil?
+  # LD_PRELOAD is exported as well so that non-capped children (shell
+  # utilities, node for assets) also use jemalloc, but the mechanism that
+  # reaches the setcap-capped ruby binary is /etc/ld.so.preload -- glibc
+  # ignores LD_PRELOAD for file-capped binaries (AT_SECURE) while honouring
+  # the preload file. The image hands that file to the app user only in the
+  # jemalloc variant; nowhere else does this run.
+  File.write("/etc/ld.so.preload", "#{lib}\n")
+  puts "LD_PRELOAD=#{lib}"
+  puts "MALLOC_CONF=#{conf}"
+rescue ArgumentError => e
+  abort e.message
+end
+' 2>&1)" || { echo "jemalloc: ${jemalloc_eval}" >&2; exit 2; }
+  # shellcheck disable=SC2163
+  while IFS= read -r line; do export "$line"; done <<EOF
+$jemalloc_eval
+EOF
+fi
+
 exec "$@"

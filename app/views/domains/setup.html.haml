@@ -47,7 +47,11 @@
   %pre.codeBlock.u-margin= @domain.spf_record
 
   %h3.pageContent__subTitle DKIM Record
-  - if @domain.dkim_status == 'OK'
+  - if @domain.pending_dkim_key?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Key change in progress
+      You've generated a new DKIM key which isn't active yet. Both records are shown below.
+  - elsif @domain.dkim_status == 'OK'
     %p.pageContent__text.u-green.u-bold
       %span.label.label--green Good
       Your DKIM record looks good!
@@ -56,10 +60,43 @@
       %span.label.label--orange Warning
       = @domain.dkim_error
 
-  %p.pageContent__text
-    You need to add a new TXT record with the name <b>#{@domain.dkim_record_name}</b>
-    with the following content.
-  %pre.codeBlock.u-margin= @domain.dkim_record
+  - if @domain.pending_dkim_key?
+    %p.pageContent__text.u-bold
+      %span.label.label--green Current
+      Keep this record exactly as it is
+    %p.pageContent__text
+      This is the record you already have published at <b>#{@domain.dkim_record_name}</b>.
+      It's signing your mail right now, so leave it in place.
+    = render "dkim_record", :record => @domain.dkim_record, :chunks => @domain.dkim_record_chunks
+
+    %p.pageContent__text.u-bold
+      %span.label.label--orange New
+      Add this record as well
+    %p.pageContent__text
+      Add a <b>second</b> TXT record with the name <b>#{@domain.pending_dkim_record_name}</b>
+      and the content below, alongside the record above rather than replacing it. Once we detect
+      it (checked hourly, or when you use the button above) we'll switch to signing with the new
+      key automatically. After the switch, keep the old record published while messages signed
+      with it may still be queued, held, or available for redelivery.
+    = render "dkim_record", :record => @domain.pending_dkim_record, :chunks => @domain.pending_dkim_record_chunks
+    %p.pageContent__text
+      = link_to "Cancel new DKIM key", [:cancel_dkim_regeneration, organization, @server, @domain], :remote => true, :method => :post, :data => { :confirm => "Are you sure? The new key will be discarded and your existing key will remain active." }, :class => 'button button--neutral'
+  - else
+    %p.pageContent__text
+      You need to add a new TXT record with the name <b>#{@domain.dkim_record_name}</b>
+      with the following content.
+    = render "dkim_record", :record => @domain.dkim_record, :chunks => @domain.dkim_record_chunks
+    = form_with url: [:regenerate_dkim, organization, @server, @domain], method: :post, data: { remote: true } do
+      %fieldset.fieldSet
+        .fieldSet__field
+          = label_tag :dkim_key_size, "Key size", :class => 'fieldSet__label'
+          .fieldSet__input
+            = select_tag :dkim_key_size, options_for_select([["Use the default (#{Postal::Config.dns.dkim_key_size} bits)", ""]] + Domain::DKIM_KEY_SIZES.map { |size| ["#{size} bits", size] }, @domain[:dkim_key_size]), :class => 'input input--select'
+            .fieldSet__text
+              Larger keys are stronger but produce longer DNS records. Changing the key size
+              generates a new key, which you'll need to publish before it can be used.
+        .fieldSetSubmit
+          = submit_tag "Regenerate DKIM key", :class => 'button button--neutral js-form-submit', :data => { :confirm => "Are you sure you wish to generate a new DKIM key? You'll need to add a new DNS record before the new key can be used." }
 
   %h3.pageContent__subTitle Return Path
   - if @domain.return_path_status == 'OK'
@@ -80,6 +117,32 @@
     a <b>CNAME</b> record at <b>#{@domain.return_path_domain}</b> to point to the hostname below.
   %pre.codeBlock.u-margin= Postal::Config.dns.return_path_domain
 
+  %h3.pageContent__subTitle DMARC Record
+  - if @domain.dmarc_status == 'OK'
+    %p.pageContent__text.u-green.u-bold
+      %span.label.label--green Good
+      Your domain has a DMARC record.
+  - elsif @domain.dmarc_status == 'Missing'
+    %p.pageContent__text.u-grey.u-bold
+      %span.label.label--grey OK
+      There's no DMARC record for this domain. This is optional but we recommend publishing one.
+  - elsif !@domain.dmarc_status.nil?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      = @domain.dmarc_error
+
+  %p.pageContent__text
+    DMARC tells receiving servers how to treat mail that fails SPF and DKIM. The policy is yours to
+    choose and you publish it in DNS; Postal checks the published record but does not manage the
+    policy. The record below is a starting point. Once every legitimate sender passes SPF or DKIM,
+    tighten it to <b>p=quarantine</b> and then <b>p=reject</b>.
+  %p.pageContent__text
+    Add a TXT record with the name <b>#{@domain.dmarc_record_name}</b> and the content below.
+  %pre.codeBlock.u-margin= @domain.dmarc_record
+  - if Postal::Config.dns.dmarc_report_address.blank?
+    %p.pageContent__text
+      Set <b>dns.dmarc_report_address</b> in your configuration to include a <b>rua</b> address so
+      that aggregate reports are sent to you.
 
   %h3.pageContent__subTitle MX Records
   - if @domain.mx_status == 'OK'
@@ -100,3 +163,96 @@
     to the domain. You don't have to do this and we'll only tell you if they're set up or not. Both
     records should be priority <b>10</b>.
   %pre.codeBlock.u-margin= Postal::Config.dns.mx_records.join("\n")
+
+  %h3.pageContent__subTitle MTA-STS
+  - if @domain.mta_sts_mode == 'none'
+    %p.pageContent__text.u-grey
+      No MTA-STS policy is published for this domain. MTA-STS asks sending servers to require TLS
+      when they deliver mail here and to check the certificate of your MX hosts.
+  - elsif @domain.mta_sts_status == 'OK'
+    %p.pageContent__text.u-green.u-bold
+      %span.label.label--green Good
+      Your MTA-STS record advertises the current policy.
+  - elsif @domain.mta_sts_status == 'Missing'
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      The policy is being served but no MTA-STS record has been published for this domain.
+  - elsif !@domain.mta_sts_status.nil?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      = @domain.mta_sts_error
+
+  %p.pageContent__text
+    MTA-STS only helps once every MX host for this domain offers STARTTLS with a valid certificate.
+    Start in <b>testing</b> mode, publish a TLS-RPT record so that you can see TLS failures, and move
+    to <b>enforce</b> once the reports are clean. To withdraw a policy, set <b>none</b> and leave the
+    record published until the previous maximum age has passed.
+
+  %p.pageContent__text
+    Publish this TXT record at <b>#{@domain.mta_sts_record_name}</b>:
+  %pre.codeBlock.u-margin= @domain.mta_sts_record
+
+  - if @domain.mta_sts_enabled?
+    %p.pageContent__text
+      The following policy is served at <b>https://mta-sts.#{@domain.name}/.well-known/mta-sts.txt</b>:
+    %pre.codeBlock.u-margin= @domain.mta_sts_policy
+
+    - if @domain.mta_sts_certificate_status == 'OK'
+      %p.pageContent__text.u-green
+        A certificate for <b>#{@domain.mta_sts_hostname}</b> is stored and expires
+        #{@domain.mta_sts_certificate_expires_at.to_fs(:long)}.
+    - elsif !@domain.mta_sts_certificate_status.nil?
+      %p.pageContent__text.u-orange
+        %span.label.label--orange Warning
+        = @domain.mta_sts_certificate_error
+
+    %p.pageContent__text
+      The policy host needs a certificate which browsers trust. Before one can be requested,
+      <b>#{@domain.mta_sts_hostname}</b> must already point at this installation, and requests
+      for <b>/.well-known/acme-challenge/</b> must reach it.
+    %p.pageContent__text
+      = link_to "Request a certificate", [:request_mta_sts_certificate, organization, @server, @domain], :remote => true, :method => :post, :class => 'button button--neutral'
+
+  = form_with url: [:update_mta_sts, organization, @server, @domain], method: :post, data: { remote: true } do
+    %fieldset.fieldSet
+      .fieldSet__field
+        = label_tag :mta_sts_mode, "Mode", :class => 'fieldSet__label'
+        .fieldSet__input
+          = select_tag :mta_sts_mode, options_for_select(Domain::MTA_STS_MODES.map { |mode| [mode.capitalize, mode] }, @domain.mta_sts_mode), :class => 'input input--select'
+      .fieldSet__field
+        = label_tag :mta_sts_max_age, "Maximum age", :class => 'fieldSet__label'
+        .fieldSet__input
+          = number_field_tag :mta_sts_max_age, @domain.mta_sts_max_age, :class => 'input input--text'
+          .fieldSet__text
+            How long sending servers may cache the policy, in seconds (up to #{Domain::MTA_STS_MAX_AGE_LIMIT}).
+      .fieldSetSubmit
+        = submit_tag "Update MTA-STS settings", :class => 'button button--neutral js-form-submit'
+
+  %h3.pageContent__subTitle TLS Reporting
+  - if Postal::Config.dns.tls_rpt_address.blank?
+    %p.pageContent__text.u-grey
+      No TLS-RPT destination is configured, so no reporting record is published for this domain.
+      Set <b>dns.tls_rpt_address</b> to a mailbox or an https: endpoint to publish one.
+  - elsif @domain.tls_rpt_status == 'OK'
+    %p.pageContent__text.u-green.u-bold
+      %span.label.label--green Good
+      Your TLS-RPT record looks good.
+  - elsif @domain.tls_rpt_status == 'Missing'
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      No TLS-RPT record has been published for this domain.
+  - elsif !@domain.tls_rpt_status.nil?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Warning
+      = @domain.tls_rpt_error
+
+  %p.pageContent__text
+    TLS-RPT asks sending servers to report the TLS failures they encounter when delivering mail to
+    this domain, which is what shows whether an MTA-STS policy can safely be enforced. The reports
+    may be sent to a destination outside this installation.
+  %p.pageContent__text
+    Publish this TXT record at <b>#{@domain.tls_rpt_record_name}</b>:
+  - if @domain.tls_rpt_record
+    %pre.codeBlock.u-margin= @domain.tls_rpt_record
+  %p.pageContent__text
+    = link_to "View the TLS reports received for this domain", [:tls_reports, organization, @server, @domain], :class => 'button button--neutral'

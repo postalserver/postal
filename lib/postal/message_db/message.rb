@@ -247,7 +247,7 @@ module Postal
       #
       def raw_body
         if raw_table
-          @raw ||= @database.select(raw_table, where: { id: raw_body_id }).first&.send(:[], "data") || ""
+          @raw ||= @database.raw_message_body(raw_table, raw_body_id)
         else
           ""
         end
@@ -285,7 +285,7 @@ module Postal
         @mail = nil
         @pending_raw_message = nil
         copy_attributes_from_raw_message
-        @database.query("UPDATE `#{@database.database_name}`.`raw_message_sizes` SET size = size + #{size} WHERE table_name = '#{table_name}'")
+        @database.increment_raw_message_size(table_name, size)
       end
 
       #
@@ -552,14 +552,16 @@ module Postal
       def parse_content
         parse_result = Postal::MessageParser.new(self)
         if parse_result.actioned?
-          # Somethign was changed, update the raw message
-          @database.update(raw_table, { data: parse_result.new_body }, where: { id: raw_body_id })
+          # Somethign was changed, update the raw message. The body is
+          # rewritten through the chunking helpers which may change the id of
+          # the first body row, so that needs persisting along with the rest.
+          self.raw_body_id = @database.replace_raw_message_body(raw_table, raw_body_id, parse_result.new_body)
           @database.update(raw_table, { data: parse_result.new_headers }, where: { id: raw_headers_id })
           @raw = parse_result.new_body
           @raw_headers = parse_result.new_headers
           @raw_message = nil
         end
-        update("parsed" => 1, "tracked_links" => parse_result.tracked_links, "tracked_images" => parse_result.tracked_images)
+        update("parsed" => 1, "tracked_links" => parse_result.tracked_links, "tracked_images" => parse_result.tracked_images, "raw_body_id" => raw_body_id)
       end
 
       #

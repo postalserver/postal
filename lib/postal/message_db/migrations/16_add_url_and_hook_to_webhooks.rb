@@ -6,9 +6,12 @@ module Postal
       class AddUrlAndHookToWebhooks < Postal::MessageDB::Migration
 
         def up
-          @database.query("ALTER TABLE `#{@database.database_name}`.`webhook_requests` ADD COLUMN `url` varchar(255)")
-          @database.query("ALTER TABLE `#{@database.database_name}`.`webhook_requests` ADD COLUMN `webhook_id` int(11)")
-          @database.query("ALTER TABLE `#{@database.database_name}`.`webhook_requests` ADD INDEX `on_webhook_id` (`webhook_id`) USING BTREE")
+          dialect = @database.dialect
+          database = @database.database_name
+
+          @database.query(dialect.add_column_sql(database, :webhook_requests, :url, "varchar(255)"))
+          @database.query(dialect.add_column_sql(database, :webhook_requests, :webhook_id, "int(11)"))
+          @database.query(dialect.add_index_sql(database, :webhook_requests, :on_webhook_id, "`webhook_id`"))
         end
 
       end

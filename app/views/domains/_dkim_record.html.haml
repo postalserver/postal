@@ -1,0 +1,6 @@
+%pre.codeBlock.u-margin= record
+- if chunks.size > 1
+  %p.pageContent__text
+    This record is longer than the 255 character limit for a single DNS string. If your DNS
+    provider does not split it for you, publish it as #{pluralize(chunks.size, "string")}:
+  %pre.codeBlock.u-margin= chunks.map { |chunk| "\"#{chunk}\"" }.join("\n")

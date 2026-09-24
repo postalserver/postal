@@ -6,9 +6,12 @@ module Postal
       class AddReplacedLinkCountToMessages < Postal::MessageDB::Migration
 
         def up
-          @database.query("ALTER TABLE `#{@database.database_name}`.`messages` ADD COLUMN `tracked_links` int(11) DEFAULT 0")
-          @database.query("ALTER TABLE `#{@database.database_name}`.`messages` ADD COLUMN `tracked_images` int(11) DEFAULT 0")
-          @database.query("ALTER TABLE `#{@database.database_name}`.`messages` ADD COLUMN `parsed` tinyint DEFAULT 0")
+          dialect = @database.dialect
+          database = @database.database_name
+
+          @database.query(dialect.add_column_sql(database, :messages, :tracked_links, "int(11) DEFAULT 0"))
+          @database.query(dialect.add_column_sql(database, :messages, :tracked_images, "int(11) DEFAULT 0"))
+          @database.query(dialect.add_column_sql(database, :messages, :parsed, "tinyint DEFAULT 0"))
         end
 
       end

@@ -16,7 +16,7 @@
   = render 'organizations/nav', :active_nav => :domains
 
 .pageContent.pageContent--compact
-  = form_for [organization, @server, @domain], :remote => true do |f|
+  = form_with model: [organization, @server, @domain], data: { remote: true } do |f|
     = f.error_messages
     %fieldset.fieldSet
       .fieldSet__field

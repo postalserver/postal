@@ -21,9 +21,13 @@ module Postal
         end
 
         time_i = time.send("beginning_of_#{STATS_GAPS[type]}").utc.to_i
-        sql_query = "INSERT INTO `#{@database.database_name}`.`stats_#{type}` (time, #{COUNTERS.join(', ')})"
+        dialect = @database.dialect
+        table = "stats_#{type}"
+        reference = dialect.column_reference(table, field)
+        sql_query = "INSERT INTO #{dialect.quote_identifier(@database.database_name)}.#{dialect.quote_identifier(table)}"
+        sql_query << " (#{([:time] + COUNTERS).map { |c| dialect.quote_identifier(c) }.join(', ')})"
         sql_query << " VALUES (#{time_i}, #{initial_values.join(', ')})"
-        sql_query << " ON DUPLICATE KEY UPDATE #{field} = #{field} + 1"
+        sql_query << " #{dialect.upsert([:time], [[field, "#{reference} + 1"]])}"
         @database.query(sql_query)
       end
 

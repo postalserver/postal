@@ -3,9 +3,71 @@
 @import 'global/mixins';
 @import 'global/fonts';
 
-@import 'vendor/*';
-@import 'elements/*';
-@import 'components/*';
+// Dart Sass has no glob imports: every partial is listed explicitly, in
+// filename order (the order the old `vendor/*`, `elements/*` and
+// `components/*` globs expanded to). Add new partials here.
+@import 'vendor/chartist';
+@import 'elements/bar';
+@import 'elements/button';
+@import 'elements/code_block';
+@import 'elements/input';
+@import 'elements/label';
+@import 'elements/misc';
+@import 'elements/spam_range';
+@import 'components/admin_stats';
+@import 'components/button_set';
+@import 'components/checkbox_list';
+@import 'components/credential_list';
+@import 'components/danger_zone';
+@import 'components/data_table';
+@import 'components/delivery_list';
+@import 'components/domain_list';
+@import 'components/endpoint_list';
+@import 'components/error_explanation';
+@import 'components/field_set';
+@import 'components/flash_display';
+@import 'components/flash_message';
+@import 'components/footer';
+@import 'components/grid';
+@import 'components/headers_list';
+@import 'components/inlineError';
+@import 'components/invoice_list';
+@import 'components/ip_list';
+@import 'components/ip_pool_rule_list';
+@import 'components/large_list';
+@import 'components/limit';
+@import 'components/login_form';
+@import 'components/mail_graph';
+@import 'components/message_activity';
+@import 'components/message_header';
+@import 'components/message_list';
+@import 'components/message_properties_page';
+@import 'components/message_search';
+@import 'components/multibox';
+@import 'components/nav_bar';
+@import 'components/new_message_type';
+@import 'components/no_data';
+@import 'components/page_content';
+@import 'components/page_header';
+@import 'components/pagination';
+@import 'components/rentention_limits';
+@import 'components/route_list';
+@import 'components/route_name_input';
+@import 'components/server_header';
+@import 'components/sidebar';
+@import 'components/sidebar_server_list';
+@import 'components/simple_pagination';
+@import 'components/site_content';
+@import 'components/site_header';
+@import 'components/spam_check_list';
+@import 'components/starter_credit_pack';
+@import 'components/sub_page_box';
+@import 'components/suppression_list';
+@import 'components/suspension_box';
+@import 'components/title_with_links';
+@import 'components/user_list';
+@import 'components/webhook_list';
+@import 'components/webhook_request_list';
 @import 'global/utility';
 
 html.main {
@@ -37,6 +99,6 @@ html.subPage {
   }
 }
 
-.turbolinks-progress-bar {
+.turbo-progress-bar {
   background-color: $darkBlue;
 }

@@ -25,44 +25,48 @@ module Postal
       end
 
       #
-      # Does a database already exist?
+      # Does the namespace for this server already exist?
       #
       def exists?
-        !!@database.query("SELECT schema_name FROM `information_schema`.`schemata` WHERE schema_name = '#{@database.database_name}'").first
+        !!@database.query(dialect.namespace_exists_sql(@database.database_name)).first
       end
 
       #
-      # Creates a new empty database
+      # Creates an empty namespace for this server
       #
       def create
-        @database.query("CREATE DATABASE `#{@database.database_name}` CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;")
+        dialect.prepare_namespace(@database.database_name)
+        @database.query(dialect.create_namespace_sql(@database.database_name))
         true
-      rescue Mysql2::Error => e
-        e.message =~ /database exists/ ? false : raise
+      rescue dialect.error_class => e
+        e.message =~ /already exists/i ? false : raise
       end
 
       #
-      # Drops the whole message database
+      # Drops the namespace for this server and everything in it
       #
       def drop
-        @database.query("DROP DATABASE `#{@database.database_name}`;")
+        @database.query(dialect.drop_namespace_sql(@database.database_name))
+        dialect.cleanup_namespace(@database.database_name)
         true
-      rescue Mysql2::Error => e
-        e.message =~ /doesn't exist/ ? false : raise
+      rescue dialect.error_class => e
+        e.message =~ /doesn't exist|does not exist|no such database/i ? false : raise
       end
 
       #
       # Create a new table
       #
       def create_table(table_name, options)
-        @database.query(create_table_query(table_name, options))
+        dialect.create_table_statements(@database.database_name, table_name, options).each do |statement|
+          @database.query(statement)
+        end
       end
 
       #
       # Drop a table
       #
       def drop_table(table_name)
-        @database.query("DROP TABLE `#{@database.database_name}`.`#{table_name}`")
+        @database.query("DROP TABLE #{qualify(table_name)}")
       end
 
       #
@@ -73,7 +77,7 @@ module Postal
         %w[clicks deliveries links live_stats loads messages
            raw_message_sizes spam_checks stats_daily stats_hourly
            stats_monthly stats_yearly suppressions webhook_requests].each do |table|
-          @database.query("TRUNCATE `#{@database.database_name}`.`#{table}`")
+          @database.query(dialect.truncate_sql(qualify(table)))
         end
       end
 
@@ -81,13 +85,17 @@ module Postal
       # Creates a new empty raw message table for the given date. Returns nothing.
       #
       def create_raw_table(table)
-        @database.query(create_table_query(table, columns: {
-            id: "int(11) NOT NULL AUTO_INCREMENT",
-            data: "longblob DEFAULT NULL",
-            next: "int(11) DEFAULT NULL"
-          }))
-        @database.query("INSERT INTO `#{@database.database_name}`.`raw_message_sizes` (table_name, size) VALUES ('#{table}', 0)")
-      rescue Mysql2::Error => e
+        dialect.create_table_statements(@database.database_name, table, columns: {
+          id: "int(11) NOT NULL AUTO_INCREMENT",
+          data: "longblob DEFAULT NULL",
+          blob: "varchar(64) DEFAULT NULL",
+          next: "int(11) DEFAULT NULL"
+        }).each do |statement|
+          @database.query(statement)
+        end
+        @database.query("INSERT INTO #{qualify(:raw_message_sizes)} " \
+                        "(#{quote(:table_name)}, #{quote(:size)}) VALUES (#{@database.escape(table)}, 0)")
+      rescue dialect.error_class => e
         # Don't worry if the table already exists, another thread has already run this code.
         raise unless e.message =~ /already exists/
       end
@@ -98,14 +106,28 @@ module Postal
       def raw_tables(max_age = 30)
         earliest_date = max_age ? Time.now.utc.to_date - max_age : nil
         [].tap do |tables|
-          @database.query("SHOW TABLES FROM `#{@database.database_name}` LIKE 'raw-%'").each do |tbl|
-            tbl_name = tbl.to_a.first.last
-            date = Date.parse(tbl_name.gsub(/\Araw-/, ""))
+          @database.query(dialect.list_tables_sql(@database.database_name, "raw-%")).each do |row|
+            table_name = dialect.table_name_from_row(row)
+            date = raw_table_date(table_name)
+            next if date.nil?
+
             if earliest_date.nil? || date < earliest_date
-              tables << tbl_name
+              tables << table_name
             end
           end
         end.sort
+      end
+
+      #
+      # The date a raw message table covers, taken from its name. A table which
+      # matches the listing pattern but whose suffix is not a date is skipped
+      # rather than raised over: retention runs on a schedule, and one unexpected
+      # table in the namespace should not stop every other table being tidied.
+      #
+      def raw_table_date(table_name)
+        Date.parse(table_name.to_s.gsub(/\Araw-/, ""))
+      rescue Date::Error
+        nil
       end
 
       #
@@ -121,8 +143,10 @@ module Postal
       # Remove a raw message table
       #
       def remove_raw_table(table)
-        @database.query("UPDATE `#{@database.database_name}`.`messages` SET raw_table = NULL, raw_headers_id = NULL, raw_body_id = NULL, size = NULL WHERE raw_table = '#{table}'")
-        @database.query("DELETE FROM `#{@database.database_name}`.`raw_message_sizes` WHERE table_name = '#{table}'")
+        delete_raw_table_blobs(table)
+        @database.query("UPDATE #{qualify(:messages)} SET raw_table = NULL, raw_headers_id = NULL, " \
+                        "raw_body_id = NULL, size = NULL WHERE raw_table = #{@database.escape(table)}")
+        @database.query("DELETE FROM #{qualify(:raw_message_sizes)} WHERE table_name = #{@database.escape(table)}")
         drop_table(table)
       end
 
@@ -134,11 +158,10 @@ module Postal
         return unless newest_message_to_remove = @database.select(:messages, where: { timestamp: { less_than_or_equal_to: time.to_f } }, limit: 1, order: :id, direction: "DESC", fields: [:id]).first
 
         id = newest_message_to_remove["id"]
-        @database.query("DELETE FROM `#{@database.database_name}`.`clicks` WHERE `message_id` <= #{id}")
-        @database.query("DELETE FROM `#{@database.database_name}`.`loads` WHERE `message_id` <= #{id}")
-        @database.query("DELETE FROM `#{@database.database_name}`.`deliveries` WHERE `message_id` <= #{id}")
-        @database.query("DELETE FROM `#{@database.database_name}`.`spam_checks` WHERE `message_id` <= #{id}")
-        @database.query("DELETE FROM `#{@database.database_name}`.`messages` WHERE `id` <= #{id}")
+        [:clicks, :loads, :deliveries, :spam_checks, :messages].each do |table|
+          column = table == :messages ? :id : :message_id
+          @database.query("DELETE FROM #{qualify(table)} WHERE #{quote(column)} <= #{id}")
+        end
       end
 
       #
@@ -149,6 +172,8 @@ module Postal
         tables_removed = []
         until @database.total_size <= size
           table = tables.shift
+          break if table.nil?
+
           tables_removed << table
           remove_raw_table(table)
         end
@@ -157,34 +182,30 @@ module Postal
 
       private
 
-      #
-      # Build a query to load a table
-      #
-      def create_table_query(table_name, options)
-        String.new.tap do |s|
-          s << "CREATE TABLE `#{@database.database_name}`.`#{table_name}` ("
-          s << options[:columns].map do |column_name, column_options|
-            "`#{column_name}` #{column_options}"
-          end.join(", ")
-          if options[:indexes]
-            s << ", "
-            s << options[:indexes].map do |index_name, index_options|
-              "KEY `#{index_name}` (#{index_options}) USING BTREE"
-            end.join(", ")
-          end
-          if options[:unique_indexes]
-            s << ", "
-            s << options[:unique_indexes].map do |index_name, index_options|
-              "UNIQUE KEY `#{index_name}` (#{index_options})"
-            end.join(", ")
-          end
-          if options[:primary_key]
-            s << ", PRIMARY KEY (#{options[:primary_key]})"
-          else
-            s << ", PRIMARY KEY (`id`)"
-          end
+      def dialect
+        @database.dialect
+      end
 
-          s << ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;"
+      def quote(identifier)
+        dialect.quote_identifier(identifier)
+      end
+
+      def qualify(table)
+        "#{quote(@database.database_name)}.#{quote(table)}"
+      end
+
+      #
+      # Remove any blobs referenced by the rows of a raw message table. Called
+      # before the table is dropped so that externally stored message bodies are
+      # cleaned up alongside the rows which referenced them.
+      #
+      def delete_raw_table_blobs(table)
+        store = @database.blob_store
+        return if store.nil?
+
+        sql = "SELECT #{quote(:blob)} FROM #{qualify(table)} WHERE #{quote(:blob)} IS NOT NULL"
+        @database.query(sql).each do |row|
+          store.delete(row["blob"])
         end
       end
 

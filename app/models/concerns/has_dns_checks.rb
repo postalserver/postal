@@ -15,6 +15,9 @@ module HasDNSChecks
   def check_dns(source = :manual)
     check_spf_record
     check_dkim_record
+    check_dmarc_record
+    check_mta_sts_record
+    check_tls_rpt_record
     check_mx_records
     check_return_path_record
     self.dns_checked_at = Time.now
@@ -29,6 +32,12 @@ module HasDNSChecks
         spf_error: spf_error,
         dkim_status: dkim_status,
         dkim_error: dkim_error,
+        dmarc_status: dmarc_status,
+        dmarc_error: dmarc_error,
+        mta_sts_status: mta_sts_status,
+        mta_sts_error: mta_sts_error,
+        tls_rpt_status: tls_rpt_status,
+        tls_rpt_error: tls_rpt_error,
         mx_status: mx_status,
         mx_error: mx_error,
         return_path_status: return_path_status,
@@ -72,6 +81,17 @@ module HasDNSChecks
   #
 
   def check_dkim_record
+    # If a new DKIM key is waiting to be activated, promote it to be the active
+    # key as soon as its DNS record is in place. The matching DNS response has
+    # already verified the key, so avoid a second lookup which could return a
+    # different answer while DNS changes are propagating.
+    if pending_dkim_key? && pending_dkim_record_live?
+      activate_pending_dkim_key
+      self.dkim_status = "OK"
+      self.dkim_error = nil
+      return true
+    end
+
     domain = "#{dkim_record_name}.#{name}"
     records = resolver.txt(domain)
     if records.empty?
@@ -95,6 +115,120 @@ module HasDNSChecks
 
   def check_dkim_record!
     check_dkim_record
+    save!
+  end
+
+  # Returns true if the DNS record for the pending DKIM key has been published
+  # correctly.
+  def pending_dkim_record_live?
+    records = resolver.txt("#{pending_dkim_record_name}.#{name}")
+    return false unless records.size == 1
+
+    sanitised_record = records.first.strip.ends_with?(";") ? records.first.strip : "#{records.first.strip};"
+    sanitised_record == pending_dkim_record
+  end
+
+  #
+  # DMARC
+  #
+
+  # The DMARC policy belongs to the domain owner, so this checks that a single
+  # usable record has been published rather than that it matches a record we
+  # generated.
+  def check_dmarc_record
+    records = resolver.txt("#{dmarc_record_name}.#{name}").grep(/\Av=DMARC1/i)
+    if records.empty?
+      self.dmarc_status = "Missing"
+      self.dmarc_error = "No DMARC record exists for this domain"
+    elsif records.size > 1
+      self.dmarc_status = "Invalid"
+      self.dmarc_error = "There are #{records.size} DMARC records at #{dmarc_record_name}.#{name}. " \
+                         "There should only be one."
+    elsif records.first !~ /\bp\s*=\s*(none|quarantine|reject)\b/i
+      self.dmarc_status = "Invalid"
+      self.dmarc_error = "The DMARC record at #{dmarc_record_name}.#{name} does not contain a valid policy."
+    else
+      self.dmarc_status = "OK"
+      self.dmarc_error = nil
+      true
+    end
+  end
+
+  def check_dmarc_record!
+    check_dmarc_record
+    save!
+  end
+
+  #
+  # MTA-STS
+  #
+
+  # A policy is only meaningful while it is being served, so nothing is reported
+  # while the policy is withdrawn.
+  def check_mta_sts_record
+    unless mta_sts_enabled?
+      self.mta_sts_status = nil
+      self.mta_sts_error = nil
+      return
+    end
+
+    records = resolver.txt("#{mta_sts_record_name}.#{name}").grep(/\Av=STSv1/i)
+    if records.empty?
+      self.mta_sts_status = "Missing"
+      self.mta_sts_error = "No MTA-STS record exists for this domain"
+    elsif records.size > 1
+      self.mta_sts_status = "Invalid"
+      self.mta_sts_error = "There are #{records.size} MTA-STS records at #{mta_sts_record_name}.#{name}. " \
+                           "There should only be one."
+    elsif records.first[/\bid=([A-Za-z0-9]+)/i, 1].to_s.upcase != mta_sts_policy_id.to_s.upcase
+      self.mta_sts_status = "Invalid"
+      self.mta_sts_error = "The MTA-STS record at #{mta_sts_record_name}.#{name} does not advertise the " \
+                           "current policy id (#{mta_sts_policy_id})."
+    else
+      self.mta_sts_status = "OK"
+      self.mta_sts_error = nil
+      true
+    end
+  end
+
+  def check_mta_sts_record!
+    check_mta_sts_record
+    save!
+  end
+
+  #
+  # TLS-RPT
+  #
+
+  # A reporting record is only meaningful when a destination has been configured
+  # for it, so nothing is reported otherwise.
+  def check_tls_rpt_record
+    if tls_rpt_record.nil?
+      self.tls_rpt_status = nil
+      self.tls_rpt_error = nil
+      return
+    end
+
+    records = resolver.txt("#{tls_rpt_record_name}.#{name}").grep(/\Av=TLSRPTv1/i)
+    if records.empty?
+      self.tls_rpt_status = "Missing"
+      self.tls_rpt_error = "No TLS-RPT record exists for this domain"
+    elsif records.size > 1
+      self.tls_rpt_status = "Invalid"
+      self.tls_rpt_error = "There are #{records.size} TLS-RPT records at #{tls_rpt_record_name}.#{name}. " \
+                           "There should only be one."
+    elsif records.first !~ /\brua\s*=/i
+      self.tls_rpt_status = "Invalid"
+      self.tls_rpt_error = "The TLS-RPT record at #{tls_rpt_record_name}.#{name} has no report destination."
+    else
+      self.tls_rpt_status = "OK"
+      self.tls_rpt_error = nil
+      true
+    end
+  end
+
+  def check_tls_rpt_record!
+    check_tls_rpt_record
     save!
   end
 

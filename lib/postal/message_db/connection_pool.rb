@@ -14,31 +14,43 @@ module Postal
       def use
         retried = false
         do_not_checkin = false
+        connection = nil
         begin
           connection = checkout
 
           yield connection
-        rescue Mysql2::Error => e
+        rescue dialect.error_class => e
           if e.message =~ /(lost connection|gone away|not connected)/i
             # If the connection has failed for a connectivity reason
             # we won't add it back in to the pool so that it'll reconnect
             # next time.
             do_not_checkin = true
 
-            # If we haven't retried yet, we'll retry the block once more.
+            # If we haven't retried yet, we'll retry the block once more with a
+            # fresh connection. The failed connection stays out of the pool,
+            # but the replacement is an ordinary connection again.
             if retried == false
               retried = true
+              do_not_checkin = false
               retry
             end
           end
 
           raise
         ensure
-          checkin(connection) unless do_not_checkin
+          checkin(connection) if connection && !do_not_checkin
         end
       end
 
       private
+
+      #
+      # The dialect for the configured adapter. Used for driver-specific
+      # connection handling and error detection.
+      #
+      def dialect
+        @dialect ||= Dialects::Registry.for(Postal::Config.message_db.adapter)
+      end
 
       def checkout
         @lock.synchronize do
@@ -62,13 +74,7 @@ module Postal
       end
 
       def establish_connection
-        Mysql2::Client.new(
-          host: Postal::Config.message_db.host,
-          username: Postal::Config.message_db.username,
-          password: Postal::Config.message_db.password,
-          port: Postal::Config.message_db.port,
-          encoding: Postal::Config.message_db.encoding
-        )
+        Dialects::Registry.for(Postal::Config.message_db.adapter).connect(Postal::Config.message_db)
       end
 
     end

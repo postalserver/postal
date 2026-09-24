@@ -116,6 +116,14 @@ class SMTPSender < BaseSender
       r.details = "Permanent SMTP delivery error when sending to #{@current_endpoint}"
       r.output = e.message
     end
+  rescue SMTPClient::Endpoint::MessageTooLargeError => e
+    logger.error "#{e.class}: #{e.message}"
+    @current_endpoint.reset_smtp_session
+
+    create_result("HardFail", start_time) do |r|
+      r.details = "Message is larger than the server accepts when sending to #{@current_endpoint}"
+      r.output = e.message
+    end
   rescue StandardError => e
     logger.error "#{e.class}: #{e.message}"
     @current_endpoint.reset_smtp_session
@@ -158,14 +166,50 @@ class SMTPSender < BaseSender
     message.rcpt_to
   end
 
-  # Return an array of server hostnames which should receive this message
+  # Return the servers which should receive this message: the MX records for
+  # the domain, or the domain itself when it publishes none, subject to any
+  # MTA-STS policy the domain publishes.
   #
-  # @return [Array<String>]
+  # @return [Array<SMTPClient::Server>]
   def resolve_mx_records_for_domain
-    hostnames = DNSResolver.local.mx(@domain, raise_timeout_errors: true).map(&:last)
-    return [SMTPClient::Server.new(@domain)] if hostnames.empty?
+    policy = SMTPClient::MTASts.policy_for(@domain)
 
-    hostnames.map { |hostname| SMTPClient::Server.new(hostname) }
+    hostnames = DNSResolver.local.mx(@domain, raise_timeout_errors: true).map(&:last)
+    hostnames = [@domain] if hostnames.empty?
+    hostnames = permitted_hostnames(hostnames, policy) if policy&.enforce?
+
+    hostnames.map do |hostname|
+      SMTPClient::Server.new(hostname, ssl_mode: ssl_mode_for(policy))
+    end
+  end
+
+  # Drop any host which an enforcing policy does not list. Delivering to a host
+  # the domain has not authorised is the thing the policy exists to prevent.
+  #
+  # @param hostnames [Array<String>]
+  # @param policy [SMTPClient::MTASts::Policy]
+  # @return [Array<String>]
+  def permitted_hostnames(hostnames, policy)
+    permitted = hostnames.select { |hostname| policy.publishes_mx?(hostname) }
+    refused = hostnames - permitted
+
+    unless refused.empty?
+      logger.warn "MTA-STS: ignoring #{refused.to_sentence} for #{@domain} because its policy " \
+                  "lists only #{policy.mx.to_sentence}"
+    end
+
+    permitted
+  end
+
+  # An enforcing policy requires a verified TLS session, so its endpoints are
+  # given STARTTLS rather than the opportunistic Auto mode. A handshake which
+  # cannot be completed then ends the delivery rather than falling back to the
+  # clear, which is the downgrade the policy exists to prevent.
+  #
+  # @param policy [SMTPClient::MTASts::Policy, nil]
+  # @return [String]
+  def ssl_mode_for(policy)
+    policy&.enforce? ? SMTPClient::SSLModes::STARTTLS : SMTPClient::SSLModes::AUTO
   end
 
   # Attempt to begin an SMTP sesssion for the given endpoint. If successful, this endpoint
@@ -197,7 +241,7 @@ class SMTPSender < BaseSender
 
     # If we get an SSL error, we can retry a connection without
     # ssl.
-    if e.is_a?(OpenSSL::SSL::SSLError) && endpoint.server.ssl_mode == "Auto"
+    if e.is_a?(OpenSSL::SSL::SSLError) && endpoint.server.ssl_mode == SMTPClient::SSLModes::AUTO
       logger.error "SSL error (#{e.message}), retrying without SSL"
       return connect_to_endpoint(endpoint, allow_ssl: false)
     end
@@ -247,7 +291,14 @@ class SMTPSender < BaseSender
       relays = relays.filter_map do |relay|
         next unless relay.host.present?
 
-        SMTPClient::Server.new(relay.host, port: relay.port, ssl_mode: relay.ssl_mode)
+        SMTPClient::Server.new(
+          relay.host,
+          port: relay.port,
+          ssl_mode: relay.ssl_mode,
+          username: relay.username,
+          password: relay.password,
+          authentication: relay.auth_mode
+        )
       end
 
       @smtp_relays = relays.empty? ? nil : relays

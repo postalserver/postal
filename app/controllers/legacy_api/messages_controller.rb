@@ -15,6 +15,8 @@ module LegacyAPI
     #                   OR an error if the message does not exist.
     #
     def message
+      return if api_quota_exceeded?
+
       message = find_message
       return if performed?
 
@@ -108,6 +110,8 @@ module LegacyAPI
     #                   OR an error if the message does not exist.
     #
     def deliveries
+      return if api_quota_exceeded?
+
       message = find_message
       return if performed?
 

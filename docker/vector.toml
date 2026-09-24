@@ -1,0 +1,16 @@
+# A minimal vector.dev pipeline used by the test suite: the http_server source
+# accepts the line-delimited JSON Postal sends (telemetry.url =
+# "json+http://vector:8686"), and the console sink proves it arrived. In a real
+# deployment the console sink is replaced by whichever sinks are wanted
+# (prometheus_exporter, influxdb, s3, kafka, ...) and Vector handles the
+# buffering, retries and fan-out.
+
+[sources.postal]
+type = "http_server"
+address = "0.0.0.0:8686"
+decoding.codec = "json"
+
+[sinks.console]
+type = "console"
+inputs = ["postal"]
+encoding.codec = "json"

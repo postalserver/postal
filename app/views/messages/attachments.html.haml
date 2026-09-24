@@ -17,7 +17,7 @@
     %ul.largeList
       - @message.attachments.each_with_index do |attachment, i|
         %li.largeList__item
-          = link_to attachment_organization_server_message_path(organization, @server, @message.id, :attachment => i), :class => 'largeList__link', :data => {:turbolinks => "false"} do
+          = link_to attachment_organization_server_message_path(organization, @server, @message.id, :attachment => i), :class => 'largeList__link', :data => {:turbo => "false"} do
             %p.largeList__rightLabel= number_to_human_size attachment.body.to_s.bytesize
             %p= attachment.filename
             %p.largeList__subText= attachment.mime_type

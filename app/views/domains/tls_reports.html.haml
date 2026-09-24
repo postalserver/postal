@@ -1,0 +1,92 @@
+- if @server
+  - page_title << @server.name
+- page_title << @domain.name
+- page_title << "TLS Reports"
+
+
+- if @server
+  = render 'servers/sidebar', :active_server => @server
+  = render 'servers/header', :active_nav => :domains
+  = render 'nav', :active_nav => :domains
+- else
+  .pageHeader
+    %h1.pageHeader__title
+      %span.pageHeader__titlePrevious
+        = @organization.name
+        &rarr; Domains &rarr;
+      = @domain.name
+  = render 'organizations/nav', :active_nav => :domains
+
+.pageContent.pageContent--compact
+  %h2.pageContent__title TLS Reports for #{@domain.name}
+  %p.pageContent__intro.u-margin
+    Sending servers report the TLS failures they encounter when delivering mail to this
+    domain to the address published in the <b>_smtp._tls</b> record. Those reports are what
+    show whether an MTA-STS policy is safe to move on to enforcement.
+
+  .u-margin.buttonSet
+    = link_to "Back to DNS setup", [:setup, organization, @server, @domain], :class => 'button button--neutral'
+    = link_to "Back to domain list", [organization, @server, :domains], :class => 'button button--neutral'
+
+  - if @reports.empty?
+    %h3.pageContent__subTitle Reports
+    %table.dataTable.u-margin-half
+      %tbody
+        %tr
+          %td.dataTable__empty{:colspan => 3} No TLS reports have been received for this domain.
+  - else
+    %h3.pageContent__subTitle Summary
+    %table.dataTable.u-margin-half
+      %thead
+        %tr
+          %td Reports received
+          %td Successful sessions
+          %td Failed sessions
+      %tbody
+        %tr
+          %td= @reports.size
+          %td= number_with_delimiter(@reports.sum { |report| report.successful_session_count.to_i })
+          %td= number_with_delimiter(@reports.sum { |report| report.failed_session_count.to_i })
+
+    %h3.pageContent__subTitle Failures
+    - if @failure_counts.empty?
+      %p.pageContent__text.u-green.u-bold
+        %span.label.label--green Good
+        No failures have been reported for this domain.
+    - else
+      %p.pageContent__text
+        Every failure reported for this domain, grouped by the reason the sending server gave.
+        A policy is only safe to enforce once the failures which mean a sending server could
+        not establish TLS have stopped.
+      %table.dataTable.u-margin-half
+        %thead
+          %tr
+            %td Reason
+            %td Failed sessions
+        %tbody
+          - @failure_counts.sort_by { |_reason, count| -count.to_i }.each do |reason, count|
+            %tr
+              %td= reason.presence || "(not given)"
+              %td= number_with_delimiter(count)
+
+    %h3.pageContent__subTitle Reports
+    %table.dataTable.u-margin-half
+      %thead
+        %tr
+          %td Period
+          %td Reporting organization
+          %td Submitted by
+          %td Successful
+          %td Failed
+      %tbody
+        - @reports.each do |report|
+          %tr
+            %td
+              - if report.date_start && report.date_end
+                = "#{report.date_start.to_date} to #{report.date_end.to_date}"
+              - else
+                = report.created_at.to_date
+            %td= report.organization_name.presence || "(not given)"
+            %td= report.submitter.presence || "(not given)"
+            %td= number_with_delimiter(report.successful_session_count.to_i)
+            %td= number_with_delimiter(report.failed_session_count.to_i)

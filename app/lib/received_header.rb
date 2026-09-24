@@ -9,13 +9,17 @@ class ReceivedHeader
 
   class << self
 
-    def generate(server, helo, ip_address, method)
+    def generate(server, helo, ip_address, method, smtputf8: false)
       our_hostname = OUR_HOSTNAMES[method]
       if our_hostname.nil?
         raise Error, "`method` is invalid (must be one of #{OUR_HOSTNAMES.join(', ')})"
       end
 
-      header = "by #{our_hostname} with #{method.to_s.upcase}; #{Time.now.utc.rfc2822}"
+      # RFC 6531 section 3.7.3: a message which arrived over an internationalised
+      # session says so in the protocol name.
+      protocol = smtputf8 ? "SMTPUTF8" : method.to_s.upcase
+
+      header = "by #{our_hostname} with #{protocol}; #{Time.now.utc.rfc2822}"
 
       if server.nil? || server.privacy_mode == false
         hostname = DNSResolver.local.ip_to_hostname(ip_address)

@@ -485,7 +485,7 @@ module MessageDequeuer
         end
 
         it "updates the retry time on the queued message" do
-          Timecop.freeze do
+          travel_to Time.now do
             retry_time = 5.minutes.from_now.change(usec: 0)
             processor.process
             expect(queued_message.reload.retry_after).to eq retry_time

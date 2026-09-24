@@ -19,7 +19,7 @@ Bundler.require(*gem_groups)
 module Postal
   class Application < Rails::Application
 
-    config.load_defaults 7.0
+    config.load_defaults 8.1
 
     # Disable most generators
     config.generators do |g|
@@ -41,6 +41,10 @@ module Postal
     config.middleware.insert_before ActionDispatch::HostAuthorization, TrackingMiddleware
 
     config.hosts << Postal::Config.postal.web_hostname
+
+    # An MTA-STS policy is served from the mta-sts.<domain> host of each domain
+    # which is hosted here, so those hosts have to be accepted.
+    config.hosts << /\Amta-sts\..+\z/i
 
     unless Postal::Config.logging.rails_log_enabled?
       config.logger = Logger.new("/dev/null")

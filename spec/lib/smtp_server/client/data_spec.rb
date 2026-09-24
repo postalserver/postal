@@ -10,18 +10,18 @@ module SMTPServer
 
     describe "DATA" do
       it "returns an error if no helo" do
-        expect(client.handle("DATA")).to eq "503 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
+        expect(client.handle("DATA")).to eq "503 5.5.1 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
       end
 
       it "returns an error if no mail from" do
         client.handle("HELO test.example.com")
-        expect(client.handle("DATA")).to eq "503 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
+        expect(client.handle("DATA")).to eq "503 5.5.1 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
       end
 
       it "returns an error if no rcpt to" do
         client.handle("HELO test.example.com")
         client.handle("MAIL FROM: test@example.com")
-        expect(client.handle("DATA")).to eq "503 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
+        expect(client.handle("DATA")).to eq "503 5.5.1 HELO/EHLO, MAIL FROM and RCPT TO before sending data"
       end
 
       it "returns go ahead" do
@@ -37,7 +37,7 @@ module SMTPServer
         client.handle("HELO test.example.com")
         client.handle("MAIL FROM: test@test.com")
         client.handle("RCPT TO: #{route.name}@#{route.domain.name}")
-        Timecop.freeze do
+        travel_to Time.now do
           client.handle("DATA")
           expect(client.headers["received"]).to include "from test.example.com (1.2.3.4 [1.2.3.4]) by #{Postal::Config.postal.smtp_hostname} with SMTP; #{Time.now.utc.rfc2822}"
         end
@@ -68,7 +68,7 @@ module SMTPServer
         end
 
         it "logs content" do
-          Timecop.freeze do
+          travel_to Time.now do
             client.handle("DATA")
             client.handle("Subject: Test")
             client.handle("")

@@ -35,8 +35,8 @@ module Postal
         @schema_version ||= begin
           last_migration = select(:migrations, order: :version, direction: "DESC", limit: 1).first
           last_migration ? last_migration["version"] : 0
-        rescue Mysql2::Error => e
-          e.message =~ /doesn't exist/ ? 0 : raise
+        rescue dialect.error_class => e
+          e.message =~ /does(n't| not) exist|no such table/i ? 0 : raise
         end
       end
 
@@ -70,7 +70,17 @@ module Postal
       # Return the total size of all stored messages
       #
       def total_size
-        query("SELECT SUM(size) AS size FROM #{escape_identifier(database_name)}.`raw_message_sizes`").first["size"] || 0
+        (query("SELECT SUM(size) AS size FROM #{escape_identifier(database_name)}.#{escape_identifier(:raw_message_sizes)}").first["size"] || 0).to_i
+      end
+
+      #
+      # Add a number of bytes to the retained size recorded for a raw message
+      # table.
+      #
+      def increment_raw_message_size(table_name, size)
+        query("UPDATE #{escape_identifier(database_name)}.#{escape_identifier(:raw_message_sizes)} " \
+              "SET #{escape_identifier(:size)} = #{escape_identifier(:size)} + #{size.to_i} " \
+              "WHERE #{escape_identifier(:table_name)} = #{escape(table_name)}")
       end
 
       #
@@ -122,15 +132,66 @@ module Postal
         table_name = raw_table_name_for_date(date)
         begin
           headers, body = data.split(/\r?\n\r?\n/, 2)
-          headers_id = insert(table_name, data: headers)
-          body_id = insert(table_name, data: body)
-        rescue Mysql2::Error => e
-          raise unless e.message =~ /doesn't exist/
+          headers_id = insert(table_name, data: headers, next: nil)
+          body_id = insert_raw_message_body(table_name, body)
+        rescue dialect.error_class => e
+          raise unless e.message =~ /does(n't| not) exist|no such table/i
 
           provisioner.create_raw_table(table_name)
           retry
         end
         [table_name, headers_id, body_id]
+      end
+
+      #
+      # Insert a raw message body into a table and return the id of the first
+      # row. Bodies larger than message_db.raw_message_chunk_size are split into
+      # multiple rows which are chained together using the `next` column so that
+      # no single query exceeds the server's max_allowed_packet limit.
+      #
+      def insert_raw_message_body(table_name, body)
+        body = body.to_s
+        store = blob_store
+
+        if store && body.bytesize >= blob_store_threshold
+          # The body is large enough to be kept out of the database entirely.
+          insert(table_name, data: nil, blob: store.store(body), next: nil)
+        elsif body.bytesize <= raw_message_chunk_size
+          insert(table_name, data: body, next: nil)
+        else
+          # Insert the chunks in reverse so that each row can reference the row
+          # which follows it. This avoids needing a second pass to link them up.
+          first_id = nil
+          each_raw_chunk(body).reverse_each do |chunk|
+            first_id = insert(table_name, data: chunk, next: first_id)
+          end
+          first_id
+        end
+      end
+
+      #
+      # Read a raw message body back from a table. If the body was stored in
+      # chunks the `next` chain is followed and the chunks are concatenated so
+      # the complete body is returned.
+      #
+      def raw_message_body(table_name, id)
+        return "" if id.nil?
+
+        body = "".b
+        each_raw_body_row(table_name, id, fields: [:id, :data, :blob, :next]) do |row|
+          body << raw_body_row_data(row)
+        end
+        body
+      end
+
+      #
+      # Replace the body stored in a table with new content, removing any rows
+      # which made up the previous body. Returns the id of the first row of the
+      # newly stored body.
+      #
+      def replace_raw_message_body(table_name, id, body)
+        delete_raw_message_chunks(table_name, id)
+        insert_raw_message_body(table_name, body)
       end
 
       #
@@ -167,11 +228,11 @@ module Postal
         end
 
         if options[:limit]
-          sql_query << " LIMIT #{options[:limit]}"
+          sql_query << " LIMIT #{options[:limit].to_i}"
         end
 
         if options[:offset]
-          sql_query << " OFFSET #{options[:offset]}"
+          sql_query << " OFFSET #{options[:offset].to_i}"
         end
 
         result = query(sql_query)
@@ -214,11 +275,11 @@ module Postal
         sql_query = "UPDATE #{escape_identifier(database_name)}.#{escape_identifier(table)} SET"
         sql_query << " #{hash_to_sql(attributes)}"
         if options[:where]
-          sql_query << (" " + build_where_string(options[:where]))
+          sql_query << (" " + build_where_string(options[:where], " AND "))
         end
-        with_mysql do |mysql|
-          query_on_connection(mysql, sql_query)
-          mysql.affected_rows
+        with_connection do |connection|
+          result = query_on_connection(connection, sql_query)
+          dialect.affected_rows(connection, result)
         end
       end
 
@@ -226,13 +287,16 @@ module Postal
       # Insert a record into a given table. A hash of attributes is also provided.
       # Will return the ID of the new item.
       #
-      def insert(table, attributes)
+      def insert(table, attributes, options = {})
+        returning_id = options.fetch(:returning_id, true)
+
         sql_query = "INSERT INTO #{escape_identifier(database_name)}.#{escape_identifier(table)}"
         sql_query << (" (" + attributes.keys.map { |k| escape_identifier(k) }.join(", ") + ")")
         sql_query << (" VALUES (" + attributes.values.map { |v| escape(v) }.join(", ") + ")")
-        with_mysql do |mysql|
-          query_on_connection(mysql, sql_query)
-          mysql.last_id
+        sql_query << dialect.returning_clause(table) if returning_id
+        with_connection do |connection|
+          result = query_on_connection(connection, sql_query)
+          returning_id ? dialect.inserted_id(connection, result) : nil
         end
       end
 
@@ -262,9 +326,9 @@ module Postal
       def delete(table, options = {})
         sql_query = "DELETE FROM #{escape_identifier(database_name)}.#{escape_identifier(table)}"
         sql_query << (" " + build_where_string(options[:where], " AND "))
-        with_mysql do |mysql|
-          query_on_connection(mysql, sql_query)
-          mysql.affected_rows
+        with_connection do |connection|
+          result = query_on_connection(connection, sql_query)
+          dialect.affected_rows(connection, result)
         end
       end
 
@@ -276,23 +340,22 @@ module Postal
       end
 
       #
-      # Run a query, log it and return the result
+      # The dialect for the configured message database adapter. Everything
+      # engine-specific -- quoting, escaping, connection handling, upserts --
+      # is delegated to it so the message database is not tied to MySQL.
       #
-      class ResultForExplainPrinter
+      def dialect
+        @dialect ||= Dialects::Registry.for(Postal::Config.message_db.adapter)
+      end
 
-        attr_reader :columns
-        attr_reader :rows
+      #
+      # The configured blob store, or nil when the bodies of messages should be
+      # stored inline in the message database.
+      #
+      def blob_store
+        return @blob_store if defined?(@blob_store)
 
-        def initialize(result)
-          if result.first
-            @columns = result.first.keys
-            @rows = result.map { |row| row.map(&:last) }
-          else
-            @columns = []
-            @rows = []
-          end
-        end
-
+        @blob_store = BlobStore.build
       end
 
       def stringify_keys(hash)
@@ -300,39 +363,117 @@ module Postal
       end
 
       def escape(value)
-        with_mysql do |mysql|
-          if value == true
-            "1"
-          elsif value == false
-            "0"
-          elsif value.nil? || value.to_s.empty?
-            "NULL"
-          else
-            "'" + mysql.escape(value.to_s) + "'"
-          end
+        if value == true
+          dialect.boolean(true)
+        elsif value == false
+          dialect.boolean(false)
+        elsif value.nil? || value.to_s.empty?
+          "NULL"
+        else
+          with_connection { |connection| dialect.escape(connection, value.to_s) }
         end
       end
 
       def query(query)
-        with_mysql do |mysql|
-          query_on_connection(mysql, query)
+        with_connection do |connection|
+          query_on_connection(connection, query)
         end
       end
 
       private
 
+      #
+      # The maximum number of bytes to store in a single raw message row.
+      # Larger bodies are split across multiple rows chained via the `next`
+      # column so that no single query exceeds the server's max_allowed_packet.
+      #
+      def raw_message_chunk_size
+        Postal::Config.message_db.raw_message_chunk_size
+      end
+
+      #
+      # Yield a body in raw_message_chunk_size byte chunks. Splitting happens on
+      # byte boundaries so the chunks reassemble exactly, even if a boundary
+      # falls in the middle of a multi-byte character.
+      #
+      def each_raw_chunk(body)
+        return enum_for(:each_raw_chunk, body) unless block_given?
+
+        offset = 0
+        while offset < body.bytesize
+          yield body.byteslice(offset, raw_message_chunk_size)
+          offset += raw_message_chunk_size
+        end
+      end
+
+      #
+      # Delete every row which makes up a raw message body chain.
+      #
+      def delete_raw_message_chunks(table_name, id)
+        ids = []
+        each_raw_body_row(table_name, id, fields: [:id, :blob, :next]) do |row|
+          ids << row["id"]
+          delete_blob(row["blob"]) unless row["blob"].nil?
+        end
+        delete(table_name, where: { id: ids }) unless ids.empty?
+      end
+
+      #
+      # The minimum size of a body before it is stored in the blob store.
+      #
+      def blob_store_threshold
+        Postal::Config.blob_store.threshold.to_i
+      end
+
+      #
+      # Return the bytes stored in a raw message row, resolving it from the blob
+      # store when the row carries a blob reference.
+      #
+      def raw_body_row_data(row)
+        return row["data"].to_s if row["blob"].nil?
+
+        store = blob_store
+        if store.nil?
+          raise Postal::Error, "Message body is stored in the blob store but no blob store is configured"
+        end
+
+        store.retrieve(row["blob"]).to_s
+      end
+
+      #
+      # Remove a blob from the blob store if one is configured.
+      #
+      def delete_blob(key)
+        blob_store&.delete(key)
+      end
+
+      #
+      # Yield each row which makes up a raw message body, following the `next`
+      # chain from the given id until it ends.
+      #
+      def each_raw_body_row(table_name, id, fields: [:id, :data, :next])
+        return enum_for(:each_raw_body_row, table_name, id, fields: fields) unless block_given?
+
+        seen = {}
+        while id
+          break if seen[id]
+
+          seen[id] = true
+          row = select(table_name, where: { id: id }, limit: 1, fields: fields).first
+          break if row.nil?
+
+          yield row
+          id = row["next"]
+        end
+      end
+
       def query_on_connection(connection, query)
         start_time = Time.now.to_f
-        result = connection.query(query, cast_booleans: true)
+        result = dialect.execute(connection, query)
         time = Time.now.to_f - start_time
         logger.debug "  \e[4;34mMessageDB Query (#{time.round(2)}s) \e[0m  \e[33m#{query}\e[0m"
-        if time > 0.05 && query =~ /\A(SELECT|UPDATE|DELETE) /
-          id = SecureRandom.alphanumeric(8)
-          explain_result = ResultForExplainPrinter.new(connection.query("EXPLAIN #{query}"))
-          logger.info "  [#{id}] EXPLAIN #{query}"
-          ActiveRecord::ConnectionAdapters::MySQL::ExplainPrettyPrinter.new.pp(explain_result, time).split("\n").each do |line|
-            logger.info "  [#{id}] " + line
-          end
+        if dialect.explain? && time > 0.05 && query =~ /\A(SELECT|UPDATE|DELETE) /
+          dialect.log_explain(connection, query, time, logger)
         end
         result
       end
@@ -341,8 +482,11 @@ module Postal
         defined?(Rails) ? Rails.logger : Logger.new($stdout)
       end
 
-      def with_mysql(&block)
-        self.class.connection_pool.use(&block)
+      def with_connection(&block)
+        self.class.connection_pool.use do |connection|
+          dialect.ensure_namespace(connection, database_name)
+          block.call(connection)
+        end
       end
 
       def build_where_string(attributes, joiner = ", ")
@@ -352,7 +496,9 @@ module Postal
       def hash_to_sql(hash, joiner = ", ")
         hash.map do |key, value|
           column = escape_identifier(key)
-          if value.is_a?(Array) && value.all? { |v| v.is_a?(Integer) }
+          if value.is_a?(Array) && value.empty?
+            "1=0"
+          elsif value.is_a?(Array) && value.all? { |v| v.is_a?(Integer) }
             "#{column} IN (#{value.join(', ')})"
           elsif value.is_a?(Array)
             escaped_values = value.map { |v| escape(v) }.join(", ")
@@ -378,12 +524,11 @@ module Postal
         end.join(joiner)
       end
 
-      # Escape a value for safe use as a MySQL identifier (e.g. a column or
-      # table name). Identifiers are wrapped in backticks and any backtick
-      # within the identifier is doubled so it cannot break out of the quoting
-      # and inject arbitrary SQL.
+      # Quote a value for safe use as an identifier (a column or table name) in
+      # the configured engine. The dialect handles the engine-specific quoting
+      # and any escaping needed to prevent identifier injection.
       def escape_identifier(identifier)
-        "`" + identifier.to_s.gsub("`", "``") + "`"
+        dialect.quote_identifier(identifier)
       end
 
     end

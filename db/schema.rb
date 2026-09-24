@@ -10,13 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_23_000000) do
   create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
     t.integer "endpoint_id"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "acme_challenges", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "token"
+    t.text "content"
+    t.datetime "expires_at", precision: 6
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["token"], name: "index_acme_challenges_on_token", unique: true
   end
 
   create_table "address_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
@@ -99,6 +108,24 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.integer "owner_id"
     t.string "dkim_identifier_string"
     t.boolean "use_for_any"
+    t.text "pending_dkim_private_key"
+    t.string "pending_dkim_identifier_string"
+    t.integer "dkim_key_size"
+    t.datetime "pending_dkim_key_created_at"
+    t.datetime "pending_dkim_key_notified_at"
+    t.string "dmarc_status"
+    t.string "dmarc_error"
+    t.string "mta_sts_mode", default: "none"
+    t.integer "mta_sts_max_age", default: 86_400
+    t.string "mta_sts_policy_id"
+    t.string "mta_sts_status"
+    t.string "mta_sts_error"
+    t.string "mta_sts_certificate_status"
+    t.string "mta_sts_certificate_error"
+    t.datetime "mta_sts_certificate_expires_at"
+    t.datetime "mta_sts_certificate_obtained_at"
+    t.string "tls_rpt_status"
+    t.string "tls_rpt_error"
     t.index ["server_id"], name: "index_domains_on_server_id"
     t.index ["uuid"], name: "index_domains_on_uuid", length: 8
   end
@@ -289,6 +316,37 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_11_205229) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["domain"], name: "index_track_certificates_on_domain", length: 8
+  end
+
+  create_table "tls_report_results", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.integer "tls_report_id"
+    t.string "policy_type"
+    t.string "policy_domain"
+    t.string "mx_host"
+    t.string "result_type"
+    t.string "sending_mta_ip"
+    t.string "receiving_mx_hostname"
+    t.integer "failed_session_count"
+    t.string "failure_reason_code"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["tls_report_id"], name: "index_tls_report_results_on_tls_report_id"
+  end
+
+  create_table "tls_reports", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.integer "domain_id"
+    t.string "report_id"
+    t.string "organization_name"
+    t.string "contact_info"
+    t.string "submitter"
+    t.datetime "date_start", precision: 6
+    t.datetime "date_end", precision: 6
+    t.integer "successful_session_count"
+    t.integer "failed_session_count"
+    t.text "payload"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["domain_id", "report_id"], name: "index_tls_reports_on_domain_id_and_report_id", unique: true
   end
 
   create_table "track_domains", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|

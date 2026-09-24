@@ -5,7 +5,7 @@
   %p.pageContent__intro.u-margin
     If you're starting a new organization you can do so by completing this form. You'll be able
     to invite new users & create mail servers as soon as it has been created.
-  = form_for @organization, :remote => true do |f|
+  = form_with model: @organization, data: { remote: true } do |f|
     = f.error_messages
     %fieldset.fieldSet
       .fieldSet__field

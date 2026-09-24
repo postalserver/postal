@@ -7,17 +7,30 @@ Rails.application.routes.draw do
   match "/api/v1/messages/message" => "legacy_api/messages#message", via: [:get, :post, :patch, :put]
   match "/api/v1/messages/deliveries" => "legacy_api/messages#deliveries", via: [:get, :post, :patch, :put]
 
+  # Reactive statistics stream (Server-Sent Events)
+  get "/stats/stream" => "stats#stream", as: :stats_stream
+
   scope "org/:org_permalink", as: "organization" do
     resources :domains, only: [:index, :new, :create, :destroy] do
       match :verify, on: :member, via: [:get, :post]
       get :setup, on: :member
       post :check, on: :member
+      post :regenerate_dkim, on: :member
+      post :cancel_dkim_regeneration, on: :member
+      post :update_mta_sts, on: :member
+      post :request_mta_sts_certificate, on: :member
+      get :tls_reports, on: :member
     end
     resources :servers, except: [:index] do
       resources :domains, only: [:index, :new, :create, :destroy] do
         match :verify, on: :member, via: [:get, :post]
         get :setup, on: :member
         post :check, on: :member
+        post :regenerate_dkim, on: :member
+        post :cancel_dkim_regeneration, on: :member
+        post :update_mta_sts, on: :member
+        post :request_mta_sts_certificate, on: :member
+        get :tls_reports, on: :member
       end
       resources :track_domains do
         post :toggle_ssl, on: :member
@@ -96,6 +109,8 @@ Rails.application.routes.draw do
   end
 
   get ".well-known/jwks.json" => "well_known#jwks"
+  get ".well-known/mta-sts.txt" => "well_known#mta_sts"
+  get ".well-known/acme-challenge/:token" => "well_known#acme_challenge"
 
   get "ip" => "sessions#ip"
 
