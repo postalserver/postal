@@ -81,6 +81,8 @@ message_db:
   encoding: utf8mb4
   # The MariaDB prefix to add to database names
   database_name_prefix: postal
+  # The maximum number of bytes from a raw message stored in a single database row (in bytes). Larger messages are split across multiple rows so that no single query exceeds the server's max_allowed_packet limit. Lower this if your database server uses a small max_allowed_packet.
+  raw_message_chunk_size: 4194304
 
 logging:
   # Enable the default Rails logger

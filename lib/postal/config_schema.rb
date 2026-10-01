@@ -210,6 +210,14 @@ module Postal
         description "The MariaDB prefix to add to database names"
         default "postal"
       end
+
+      integer :raw_message_chunk_size do
+        description "The maximum number of bytes from a raw message stored in a single database row " \
+                    "(in bytes). Larger messages are split across multiple rows so that no single query " \
+                    "exceeds the server's max_allowed_packet limit. Lower this if your database server " \
+                    "uses a small max_allowed_packet."
+        default 4 * 1024 * 1024
+      end
     end
 
     group :logging do
