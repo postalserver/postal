@@ -117,12 +117,25 @@ module MessageDequeuer
 
     def check_send_limits
       if queued_message.server.send_limit_exceeded?
-        # If we're over the limit, we're going to be holding this message
-        log "server send limit has been exceeded, holding", send_limit: queued_message.server.send_limit
-        queued_message.server.update_columns(send_limit_exceeded_at: Time.now, send_limit_approaching_at: nil)
-        create_delivery "Held", details: "Message held because send limit (#{queued_message.server.send_limit}) has been reached."
-        remove_from_queue
-        stop_processing
+        subject = queued_message.message.headers["subject"]&.last.to_s
+        if queued_message.server.priority_subject_bypass?(subject)
+          log "send limit exceeded but subject matches priority keyword, bypassing limit", subject: subject
+          return
+        end
+
+        retry_interval = queued_message.server.send_limit_retry_interval
+        if retry_interval.present? && retry_interval > 0
+          log "send limit exceeded, will retry in #{retry_interval} minutes", send_limit: queued_message.server.send_limit
+          queued_message.server.update_columns(send_limit_exceeded_at: Time.now, send_limit_approaching_at: nil)
+          queued_message.retry_later(retry_interval.minutes)
+          stop_processing
+        else
+          log "server send limit has been exceeded, holding", send_limit: queued_message.server.send_limit
+          queued_message.server.update_columns(send_limit_exceeded_at: Time.now, send_limit_approaching_at: nil)
+          create_delivery "Held", details: "Message held because send limit (#{queued_message.server.send_limit}) has been reached."
+          remove_from_queue
+          stop_processing
+        end
       elsif queued_message.server.send_limit_approaching?
         # If we're approaching the limit, just say we are but continue to process the message
         queued_message.server.update_columns(send_limit_approaching_at: Time.now, send_limit_exceeded_at: nil)

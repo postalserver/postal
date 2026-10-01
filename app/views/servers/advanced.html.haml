@@ -15,6 +15,12 @@
             = f.text_field :send_limit, :class => 'input input--text', :placeholder => "No limit"
             %p.fieldSet__text This is the maximum number of e-mails that can be sent through this mail server in a 60 minute period.
         .fieldSet__field
+          = f.label :send_limit_retry_interval, "Send Limit Retry Interval", :class => 'fieldSet__label'
+          .fieldSet__input
+            = f.text_field :send_limit_retry_interval, :class => 'input input--text', :placeholder => "e.g. 60 (minutes)"
+            %p.fieldSet__text
+              When the send limit is reached, queued messages will automatically retry after this many minutes instead of being held indefinitely. Leave blank to hold messages until manually released.
+        .fieldSet__field
           = f.label :allow_sender, "Allow sender header", :class => 'fieldSet__label'
           .fieldSet__input
             = f.select :allow_sender, [["No", false], ["Yes - can use Sender header", true]], {}, :class => 'input input--select'
@@ -60,6 +66,29 @@
 
       .fieldSetSubmit.fieldSetSubmit--wide.buttonSet
         = f.submit "Save server", :class => 'button button--positive js-form-submit'
+
+  .u-margin
+    %fieldset.fieldSet.fieldSet--wide
+      %legend.fieldSet__title Priority Subjects
+      .fieldSet__field
+        %p.fieldSet__label Priority Subject Keywords
+        .fieldSet__input
+          %p.fieldSet__text
+            Emails whose subject contains any of these keywords will bypass the hourly send limit and be delivered immediately.
+          - keywords = @server.priority_subject_keywords
+          - if keywords.any?
+            %ul.u-margin
+              - keywords.each do |keyword|
+                %li
+                  = keyword
+                  &nbsp;
+                  = link_to "Remove", remove_priority_subject_organization_server_path(organization, @server, keyword: keyword), method: :delete, class: "button button--small button--negative", data: { confirm: "Remove \"#{keyword}\"?" }
+          - else
+            %p.fieldSet__text No priority keywords configured yet.
+          %br
+          = form_tag add_priority_subject_organization_server_path(organization, @server), method: :post, style: "display:flex;gap:8px;align-items:center" do
+            = text_field_tag :keyword, "", placeholder: "e.g. Password Reset", class: "input input--text"
+            = submit_tag "Add Keyword", class: "button button--positive"
 
   - if @server.suspended_at
     = form_tag [:unsuspend, organization, @server], :remote => true do
