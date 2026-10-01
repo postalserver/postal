@@ -8,12 +8,17 @@ gem "bcrypt"
 gem "chronic"
 gem "domain_name"
 gem "dotenv"
-gem "dynamic_form"
-gem "execjs", "~> 2.7", "< 2.8"
+gem "execjs"
 gem "gelf"
 gem "haml"
 gem "hashie"
 gem "highline", require: false
+# json 3.0 removed the `quirks_mode` option, which Active Support 7.2 still
+# passes in both its JSON encoder and decoder. Nothing else constrains json, so
+# without this pin Bundler resolves to 3.x and every `to_json` call raises
+# ArgumentError. Active Support dropped those calls in Rails 8.1, so this pin
+# can go when we move to 8.1.
+gem "json", "< 3"
 gem "jwt"
 gem "kaminari"
 gem "klogger-logger"
@@ -29,7 +34,7 @@ gem "ostruct"
 gem "prometheus-client"
 gem "puma"
 gem "rackup"
-gem "rails", "= 7.1.6"
+gem "rails", "= 7.2.3.2"
 gem "resolv"
 gem "secure_headers"
 gem "sentry-rails"
@@ -43,7 +48,7 @@ group :oidc do
   gem "omniauth-rails_csrf_protection"
 end
 
-group :development, :assets do
+group :development, :test, :assets do
   gem "coffee-rails", "~> 5.0"
   gem "jquery-rails"
   gem "sass-rails"
