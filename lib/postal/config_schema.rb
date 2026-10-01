@@ -535,6 +535,11 @@ module Postal
         description "The read timeout for outgoing SMTP connections"
         default 30
       end
+
+      string :address_preference do
+        description "The IP address family to use for outgoing SMTP connections: ipv6 or ipv4 (tried first, the other family used as a fallback) or ipv6_only or ipv4_only (only that family is used)"
+        default "ipv6"
+      end
     end
 
     group :migration_waiter do

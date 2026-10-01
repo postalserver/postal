@@ -99,6 +99,7 @@ This document contains all the environment variables which are available for thi
 | `CLAMAV_PORT` | Integer | The port of the ClamAV server | 2000 |
 | `SMTP_CLIENT_OPEN_TIMEOUT` | Integer | The open timeout for outgoing SMTP connections | 30 |
 | `SMTP_CLIENT_READ_TIMEOUT` | Integer | The read timeout for outgoing SMTP connections | 30 |
+| `SMTP_CLIENT_ADDRESS_PREFERENCE` | String | The IP address family to use for outgoing SMTP connections: ipv6 or ipv4 (tried first, the other family used as a fallback) or ipv6_only or ipv4_only (only that family is used) | ipv6 |
 | `MIGRATION_WAITER_ENABLED` | Boolean | Wait for all migrations to run before starting a process | false |
 | `MIGRATION_WAITER_ATTEMPTS` | Integer | The number of attempts to try waiting for migrations to complete before start | 120 |
 | `MIGRATION_WAITER_SLEEP_TIME` | Integer | The number of seconds to wait between each migration check | 2 |
