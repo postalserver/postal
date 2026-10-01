@@ -88,7 +88,7 @@ module Postal
       def copy_attributes_from_raw_message
         return unless raw_message
 
-        self.subject = headers["subject"]&.last.to_s[0, 200]
+        self.subject = encode_utf8(headers["subject"]&.last.to_s)[0, 200]
         self.message_id = headers["message-id"]&.last
         return unless message_id
 
@@ -577,6 +577,25 @@ module Postal
       end
 
       private
+
+      def encode_utf8(str)
+        return "" if str.nil?
+
+        # If the string is already valid UTF-8, return it as-is
+        if str.encoding == Encoding::UTF_8 && str.valid_encoding?
+          return str
+        end
+
+        # Try to force UTF-8 interpretation
+        str.force_encoding("UTF-8")
+        return str if str.valid_encoding?
+
+        # If not valid UTF-8, assume ISO-8859-1 and convert
+        str.force_encoding("ISO-8859-1").encode("UTF-8")
+      rescue EncodingError
+        # Last resort: replace invalid characters
+        str.encode("UTF-8", invalid: :replace, undef: :replace, replace: "?")
+      end
 
       def _update
         @database.update("messages", @attributes.except(:id), where: { id: @attributes["id"] })
