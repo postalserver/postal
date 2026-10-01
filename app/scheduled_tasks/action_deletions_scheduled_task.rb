@@ -4,7 +4,7 @@ class ActionDeletionsScheduledTask < ApplicationScheduledTask
 
   def call
     Organization.deleted.each do |org|
-      logger.info "permanently removing organization #{org.id} (#{org.permalink})"
+      logger.info "permanently removing organization #{org.id} (#{org.name})"
       org.destroy
     end
 

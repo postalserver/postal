@@ -33,7 +33,9 @@ class Organization < ApplicationRecord
   include HasSoftDestroy
 
   validates :name, presence: true
-  validates :permalink, presence: true, format: { with: /\A[a-z0-9-]*\z/ }, uniqueness: { case_sensitive: false }, exclusion: { in: RESERVED_PERMALINKS }
+  validates :permalink, presence: true, format: { with: /\A[a-z0-9-]*\z/ },
+                        uniqueness: { case_sensitive: false, conditions: -> { where(deleted_at: nil) } },
+                        exclusion: { in: RESERVED_PERMALINKS }
   validates :time_zone, presence: true
 
   default_value :time_zone, -> { "UTC" }
@@ -71,6 +73,17 @@ class Organization < ApplicationRecord
     suspended_at.present?
   end
 
+  #
+  # Soft delete the organization. The record is kept until the deletion task
+  # purges it, but the permalink is released straight away so that the short
+  # name can be used again immediately. Without this, a deleted organization
+  # silently reserves its permalink and blocks anyone from reusing it.
+  #
+  def soft_destroy
+    self.permalink = "deleted-#{uuid}" if uuid
+    super
+  end
+
   def user_assignment(user)
     @user_assignments ||= {}
     @user_assignments[user.id] ||= organization_users.where(user: user).first
@@ -91,7 +104,7 @@ class Organization < ApplicationRecord
       i += 1
       proposal = name.parameterize
       proposal += "-#{i}" if i > 1
-      unless where(permalink: proposal).exists?
+      unless present.where(permalink: proposal).exists?
         return proposal
       end
     end
