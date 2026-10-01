@@ -182,8 +182,14 @@ class MessagesController < ApplicationController
             options[:direction] = "asc"
           end
 
-          options[:where][:rcpt_to] = qs[:to] if qs[:to]
-          options[:where][:mail_from] = qs[:from] if qs[:from]
+          # Match exactly by default. A value containing % is treated as a
+          # LIKE pattern so users can wildcard, e.g. subject: "%invoice%".
+          { to: :rcpt_to, from: :mail_from, subject: :subject }.each do |qs_key, column|
+            value = qs[qs_key]
+            next unless value
+
+            options[:where][column] = value.is_a?(String) && value.include?("%") ? { like: value } : value
+          end
           options[:where][:status] = qs[:status] if qs[:status]
           options[:where][:token] = qs[:token] if qs[:token]
 
