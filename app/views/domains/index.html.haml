@@ -34,6 +34,8 @@
               = link_to domain.name, [:setup, organization, @server, domain]
               - if domain.use_for_any?
                 %span.label.label--blue Any
+              - if domain.pending_dkim_key?
+                = link_to "New DKIM key pending", [:setup, organization, @server, domain], :class => "label label--orange", :title => "A new DKIM key is waiting for its DNS record to be published."
             %ul.domainList__checks
               - if domain.spf_status == 'OK'
                 %li.domainList__check.domainList__check--ok SPF

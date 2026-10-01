@@ -47,7 +47,11 @@
   %pre.codeBlock.u-margin= @domain.spf_record
 
   %h3.pageContent__subTitle DKIM Record
-  - if @domain.dkim_status == 'OK'
+  - if @domain.pending_dkim_key?
+    %p.pageContent__text.u-orange.u-bold
+      %span.label.label--orange Key change in progress
+      You've generated a new DKIM key which isn't active yet. Both records are shown below.
+  - elsif @domain.dkim_status == 'OK'
     %p.pageContent__text.u-green.u-bold
       %span.label.label--green Good
       Your DKIM record looks good!
@@ -56,10 +60,34 @@
       %span.label.label--orange Warning
       = @domain.dkim_error
 
-  %p.pageContent__text
-    You need to add a new TXT record with the name <b>#{@domain.dkim_record_name}</b>
-    with the following content.
-  %pre.codeBlock.u-margin= @domain.dkim_record
+  - if @domain.pending_dkim_key?
+    %p.pageContent__text.u-bold
+      %span.label.label--green Current
+      Keep this record exactly as it is
+    %p.pageContent__text
+      This is the record you already have published at <b>#{@domain.dkim_record_name}</b>.
+      It's signing your mail right now, so leave it in place.
+    %pre.codeBlock.u-margin= @domain.dkim_record
+
+    %p.pageContent__text.u-bold
+      %span.label.label--orange New
+      Add this record as well
+    %p.pageContent__text
+      Add a <b>second</b> TXT record with the name <b>#{@domain.pending_dkim_record_name}</b>
+      and the content below, alongside the record above rather than replacing it. Once we detect
+      it (checked hourly, or when you use the button above) we'll switch to signing with the new
+      key automatically. After the switch, keep the old record published while messages signed
+      with it may still be queued, held, or available for redelivery.
+    %pre.codeBlock.u-margin= @domain.pending_dkim_record
+    %p.pageContent__text
+      = link_to "Cancel new DKIM key", [:cancel_dkim_regeneration, organization, @server, @domain], :remote => true, :method => :post, :data => { :confirm => "Are you sure? The new key will be discarded and your existing key will remain active." }, :class => 'button button--neutral'
+  - else
+    %p.pageContent__text
+      You need to add a new TXT record with the name <b>#{@domain.dkim_record_name}</b>
+      with the following content.
+    %pre.codeBlock.u-margin= @domain.dkim_record
+    %p.pageContent__text
+      = link_to "Regenerate DKIM key", [:regenerate_dkim, organization, @server, @domain], :remote => true, :method => :post, :data => { :confirm => "Are you sure you wish to generate a new DKIM key? You'll need to add a new DNS record before the new key can be used." }, :class => 'button button--neutral'
 
   %h3.pageContent__subTitle Return Path
   - if @domain.return_path_status == 'OK'
