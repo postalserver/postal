@@ -12,7 +12,8 @@ module LegacyAPI
       "FromAddressMissing" => "The From address is missing and is required",
       "UnauthenticatedFromAddress" => "The From address is not authorised to send mail from this server",
       "AttachmentMissingName" => "An attachment is missing a name",
-      "AttachmentMissingData" => "An attachment is missing data"
+      "AttachmentMissingData" => "An attachment is missing data",
+      "InvalidMessageID" => "Message-ID must be in RFC 5322 format: local-part@domain"
     }.freeze
 
     # Send a message with the given options
@@ -32,6 +33,8 @@ module LegacyAPI
     #                   custom_headers  => A hash of custom headers
     #                   attachments     => An array of attachments
     #                                      (name, content_type and data (base64))
+    #                   message_ids     => A hash of recipient emails to Message-IDs
+    #                                      (enables idempotency)
     #
     #   Response:       A array of hashes containing message information
     #                   OR an error if there is an issue sending the message
@@ -50,6 +53,7 @@ module LegacyAPI
       attributes[:bounce] = api_params["bounce"] ? true : false
       attributes[:tag] = api_params["tag"]
       attributes[:custom_headers] = api_params["headers"] if api_params["headers"]
+      attributes[:message_ids] = api_params["message_ids"] if api_params["message_ids"].is_a?(Hash)
       attributes[:attachments] = []
 
       (api_params["attachments"] || []).each do |attachment|
@@ -112,8 +116,23 @@ module LegacyAPI
 
       # Store the result ready to return
       result = { message_id: nil, messages: {} }
+      
+      # Extract Message-ID from raw message for duplicate detection
+      mail_for_message_id = Mail.new(raw_message)
+      extracted_message_id = mail_for_message_id.message_id&.gsub(/^<|>$/, '')
+      
       if api_params["rcpt_to"].is_a?(Array)
         api_params["rcpt_to"].uniq.each do |rcpt_to|
+          # Check for duplicate if Message-ID is present
+          if extracted_message_id.present?
+            existing = @current_credential.server.message_db.select(:messages, fields: [:id, :token, :message_id], where: { message_id: extracted_message_id, rcpt_to: rcpt_to }).first
+            if existing
+              result[:message_id] = existing["message_id"] if result[:message_id].nil?
+              result[:messages][rcpt_to] = { id: existing["id"], token: existing["token"], message_id: existing["message_id"], existing: true }
+              next
+            end
+          end
+          
           message = @current_credential.server.message_db.new_message
           message.rcpt_to = rcpt_to
           message.mail_from = api_params["mail_from"]
@@ -125,7 +144,7 @@ module LegacyAPI
           message.bounce = api_params["bounce"] ? true : false
           message.save
           result[:message_id] = message.message_id if result[:message_id].nil?
-          result[:messages][rcpt_to] = { id: message.id, token: message.token }
+          result[:messages][rcpt_to] = { id: message.id, token: message.token, message_id: message.message_id }
         end
       end
       render_success result
