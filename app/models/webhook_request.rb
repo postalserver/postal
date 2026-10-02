@@ -36,6 +36,8 @@ class WebhookRequest < ApplicationRecord
 
   serialize :payload, type: Hash
 
+  scope :with_stale_lock, -> { where("locked_at IS NOT NULL AND locked_at < ?", 1.hour.ago) }
+
   class << self
 
     def trigger(server, event, payload = {})
