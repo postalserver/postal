@@ -44,6 +44,8 @@ module Worker
       TidyQueuedMessagesTask,
     ].freeze
 
+    TASK_LOCK_RENEW_INTERVAL = 30
+
     # @param [Integer] thread_count The number of worker threads to run in this process
     def initialize(thread_count: Postal::Config.worker.threads,
                    work_sleep_time: 5,
@@ -103,12 +105,12 @@ module Worker
     # @return [void]
     def ensure_connection_pool_size_is_suitable
       current_pool_size = ActiveRecord::Base.connection_pool.size
-      desired_pool_size = @thread_count + 3
+      desired_pool_size = @thread_count + 4
 
       return if current_pool_size >= desired_pool_size
 
       logger.warn "number of worker threads (#{@thread_count}) is more  " \
-                  "than the db connection pool size (#{current_pool_size}+3), " \
+                  "than the db connection pool size (#{current_pool_size}+4), " \
                   "increasing connection pool size to #{desired_pool_size}"
 
       Postal.change_database_connection_pool_size(desired_pool_size)
@@ -191,8 +193,9 @@ module Worker
       logger.info "starting tasks thread"
       @threads << Thread.new do
         logger.tagged(component: "worker", thread: "tasks") do
+          tasks_worker = Postal.locker_name
           loop do
-            run_tasks
+            run_tasks(tasks_worker)
 
             if shutdown_after_wait?(@task_sleep_time)
               break
@@ -201,7 +204,7 @@ module Worker
 
           logger.info "stopping tasks thread"
           ActiveRecord::Base.connection_pool.with_connection do
-            if WorkerRole.release(:tasks)
+            if WorkerRole.release(:tasks, worker: tasks_worker)
               logger.info "released tasks role"
             end
           end
@@ -212,10 +215,11 @@ module Worker
     # Run the tasks. This will attempt to acquire the tasks role and if successful it will all the registered
     # tasks if they are due to be run.
     #
+    # @param tasks_worker [String] Stable locker identity for this tasks thread
     # @return [void]
-    def run_tasks
+    def run_tasks(tasks_worker = Postal.locker_name)
       role_acquisition_status = ActiveRecord::Base.connection_pool.with_connection do
-        WorkerRole.acquire(:tasks)
+        WorkerRole.acquire(:tasks, worker: tasks_worker)
       end
 
       case role_acquisition_status
@@ -230,9 +234,41 @@ module Worker
         return false
       end
 
-      ActiveRecord::Base.connection_pool.with_connection do
-        TASKS.each { |task| run_task(task) }
+      with_task_lock_heartbeat(tasks_worker) do
+        ActiveRecord::Base.connection_pool.with_connection do
+          TASKS.each { |task| run_task(task) }
+        end
       end
+    end
+
+    # Keep acquired_at fresh while a long task is running so another worker cannot steal the role.
+    #
+    # @param tasks_worker [String]
+    # @return [void]
+    def with_task_lock_heartbeat(tasks_worker)
+      stop = false
+      heartbeat = Thread.new do
+        elapsed = 0
+        until stop
+          sleep 1
+          elapsed += 1
+          next if elapsed < TASK_LOCK_RENEW_INTERVAL || stop
+
+          elapsed = 0
+          capture_errors do
+            ActiveRecord::Base.connection_pool.with_connection do
+              unless WorkerRole.renew(:tasks, worker: tasks_worker)
+                logger.warn "lost tasks role while running scheduled tasks"
+              end
+            end
+          end
+        end
+      end
+
+      yield
+    ensure
+      stop = true
+      heartbeat&.join(5)
     end
 
     # Run a single task
