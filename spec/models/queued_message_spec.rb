@@ -166,6 +166,20 @@ RSpec.describe QueuedMessage do
           expect { queued_message.allocate_ip_address }.to change(queued_message, :ip_address).from(nil).to(ip_pool.ip_addresses.first)
         end
       end
+
+      context "when an incoming message will be forwarded to an address endpoint" do
+        let(:ip_pool) { create(:ip_pool, :with_ip_address) }
+        let(:server) { create(:server, ip_pool: ip_pool) }
+        let(:endpoint) { create(:address_endpoint, server: server) }
+        let(:route) { create(:route, server: server, mode: "Endpoint", endpoint: endpoint) }
+        let(:message) { MessageFactory.incoming(server, route: route) }
+
+        subject(:queued_message) { create(:queued_message, message: message) }
+
+        it "allocates an IP address from the server's pool" do
+          expect(queued_message.ip_address).to eq ip_pool.ip_addresses.first
+        end
+      end
     end
   end
 

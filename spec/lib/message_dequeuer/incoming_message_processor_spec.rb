@@ -430,11 +430,13 @@ module MessageDequeuer
     context "when the route's endpoint is an Address endpoint" do
       let(:endpoint) { create(:address_endpoint, server: server) }
       let(:route) { create(:route, server: server, mode: "Endpoint", endpoint: endpoint) }
+      let(:ip_address) { create(:ip_address) }
+      let(:queued_message) { create(:queued_message, :locked, message: message, ip_address: ip_address) }
 
       it "gets a sender from the state and sends the message to it" do
         smtp_sender_double = double("SMTPSender")
         expect(smtp_sender_double).to receive(:send_message).with(queued_message.message).and_return(SendResult.new)
-        expect(state).to receive(:sender_for).with(SMTPSender, endpoint.domain, nil, { rcpt_to: endpoint.address }).and_return(smtp_sender_double)
+        expect(state).to receive(:sender_for).with(SMTPSender, endpoint.domain, ip_address, { rcpt_to: endpoint.address }).and_return(smtp_sender_double)
         processor.process
       end
     end
