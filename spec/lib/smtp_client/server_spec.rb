@@ -8,8 +8,21 @@ module SMTPClient
     let(:hostname) { "example.com" }
     let(:port) { 25 }
     let(:ssl_mode) { SSLModes::AUTO }
+    let(:username) { nil }
+    let(:password) { nil }
 
-    subject(:server) { described_class.new(hostname, port: port, ssl_mode: ssl_mode) }
+    subject(:server) { described_class.new(hostname, port: port, ssl_mode: ssl_mode, username: username, password: password) }
+
+    describe "attributes" do
+      context "when credentials are provided" do
+        let(:username) { "relay-user" }
+        let(:password) { "relay-pass" }
+
+        it "stores the relay credentials" do
+          expect(server).to have_attributes(username: "relay-user", password: "relay-pass")
+        end
+      end
+    end
 
     describe "#endpoints" do
       context "when there are A and AAAA records" do

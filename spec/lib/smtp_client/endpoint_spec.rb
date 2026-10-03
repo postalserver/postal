@@ -6,7 +6,9 @@ module SMTPClient
 
   RSpec.describe Endpoint do
     let(:ssl_mode) { SSLModes::AUTO }
-    let(:server) { Server.new("mx1.example.com", port: 25, ssl_mode: ssl_mode) }
+    let(:username) { nil }
+    let(:password) { nil }
+    let(:server) { Server.new("mx1.example.com", port: 25, ssl_mode: ssl_mode, username: username, password: password) }
     let(:ip) { "1.2.3.4" }
 
     before do
@@ -88,6 +90,16 @@ module SMTPClient
           expect(endpoint.smtp_client).to have_received(:start).with(Postal::Config.postal.smtp_hostname)
         end
 
+        context "when relay credentials are provided" do
+          let(:username) { "relay-user" }
+          let(:password) { "relay-pass" }
+
+          it "starts the SMTP client with login authentication" do
+            endpoint.start_smtp_session
+            expect(endpoint.smtp_client).to have_received(:start).with(Postal::Config.postal.smtp_hostname, "relay-user", "relay-pass", :login)
+          end
+        end
+
         context "when the SSL mode is Auto" do
           it "enables STARTTLS auto " do
             client = endpoint.start_smtp_session
@@ -154,6 +166,16 @@ module SMTPClient
         it "starts the SMTP client with the IP addresses hostname" do
           endpoint.start_smtp_session(source_ip_address: ip_address)
           expect(endpoint.smtp_client).to have_received(:start).with(ip_address.hostname)
+        end
+
+        context "when relay credentials are provided" do
+          let(:username) { "relay-user" }
+          let(:password) { "relay-pass" }
+
+          it "starts the SMTP client with the source hostname and login authentication" do
+            endpoint.start_smtp_session(source_ip_address: ip_address)
+            expect(endpoint.smtp_client).to have_received(:start).with(ip_address.hostname, "relay-user", "relay-pass", :login)
+          end
         end
       end
     end

@@ -74,15 +74,18 @@ module Postal
 
       string :smtp_relays do
         array
-        description "An array of SMTP relays in the format of smtp://host:port"
+        description "An array of SMTP relays in the format of smtp://host:port or smtp://username:password@host:port"
         transform do |value|
           uri = URI.parse(value)
           query = uri.query ? CGI.parse(uri.query) : {}
-          {
+          relay = {
             host: uri.host,
             port: uri.port || 25,
             ssl_mode: query["ssl_mode"]&.first || "Auto"
           }
+          relay[:username] = CGI.unescape(uri.user) if uri.user
+          relay[:password] = CGI.unescape(uri.password) if uri.password
+          relay
         end
       end
 
