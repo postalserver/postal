@@ -59,10 +59,12 @@ module Postal
       end
 
       #
-      # Drop a table
+      # Drop a table. Uses IF EXISTS so that two workers running retention
+      # concurrently do not crash when the second one tries to drop a table
+      # the first has already removed.
       #
       def drop_table(table_name)
-        @database.query("DROP TABLE `#{@database.database_name}`.`#{table_name}`")
+        @database.query("DROP TABLE IF EXISTS `#{@database.database_name}`.`#{table_name}`")
       end
 
       #
