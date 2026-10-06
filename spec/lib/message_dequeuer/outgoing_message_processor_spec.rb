@@ -511,7 +511,7 @@ module MessageDequeuer
       end
     end
 
-    context "when an exception occurrs during processing" do
+    context "when an exception occurs during processing" do
       before do
         smtp_sender_mock = double("SMTPSender")
         allow(SMTPSender).to receive(:new).and_return(smtp_sender_mock)

@@ -16,7 +16,7 @@ By default, tests will use the `config/postal/postal.test.yml` configuration fil
 
 ## Containers
 
-Within a container, Postal will for a config file in `/config/postal.yml` unless overriden by the `POSTAL_CONFIG_FILE_PATH` environment variable.
+Within a container, Postal will for a config file in `/config/postal.yml` unless overridden by the `POSTAL_CONFIG_FILE_PATH` environment variable.
 
 ## Ports & Bind Addresses
 

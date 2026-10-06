@@ -130,7 +130,7 @@ module MessageDequeuer
 
       it "logs" do
         processor.process
-        expect(logger).to have_logged(/message has a spam score higher than the server's maxmimum/)
+        expect(logger).to have_logged(/message has a spam score higher than the server's maximum/)
       end
 
       it "sets the message status to HardFail" do
@@ -605,7 +605,7 @@ module MessageDequeuer
       end
     end
 
-    context "when an exception occurrs during processing" do
+    context "when an exception occurs during processing" do
       let(:endpoint) { create(:smtp_endpoint, server: server) }
       let(:route) { create(:route, server: server, mode: "Endpoint", endpoint: endpoint) }
 

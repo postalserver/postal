@@ -2,7 +2,7 @@
 # less than v3. It remains supported in v3+ by mapping these values to their
 # correct values. Support for this file format will be removed in Postal v4.
 #
-# It exists here for reference but also to faciliate testing to ensure the
+# It exists here for reference but also to facilitate testing to ensure the
 # legacy mapping works as expected
 version: 1
 

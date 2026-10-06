@@ -517,7 +517,7 @@ module SMTPServer
               msg.bounce = 1
             end
           else
-            # There's no return path route, we just need to insert the mesage
+            # There's no return path route, we just need to insert the message
             # without going through the route.
             message = server.message_db.new_message
             message.rcpt_to = rcpt_to

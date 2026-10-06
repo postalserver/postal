@@ -89,7 +89,7 @@ describe Server do
         end
       end
 
-      context "whent he IP pool does belong to the the same organization" do
+      context "when the IP pool does belong to the the same organization" do
         before do
           org.ip_pools << ip_pool
         end
