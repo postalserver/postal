@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_03_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_03_100000) do
   create_table "additional_route_endpoints", id: :integer, charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.integer "route_id"
     t.string "endpoint_type"
@@ -381,5 +381,4 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_03_100000) do
     t.datetime "acquired_at", precision: nil
     t.index ["role"], name: "index_worker_roles_on_role", unique: true
   end
-
 end

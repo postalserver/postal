@@ -15,7 +15,7 @@ class MigrationWaiter
     def wait
       attempts_remaining = ATTEMPTS
       loop do
-        pending_migrations = ActiveRecord::Base.connection.migration_context.open.pending_migrations.size
+        pending_migrations = ActiveRecord::Base.connection_pool.migration_context.open.pending_migrations.size
         if pending_migrations.zero?
           Postal.logger.info "no pending migrations, continuing"
           return
