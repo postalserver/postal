@@ -5,6 +5,8 @@ gem "abbrev"
 gem "authie"
 gem "autoprefixer-rails"
 gem "bcrypt"
+gem "benchmark"
+gem "cgi"
 gem "chronic"
 gem "domain_name"
 gem "dotenv"
@@ -29,7 +31,7 @@ gem "ostruct"
 gem "prometheus-client"
 gem "puma"
 gem "rackup"
-gem "rails", "= 7.1.6"
+gem "rails", "= 8.1.4"
 gem "resolv"
 gem "secure_headers"
 gem "sentry-rails"
@@ -51,7 +53,7 @@ group :development, :assets do
 end
 
 group :development do
-  gem "annotate"
+  gem "annotaterb"
   gem "rubocop"
   gem "rubocop-rails"
 end
