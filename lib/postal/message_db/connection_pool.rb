@@ -15,6 +15,9 @@ module Postal
         retried = false
         do_not_checkin = false
         begin
+          # `retry` re-runs this block but `ensure` only runs once at the end,
+          # so reset the flag for each attempt.
+          do_not_checkin = false
           connection = checkout
 
           yield connection
