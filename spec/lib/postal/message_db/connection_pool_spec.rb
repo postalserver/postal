@@ -52,5 +52,17 @@ describe Postal::MessageDB::ConnectionPool do
       end.to raise_error Mysql2::Error
       expect(clients_seen.uniq.size).to eq 2
     end
+
+    it "checks in the connection used by a successful retry" do
+      attempts = 0
+      connection = nil
+      pool.use do |client|
+        attempts += 1
+        raise Mysql2::Error, "lost connection to server" if attempts == 1
+
+        connection = client
+      end
+      expect(pool.connections).to eq [connection]
+    end
   end
 end
