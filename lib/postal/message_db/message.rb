@@ -88,11 +88,20 @@ module Postal
       def copy_attributes_from_raw_message
         return unless raw_message
 
-        self.subject = headers["subject"]&.last.to_s[0, 200]
+        self.subject = scrub_header_value(headers["subject"]&.last)[0, 200]
         self.message_id = headers["message-id"]&.last
         return unless message_id
 
-        self.message_id = message_id.gsub(/.*</, "").gsub(/>.*/, "").strip
+        self.message_id = scrub_header_value(message_id).gsub(/.*</, "").gsub(/>.*/, "").strip
+      end
+
+      #
+      # Raw 8-bit header values (e.g. an unencoded ISO-8859-1 subject) are not
+      # valid UTF-8 and would be rejected by the utf8mb4 columns, so replace any
+      # invalid byte sequences before they are stored.
+      #
+      def scrub_header_value(value)
+        value.to_s.dup.force_encoding(Encoding::UTF_8).scrub
       end
 
       #
