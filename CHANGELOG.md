@@ -2,6 +2,24 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.4.0](https://github.com/postalserver/postal/compare/3.3.7...3.4.0) (2026-11-16)
+
+
+### Features
+
+* add configurable Postal logger level defaulting to INFO ([#3626](https://github.com/postalserver/postal/issues/3626)) ([ced77a3](https://github.com/postalserver/postal/commit/ced77a3860c23779889aec8dacd2642f20d10cea))
+* **dkim:** make key size configurable and allow keys to be rotated ([d96eddb](https://github.com/postalserver/postal/commit/d96eddbadeda600595d6247486f9ceb8e99cbc15))
+
+
+### Bug Fixes
+
+* give each worker process a unique locker identity ([#3628](https://github.com/postalserver/postal/issues/3628)) ([3be663d](https://github.com/postalserver/postal/commit/3be663dc8931bd731516bafd6edff6b0fbd03df2))
+
+
+### Miscellaneous Chores
+
+* upgrade to rails 8.1.4 ([#3659](https://github.com/postalserver/postal/issues/3659)) ([ea23d92](https://github.com/postalserver/postal/commit/ea23d929cfe19f37245f7155a29717caebf0ae06))
+
 ## [3.3.7](https://github.com/postalserver/postal/compare/3.3.6...3.3.7) (2026-06-03)
 
 
