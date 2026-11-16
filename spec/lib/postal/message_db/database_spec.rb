@@ -73,5 +73,15 @@ describe Postal::MessageDB::Database do
         end.to raise_error(Mysql2::Error)
       end
     end
+
+    describe "#drop_table" do
+      # The retention task's lock can be stolen after a few minutes, so two
+      # workers may call drop_table for the same table. Dropping a table that
+      # has already been removed must not raise (regression for #3595).
+      it "does not raise when the table no longer exists" do
+        expect { database.provisioner.drop_table("raw-does-not-exist") }
+          .not_to raise_error
+      end
+    end
   end
 end
