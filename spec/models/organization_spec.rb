@@ -33,4 +33,36 @@ describe Organization do
       expect(organization.uuid.length).to eq 36
     end
   end
+
+  context "when an organization is soft destroyed" do
+    let(:owner) { create(:user) }
+    let!(:organization) { create(:organization, name: "Acme Inc", permalink: "acme-inc", owner: owner) }
+
+    it "releases the permalink immediately so the short name is free again" do
+      organization.soft_destroy
+
+      expect(organization.reload.permalink).to eq "deleted-#{organization.uuid}"
+      expect(organization.deleted_at).to be_present
+    end
+
+    it "allows a new organization to use the same permalink again" do
+      organization.soft_destroy
+
+      replacement = Organization.new(name: "Acme Inc", permalink: "acme-inc")
+      replacement.owner = owner
+
+      expect(replacement).to be_valid
+      expect { replacement.save! }.not_to raise_error
+    end
+
+    it "generates the same permalink for a new organization with the same name" do
+      organization.soft_destroy
+
+      replacement = Organization.new(name: "Acme Inc")
+      replacement.owner = owner
+      replacement.valid?
+
+      expect(replacement.permalink).to eq "acme-inc"
+    end
+  end
 end
