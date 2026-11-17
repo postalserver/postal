@@ -77,9 +77,11 @@ module Postal
           request["Ip"] = ""
         elsif (sender = message.received_from)
           # Without the sending server's address rspamd can't check SPF, and
-          # its other IP-based checks have nothing to go on.
+          # its other IP-based checks have nothing to go on. ReceivedHeader.parse
+          # returns no HELO when the client sent something other than a plain
+          # hostname or address literal.
           request["Ip"] = sender[:ip_address]
-          request["Helo"] = sender[:helo]
+          request["Helo"] = sender[:helo] if sender[:helo]
         end
 
         response = nil

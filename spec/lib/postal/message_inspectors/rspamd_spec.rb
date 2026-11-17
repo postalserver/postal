@@ -33,6 +33,17 @@ module Postal
             .with(headers: { "Ip" => "192.0.2.10", "Helo" => "mail.example.com" })
         end
 
+        context "when the HELO name copies the Received header's tail" do
+          let(:forged) { "evil.example (x [203.0.113.9]) by #{smtp_hostname} with SMTP; #{Time.now.utc.rfc2822}" }
+          let(:received) { "from #{forged} (hostname.com [192.0.2.10]) by #{smtp_hostname} with SMTP; #{Time.now.utc.rfc2822}" }
+
+          it "sends the address Postal wrote and no HELO" do
+            inspector.inspect_message(inspection)
+            expect(WebMock).to(have_requested(:post, "http://rspamd.example.com:11334/checkv2")
+              .with { |req| req.headers["Ip"] == "192.0.2.10" && !req.headers.key?("Helo") })
+          end
+        end
+
         context "when the Received header was written with privacy mode on" do
           let(:received) { "by #{smtp_hostname} with SMTP; #{Time.now.utc.rfc2822}" }
 

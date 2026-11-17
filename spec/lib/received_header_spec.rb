@@ -77,5 +77,41 @@ describe ReceivedHeader do
     it "returns nil for nil" do
       expect(described_class.parse(nil)).to be_nil
     end
+
+    it "keeps a HELO address literal" do
+      header = described_class.generate(nil, "[192.0.2.10]", "192.0.2.10", :smtp)
+      expect(described_class.parse(header)).to eq(helo: "[192.0.2.10]", ip_address: "192.0.2.10")
+    end
+
+    context "when the HELO name copies the header's tail" do
+      let(:helo) { "evil.example (x [203.0.113.9]) by #{smtp_hostname} with SMTP; Tue, 17 Nov 2026 00:00:00 +0000" }
+
+      it "returns the address Postal wrote, not the one in the HELO name" do
+        header = described_class.generate(nil, helo, "192.0.2.10", :smtp)
+        expect(described_class.parse(header)).to eq(helo: nil, ip_address: "192.0.2.10")
+      end
+    end
+
+    context "when the reverse DNS name copies the header's tail" do
+      before do
+        allow(DNSResolver.local).to receive(:ip_to_hostname)
+          .and_return("x [203.0.113.9]) by #{smtp_hostname} with SMTP; y")
+      end
+
+      it "never returns the address in the reverse DNS name" do
+        header = described_class.generate(nil, "mail.example.com", "192.0.2.10", :smtp)
+        expect(described_class.parse(header)).to be_nil
+      end
+    end
+
+    it "returns no HELO when the name has spaces or brackets" do
+      header = described_class.generate(nil, "mail example (com)", "192.0.2.10", :smtp)
+      expect(described_class.parse(header)).to eq(helo: nil, ip_address: "192.0.2.10")
+    end
+
+    it "returns nil when the address isn't an IP address" do
+      header = "from mail.example.com (hostname.com [1.2.3]) by #{smtp_hostname} with SMTP; #{Time.now.utc.rfc2822}"
+      expect(described_class.parse(header)).to be_nil
+    end
   end
 end
