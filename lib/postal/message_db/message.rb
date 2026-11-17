@@ -289,6 +289,17 @@ module Postal
       end
 
       #
+      # Delete the raw message from the database
+      #
+      def delete_raw_message
+        return unless raw_table
+
+        @database.query("DELETE FROM `#{@database.database_name}`.`#{raw_table}` WHERE id IN (#{raw_headers_id}, #{raw_body_id})")
+        @database.query("UPDATE `#{@database.database_name}`.`raw_message_sizes` SET size = size - #{size} WHERE table_name = '#{raw_table}'")
+        update(raw_table: nil, raw_headers_id: nil, raw_body_id: nil, size: nil)
+      end
+
+      #
       # Is there a raw message?
       #
       def raw_message?
