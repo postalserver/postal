@@ -171,6 +171,22 @@ RSpec.describe QueuedMessage do
     end
   end
 
+  describe "#set_priority" do
+    let(:server) { create(:server, priority: 50) }
+
+    it "sets the priority from the server when the queued message is created" do
+      queued_message = create(:queued_message, server: server)
+      expect(queued_message.reload.priority).to eq 50
+    end
+
+    it "does not change the priority when the queued message is saved again after the server's priority changes" do
+      queued_message = create(:queued_message, server: server)
+      server.update!(priority: 10)
+      queued_message.reload.retry_now
+      expect(queued_message.reload.priority).to eq 50
+    end
+  end
+
   describe "#batchable_messages" do
     context "when the message is not locked" do
       subject(:queued_message) { build(:queued_message) }

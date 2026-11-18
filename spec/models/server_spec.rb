@@ -77,6 +77,14 @@ describe Server do
     it { is_expected.not_to allow_value("hello+").for(:permalink) }
     it { is_expected.not_to allow_value("!!!").for(:permalink) }
     it { is_expected.not_to allow_value("[hello]").for(:permalink) }
+    it { is_expected.to validate_presence_of(:priority) }
+    it { is_expected.to allow_value(0).for(:priority) }
+    it { is_expected.to allow_value(100).for(:priority) }
+    it { is_expected.to allow_value(32_767).for(:priority) }
+    it { is_expected.not_to allow_value(-1).for(:priority).with_message("must be a whole number between 0 and 32,767") }
+    it { is_expected.not_to allow_value(32_768).for(:priority).with_message("must be a whole number between 0 and 32,767") }
+    it { is_expected.not_to allow_value("1.5").for(:priority).with_message("must be a whole number between 0 and 32,767") }
+    it { is_expected.not_to allow_value("high").for(:priority).with_message("must be a whole number between 0 and 32,767") }
 
     describe "ip pool validation" do
       let(:org) { create(:organization) }
