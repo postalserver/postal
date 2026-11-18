@@ -3,7 +3,6 @@
 source "https://rubygems.org"
 gem "abbrev"
 gem "authie"
-gem "autoprefixer-rails"
 gem "bcrypt"
 gem "benchmark"
 gem "cgi"
@@ -11,7 +10,6 @@ gem "chronic"
 gem "domain_name"
 gem "dotenv"
 gem "dynamic_form"
-gem "execjs", "~> 2.7", "< 2.8"
 gem "gelf"
 gem "haml"
 gem "hashie"
@@ -46,6 +44,8 @@ group :oidc do
 end
 
 group :development, :assets do
+  gem "autoprefixer-rails"
+  gem "execjs", "~> 2.7", "< 2.8"
   gem "coffee-rails", "~> 5.0"
   gem "jquery-rails"
   gem "sass-rails"
