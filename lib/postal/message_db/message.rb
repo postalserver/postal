@@ -353,7 +353,7 @@ module Postal
       def add_to_message_queue(**options)
         QueuedMessage.create!({
           message: self,
-          server_id: @database.server_id,
+          server: @database.server,
           batch_key: batch_key,
           domain: recipient_domain,
           route_id: route_id
@@ -368,6 +368,7 @@ module Postal
         when "outgoing"
           key = "outgoing-"
           key += recipient_domain.to_s
+          key += "-p:#{server&.priority}"
         when "incoming"
           key = "incoming-"
           key += "rt:#{route_id}-ep:#{endpoint_id}-#{endpoint_type}"

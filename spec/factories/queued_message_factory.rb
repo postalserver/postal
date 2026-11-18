@@ -11,6 +11,7 @@
 #  locked_at     :datetime
 #  locked_by     :string(255)
 #  manual        :boolean          default(FALSE)
+#  priority      :integer          default(0), not null
 #  retry_after   :datetime
 #  created_at    :datetime
 #  updated_at    :datetime
@@ -21,9 +22,10 @@
 #
 # Indexes
 #
-#  index_queued_messages_on_domain      (domain)
-#  index_queued_messages_on_message_id  (message_id)
-#  index_queued_messages_on_server_id   (server_id)
+#  index_queued_messages_on_domain           (domain)
+#  index_queued_messages_on_message_id       (message_id)
+#  index_queued_messages_on_priority_and_id  (priority DESC,id)
+#  index_queued_messages_on_server_id        (server_id)
 #
 FactoryBot.define do
   factory :queued_message do
