@@ -127,6 +127,26 @@ module Worker
             expect(second_message.reload.locked?).to be false
           end
         end
+
+        context "when the worker has a minimum priority" do
+          before do
+            allow(Postal::Config.worker).to receive(:minimum_priority).and_return(5)
+          end
+
+          it "does not lock or process messages below the minimum priority" do
+            queued_message = create(:queued_message, ip_address: nil, server: create(:server, priority: 4))
+            job.call
+            expect(MessageDequeuer).to_not have_received(:process)
+            expect(queued_message.reload.locked?).to be false
+          end
+
+          it "locks and processes messages at the minimum priority" do
+            queued_message = create(:queued_message, ip_address: nil, server: create(:server, priority: 5))
+            job.call
+            expect(MessageDequeuer).to have_received(:process).with(queued_message, logger: kind_of(Klogger::Logger))
+            expect(queued_message.reload.locked?).to be true
+          end
+        end
       end
     end
 

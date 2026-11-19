@@ -46,6 +46,7 @@ module Worker
         loop do
           id = QueuedMessage.where(ip_address_id: [nil, @ip_addresses])
                             .where(locked_by: nil, locked_at: nil)
+                            .where(priority: Postal::Config.worker.minimum_priority..)
                             .order(priority: :desc, id: :asc)
                             .ready_with_delayed_retry
                             .pick(:id)
