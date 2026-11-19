@@ -43,12 +43,17 @@ module Worker
       #
       # @return [void]
       def lock_message_for_processing
-        QueuedMessage.where(ip_address_id: [nil, @ip_addresses])
-                     .where(locked_by: nil, locked_at: nil)
-                     .order(priority: :desc, id: :asc)
-                     .ready_with_delayed_retry
-                     .limit(1)
-                     .update_all(locked_by: @locker, locked_at: @lock_time)
+        loop do
+          id = QueuedMessage.where(ip_address_id: [nil, @ip_addresses])
+                            .where(locked_by: nil, locked_at: nil)
+                            .order(priority: :desc, id: :asc)
+                            .ready_with_delayed_retry
+                            .pick(:id)
+          break if id.nil?
+          break if QueuedMessage.where(id: id)
+                                .where(locked_by: nil, locked_at: nil)
+                                .update_all(locked_by: @locker, locked_at: @lock_time) == 1
+        end
       end
 
       # Get a full list of all messages which we can process (i.e. those which have just
