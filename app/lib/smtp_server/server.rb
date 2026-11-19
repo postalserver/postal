@@ -176,7 +176,11 @@ module SMTPServer
                   # Could not accept without blocking
                   # We will try again later
                   next
-                rescue OpenSSL::SSL::SSLError => e
+                rescue OpenSSL::SSL::SSLError, Errno::ECONNRESET, Errno::ETIMEDOUT => e
+                  # Client aborted the TLS handshake, e.g. by resetting the
+                  # connection mid SSL_accept (Errno::ECONNRESET) or letting it
+                  # time out. This is a routine client-gone event, not a server
+                  # error, so treat it the same as a failed negotiation.
                   client.logger&.debug "SSL Negotiation Failed: #{e.message}"
                   eof = true
                 end
@@ -190,8 +194,10 @@ module SMTPServer
                   if io.is_a?(OpenSSL::SSL::SSLSocket)
                     buffers[io] << io.readpartial(10_240) while io.pending.positive?
                   end
-                rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT
-                  # Client went away
+                rescue EOFError, Errno::ECONNRESET, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError
+                  # Client went away. On a TLS socket an abrupt disconnect surfaces
+                  # as an OpenSSL::SSL::SSLError ("SSL_read: unexpected eof") rather
+                  # than an EOFError, so we treat it the same way.
                   eof = true
                 end
 
@@ -211,8 +217,11 @@ module SMTPServer
                     begin
                       io.write(iline.to_s + "\r\n")
                       io.flush
-                    rescue Errno::ECONNRESET
-                      # Client disconnected before we could write response
+                    rescue Errno::ECONNRESET, Errno::EPIPE
+                      # Client disconnected before we could write the response.
+                      # A closed peer surfaces as ECONNRESET or, when the socket
+                      # is already gone, as EPIPE ("broken pipe") - both mean the
+                      # client went away, not a server error.
                       eof = true
                     end
                   end
