@@ -18,7 +18,7 @@
 #  route_id      :integer
 #  manual        :boolean          default(FALSE)
 #  batch_key     :string(255)
-#  priority      :integer          default(0), not null
+#  priority      :integer          default(50), not null
 #
 # Indexes
 #

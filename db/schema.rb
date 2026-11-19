@@ -198,7 +198,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_152111) do
     t.integer "route_id"
     t.boolean "manual", default: false
     t.string "batch_key"
-    t.integer "priority", default: 0, null: false
+    t.integer "priority", default: 50, null: false
     t.index ["domain"], name: "index_queued_messages_on_domain", length: 8
     t.index ["message_id"], name: "index_queued_messages_on_message_id"
     t.index ["priority", "id"], name: "index_queued_messages_on_priority_and_id", order: { priority: :desc }
@@ -255,7 +255,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_152111) do
     t.string "suspension_reason"
     t.boolean "log_smtp_data", default: false
     t.boolean "privacy_mode", default: false
-    t.integer "priority", default: 0, null: false
+    t.integer "priority", default: 50, null: false
     t.index ["organization_id"], name: "index_servers_on_organization_id"
     t.index ["permalink"], name: "index_servers_on_permalink", length: 6
     t.index ["token"], name: "index_servers_on_token", length: 6

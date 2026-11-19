@@ -11,7 +11,7 @@
 #  locked_at     :datetime
 #  locked_by     :string(255)
 #  manual        :boolean          default(FALSE)
-#  priority      :integer          default(0), not null
+#  priority      :integer          default(50), not null
 #  retry_after   :datetime
 #  created_at    :datetime
 #  updated_at    :datetime

@@ -11,7 +11,7 @@
 #  locked_at     :datetime
 #  locked_by     :string(255)
 #  manual        :boolean          default(FALSE)
-#  priority      :integer          default(0), not null
+#  priority      :integer          default(50), not null
 #  retry_after   :datetime
 #  created_at    :datetime
 #  updated_at    :datetime
@@ -172,18 +172,18 @@ RSpec.describe QueuedMessage do
   end
 
   describe "#set_priority" do
-    let(:server) { create(:server, priority: 50) }
+    let(:server) { create(:server, priority: 75) }
 
     it "sets the priority from the server when the queued message is created" do
       queued_message = create(:queued_message, server: server)
-      expect(queued_message.reload.priority).to eq 50
+      expect(queued_message.reload.priority).to eq 75
     end
 
     it "does not change the priority when the queued message is saved again after the server's priority changes" do
       queued_message = create(:queued_message, server: server)
       server.update!(priority: 10)
       queued_message.reload.retry_now
-      expect(queued_message.reload.priority).to eq 50
+      expect(queued_message.reload.priority).to eq 75
     end
   end
 
