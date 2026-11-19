@@ -225,6 +225,23 @@ module SMTPServer
             raw_message: kind_of(String)
           )
         end
+
+        context "when the subject contains raw 8-bit characters" do
+          it "stores the message with the invalid bytes replaced" do
+            client.handle("DATA")
+            client.handle("Subject: St\xF6rung".b)
+            client.handle("From: #{mail_from}")
+            client.handle("To: #{rcpt_to}")
+            client.handle("")
+            client.handle("This is a test message")
+            client.handle("\r")
+            expect(client.handle(".\r")).to eq "250 OK"
+
+            message = server.message(QueuedMessage.first.message_id)
+            expect(message.subject).to eq "St�rung"
+            expect(message.raw_message).to include "Subject: St\xF6rung".b
+          end
+        end
       end
     end
   end
