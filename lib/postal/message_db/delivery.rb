@@ -8,6 +8,11 @@ module Postal
         attributes = message.database.stringify_keys(attributes)
         attributes = attributes.merge("message_id" => message.id, "timestamp" => Time.now.to_f)
 
+        # The output can contain text from remote servers which is not always valid
+        # UTF-8 (e.g. a GBK encoded SMTP reply) and would be rejected by the database,
+        # so replace any invalid byte sequences before it is stored.
+        attributes["output"] = attributes["output"].to_s.dup.force_encoding("UTF-8").scrub if attributes["output"]
+
         # Ensure that output and details don't overflow their columns. We don't need
         # these values to store more than 250 characters.
         attributes["output"] = attributes["output"][0, 250] if attributes["output"]
