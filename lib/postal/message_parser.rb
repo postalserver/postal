@@ -67,7 +67,11 @@ module Postal
 
     def parse_parts(parts)
       parts.each do |part|
-        case part.content_type
+        # Match on the bare MIME type rather than the full Content-Type header
+        # value: multipart/related containers commonly carry the RFC 2387
+        # type="text/html" parameter, which would otherwise match the
+        # /text\/html/ branch and destroy the container.
+        case part.mime_type
         when /text\/html/
           part.body = parse(part.body.decoded.dup, :html)
           part.content_transfer_encoding = nil
