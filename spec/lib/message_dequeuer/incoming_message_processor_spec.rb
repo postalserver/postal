@@ -114,8 +114,16 @@ module MessageDequeuer
         )
       end
 
+      it "adds any headers the inspection returns" do
+        inspection_result = double("Result", spam_score: 0, threat: false, threat_message: nil, spam_checks: [],
+                                             headers: ["Authentication-Results: mx.example.com; spf=pass"])
+        allow(Postal::MessageInspection).to receive(:scan).and_return(inspection_result)
+        processor.process
+        expect(message.reload.headers["authentication-results"]).to eq ["mx.example.com; spf=pass"]
+      end
+
       it "marks the message as spam if the spam score is higher than the server threshold" do
-        inspection_result = double("Result", spam_score: server.spam_threshold + 1, threat: false, threat_message: nil, spam_checks: [])
+        inspection_result = double("Result", spam_score: server.spam_threshold + 1, threat: false, threat_message: nil, spam_checks: [], headers: [])
         allow(Postal::MessageInspection).to receive(:scan).and_return(inspection_result)
         processor.process
         expect(message.reload.spam).to be true
@@ -124,7 +132,7 @@ module MessageDequeuer
 
     context "when the message has a spam score greater than the server's spam failure threshold" do
       before do
-        inspection_result = double("Result", spam_score: 100, threat: false, threat_message: nil, spam_checks: [])
+        inspection_result = double("Result", spam_score: 100, threat: false, threat_message: nil, spam_checks: [], headers: [])
         allow(Postal::MessageInspection).to receive(:scan).and_return(inspection_result)
       end
 
@@ -210,7 +218,7 @@ module MessageDequeuer
       let(:route) { create(:route, server: server, spam_mode: "Quarantine") }
 
       before do
-        inspection_result = double("Result", spam_score: server.spam_threshold + 1, threat: false, threat_message: nil, spam_checks: [])
+        inspection_result = double("Result", spam_score: server.spam_threshold + 1, threat: false, threat_message: nil, spam_checks: [], headers: [])
         allow(Postal::MessageInspection).to receive(:scan).and_return(inspection_result)
       end
 
@@ -240,7 +248,7 @@ module MessageDequeuer
       let(:route) { create(:route, server: server, spam_mode: "Fail") }
 
       before do
-        inspection_result = double("Result", spam_score: server.spam_threshold + 1, threat: false, threat_message: nil, spam_checks: [])
+        inspection_result = double("Result", spam_score: server.spam_threshold + 1, threat: false, threat_message: nil, spam_checks: [], headers: [])
         allow(Postal::MessageInspection).to receive(:scan).and_return(inspection_result)
       end
 

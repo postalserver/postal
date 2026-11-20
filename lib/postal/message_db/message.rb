@@ -541,6 +541,23 @@ module Postal
       end
 
       #
+      # Return the HELO and IP address of the server that sent this message to
+      # us over SMTP, from the Received header our SMTP server added on top.
+      # Returns nil if that header doesn't name them (privacy mode, or a
+      # message that came in over the API).
+      #
+      # This reads the raw headers rather than #headers, which skips a field it
+      # can't parse: the first Received header must be ours, never one the
+      # sender wrote further down.
+      def received_from
+        unfolded = raw_headers.gsub(/\r?\n[ \t]+/, " ")
+        received = unfolded.each_line.find { |line| line =~ /\AReceived:/i }
+        return nil if received.nil?
+
+        ReceivedHeader.parse(received.sub(/\AReceived:\s*/i, "").strip)
+      end
+
+      #
       # Return all spam checks for this message
       #
       def spam_checks

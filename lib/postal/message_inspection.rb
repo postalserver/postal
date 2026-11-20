@@ -6,6 +6,7 @@ module Postal
     attr_reader :message
     attr_reader :scope
     attr_reader :spam_checks
+    attr_reader :headers
     attr_accessor :threat
     attr_accessor :threat_message
 
@@ -13,6 +14,7 @@ module Postal
       @message = message
       @scope = scope
       @spam_checks = []
+      @headers = []
       @threat = false
     end
 

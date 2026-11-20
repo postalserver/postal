@@ -61,7 +61,7 @@ module MessageDequeuer
       return if queued_message.message.inspected
 
       log "inspecting message"
-      queued_message.message.inspect_message
+      result = queued_message.message.inspect_message
       return unless queued_message.message.inspected
 
       is_spam = queued_message.message.spam_score > queued_message.server.spam_threshold
@@ -74,7 +74,8 @@ module MessageDequeuer
         "X-Postal-Spam: #{queued_message.message.spam ? 'yes' : 'no'}",
         "X-Postal-Spam-Threshold: #{queued_message.server.spam_threshold}",
         "X-Postal-Spam-Score: #{queued_message.message.spam_score}",
-        "X-Postal-Threat: #{queued_message.message.threat ? 'yes' : 'no'}"
+        "X-Postal-Threat: #{queued_message.message.threat ? 'yes' : 'no'}",
+        *result.headers
       )
       log "message inspected, headers added", spam: queued_message.message.spam?, spam_score: queued_message.message.spam_score, threat: queued_message.message.threat?
     end

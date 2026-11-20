@@ -19,11 +19,35 @@ module Postal
 
           inspection.spam_checks << SpamCheck.new(symbol["name"], symbol["score"], symbol["description"])
         end
+
+        add_authentication_results(inspection, response)
       rescue Error => e
         inspection.spam_checks << SpamCheck.new("ERROR", 0, e.message)
       end
 
       private
+
+      # When rspamd's milter_headers module runs the authentication-results
+      # routine, the response asks for an Authentication-Results header with
+      # rspamd's SPF, DKIM and DMARC verdicts. Keep it for incoming mail so
+      # the message can carry it on to its route. rspamd sends the header as a
+      # string, as {"value" => ...}, or as an array of those.
+      def add_authentication_results(inspection, response)
+        return unless inspection.scope == :incoming
+
+        add_headers = response.dig("milter", "add_headers")
+        return unless add_headers.is_a?(Hash)
+
+        value = Array.wrap(add_headers["Authentication-Results"]).first
+        value = value["value"] if value.is_a?(Hash)
+        return unless value.is_a?(String) && value.present?
+
+        # A line break is fine only as folding, followed by a space or tab.
+        value = value.gsub(/\r?\n(?=[ \t])/, "\r\n")
+        return if value =~ /\r\n(?![ \t])|(?<!\r)\n|\r(?!\n)/
+
+        inspection.headers << "Authentication-Results: #{value}"
+      end
 
       def request(message, scope)
         http = Net::HTTP.new(@config.host, @config.port)
@@ -51,6 +75,13 @@ module Postal
           # and disable certain checks.
           # https://rspamd.com/doc/tutorials/scanning_outbound.html
           request["Ip"] = ""
+        elsif (sender = message.received_from)
+          # Without the sending server's address rspamd can't check SPF, and
+          # its other IP-based checks have nothing to go on. ReceivedHeader.parse
+          # returns no HELO when the client sent something other than a plain
+          # hostname or address literal.
+          request["Ip"] = sender[:ip_address]
+          request["Helo"] = sender[:helo] if sender[:helo]
         end
 
         response = nil
