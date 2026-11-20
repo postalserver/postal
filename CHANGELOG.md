@@ -2,6 +2,26 @@
 
 This file contains all the latest changes and updates to Postal.
 
+## [3.5.0](https://github.com/postalserver/postal/compare/3.4.0...3.5.0) (2026-11-20)
+
+
+### Features
+
+* Add message priority per server ([#3672](https://github.com/postalserver/postal/issues/3672)) ([83b7c6e](https://github.com/postalserver/postal/commit/83b7c6e03001fa7dd10e1214dc9ce154f75a3f6f))
+
+
+### Bug Fixes
+
+* **message-db:** scrub invalid UTF-8 from subject and message id ([#3660](https://github.com/postalserver/postal/issues/3660)) ([e72e82f](https://github.com/postalserver/postal/commit/e72e82f85511f63c1b6bccf0071aa88b690917bb))
+* **smtp-server:** treat TLS client disconnects as client-gone, not errors ([#3604](https://github.com/postalserver/postal/issues/3604)) ([1531cdc](https://github.com/postalserver/postal/commit/1531cdc78c963fba446378bc6f136915c8ebfc7e))
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump addressable from 2.8.6 to 2.9.1 ([b8f72ba](https://github.com/postalserver/postal/commit/b8f72ba0d6b5f762f39dad16ef5550b11da8c1ec))
+* **deps-dev:** bump omniauth from 2.1.2 to 2.2.0 ([19a4130](https://github.com/postalserver/postal/commit/19a4130e9df6582b4f186733069533c4c2562f97))
+* upgrade ruby to 3.4.13 ([#3673](https://github.com/postalserver/postal/issues/3673)) ([e7a631f](https://github.com/postalserver/postal/commit/e7a631f1bb31f93065d191b51eed8615f5ce931f))
+
 ## [3.4.0](https://github.com/postalserver/postal/compare/3.3.7...3.4.0) (2026-11-16)
 
 
