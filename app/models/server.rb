@@ -15,6 +15,7 @@
 #  outbound_spam_threshold            :decimal(8, 2)
 #  permalink                          :string(255)
 #  postmaster_address                 :string(255)
+#  priority                           :integer          default(50), not null
 #  privacy_mode                       :boolean          default(FALSE)
 #  raw_message_retention_days         :integer
 #  raw_message_retention_size         :integer
@@ -78,6 +79,12 @@ class Server < ApplicationRecord
   validates :mode, inclusion: { in: MODES }
   validates :permalink, presence: true, uniqueness: { scope: :organization_id, case_sensitive: false }, format: { with: /\A[a-z0-9-]*\z/ }, exclusion: { in: RESERVED_PERMALINKS }
   validate :validate_ip_pool_belongs_to_organization
+  validates :priority, presence: true, numericality: {
+    only_integer: true,
+    greater_than_or_equal_to: 0,
+    less_than_or_equal_to: 32767,
+    message: "must be a whole number between 0 and 32,767"
+  }
 
   before_validation(on: :create) do
     self.token = token.downcase if token

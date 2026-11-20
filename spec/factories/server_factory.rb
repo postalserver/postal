@@ -15,6 +15,7 @@
 #  outbound_spam_threshold            :decimal(8, 2)
 #  permalink                          :string(255)
 #  postmaster_address                 :string(255)
+#  priority                           :integer          default(50), not null
 #  privacy_mode                       :boolean          default(FALSE)
 #  raw_message_retention_days         :integer
 #  raw_message_retention_size         :integer

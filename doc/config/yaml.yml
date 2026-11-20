@@ -51,6 +51,8 @@ worker:
   default_health_server_bind_address: 127.0.0.1
   # The number of threads to execute within each worker
   threads: 2
+  # The lowest server priority that this worker will send queued messages for
+  minimum_priority: 0
 
 main_db:
   # Hostname for the main MariaDB server

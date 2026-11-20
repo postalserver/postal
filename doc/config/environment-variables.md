@@ -27,6 +27,7 @@ This document contains all the environment variables which are available for thi
 | `WORKER_DEFAULT_HEALTH_SERVER_PORT` | Integer | The default port for the worker health server to listen on | 9090 |
 | `WORKER_DEFAULT_HEALTH_SERVER_BIND_ADDRESS` | String | The default bind address for the worker health server to listen on | 127.0.0.1 |
 | `WORKER_THREADS` | Integer | The number of threads to execute within each worker | 2 |
+| `WORKER_MINIMUM_PRIORITY` | Integer | The lowest server priority that this worker will send queued messages for | 0 |
 | `MAIN_DB_HOST` | String | Hostname for the main MariaDB server | localhost |
 | `MAIN_DB_PORT` | Integer | The MariaDB port to connect to | 3306 |
 | `MAIN_DB_USERNAME` | String | The MariaDB username | postal |

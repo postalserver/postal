@@ -11,6 +11,7 @@
 #  locked_at     :datetime
 #  locked_by     :string(255)
 #  manual        :boolean          default(FALSE)
+#  priority      :integer          default(50), not null
 #  retry_after   :datetime
 #  created_at    :datetime
 #  updated_at    :datetime
@@ -21,9 +22,10 @@
 #
 # Indexes
 #
-#  index_queued_messages_on_domain      (domain)
-#  index_queued_messages_on_message_id  (message_id)
-#  index_queued_messages_on_server_id   (server_id)
+#  index_queued_messages_on_domain           (domain)
+#  index_queued_messages_on_message_id       (message_id)
+#  index_queued_messages_on_priority_and_id  (priority DESC,id)
+#  index_queued_messages_on_server_id        (server_id)
 #
 require "rails_helper"
 
@@ -166,6 +168,22 @@ RSpec.describe QueuedMessage do
           expect { queued_message.allocate_ip_address }.to change(queued_message, :ip_address).from(nil).to(ip_pool.ip_addresses.first)
         end
       end
+    end
+  end
+
+  describe "#set_priority" do
+    let(:server) { create(:server, priority: 75) }
+
+    it "sets the priority from the server when the queued message is created" do
+      queued_message = create(:queued_message, server: server)
+      expect(queued_message.reload.priority).to eq 75
+    end
+
+    it "does not change the priority when the queued message is saved again after the server's priority changes" do
+      queued_message = create(:queued_message, server: server)
+      server.update!(priority: 10)
+      queued_message.reload.retry_now
+      expect(queued_message.reload.priority).to eq 75
     end
   end
 

@@ -102,6 +102,51 @@ module Worker
             expect(queued_message.reload.locked?).to be false
           end
         end
+
+        context "when there are unlocked queued messages with different priorities" do
+          it "locks and processes the highest priority message, even if it was queued later" do
+            low_priority_message = create(:queued_message, ip_address: nil, server: create(:server, priority: 0))
+            high_priority_message = create(:queued_message, ip_address: nil, server: create(:server, priority: 10))
+            job.call
+            expect(MessageDequeuer).to have_received(:process).once
+            expect(MessageDequeuer).to have_received(:process).with(high_priority_message, logger: kind_of(Klogger::Logger))
+            expect(high_priority_message.reload.locked?).to be true
+            expect(low_priority_message.reload.locked?).to be false
+          end
+        end
+
+        context "when there are unlocked queued messages with the same priority" do
+          it "locks and processes the oldest message first" do
+            server = create(:server, priority: 5)
+            first_message = create(:queued_message, ip_address: nil, server: server)
+            second_message = create(:queued_message, ip_address: nil, server: server)
+            job.call
+            expect(MessageDequeuer).to have_received(:process).once
+            expect(MessageDequeuer).to have_received(:process).with(first_message, logger: kind_of(Klogger::Logger))
+            expect(first_message.reload.locked?).to be true
+            expect(second_message.reload.locked?).to be false
+          end
+        end
+
+        context "when the worker has a minimum priority" do
+          before do
+            allow(Postal::Config.worker).to receive(:minimum_priority).and_return(5)
+          end
+
+          it "does not lock or process messages below the minimum priority" do
+            queued_message = create(:queued_message, ip_address: nil, server: create(:server, priority: 4))
+            job.call
+            expect(MessageDequeuer).to_not have_received(:process)
+            expect(queued_message.reload.locked?).to be false
+          end
+
+          it "locks and processes messages at the minimum priority" do
+            queued_message = create(:queued_message, ip_address: nil, server: create(:server, priority: 5))
+            job.call
+            expect(MessageDequeuer).to have_received(:process).with(queued_message, logger: kind_of(Klogger::Logger))
+            expect(queued_message.reload.locked?).to be true
+          end
+        end
       end
     end
 
