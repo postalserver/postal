@@ -14,21 +14,34 @@ module SMTPClient
     end
 
     # Return all IP addresses for this server by resolving its hostname.
-    # IPv6 addresses will be returned first.
+    #
+    # The order/selection depends on the configured smtp_client.address_preference:
+    # the preferred family is returned first, the other family is appended when the
+    # preference allows a fallback, and only the preferred family is returned for
+    # the strict "only" values.
     #
     # @return [Array<SMTPClient::Endpoint>]
     def endpoints
-      ips = []
+      ipv6_endpoints = DNSResolver.local.aaaa(@hostname).map { |ip| Endpoint.new(self, ip) }
+      ipv4_endpoints = DNSResolver.local.a(@hostname).map { |ip| Endpoint.new(self, ip) }
 
-      DNSResolver.local.aaaa(@hostname).each do |ip|
-        ips << Endpoint.new(self, ip)
+      if AddressPreferences.prefer_ipv4?
+        ordered_endpoints(ipv4_endpoints, ipv6_endpoints)
+      else
+        ordered_endpoints(ipv6_endpoints, ipv4_endpoints)
       end
+    end
 
-      DNSResolver.local.a(@hostname).each do |ip|
-        ips << Endpoint.new(self, ip)
-      end
+    private
 
-      ips
+    # Return the preferred endpoints first, appending the other family only when
+    # a fallback is allowed.
+    #
+    # @param preferred [Array<SMTPClient::Endpoint>]
+    # @param others [Array<SMTPClient::Endpoint>]
+    # @return [Array<SMTPClient::Endpoint>]
+    def ordered_endpoints(preferred, others)
+      AddressPreferences.fallback? ? preferred + others : preferred
     end
 
   end
