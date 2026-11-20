@@ -24,7 +24,7 @@ describe Postal::MessageDB::ConnectionPool do
       expect(pool.connections).to eq [connection]
     end
 
-    it "checks in a connection if theres an error in the block" do
+    it "checks in a connection if there's an error in the block" do
       expect do
         pool.use do
           raise StandardError

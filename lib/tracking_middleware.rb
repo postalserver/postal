@@ -43,7 +43,7 @@ class TrackingMiddleware
     rescue Postal::MessageDB::Message::NotFound
       # This message has been removed, we'll just continue to serve the image
     rescue StandardError => e
-      # Somethign else went wrong. We don't want to stop the image loading though because
+      # Something else went wrong. We don't want to stop the image loading though because
       # this is our problem. Log this exception though.
       Sentry.capture_exception(e) if defined?(Sentry)
     end

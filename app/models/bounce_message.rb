@@ -46,7 +46,7 @@ class BounceMessage
       For further assistance please contact #{postmaster_address}. Please include the details below to help us identify the issue.
 
       Message Token: #{@message.token}@#{@server.token}
-      Orginal Message ID: #{@message.message_id}
+      Original Message ID: #{@message.message_id}
       Mail from: #{@message.mail_from}
       Rcpt To: #{@message.rcpt_to}
     BODY

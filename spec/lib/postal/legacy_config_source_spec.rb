@@ -6,7 +6,7 @@ module Postal
 
   SOURCE_CONFIG = YAML.safe_load(File.read(Rails.root.join("spec/examples/full_legacy_config_file.yml")))
 
-  # Rather than actuall test the LegacyConfigSource directly, I have decided
+  # Rather than actually test the LegacyConfigSource directly, I have decided
   # to test this source via. the Konfig::Config system to ensure it works as
   # expected in practice rather than just in theory. Testing '#get' would be
   # fairly easy (and mostly pointless) where as testing the values we actually
