@@ -61,6 +61,21 @@ describe Postal::MessageDB::Database do
         sql = database.send(:hash_to_sql, { "id`#" => { greater_than: 1 } })
         expect(sql).to eq "`id``#` > '1'"
       end
+
+      it "builds a LIKE condition for a hash value" do
+        expect(database.send(:hash_to_sql, { "subject" => { like: "%invoice%" } }))
+          .to eq "`subject` LIKE '%invoice%'"
+      end
+
+      it "escapes quotes in a LIKE value" do
+        expect(database.send(:hash_to_sql, { "subject" => { like: "%it's%" } }))
+          .to eq "`subject` LIKE '%it\\'s%'"
+      end
+
+      it "neutralises a backtick injection in a LIKE key" do
+        sql = database.send(:hash_to_sql, { "subject`#" => { like: "%x%" } })
+        expect(sql).to eq "`subject``#` LIKE '%x%'"
+      end
     end
 
     describe "#select with a hostile condition key" do
