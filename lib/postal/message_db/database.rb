@@ -122,8 +122,8 @@ module Postal
         table_name = raw_table_name_for_date(date)
         begin
           headers, body = data.split(/\r?\n\r?\n/, 2)
-          headers_id = insert(table_name, data: headers)
-          body_id = insert(table_name, data: body)
+          headers_id = insert(table_name, data: headers, next: nil)
+          body_id = insert_raw_message_body(table_name, body)
         rescue Mysql2::Error => e
           raise unless e.message =~ /doesn't exist/
 
@@ -131,6 +131,50 @@ module Postal
           retry
         end
         [table_name, headers_id, body_id]
+      end
+
+      #
+      # Insert a raw message body into a table and return the id of the first
+      # row. Bodies larger than message_db.raw_message_chunk_size are split into
+      # multiple rows which are chained together using the `next` column so that
+      # no single query exceeds the server's max_allowed_packet limit.
+      #
+      def insert_raw_message_body(table_name, body)
+        body = body.to_s
+        if body.bytesize <= raw_message_chunk_size
+          insert(table_name, data: body, next: nil)
+        else
+          # Insert the chunks in reverse so that each row can reference the row
+          # which follows it. This avoids needing a second pass to link them up.
+          first_id = nil
+          each_raw_chunk(body).reverse_each do |chunk|
+            first_id = insert(table_name, data: chunk, next: first_id)
+          end
+          first_id
+        end
+      end
+
+      #
+      # Read a raw message body back from a table. If the body was stored in
+      # chunks the `next` chain is followed and the chunks are concatenated so
+      # the complete body is returned.
+      #
+      def raw_message_body(table_name, id)
+        return "" if id.nil?
+
+        body = "".b
+        each_raw_body_row(table_name, id) { |row| body << row["data"].to_s }
+        body
+      end
+
+      #
+      # Replace the body stored in a table with new content, removing any rows
+      # which made up the previous body. Returns the id of the first row of the
+      # newly stored body.
+      #
+      def replace_raw_message_body(table_name, id, body)
+        delete_raw_message_chunks(table_name, id)
+        insert_raw_message_body(table_name, body)
       end
 
       #
@@ -320,6 +364,54 @@ module Postal
       end
 
       private
+
+      #
+      # The maximum number of bytes to store in a single raw message row.
+      # Larger bodies are split across multiple rows chained via the `next`
+      # column so that no single query exceeds the server's max_allowed_packet.
+      #
+      def raw_message_chunk_size
+        Postal::Config.message_db.raw_message_chunk_size
+      end
+
+      #
+      # Yield a body in raw_message_chunk_size byte chunks. Splitting happens on
+      # byte boundaries so the chunks reassemble exactly, even if a boundary
+      # falls in the middle of a multi-byte character.
+      #
+      def each_raw_chunk(body)
+        return enum_for(:each_raw_chunk, body) unless block_given?
+
+        offset = 0
+        while offset < body.bytesize
+          yield body.byteslice(offset, raw_message_chunk_size)
+          offset += raw_message_chunk_size
+        end
+      end
+
+      #
+      # Delete every row which makes up a raw message body chain.
+      #
+      def delete_raw_message_chunks(table_name, id)
+        ids = each_raw_body_row(table_name, id, fields: [:id, :next]).map { |row| row["id"] }
+        delete(table_name, where: { id: ids }) unless ids.empty?
+      end
+
+      #
+      # Yield each row which makes up a raw message body, following the `next`
+      # chain from the given id until it ends.
+      #
+      def each_raw_body_row(table_name, id, fields: [:id, :data, :next])
+        return enum_for(:each_raw_body_row, table_name, id, fields: fields) unless block_given?
+
+        while id
+          row = select(table_name, where: { id: id }, limit: 1, fields: fields).first
+          break if row.nil?
+
+          yield row
+          id = row["next"]
+        end
+      end
 
       def query_on_connection(connection, query)
         start_time = Time.now.to_f
