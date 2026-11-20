@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "timeout"
+
 class SMTPSender < BaseSender
 
   attr_reader :endpoints
@@ -26,10 +28,17 @@ class SMTPSender < BaseSender
 
   def start
     servers = @servers || self.class.smtp_relays || resolve_mx_records_for_domain || []
+    deadline = smtp_start_deadline
 
     servers.each do |server|
       server.endpoints.each do |endpoint|
-        result = connect_to_endpoint(endpoint)
+        if smtp_start_timeout_exceeded?(deadline)
+          logger.error "SMTP session setup timed out after #{Postal::Config.smtp_client.start_timeout} seconds"
+          @connection_errors << "SMTP session setup timed out after #{Postal::Config.smtp_client.start_timeout} seconds"
+          return false
+        end
+
+        result = connect_to_endpoint(endpoint, deadline: deadline)
         return endpoint if result
       end
     end
@@ -86,14 +95,16 @@ class SMTPSender < BaseSender
   # @return [SendResult]
   def send_message_to_smtp_client(raw_message, mail_from, rcpt_to, retry_on_connection_error: true)
     start_time = Time.now
-    smtp_result = @current_endpoint.send_message(raw_message, mail_from, [rcpt_to])
+    smtp_result = with_smtp_timeout(Postal::Config.smtp_client.transaction_timeout) do
+      @current_endpoint.send_message(raw_message, mail_from, [rcpt_to])
+    end
     logger.info "Accepted by #{@current_endpoint} for #{rcpt_to}"
     create_result("Sent", start_time) do |r|
       r.details = "Message for #{rcpt_to} accepted by #{@current_endpoint}"
       r.details += " (from #{@current_endpoint.smtp_client.source_address})" if @current_endpoint.smtp_client.source_address
       r.output = smtp_result.string
     end
-  rescue Net::SMTPServerBusy, Net::SMTPAuthenticationError, Net::SMTPSyntaxError, Net::SMTPUnknownError, Net::ReadTimeout => e
+  rescue Net::SMTPServerBusy, Net::SMTPAuthenticationError, Net::SMTPSyntaxError, Net::SMTPUnknownError => e
     logger.error "#{e.class}: #{e.message}"
     @current_endpoint.reset_smtp_session
 
@@ -108,6 +119,17 @@ class SMTPSender < BaseSender
         r.retry = true
       end
     end
+  rescue SMTPClient::TimeoutError, Net::OpenTimeout, Net::ReadTimeout => e
+    logger.error "#{e.class}: #{e.message}"
+    timed_out_endpoint = @current_endpoint
+    timed_out_endpoint&.abort_smtp_session
+    @current_endpoint = nil
+
+    create_result("SoftFail", start_time) do |r|
+      r.details = "Temporary SMTP delivery timeout when sending to #{timed_out_endpoint}"
+      r.output = e.message
+      r.retry = true
+    end
   rescue Net::SMTPFatalError => e
     logger.error "#{e.class}: #{e.message}"
     @current_endpoint.reset_smtp_session
@@ -118,6 +140,19 @@ class SMTPSender < BaseSender
     end
   rescue StandardError => e
     logger.error "#{e.class}: #{e.message}"
+
+    if net_write_timeout?(e)
+      timed_out_endpoint = @current_endpoint
+      timed_out_endpoint&.abort_smtp_session
+      @current_endpoint = nil
+
+      return create_result("SoftFail", start_time) do |r|
+        r.details = "Temporary SMTP delivery timeout when sending to #{timed_out_endpoint}"
+        r.output = e.message
+        r.retry = true
+      end
+    end
+
     @current_endpoint.reset_smtp_session
 
     if defined?(Sentry)
@@ -176,7 +211,7 @@ class SMTPSender < BaseSender
   #
   # @param endpoint [SMTPClient::Endpoint]
   # @return [Boolean]
-  def connect_to_endpoint(endpoint, allow_ssl: true)
+  def connect_to_endpoint(endpoint, allow_ssl: true, deadline: nil)
     if @source_ip_address && @source_ip_address.ipv6.blank? && endpoint.ipv6?
       # Don't try to use IPv6 if the IP address we're sending from doesn't support it.
       return false
@@ -185,11 +220,19 @@ class SMTPSender < BaseSender
     # Add this endpoint to the list of endpoints that we have attempted to connect to
     @endpoints << endpoint unless @endpoints.include?(endpoint)
 
-    endpoint.start_smtp_session(allow_ssl: allow_ssl, source_ip_address: @source_ip_address)
+    with_smtp_timeout(smtp_connection_timeout(deadline)) do
+      endpoint.start_smtp_session(allow_ssl: allow_ssl, source_ip_address: @source_ip_address)
+    end
     logger.info "Connected to #{endpoint}"
     @current_endpoint = endpoint
 
     true
+  rescue SMTPClient::TimeoutError => e
+    endpoint.abort_smtp_session
+    logger.error "Cannot connect to #{endpoint} (#{e.class}: #{e.message})"
+    @connection_errors << e.message unless @connection_errors.include?(e.message)
+
+    false
   rescue StandardError => e
     # Disconnect the SMTP client if we get any errors to avoid leaving
     # a connection around.
@@ -199,7 +242,7 @@ class SMTPSender < BaseSender
     # ssl.
     if e.is_a?(OpenSSL::SSL::SSLError) && endpoint.server.ssl_mode == "Auto"
       logger.error "SSL error (#{e.message}), retrying without SSL"
-      return connect_to_endpoint(endpoint, allow_ssl: false)
+      return connect_to_endpoint(endpoint, allow_ssl: false, deadline: deadline)
     end
 
     # Otherwise, just log the connection error and return false
@@ -207,6 +250,28 @@ class SMTPSender < BaseSender
     @connection_errors << e.message unless @connection_errors.include?(e.message)
 
     false
+  end
+
+  def smtp_start_deadline
+    Process.clock_gettime(Process::CLOCK_MONOTONIC) + Postal::Config.smtp_client.start_timeout
+  end
+
+  def smtp_start_timeout_exceeded?(deadline)
+    Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+  end
+
+  def smtp_connection_timeout(deadline)
+    [Postal::Config.smtp_client.connection_timeout, deadline - Process.clock_gettime(Process::CLOCK_MONOTONIC)].min
+  end
+
+  def with_smtp_timeout(seconds)
+    raise SMTPClient::TimeoutError, "SMTP operation timed out" if seconds <= 0
+
+    Timeout.timeout(seconds, SMTPClient::TimeoutError) { yield }
+  end
+
+  def net_write_timeout?(error)
+    defined?(Net::WriteTimeout) && error.is_a?(Net::WriteTimeout)
   end
 
   # Create a new result object

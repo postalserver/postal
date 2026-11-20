@@ -29,6 +29,7 @@ RSpec.describe SMTPSender do
         smtp_send_message_result
       end
       allow(endpoint).to receive(:finish_smtp_session)
+      allow(endpoint).to receive(:abort_smtp_session)
       allow(endpoint).to receive(:reset_smtp_session)
       allow(endpoint).to receive(:smtp_client) do
         Net::SMTP.new(endpoint.ip_address, endpoint.server.port)
@@ -418,9 +419,28 @@ RSpec.describe SMTPSender do
           )
         end
 
-        it "resets the endpoint SMTP sesssion" do
+        it "aborts the endpoint SMTP sesssion" do
           sender.send_message(message)
-          expect(sender.endpoints.last).to have_received(:reset_smtp_session)
+          expect(sender.endpoints.last).to have_received(:abort_smtp_session)
+        end
+      end
+
+      context "when the SMTP transaction exceeds the hard timeout" do
+        let(:smtp_send_message_error) { proc { SMTPClient::TimeoutError.new("SMTP operation timed out") } }
+
+        it "returns a SoftFail" do
+          result = sender.send_message(message)
+          expect(result).to be_a SendResult
+          expect(result).to have_attributes(
+            type: "SoftFail",
+            details: /Temporary SMTP delivery timeout when sending/
+          )
+        end
+
+        it "aborts the endpoint SMTP session without reset" do
+          sender.send_message(message)
+          expect(sender.endpoints.last).to have_received(:abort_smtp_session)
+          expect(sender.endpoints.last).to_not have_received(:reset_smtp_session)
         end
       end
 

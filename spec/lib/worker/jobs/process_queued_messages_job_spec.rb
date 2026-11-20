@@ -63,7 +63,7 @@ module Worker
 
         context "when there is a locked queued message without an IP address without a retry time" do
           it "does nothing" do
-            queued_message = create(:queued_message, :locked, ip_address: nil, retry_after: nil)
+            queued_message = create(:queued_message, :locked, ip_address: nil, retry_after: nil, locked_at: 1.minute.ago)
             job.call
             expect(MessageDequeuer).to_not have_received(:process)
             expect(queued_message.reload.locked?).to be true
@@ -76,6 +76,19 @@ module Worker
             job.call
             expect(MessageDequeuer).to_not have_received(:process)
             expect(queued_message.reload.locked?).to be true
+          end
+        end
+
+        context "when there is a stale locked queued message without an IP address" do
+          it "recovers the lock and processes the message" do
+            allow(Postal::Config.worker).to receive(:queued_message_lock_timeout).and_return(60)
+            queued_message = create(:queued_message, :locked, ip_address: nil, retry_after: nil, locked_at: 2.minutes.ago)
+
+            job.call
+
+            expect(MessageDequeuer).to have_received(:process).with(queued_message, logger: kind_of(Klogger::Logger))
+            expect(queued_message.reload.locked?).to be true
+            expect(queued_message.locked_by).to match(/\A#{Postal.locker_name} [a-f0-9]{16}\z/)
           end
         end
 
