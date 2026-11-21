@@ -76,7 +76,7 @@ class TrackingMiddleware
         message_id: link["message_id"],
         link_id: link["id"],
         ip_address: request.ip,
-        user_agent: request.user_agent,
+        user_agent: Postal::MessageDB::Message.truncate_user_agent(request.user_agent),
         timestamp: time
       })
 

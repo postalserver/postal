@@ -7,6 +7,16 @@ module Postal
       class NotFound < Postal::Error
       end
 
+      # The loads and clicks tables store the user agent in a varchar(255) column.
+      USER_AGENT_MAX_LENGTH = 255
+
+      # Return the user agent cut to the length that the loads and clicks tables can store.
+      def self.truncate_user_agent(user_agent)
+        return nil if user_agent.nil?
+
+        user_agent[0, USER_AGENT_MAX_LENGTH]
+      end
+
       def self.find_one(database, query)
         query = { id: query.to_i } if query.is_a?(Integer)
         raise NotFound, "No message found matching provided query #{query}" unless message = database.select("messages", where: query, limit: 1).first
@@ -484,7 +494,7 @@ module Postal
       #
       def create_load(request)
         update("loaded" => Time.now.to_f) if loaded.nil?
-        database.insert(:loads, { message_id: id, ip_address: request.ip, user_agent: request.user_agent, timestamp: Time.now.to_f })
+        database.insert(:loads, { message_id: id, ip_address: request.ip, user_agent: self.class.truncate_user_agent(request.user_agent), timestamp: Time.now.to_f })
 
         WebhookRequest.trigger(server, "MessageLoaded", {
           message: webhook_hash,

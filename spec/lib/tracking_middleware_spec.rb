@@ -41,6 +41,31 @@ RSpec.describe TrackingMiddleware do
     end
   end
 
+  describe "requests with a user agent longer than 255 characters" do
+    let(:long_user_agent) { "Mozilla/5.0 #{'x' * 400}" }
+
+    it "records the load with the user agent cut to 255 characters" do
+      get "/img/#{server.token}/#{message.token}", {}, track_headers.merge("HTTP_USER_AGENT" => long_user_agent)
+
+      expect(last_response.status).to eq 200
+      loads = server.message_db.message(message.id).loads
+      expect(loads.size).to eq 1
+      expect(loads.first.user_agent).to eq long_user_agent[0, 255]
+    end
+
+    it "records the click and redirects" do
+      link_token = message.create_link("https://example.com/landing")
+
+      get "/#{server.token}/#{link_token}", {}, track_headers.merge("HTTP_USER_AGENT" => long_user_agent)
+
+      expect(last_response.status).to eq 307
+      expect(last_response.headers["Location"]).to eq "https://example.com/landing"
+      clicks = server.message_db.message(message.id).clicks
+      expect(clicks.size).to eq 1
+      expect(clicks.first.user_agent).to eq long_user_agent[0, 255]
+    end
+  end
+
   describe "GET /img/:server_token/:message_token?src=<url> (image proxy)" do
     let(:attacker_url) { "http://internal.example.com/secret" }
 
