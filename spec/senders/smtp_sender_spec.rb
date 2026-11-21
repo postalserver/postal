@@ -560,5 +560,14 @@ RSpec.describe SMTPSender do
         have_attributes(hostname: "test2.example.com", port: 2525, ssl_mode: "TLS"),
       ]
     end
+
+    it "returns relays with credentials when configured" do
+      allow(Postal::Config.postal).to receive(:smtp_relays).and_return([
+                                                                         Hashie::Mash.new(host: "relay.example.com", port: 587, ssl_mode: "TLS", username: "relay-user", password: "relay-pass"),
+                                                                       ])
+      expect(described_class.smtp_relays).to match [
+        have_attributes(hostname: "relay.example.com", port: 587, ssl_mode: "TLS", username: "relay-user", password: "relay-pass"),
+      ]
+    end
   end
 end
