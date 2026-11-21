@@ -435,6 +435,30 @@ module MessageDequeuer
             )
           end
         end
+
+        context "when the output from the remote server is not valid UTF-8" do
+          before do
+            # A GBK encoded reply, as returned by some Chinese mail servers
+            send_result.output = "550 Mailbox does not exist \xD3\xCA\xCF\xE4".b
+          end
+
+          it "creates a HardFail delivery with the invalid bytes replaced" do
+            processor.process
+            delivery = message.deliveries.last
+            expect(delivery).to have_attributes(status: "HardFail",
+                                                output: "550 Mailbox does not exist ����")
+          end
+
+          it "sets the message status to HardFail" do
+            processor.process
+            expect(message.reload.status).to eq "HardFail"
+          end
+
+          it "removes the queued message" do
+            processor.process
+            expect { queued_message.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          end
+        end
       end
 
       context "when the message is sent manually and the recipient is on the suppression list" do
